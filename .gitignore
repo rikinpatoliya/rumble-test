@@ -5,3 +5,4 @@
 .gradle/config.properties
 *.probe
 *.salive
+local.properties
