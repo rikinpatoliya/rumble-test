@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<whisperplay>
+    <dial>
+        <application>
+
+            <!-- The name of your DIAL app as registered in the DIAL registry -->
+            <dialid>Rumble</dialid>
+
+            <!-- The collection of authorized client origins -->
+            <authorizedOrigins>
+                <origin>https://rumble.com</origin>
+                <origin>https://*.rumble.com</origin>
+                <origin>package:com.rumble.battles</origin>
+            </authorizedOrigins>
+
+            <!-- Optional Intent action to use when starting your app's Activity -->
+            <!-- By default, will attempt to resolve your main Launcher Activity -->
+            <startAction>android.intent.action.MAIN</startAction>
+
+            <!-- Optional Intent action to use when DELETE command is sent from the
+                 second-screen app (sent before stopping your activity) -->
+            <!-- By default, no extra intent is sent on DELETE -->
+<!--            <stopAction>YourDeleteAction</stopAction>-->
+
+        </application>
+    </dial>
+</whisperplay>

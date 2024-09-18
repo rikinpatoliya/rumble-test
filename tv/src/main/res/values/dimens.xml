@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!--  General Padding Sizes  -->
+    <dimen name="alert_dialog_icon_padding">6dp</dimen>
+    <dimen name="alert_dialog_icon_size">24dp</dimen>
+
+    <dimen name="rumble_paddingNone">0.dp</dimen>
+    <dimen name="rumble_paddingXXXXSmall">2.dp</dimen>
+    <dimen name="rumble_paddingXXXSmall">4.dp</dimen>
+    <dimen name="rumble_paddingXXSmall">6.dp</dimen>
+    <dimen name="rumble_paddingXSmall">8.dp</dimen>
+    <dimen name="rumble_paddingSmall">12.dp</dimen>
+    <dimen name="rumble_paddingMedium">16.dp</dimen>
+    <dimen name="rumble_paddingXMedium">18.dp</dimen>
+    <dimen name="rumble_paddingXXMedium">20.dp</dimen>
+    <dimen name="rumble_paddingLarge">24.dp</dimen>
+    <dimen name="rumble_paddingXLarge">32.dp</dimen>
+    <dimen name="rumble_paddingXXLarge">40.dp</dimen>
+    <dimen name="rumble_paddingXXXLarge">48.dp</dimen>
+    <dimen name="rumble_paddingXXXXLarge">56.dp</dimen>
+    <dimen name="rumble_paddingGiant">60.dp</dimen>
+    <dimen name="rumble_paddingXGiant">64.dp</dimen>
+    <dimen name="rumble_paddingXXGiant">72.dp</dimen>
+
+    <!--  Dialog  -->
+    <dimen name="alert_dialog_padding_vertical">14dp</dimen>
+    <dimen name="alert_dialog_padding_horizontal">18dp</dimen>
+
+
+    <!-- region Headers/Main menu -->
+    <dimen name="lb_guidedactions_section_shadow_width">0dp</dimen>
+    <dimen name="rumble_logo_width">69dp</dimen>
+    <dimen name="rumble_logo_height">16dp</dimen>
+    <dimen name="rumble_widget_header_user_item_margin_top">170dp</dimen>
+    <dimen name="rumble_widget_header_user_item_icon_width">20dp</dimen>
+    <dimen name="rumble_widget_header_user_item_icon_height">20dp</dimen>
+    <dimen name="rumble_widget_header_user_item_title_margin_start">8dp</dimen>
+    <dimen name="rumble_widget_header_min_width">175dp</dimen>
+    <dimen name="headers_fragment_container_width">267dp</dimen> <!-- (398dp) or (398dp + 136dp = 534dp) -->
+    <dimen name="headers_fragment_vertical_grid_width">199dp</dimen> <!-- (398dp) -->
+    <dimen name="headers_fragment_edge_width">68dp</dimen> <!-- (136dp) -->
+    <dimen name="headers_closed_width">50dp</dimen> <!-- (136dp) -->
+    <dimen name="main_header_icon_margin_top">17dp</dimen>
+    <dimen name="main_header_icon_margin_end">12dp</dimen>
+    <dimen name="rumble_browse_rows_margin_start" tools:override="true">@dimen/headers_fragment_vertical_grid_width
+    </dimen>
+    <!-- endregion -->
+
+    <!-- region Branded Badge -->
+    <dimen name="lb_browse_title_icon_height" tools:override="true">16dp</dimen>
+    <!-- endregion -->
+
+    <!-- region Channel Details -->
+    <!-- region channel details header row alignment offset -->
+    <dimen name="channel_details_video_row_alignment_offset">242dp</dimen>
+    <dimen name="channel_details_video_row_alignment_offset_collapsed_header">139dp</dimen>
+    <dimen name="channel_details_header_row_alignment_offset">139dp</dimen>
+    <dimen name="channel_details_header_row_alignment_offset_collapsed">36dp</dimen>
+    <dimen name="channel_details_empty_row_alignment_offset">313dp</dimen> <!-- 657dp -->
+    <!-- endregion -->
+    <dimen name="channel_details_header_second_horizontal_guideline">95dp</dimen>
+    <dimen name="channel_details_header_third_horizontal_guideline">134dp</dimen>
+    <dimen name="channel_details_header_width">630dp</dimen>
+    <dimen name="channel_details_header_padding_bottom">20dp</dimen>
+    <dimen name="channel_details_header_start_margin">42dp</dimen>
+    <dimen name="channel_details_header_second_start_margin">104dp</dimen>
+    <dimen name="channel_details_header_top_margin">0dp</dimen>
+    <dimen name="channel_details_header_second_top_margin">59dp</dimen>
+    <dimen name="channel_details_header_end_margin">104dp</dimen>
+    <dimen name="channel_details_icon_size">50dp</dimen>
+    <dimen name="channel_details_subscribers_value_start_margin">4dp</dimen>
+    <dimen name="channel_details_videos_label_start_margin">12dp</dimen>
+    <dimen name="channel_details_videos_dot_start_margin">4dp</dimen>
+    <dimen name="channel_details_videos_value_start_margin">4dp</dimen>
+    <dimen name="channel_details_subscribe_button_padding_start">19dp</dimen>
+    <dimen name="channel_details_subscribe_button_padding_end">19dp</dimen>
+    <dimen name="channel_details_subscribe_button_padding_top">6dp</dimen>
+    <dimen name="channel_details_subscribe_button_padding_bottom">6dp</dimen>
+    <dimen name="channel_details_radio_button_recent_padding_start">12dp</dimen>
+    <dimen name="channel_details_radio_button_recent_padding_end">12dp</dimen>
+    <dimen name="channel_details_radio_button_recent_padding_top">6dp</dimen>
+    <dimen name="channel_details_radio_button_recent_padding_bottom">6dp</dimen>
+    <dimen name="channel_details_radio_button_viewed_start_margin">4dp</dimen>
+    <dimen name="channel_details_radio_button_viewed_padding_start">12dp</dimen>
+    <dimen name="channel_details_radio_button_viewed_padding_end">12dp</dimen>
+    <dimen name="channel_details_radio_button_viewed_padding_top">6dp</dimen>
+    <dimen name="channel_details_radio_button_viewed_padding_bottom">6dp</dimen>
+    <dimen name="channel_details_verified_badge_icon_width">17dp</dimen>
+    <dimen name="channel_details_verified_badge_icon_height">17dp</dimen>
+    <dimen name="channel_details_verified_badge_margin_start">10dp</dimen>
+    <dimen name="channel_details_title_text_max_width">720dp</dimen>
+    <!-- endregion -->
+
+    <!-- region Channel card -->
+    <dimen name="channel_card_width">164dp</dimen>
+    <dimen name="channel_card_height">121dp</dimen>
+    <dimen name="channel_card_corner_radius">8dp</dimen>
+    <dimen name="channel_card_border_width">3dp</dimen>
+    <dimen name="channel_card_icon_width">64dp</dimen>
+    <dimen name="channel_card_icon_height">64dp</dimen>
+    <dimen name="channel_card_icon_margin_start">50dp</dimen>
+    <dimen name="channel_card_icon_margin_end">50dp</dimen>
+    <dimen name="channel_card_icon_margin_top">12dp</dimen>
+    <dimen name="channel_card_icon_margin_bottom">45dp</dimen>
+    <dimen name="channel_card_title_margin_top">8dp</dimen>
+    <dimen name="channel_card_title_margin_bottom">25dp</dimen>
+    <dimen name="channel_card_title_padding">4dp</dimen>
+    <dimen name="channel_card_followers_number_margin_top">2dp</dimen>
+    <dimen name="channel_card_followers_number_margin_bottom">12dp</dimen>
+    <dimen name="channel_card_dot_margin_start">2dp</dimen>
+    <dimen name="channel_card_dot_margin_end">2dp</dimen>
+    <dimen name="channel_card_channel_name_max_width">128dp</dimen>
+    <dimen name="channel_card_verified_badge_icon_width">11dp</dimen>
+    <dimen name="channel_card_verified_badge_icon_height">11dp</dimen>
+    <!-- endregion -->
+
+    <!-- region Video card -->
+    <dimen name="card_focused_border_width">3dp</dimen>
+    <dimen name="video_card_corner_radius">6dp</dimen>
+    <dimen name="category_focused_border_corner_radius">7dp</dimen>
+    <dimen name="focused_border_corner_radius">12dp</dimen>
+    <dimen name="video_card_border_width">3dp</dimen>
+    <dimen name="video_card_width">242dp</dimen>
+    <dimen name="video_card_height">237dp</dimen>
+    <dimen name="video_card_icon_width">242dp</dimen>
+    <dimen name="video_card_icon_height">136dp</dimen>
+    <dimen name="video_focus_card_width">236dp</dimen>
+    <dimen name="video_focus_card_height">133dp</dimen>
+    <dimen name="video_focus_border_image_padding">6dp</dimen>
+    <dimen name="video_card_time_label_radius">3dp</dimen>
+    <dimen name="video_card_like_dislike_radius">25dp</dimen>
+    <dimen name="video_card_thumb_padding">3dp</dimen>
+    <dimen name="video_card_time_label_padding_bottom">4dp</dimen>
+    <dimen name="video_card_time_label_padding_left">8dp</dimen>
+    <dimen name="video_card_time_label_padding_right">8dp</dimen>
+    <dimen name="video_card_time_label_padding_top">4dp</dimen>
+    <dimen name="video_card_time_label_min_width">45dp</dimen>
+    <dimen name="video_card_time_label_margin_start">16dp</dimen>
+    <dimen name="video_card_time_label_margin_bottom">16dp</dimen>
+    <dimen name="video_card_content_lock_margin">12dp</dimen>
+    <dimen name="video_card_streamed_time_label_margin_bottom">5dp</dimen>
+    <dimen name="video_card_like_dislike_bar_margin_top">9dp</dimen>
+    <dimen name="video_card_like_dislike_bar_margin_start">6dp</dimen>
+    <dimen name="video_card_like_dislike_bar_margin_end">6dp</dimen>
+    <dimen name="video_card_title_text_margin_top">6dp</dimen>
+    <dimen name="video_card_title_text_height_min">40dp</dimen>
+    <dimen name="video_card_channel_info_margin_top">5dp</dimen>
+    <dimen name="video_card_channel_info_timestamp_label_min_width">60dp</dimen>
+    <dimen name="video_card_channel_info_channel_name_max_width">135dp</dimen>
+    <dimen name="video_card_stats_margin_top">1dp</dimen>
+    <dimen name="video_card_stats_icon_width">12dp</dimen>
+    <dimen name="video_card_stats_icon_height">12dp</dimen>
+    <dimen name="video_card_stats_views_label_margin_start">6dp</dimen>
+    <dimen name="video_card_stats_views_label_margin_top">6dp</dimen>
+    <dimen name="video_card_stats_like_label_margin_top">9dp</dimen>
+    <dimen name="video_card_stats_comments_margin_start">12dp</dimen>
+    <dimen name="video_card_stats_comments_label_margin_start">4dp</dimen>
+    <dimen name="video_card_dot_margin_start">4dp</dimen>
+    <dimen name="video_card_dot_margin_end">4dp</dimen>
+    <dimen name="video_card_verified_badge_icon_width">11dp</dimen>
+    <dimen name="video_card_verified_badge_icon_height">11dp</dimen>
+    <!-- endregion -->
+
+    <!-- region loading video card -->
+    <dimen name="loading_video_card_text_line_1_height">11dp</dimen>
+    <dimen name="loading_video_card_text_line_1_margin_top">13dp</dimen>
+    <dimen name="loading_video_card_text_line_2_height">11dp</dimen>
+    <dimen name="loading_video_card_text_line_2_margin_top">5dp</dimen>
+    <dimen name="loading_video_card_text_line_3_width">178dp</dimen>
+    <dimen name="loading_video_card_text_line_3_height">11dp</dimen>
+    <dimen name="loading_video_card_text_line_3_margin_top">6dp</dimen>
+    <dimen name="loading_video_card_channel_info_width">178dp</dimen>
+    <dimen name="loading_video_card_channel_info_height">8dp</dimen>
+    <dimen name="loading_video_card_channel_info_margin_top">18dp</dimen>
+    <dimen name="loading_video_card_stats_views_width">35dp</dimen>
+    <dimen name="loading_video_card_stats_views_height">13dp</dimen>
+    <dimen name="loading_video_card_stats_views_margin_top">8dp</dimen>
+    <dimen name="loading_video_card_stats_views_margin_end">8dp</dimen>
+    <dimen name="loading_video_card_stats_comments_width">35dp</dimen>
+    <dimen name="loading_video_card_stats_comments_height">13dp</dimen>
+    <dimen name="loading_video_card_stats_comments_margin_start">5dp</dimen>
+    <dimen name="loading_video_card_stats_comments_margin_top">8dp</dimen>
+    <dimen name="loading_video_card_likes_bar_width">45dp</dimen>
+    <dimen name="loading_video_card_likes_bar_height">13dp</dimen>
+    <dimen name="loading_video_card_likes_bar_margin_top">8dp</dimen>
+    <!-- endregion -->
+
+    <!-- region User authentication error screen -->
+    <dimen name="user_authentication_error_message_divider_margin_bottom">8dp</dimen>
+    <dimen name="user_authentication_error_message_title_margin_bottom">12dp</dimen>
+    <dimen name="user_authentication_error_message_icon_margin_bottom">12dp</dimen>
+    <dimen name="user_authentication_error_message_icon_margin_end">8dp</dimen>
+    <dimen name="user_authentication_error_refresh_button_margin_top">20dp</dimen>
+    <dimen name="user_authentication_error_refresh_button_drawable_padding">8dp</dimen>
+    <dimen name="user_authentication_error_refresh_button_padding_start">50dp</dimen>
+    <dimen name="user_authentication_error_refresh_button_padding_end">50dp</dimen>
+    <!-- endregion -->
+
+    <!-- region User logged in screen -->
+    <dimen name="user_logged_in_screen_title_margin_top">124dp</dimen>
+    <dimen name="user_logged_in_screen_icon_width">84dp</dimen>
+    <dimen name="user_logged_in_screen_icon_height">84dp</dimen>
+    <dimen name="user_logged_in_screen_icon_margin_top">28dp</dimen>
+    <dimen name="user_logged_in_screen_user_name_margin_top">4dp</dimen>
+    <dimen name="user_logged_in_screen_logout_button_margin_top">32dp</dimen>
+    <!-- endregion -->
+
+    <!-- region User not logged in screen -->
+    <dimen name="user_not_logged_in_screen_horizontal_guideline_constraint_guide_begin">250dp</dimen>
+    <dimen name="user_not_logged_in_screen_log_in_label_width">400dp</dimen>
+    <dimen name="user_not_logged_in_screen_log_in_label_margin_bottom">12dp</dimen>
+    <dimen name="user_not_logged_in_screen_pair_code_width">50dp</dimen>
+    <dimen name="user_not_logged_in_screen_pair_code_height">55dp</dimen>
+    <dimen name="user_not_logged_in_screen_pair_code_margin_top">12dp</dimen>
+    <dimen name="user_not_logged_in_screen_pair_code_margin_start">8dp</dimen>
+    <!-- endregion -->
+
+    <!-- region User not logged in screen -->
+    <dimen name="settings_credits_item_layout_width">725dp</dimen>
+    <dimen name="settings_credits_item_min_layout_width">725dp</dimen>
+    <dimen name="settings_credits_item_library_license_label_margin_end">25dp</dimen>
+    <dimen name="settings_credits_item_library_name_label_margin_end">32dp</dimen>
+    <dimen name="setting_header_app_version_item_margin_top">275dp</dimen>
+
+    <!-- endregion -->
+
+    <!-- region User not logged in screen -->
+    <dimen name="subscriptions_user_not_logged_in_label_margin_bottom">24dp</dimen>
+    <dimen name="subscriptions_user_log_in_button_label_margin_top">24dp</dimen>
+    <!-- endregion -->
+
+    <!-- region icons -->
+    <dimen name="icons_sub">24dp</dimen>
+    <dimen name="icons_sub_size">20dp</dimen>
+    <dimen name="icons_sub_text_size">10sp</dimen>
+    <dimen name="icons_placeholder_text_size">20sp</dimen>
+    <dimen name="rounded_corner_radius">8dp</dimen>
+    <dimen name="live_fragment_left_margin">-70dp</dimen>
+    <dimen name="live_fragment_top_margin">50dp</dimen>
+    <dimen name="channels_fragment_left_margin">-62dp</dimen>
+    <dimen name="channels_fragment_top_margin">50dp</dimen>
+    <dimen name="rumble_vertical_grid_horizontal_spacing">15dp</dimen>
+    <dimen name="rumble_vertical_grid_vertical_spacing">15dp</dimen>
+    <dimen name="credits_fragment_left_margin">-60dp</dimen>
+    <dimen name="credits_fragment_top_margin">-80dp</dimen>
+    <dimen name="all_subscription_fragment_left_margin">-70dp</dimen>
+    <dimen name="all_subscription_fragment_top_margin">50dp</dimen>
+    <!-- endregion -->
+
+    <!--    View All -->
+    <dimen name="view_all_header_margin_start">104dp</dimen>
+    <dimen name="view_all_header_margin_top">16dp</dimen>
+    <dimen name="back_arrow_drawable_padding_start">5dp</dimen>
+    <dimen name="back_button_padding_start">15dp</dimen>
+    <dimen name="back_button_padding_end">10dp</dimen>
+    <dimen name="back_button_padding_top">15dp</dimen>
+    <dimen name="back_button_padding_bottom">15dp</dimen>
+    <dimen name="view_all_top_padding">50dp</dimen>
+    <!--Live-->
+    <dimen name="live_header_margin_start">70dp</dimen>
+
+    <!--Channels-->
+    <dimen name="channel_header_margin_start">10dp</dimen>
+
+    <!--Video player-->
+    <dimen name="player_control_top_padding">30dp</dimen>
+
+    <!--Home-->
+    <dimen name="home_container_margin_end">50dp</dimen>
+    <dimen name="home_container_margin_start">-36dp</dimen>
+    <dimen name="home_container_padding_top">10dp</dimen>
+    <dimen name="home_header_row_title_margin_start">20dp</dimen>
+    <dimen name="home_header_row_title_margin_top">10dp</dimen>
+
+    <dimen name="all_subscription_text_size">18sp</dimen>
+    <dimen name="all_subscription_refresh_button_padding">16dp</dimen>
+    <dimen name="all_subscription_all_top_padding">50dp</dimen>
+    <dimen name="all_subscription_all_start_padding">-50dp</dimen>
+    <dimen name="all_subscription_icon_margin_start">10dp</dimen>
+
+    <!--v4-->
+    <integer name="menu_headers_opened_width">188</integer>
+    <integer name="menu_headers_closed_width">63</integer>
+    <integer name="menu_headers_animation_duration">300</integer><!--in millisecond-->
+    <dimen name="menu_headers_icon_size">17dp</dimen>
+    <dimen name="menu_headers_text_height">24dp</dimen>
+    <dimen name="menu_headers_margin">10dp</dimen>
+    <dimen name="menu_headers_padding_start">13dp</dimen>
+    <dimen name="menu_headers_closed_width">63dp</dimen>
+    <dimen name="liveV4_fragment_left_margin">0dp</dimen>
+    <dimen name="liveV4_fragment_top_margin">50dp</dimen>
+    <dimen name="liveV4_header_margin_start">80dp</dimen>
+    <dimen name="viewV4_all_header_margin_top">16dp</dimen>
+    <dimen name="channelV4_header_margin_start">10dp</dimen>
+    <dimen name="channelV4_header_margin_top">16dp</dimen>
+    <dimen name="channelsV4_fragment_left_margin">-47dp</dimen>
+    <dimen name="channelsV4_fragment_top_margin">50dp</dimen>
+    <dimen name="subscription_header_top_margin">0dp</dimen>
+    <dimen name="all_subscription_text_header_margin_start">75dp</dimen>
+    <dimen name="all_subscription_text_header_margin_top">16dp</dimen>
+    <dimen name="channelsV4_fragment_left_padding">-75dp</dimen>
+    <dimen name="channelsV4_fragment_right_padding">-20dp</dimen>
+    <dimen name="subscription_guideline_begin">280dp</dimen>
+    <dimen name="top_live_channel_card_width">112dp</dimen>
+    <dimen name="top_live_channel_card_height">227dp</dimen>
+    <dimen name="top_live_channel_image_height">168dp</dimen>
+
+    <!--Category details page-->
+    <dimen name="category_detail_image_width">70dp</dimen>
+    <dimen name="category_detail_image_height">105dp</dimen>
+    <dimen name="category_details_icon_margin">20dp</dimen>
+    <dimen name="category_details_title_margin">10dp</dimen>
+    <dimen name="category_details_description_margin_top">6dp</dimen>
+    <dimen name="category_details_video_row_padding_start">-100dp</dimen>
+    <dimen name="category_details_video_row_padding_top">-19dp</dimen>
+    <dimen name="category_details_grid_margin_top">15dp</dimen>
+    <dimen name="no_subscription_error_refresh_button_drawable_padding">8dp</dimen>
+    <dimen name="category_card_title_text_height_min">35dp</dimen>
+    <dimen name="category_card_title_line_space">17sp</dimen>
+    <dimen name="category_details_title_layout_padding_bottom">15dp</dimen>
+    <dimen name="category_collapse_top_layout_padding">-250dp</dimen>
+    <dimen name="category_details_description_text_height_min">35dp</dimen>
+    <dimen name="category_details_radio_button_viewed_start_margin">8dp</dimen>
+    <dimen name="category_details_empty_view_description_margin">10dp</dimen>
+    <dimen name="category_details_empty_view_description_margin_bottom">40dp</dimen>
+    <dimen name="category_details_empty_view_description_margin_right">90dp</dimen>
+
+
+    <!--Browse-->
+    <dimen name="browse_main_padding_horizontal">40dp</dimen>
+    <dimen name="browse_header_margin_top">16dp</dimen>
+    <dimen name="browse_header_text_size">16sp</dimen>
+    <dimen name="browse_button_border_width">1dp</dimen>
+    <dimen name="browse_button_height">47dp</dimen>
+    <dimen name="browse_button_margin_vertical">8dp</dimen>
+    <dimen name="browse_button_text_padding_start">15dp</dimen>
+    <dimen name="browse_button_image_width">40dp</dimen>
+    <dimen name="browse_button_image_elevation">10dp</dimen>
+    <dimen name="browse_button_image_margin_end">5dp</dimen>
+    <dimen name="browse_category_buttons_margin_bottom">15dp</dimen>
+    <dimen name="browse_grid_item_padding_start">-45dp</dimen>
+    <dimen name="browse_grid_item_top_layout_padding_collapse">-310dp</dimen>
+    <dimen name="browse_grid_item_top_layout_padding_expand">-100dp</dimen>
+
+    <!--mature content dialog-->
+    <dimen name="mature_content_dialog_width">310dp</dimen>
+    <dimen name="mature_content_dialog_description_margin_top">12dp</dimen>
+    <dimen name="mature_content_dialog_positive_button_margin_top">28dp</dimen>
+    <dimen name="mature_content_dialog_negative_button_margin_top">8dp</dimen>
+
+    <dimen name="refresh_button_size">22dp</dimen>
+
+    <dimen name="new_content_text_size">9dp</dimen>
+</resources>

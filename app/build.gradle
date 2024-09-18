@@ -1,0 +1,294 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'com.github.jk1.dependency-license-report' version '2.0'
+    id 'com.google.firebase.crashlytics'
+}
+
+def openSourceLicencesFilename = 'open_source_licenses.json'
+
+
+import com.github.jk1.license.render.JsonReportRenderer
+import org.gradle.internal.os.OperatingSystem
+
+task injectKeysTask() {
+    exec {
+        def os = OperatingSystem.current()
+        ignoreExitValue = true
+        if (os.isWindows()) {
+            commandLine 'cmd', '/c', '../scripts/inject_keys.cmd'
+        } else if (os.isUnix()) {
+            commandLine 'bash', '-lc', '../scripts/inject_keys.sh'
+        }
+    }
+}
+
+preBuild.dependsOn injectKeysTask
+
+ext.loadSigningConfig = { config, env ->
+    try {
+        def keystoreProperties = new Properties()
+        keystoreProperties.load(new FileInputStream(rootProject.file("app/keystore/${env}/keystore.properties")))
+
+        config.keyAlias keystoreProperties['keyAlias']
+        config.keyPassword keystoreProperties['keyPassword']
+        config.storeFile file(keystoreProperties['storeFile'])
+        config.storePassword keystoreProperties['storePassword']
+    } catch ( FileNotFoundException exception ) {
+        project.logger.lifecycle("Skip loading signing config for ${env}")
+    }
+}
+
+ext.loadBuildConfig = { buildType, env ->
+    try {
+        def keysProperties = new Properties()
+        keysProperties.load(new FileInputStream(file("keystore/${env}/keys.properties")))
+
+        buildType.buildConfigField("String", "REQUEST_PARAM_APP_NAME", '"com.rumble.android.app"')
+        buildType.buildConfigField("String", "METADATA_BUNDLE_ID", '"com.rumble.battles"')
+
+        buildType.buildConfigField("String", "REV_CONTENT_API_KEY", keysProperties['REV_CONTENT_API_KEY'])
+        buildType.buildConfigField("String", "REV_CONTENT_DOMAIN", keysProperties['REV_CONTENT_DOMAIN'])
+        buildType.buildConfigField("int", "REV_CONTENT_PUB_ID", keysProperties['REV_CONTENT_PUB_ID'])
+        buildType.buildConfigField("int", "REV_CONTENT_FIRST_FEED_WIDGET", keysProperties['REV_CONTENT_FIRST_FEED_WIDGET_ID'])
+        buildType.buildConfigField("int", "REV_CONTENT_FEED_WIDGET", keysProperties['REV_CONTENT_FEED_WIDGET_ID'])
+        buildType.buildConfigField("int", "REV_CONTENT_BATTLE_WIDGET", keysProperties['REV_CONTENT_BATTLES_WIDGET_ID'])
+        buildType.buildConfigField("String", "GOOGLE_CLIENT_ID", keysProperties['GOOGLE_CLIENT_ID'])
+        buildType.buildConfigField("String", "GOOGLE_FIRST_AD_ID", keysProperties['GOOGLE_FIRST_AD_ID'])
+        buildType.buildConfigField("String", "GOOGLE_AD_ID", keysProperties['GOOGLE_AD_ID'])
+        buildType.buildConfigField("String", "OPEN_SOURCE_LICENCES_FILENAME", "\"$openSourceLicencesFilename\"")
+        buildType.buildConfigField("String", "APPS_FLYER_API_ID", keysProperties['APPS_FLYER_API_ID'])
+        buildType.buildConfigField("String", "ONE_SIGNAL_APP_ID", keysProperties['ONE_SIGNAL_APP_ID'])
+
+        buildType.resValue("string", "FACEBOOK_ID", keysProperties['FACEBOOK_ID'])
+        buildType.resValue("string", "FACEBOOK_LOGIN_PROTOCOL_SCHEME", keysProperties['FACEBOOK_LOGIN_PROTOCOL_SCHEME'])
+        buildType.resValue("string", "FACEBOOK_CLIENT_TOKEN", keysProperties['FACEBOOK_CLIENT_TOKEN'])
+        buildType.resValue("string", "GOOGLE_APP_ID", keysProperties['GOOGLE_APP_ID'])
+    } catch ( FileNotFoundException exception ) {
+        project.logger.lifecycle("Skip loading build config for ${env}")
+    }
+}
+
+
+android {
+    lintOptions{
+        checkReleaseBuilds = false
+    }
+    signingConfigs {
+        debugKey {
+            loadSigningConfig(it, "debug")
+        }
+        qaKey {
+            loadSigningConfig(it, "qa")
+        }
+        releaseKey {
+            loadSigningConfig(it, "release")
+        }
+    }
+    compileSdk compileSdkVer
+    defaultConfig {
+        applicationId "com.rumble.battles"
+        minSdkVersion minSdkVer
+        targetSdkVersion targetSdkVer
+        versionName = project.hasProperty('versionName') ? project.versionName : "3.1.23"
+        versionCode = project.hasProperty('versionCode') ? project.versionCode.toInteger() : 416
+        multiDexEnabled true
+        resConfigs "en", "US"
+
+        packagingOptions {
+            exclude 'META-INF/gradle/incremental.annotation.processors'
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    buildTypes.all { ext.apkNameSuffix = null }
+
+    buildTypes {
+        debug {
+            shrinkResources false
+            minifyEnabled false
+            applicationIdSuffix ".dev"
+            apkNameSuffix = ".dev"
+            signingConfig signingConfigs.debugKey
+            manifestPlaceholders = [appLabel: "Rumble.dev"]
+
+            loadBuildConfig(it, "debug")
+        }
+
+        qa {
+            shrinkResources true
+            minifyEnabled true
+            applicationIdSuffix ".qa"
+            apkNameSuffix = ".qa"
+            signingConfig signingConfigs.qaKey
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-google-api-client.txt'
+            manifestPlaceholders = [appLabel: "Rumble.qa"]
+
+            loadBuildConfig(it, "qa")
+        }
+
+        release {
+            shrinkResources true
+            minifyEnabled true
+            applicationIdSuffix = ""
+            apkNameSuffix = ".prod"
+            signingConfig signingConfigs.releaseKey
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-google-api-client.txt'
+            manifestPlaceholders = [appLabel: "Rumble"]
+
+            loadBuildConfig(it, "release")
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_9.toString()
+    }
+
+    lint {
+        checkReleaseBuilds false
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.0'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    namespace 'com.rumble.battles'
+
+    applicationVariants.all { variant ->
+        String variantName = variant.name.capitalize()
+        Task generateLicenseReport = tasks.findByName("generateLicenseReport")
+        Task mergeAssets = tasks.findByName("merge${variantName}Assets")
+
+        if (mergeAssets != null && generateLicenseReport != null) {
+            mergeAssets.dependsOn(generateLicenseReport)
+        }
+    }
+}
+
+dependencies {
+    // Default dependencies
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'com.google.android.material:material:1.11.0'
+
+    // Backward support for time classes
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
+    // Rumble libraries
+    implementation project(path: ':domain')
+    implementation project(path: ':network')
+    implementation project(path: ':utils')
+    implementation project(path: ':videoPlayer')
+    implementation project(path: ':theme')
+    implementation project(path: ':analytics')
+
+    // Jetpack lifecycle
+    def lifecycle_version = "2.7.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+    // Jetpack Compose
+    def composeBom = platform('androidx.compose:compose-bom:2023.08.00')
+    implementation composeBom
+    androidTestImplementation composeBom
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.runtime:runtime-livedata'
+    implementation "androidx.compose.ui:ui-util"
+    implementation 'androidx.activity:activity-compose:1.9.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0'
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.7.0"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    implementation "androidx.navigation:navigation-compose:2.7.7"
+
+    // Compose unit test
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    // Hilt DI
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation "androidx.hilt:hilt-navigation-compose:1.2.0"
+    implementation 'androidx.hilt:hilt-work:1.2.0'
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // Google auth
+    implementation 'com.google.android.gms:play-services-auth:21.1.0'
+
+    // Facebook auth
+    implementation "com.facebook.android:facebook-login:15.1.0"
+
+    // Coil image library
+    def coil_version = "2.5.0"
+    implementation "io.coil-kt:coil-compose:$coil_version"
+    implementation("io.coil-kt:coil:$coil_version")
+    implementation("io.coil-kt:coil-gif:$coil_version")
+
+    // Jetpack Paging library
+    implementation "androidx.paging:paging-compose:3.2.1"
+
+    // Accompanist library
+    def accompanistPermissionsVersion = "0.31.0-alpha"
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.26.3-beta"
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanistPermissionsVersion"
+    implementation "com.google.accompanist:accompanist-permissions:$accompanistPermissionsVersion"
+
+    // Kotlin serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+
+    // Data store
+    implementation "androidx.datastore:datastore-preferences:1.1.0"
+
+    // Default testing dependencies
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+
+    // Mockk framework
+    def mockk_version = "1.12.5"
+    testImplementation "io.mockk:mockk:$mockk_version"
+    androidTestImplementation "io.mockk:mockk-android:$mockk_version"
+
+    // Coroutine testing
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
+
+    // Gson
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    // Date picker wheel style
+    implementation 'com.github.commandiron:WheelPickerCompose:1.1.11'
+}
+
+/*
+* The list of licenses is generated with Gradle License Report (https://github.com/jk1/Gradle-License-Report)
+* run "gradle generateLicenseReport" to generate your report in build/reports/dependency-license
+* and then copy the contents of generated file withing dependency array into RumbleConstants file
+*/
+licenseReport {
+    outputDir = "$projectDir/src/main/assets"
+    renderers = [new JsonReportRenderer(fileName: openSourceLicencesFilename)]
+}

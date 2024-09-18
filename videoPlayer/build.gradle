@@ -1,0 +1,103 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    namespace 'com.rumble.videoplayer'
+    compileSdk compileSdkVer
+    defaultConfig {
+        minSdkVersion minSdkVer
+        targetSdkVersion targetSdkVer
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+
+        aarMetadata {
+            minCompileSdk = 21
+        }
+    }
+
+    buildTypes {
+        release {}
+        debug {}
+        qa {}
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_9.toString()
+    }
+
+    buildFeatures {
+        compose true
+        viewBinding true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.0"
+    }
+}
+
+dependencies {
+    // Rumble dependencies
+    implementation project(path: ':utils')
+    implementation project(path: ':theme')
+    implementation project(path: ':network')
+    implementation project(path: ':analytics')
+
+    // Default dependencies
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+
+    // Jetpack compose
+    def compose_version = "1.5.1"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.ui:ui-util:$compose_version"
+    implementation "androidx.compose.foundation:foundation:$compose_version"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0'
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.7.0"
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.ui:ui-viewbinding:1.6.6"
+    implementation "androidx.compose.material:material:$compose_version"
+
+    // Media3 packages
+    def media_version = "1.3.1"
+    api "androidx.media3:media3-exoplayer:$media_version"
+    api "androidx.media3:media3-ui:$media_version"
+    api "androidx.media3:media3-exoplayer-dash:$media_version"
+    api "androidx.media3:media3-exoplayer-hls:$media_version"
+    api "androidx.media3:media3-exoplayer-rtsp:$media_version"
+    api "androidx.media3:media3-decoder:$media_version"
+    api "androidx.media3:media3-datasource:$media_version"
+    api "androidx.media3:media3-common:$media_version"
+    api "androidx.media3:media3-session:$media_version"
+    api "androidx.media3:media3-exoplayer-smoothstreaming:$media_version"
+    api "androidx.media3:media3-exoplayer-ima:$media_version"
+    api "androidx.multidex:multidex:2.0.1"
+
+    // Coil image library
+    implementation "io.coil-kt:coil-compose:2.5.0"
+
+    // Hilt DI
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // Google Cast
+    api 'androidx.mediarouter:mediarouter:1.7.0'
+    api 'com.google.android.gms:play-services-cast-framework:21.4.0'
+
+    // Glide
+    implementation "com.github.bumptech.glide:glide:4.15.1"
+
+    // Backward support for time classes
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+}

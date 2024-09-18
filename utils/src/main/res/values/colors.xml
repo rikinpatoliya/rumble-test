@@ -1,0 +1,40 @@
+<resources>
+
+    <!-- region Rich colors -->
+    <color name="rumble_green">#FF85C742</color>
+    <color name="woke_green">#FF4C8800</color>
+    <color name="locals_purple">#FF421C52</color>
+    <color name="royal_purple">#FF6E5CE0</color>
+    <color name="fierce_red">#FFF23160</color>
+    <color name="fierce_red_60_percent">#99F23160</color>
+    <color name="fierce_red_00_percent">#00F23160</color>
+    <color name="dark_fierce_red">#FFE02D59</color>
+    <color name="tree_poppy">#FFFF8C26</color>
+    <!-- endregion -->
+
+    <!-- region Greyscale colors -->
+    <color name="dark_mode">#FF061726</color>
+    <color name="dark">#FF1E1E1E</color>
+    <color name="dark_mode_50_percent">#80061726</color>
+    <color name="fjord">#FF495A6A</color>
+    <color name="cloud">#FF88A0B8</color>
+    <color name="bone">#FFD6E0EA</color>
+    <color name="lite">#FFF3F5F8</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="white_10_percent">#1AFFFFFF</color>
+    <color name="white_12_percent">#20FFFFFF</color>
+    <color name="white_18_percent">#2EFFFFFF</color>
+    <color name="channel_card_background">#26F3F5F8</color>
+    <!-- endregion -->
+
+    <!-- region Placeholders colors -->
+    <color name="placeholderColor1">#FF42A7C7</color>
+    <color name="placeholderColor2">#FF089B3A</color>
+    <color name="placeholderColor3">#FF9B087B</color>
+    <color name="placeholderColor4">#FF08179B</color>
+    <color name="placeholderColor5">#FFF0B10E</color>
+    <color name="placeholderColor6">#FFE40EA8</color>
+    <!-- endregion -->
+
+
+</resources>

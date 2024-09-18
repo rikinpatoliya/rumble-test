@@ -1,0 +1,223 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- region Fonts -->
+
+    <style name="TextAppearance.Rumble" parent="TextAppearance.LeanbackBase">
+        <item name="android:textColorLink">@color/rumble_green</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline1">
+        <item name="android:textSize">24sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">29sp</item>
+        <item name="lineHeight">29sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:fontFamily">@font/inter_extra_bold</item>
+        <item name="fontFamily">@font/inter_extra_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline2">
+        <item name="android:textSize">20sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">24sp</item>
+        <item name="lineHeight">24sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:fontFamily">@font/inter_extra_bold</item>
+        <item name="fontFamily">@font/inter_extra_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline3">
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">19sp</item>
+        <item name="lineHeight">21.5sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:fontFamily">@font/inter_extra_bold</item>
+        <item name="fontFamily">@font/inter_extra_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline4"/>
+
+    <style name="TextAppearance.Rumble.Headline4.Bold">
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">17sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <item name="fontFamily">@font/inter_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline4.Regular">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">12sp</item>
+        <item name="lineHeight">12sp</item>
+        <item name="android:fontFamily">@font/inter_medium</item>
+        <item name="fontFamily">@font/inter_medium</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline5"/>
+
+    <style name="TextAppearance.Rumble.Headline5.Bold">
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">18sp</item>
+        <item name="lineHeight">18sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <item name="fontFamily">@font/inter_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline5.Regular">
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">18sp</item>
+        <item name="lineHeight">18sp</item>
+        <item name="android:fontFamily">@font/inter_medium</item>`
+        <item name="fontFamily">@font/inter_medium</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Headline6">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">12sp</item>
+        <item name="lineHeight">12sp</item>
+        <item name="android:fontFamily">@font/inter_semi_bold</item>
+        <item name="fontFamily">@font/inter_semi_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Timestamp">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">12sp</item>
+        <item name="lineHeight">12sp</item>
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <item name="fontFamily">@font/inter_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Label">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight" tools:targetApi="p">12sp</item>
+        <item name="lineHeight">12sp</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Label.Bold">
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <item name="fontFamily">@font/inter_bold</item>
+    </style>
+
+    <style name="TextAppearance.Rumble.Label.Regular">
+        <item name="android:fontFamily">@font/inter_medium</item>
+        <item name="fontFamily">@font/inter_medium</item>
+    </style>
+
+    <!-- endregion -->
+
+    <!-- region Widgets -->
+
+    <style name="Rumble"/>
+
+    <style name="Rumble.Widget"/>
+
+    <style name="Rumble.Widget.TitleView">
+        <item name="android:padding">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
+
+    <style name="Rumble.Widget.Title"/>
+    <style name="Rumble.Widget.Title.Icon">
+        <item name="android:layout_marginEnd">12dp</item>
+    </style>
+
+    <style name="Rumble.Widget.Title.Text"/>
+
+    <style name="Rumble.Widget.Headers"/>
+
+    <style name="Rumble.Widget.Headers.VerticalGridView" parent="Widget.Leanback.Headers.VerticalGridView">
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">15dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:verticalSpacing">8dp</item>
+    </style>
+
+    <style name="Rumble.Widget.Header">
+        <item name="android:minWidth">@dimen/rumble_widget_header_min_width</item>
+        <item name="android:textAppearance">@style/TextAppearance.Rumble.Label.Bold</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:paddingStart">15dp</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/v3_selector_main_menu_items_color</item>
+        <item name="android:background">@drawable/v3_selector_main_menu_item_background</item>
+    </style>
+
+    <style name="Rumble.Widget.Header.MainMenu">
+        <item name="android:drawableTint" tools:targetApi="M">@color/v3_selector_main_menu_items_color</item>
+        <item name="drawableTint">@color/v3_selector_main_menu_items_color</item>
+    </style>
+
+    <style name="Rumble.Widget.Header.Subscriptions">
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:background">@drawable/v3_selector_subscriptions_menu_item_background</item>
+    </style>
+
+    <style name="Rumble.Leanback.GuidedActionsListStyle" parent="Widget.Leanback.GuidedActionsListStyle">
+        <item name="android:layout_width">@dimen/headers_fragment_vertical_grid_width</item>
+        <item name="android:background">@color/gray_950_80_percent</item>
+        <item name="android:layout_gravity">end</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
+
+    <style name="Rumble.Widget.GuidanceContainerStyle" parent="Widget.Leanback.GuidanceContainerStyle">
+        <item name="android:background">@color/tv_background_color</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
+
+    <style name="Rumble.Leanback.GuidedActionItemContainerStyle" parent="Widget.Leanback.GuidedActionItemContainerStyle">
+        <item name="android:foreground">@drawable/v3_selector_main_menu_item_background</item>
+    </style>
+
+    <style name="Rumble.Leanback.GuidedButtonActionsListStyle" parent="Widget.Leanback.GuidedButtonActionsListStyle">
+        <item name="android:background">@color/tree_poppy</item>
+    </style>
+
+    <style name="Rumble.Leanback.GuidedSubActionsListStyle" parent="Widget.Leanback.GuidedSubActionsListStyle">
+        <item name="android:background">@color/royal_purple</item>
+    </style>
+
+    <!-- endregion -->
+
+    <!-- region Old TODO: need rework -->
+
+    <style name="RumbleSearchViewStyle" parent="android:Widget.EditText">
+        <!--        <item name="android:paddingStart">?attr/browsePaddingStart</item>-->
+        <item name="android:fontFamily">@font/</item>
+        <item name="android:drawableStart">@drawable/v3_ic_search</item>
+        <item name="android:layout_margin">16dp</item>
+        <item name="android:imeOptions">normal|flagNoExtractUi|actionSearch</item>
+        <item name="android:privateImeOptions">horizontalAlignment=center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_gravity">center_vertical|start</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:inputType">text|textAutoComplete</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+
+    <!-- endregion -->
+
+    <!-- V4 -->
+    <style name="LeftMenuStyle">
+        <item name="android:layout_marginStart">14dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="singleLine">true</item>
+    </style>
+
+    <style name="InternetConnectionLostDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowMinWidthMajor">0%</item>
+        <item name="android:windowMinWidthMinor">0%</item>
+    </style>
+
+    <!--    <style name="RumbleSwitchStyle" parent="@android:style/Widget.CompoundButton.Switch">-->
+    <!--        <item name="colorControlActivated">@color/rumble_green</item>-->
+    <!--        <item name="android:thumbTint">@color/rumble_green</item>-->
+    <!--        <item name="trackTin"-->
+    <!--    </style>-->
+</resources>

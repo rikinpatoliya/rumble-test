@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="item" type="com.rumble.domain.discover.domain.domainmodel.CategoryEntity"/>
+        <import type="android.view.View"/>
+        <import type="com.rumble.utils.extension.LongExtensionsKt"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/top_live_channel_card_width"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <ImageView android:id="@+id/icon"
+            android:layout_width="@dimen/top_live_channel_card_width"
+            android:layout_height="@dimen/top_live_channel_image_height"
+            app:roundedCornerImageUrl="@{item.thumbnail}"
+            app:cornerRadius="@{@dimen/video_card_corner_radius}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@color/rumble_green" />
+
+        <View android:id="@+id/focus_frame"
+            android:layout_width="@dimen/top_live_channel_card_width"
+            android:layout_height="@dimen/top_live_channel_image_height"
+            android:background="@drawable/v3_selector_category_card_frame"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintHeight_min="@dimen/category_card_title_text_height_min"
+            android:layout_marginTop="@dimen/video_card_title_text_margin_top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/icon"
+            android:layout_gravity="top"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="@color/v3_selector_main_menu_items_color"
+            android:text="@{item.title}"
+            app:lineHeight="@dimen/category_card_title_line_space"
+            android:lineHeight="@dimen/category_card_title_line_space"
+            tools:text="Pubg: Battlegrounds"
+            android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+            tools:targetApi="p" />
+
+
+        <TextView android:id="@+id/total_viewers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="@dimen/video_card_channel_info_channel_name_max_width"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            app:formattedViewers="@{item.viewersNumber}"
+            app:viewerSeparator="@{false}"
+            tools:text="440k viewers"
+            android:textColor="@color/bone"
+            android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

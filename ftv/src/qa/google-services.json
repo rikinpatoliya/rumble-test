@@ -1,0 +1,154 @@
+{
+  "project_info": {
+    "project_number": "139203910557",
+    "project_id": "rumble-tv-dev",
+    "storage_bucket": "rumble-tv-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139203910557:android:ca7bafa485c86dfa76ad74",
+        "android_client_info": {
+          "package_name": "com.rumble.battles.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBbW5BHvdVAGcotBafwdXYMA_BkvaWV8s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "139203910557-c588kdeqcb9pog7gimrkor763dqm0njo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rumble.battles.qa"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139203910557:android:b71fe81e4c3a530176ad74",
+        "android_client_info": {
+          "package_name": "com.rumble.battles.qa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBbW5BHvdVAGcotBafwdXYMA_BkvaWV8s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "139203910557-c588kdeqcb9pog7gimrkor763dqm0njo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rumble.battles.qa"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139203910557:android:de81cc3c7943c08176ad74",
+        "android_client_info": {
+          "package_name": "com.rumble.firetv.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBbW5BHvdVAGcotBafwdXYMA_BkvaWV8s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "139203910557-c588kdeqcb9pog7gimrkor763dqm0njo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rumble.battles.qa"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139203910557:android:eee200c90032cc9776ad74",
+        "android_client_info": {
+          "package_name": "com.rumble.firetv.qa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBbW5BHvdVAGcotBafwdXYMA_BkvaWV8s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "139203910557-7t958utflvi8ivtul0clbijj98g5o4gu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "139203910557-c588kdeqcb9pog7gimrkor763dqm0njo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rumble.battles.qa"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

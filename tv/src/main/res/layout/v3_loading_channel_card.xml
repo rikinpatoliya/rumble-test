@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data></data>
+
+    <View
+        android:layout_width="@dimen/channel_card_width"
+        android:layout_height="@dimen/channel_card_height"
+        android:focusableInTouchMode="false"
+        android:focusable="false"
+        android:background="@drawable/v3_shape_loading_18_white_12_radius"/>
+
+</layout>

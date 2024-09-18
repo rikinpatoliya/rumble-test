@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="item" type="com.rumble.domain.license.domain.domainmodel.Dependency"/>
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="@dimen/settings_credits_item_layout_width"
+        android:layout_height="wrap_content"
+        android:minWidth="@dimen/settings_credits_item_min_layout_width"
+        android:layout_gravity="center"
+        android:gravity="center_vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:background="@drawable/v3_selector_credits_item_background"
+        >
+
+        <ImageView
+            android:id="@+id/arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:src="@drawable/v3_ic_arrow"
+            android:tint="@color/v3_selector_settings_credits_button_text_color"
+            app:tint="@color/v3_selector_settings_credits_button_text_color"
+            android:contentDescription="Arrow"
+            tools:ignore="UseAppTint" />
+
+        <TextView
+            android:id="@+id/library_license"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/settings_credits_item_library_license_label_margin_end"
+            android:layout_centerInParent="true"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:gravity="end"
+            android:lines="1"
+            android:textColor="@color/v3_selector_settings_credits_button_text_color"
+            android:text="@{item.moduleLicense}"
+            tools:text="The Apache Software License, Version 2.00"
+            />
+
+        <TextView
+            android:id="@+id/library_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/settings_credits_item_library_name_label_margin_end"
+            android:layout_toStartOf="@+id/library_license"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:gravity="start"
+            android:lines="1"
+            android:textColor="@color/v3_selector_settings_credits_button_text_color"
+            android:text="@{item.moduleName}"
+            tools:text="com.google.android.gms:play-services-measurement-sdk-api-measurement-sdk-api-measurement-sdk-api"
+            />
+
+
+    </RelativeLayout>
+
+</layout>

@@ -1,0 +1,82 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-kapt'
+}
+
+android {
+    compileSdk compileSdkVer
+
+    defaultConfig {
+        minSdk minSdkVer
+        targetSdk targetSdkVer
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            buildConfigField "String", "BASE_URL", '"rumble.com"'
+            buildConfigField "String", "DEFAULT_SUBDOMAIN", '""'
+            buildConfigField "String", "ENVIRONMENT", '"PROD"'
+            buildConfigField "String", "LIVE_STREAM_PING_SUBDOMAIN", '""'
+        }
+        debug {
+            buildConfigField "String", "BASE_URL", '"rumble.com"'
+            buildConfigField "String", "DEFAULT_SUBDOMAIN", '"webe27"'
+            buildConfigField "String", "ENVIRONMENT", '"DEV"'
+            buildConfigField "String", "LIVE_STREAM_PING_SUBDOMAIN", '"webe27"'
+        }
+        qa {
+            buildConfigField "String", "BASE_URL", '"rumble.com"'
+            buildConfigField "String", "DEFAULT_SUBDOMAIN", '"webe27"'
+            buildConfigField "String", "ENVIRONMENT", '"QA"'
+            buildConfigField "String", "LIVE_STREAM_PING_SUBDOMAIN", '"webe27"'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_9.toString()
+    }
+    namespace 'com.rumble.battles.network'
+}
+
+dependencies {
+    // OkHttp
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
+    implementation "com.squareup.okhttp3:okhttp-sse:4.9.3"
+
+    // Retrofit
+    def retrofit_version = "2.9.0"
+    api "com.squareup.retrofit2:retrofit:$retrofit_version"
+    api "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    api "com.squareup.okhttp3:logging-interceptor:4.10.0"
+
+    // Hilt DI
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation "androidx.hilt:hilt-navigation-compose:1.2.0"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // Data store
+    implementation "androidx.datastore:datastore-preferences:1.1.0"
+
+    // Work manager
+    api "androidx.work:work-runtime-ktx:2.9.0"
+
+    // Logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    // In app purchase
+    def billing_version = "6.2.1"
+    api "com.android.billingclient:billing:$billing_version"
+
+    // Backward support for time classes
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
+    api 'com.github.tomasharkema:RetrofitCurlPrinter:0.0.1'
+}

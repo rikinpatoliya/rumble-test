@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data></data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/top_live_channel_card_width"
+        android:layout_height="@dimen/top_live_channel_image_height"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:background="@drawable/v3_selector_video_card_frame"
+        >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/view_all_background" />
+
+        <TextView android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_gravity="center"
+            android:drawableEnd="@drawable/v3_ic_right_arrow"
+            android:drawablePadding="3dp"
+            android:textColor="@color/v3_selector_main_menu_items_color"
+            android:text="@string/home_row_item_view_all_label"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline3"
+            />
+
+        <View android:id="@+id/focus_frame"
+            android:layout_width="@dimen/top_live_channel_card_width"
+            android:layout_height="@dimen/top_live_channel_image_height"
+            android:background="@drawable/v3_selector_category_card_frame"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

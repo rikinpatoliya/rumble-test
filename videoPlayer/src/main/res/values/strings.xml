@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="full_screen">Full screen</string>
+    <string name="minimize">Minimize</string>
+    <string name="settings">Settings</string>
+    <string name="sound_off">Sound off</string>
+    <string name="sound_on">Sound on</string>
+    <string name="caption_on">Caption on</string>
+    <string name="caption_off">Caption off</string>
+    <string name="replay">Replay</string>
+    <string name="more">More</string>
+    <string name="cast">Cast</string>
+    <string name="live">Live</string>
+    <string name="sound">Sound</string>
+    <string name="video_quality">Video Quality</string>
+    <string name="quality">Quality</string>
+    <string name="close">Close</string>
+    <string name="report">Report</string>
+    <string name="speed">Speed</string>
+    <string name="auto">Auto</string>
+    <string name="back">Back</string>
+    <string name="it_is_spam">It’s spam</string>
+    <string name="it_is_inappropriate">It’s inappropriate</string>
+    <string name="it_violates_copyright">It violates copyright</string>
+    <string name="it_violates_terms">It violates our Terms</string>
+    <plurals name="channel_followers">
+        <item quantity="one">follower</item>
+        <item quantity="other">followers</item>
+    </plurals>
+    <string name="tv_like">Like</string>
+    <string name="tv_dislike">Dislike</string>
+    <string name="tv_add_to_playlist">Add</string>
+    <string name="up_next_in">Up Next in</string>
+    <string name="cancel">Cancel</string>
+    <string name="play_now">Play Now</string>
+    <string name="autoplay_next_video">Autoplay next video</string>
+    <string name="general_error_message">Something went wrong</string>
+    <string name="verified">Verified</string>
+    <string name="views">Views</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="live_starting">Starting</string>
+    <string name="live_paused">Paused</string>
+    <string name="check">Check</string>
+    <string name="up_next">Up Next</string>
+    <string name="ad_begins">Ad begins in %d</string>
+
+    <string name="video_card_upcoming_label">Upcoming</string>
+    <string name="video_card_live_starting_label">Starting</string>
+    <string name="video_card_live_paused_label">Paused</string>
+    <string name="video_card_live_label">Live</string>
+    <string name="video_card_live_label_all_caps">LIVE</string>
+    <string name="video_card_live_stream_ended_label">Streamed</string>
+    <string name="video_card_live_stream_ended_pattern_label">Streamed %s</string>
+    <string name="video_card_ppv_label">PPV</string>
+    <string name="video_card_purchased_label">PURCHASED</string>
+    <string name="verified_icon_description">Verified</string>
+    <string name="streamed">Streamed</string>
+    <string name="stream_started">Stream started</string>
+    <string name="scheduled_for">Scheduled for</string>
+    <string name="at">at</string>
+
+    <string name="premium_only">Premium only</string>
+    <string name="premium_only_content">Premium Only Content</string>
+    <string name="premium_only_content_message">This video is only available to Rumble \nPremium subscribers. Subscribe to enjoy \nexclusive content and ad-free viewing.</string>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data></data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:descendantFocusability="afterDescendants"
+        android:layout_marginStart="@dimen/liveV4_header_margin_start"
+        android:layout_marginTop="@dimen/viewV4_all_header_margin_top"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="start|top"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            android:textAppearance="@style/Rumble.Widget.Title"
+            android:text="Live" />
+
+        <ImageButton
+            android:id="@+id/refresh_button"
+            android:layout_width="@dimen/refresh_button_size"
+            android:layout_height="@dimen/refresh_button_size"
+            android:layout_marginStart="@dimen/all_subscription_icon_margin_start"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:minHeight="0dp"
+            android:padding="@dimen/all_subscription_fragment_left_margin"
+            android:src="@drawable/ic_refresh"
+            android:tint="@color/v3_channel_details_button_text_color"
+            tools:ignore="UseAppTint" />
+
+    </LinearLayout>
+
+
+</layout>

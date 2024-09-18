@@ -1,0 +1,661 @@
+<resources>
+
+    <!-- General -->
+    <string name="app_name">Rumble</string>
+    <string name="generic_error_message_try_later">Something went wrong, please try again later.</string>
+    <string name="generic_error_message_contact_support">Something went wrong, please contact our support team.</string>
+    <string name="nothing_to_see_here">Nothing to see here</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+    <string name="yes">Yes</string>
+    <string name="ok">OK</string>
+    <string name="okay">Okay</string>
+    <string name="apply">Apply</string>
+    <string name="maybe_later">Maybe Later</string>
+    <string name="share">Share</string>
+    <string name="save">Save</string>
+    <string name="save_to">Save To…</string>
+    <string name="create_and_save">Create &amp; Save</string>
+    <string name="update">Update</string>
+    <string name="checked">Checked</string>
+    <string name="unchecked">Unchecked</string>
+    <string name="delete">Delete</string>
+    <string name="report">Report</string>
+    <string name="media_route_menu_title">Play on&#8230;</string>
+    <string name="terms">Terms</string>
+    <string name="got_it">Got It</string>
+    <string name="keep_it">Keep it</string>
+    <string name="default_currency_symbol">$</string>
+    <string name="skip">Skip</string>
+    <string name="watch_videos">Watch videos</string>
+    <string name="at">at</string>
+    <string name="of">of</string>
+    <string name="vertical_separator" translatable="false">|</string>
+
+    <!-- Landing -->
+    <string name="splash_icon">Splash icon</string>
+
+    <!-- Login -->
+    <string name="email_user_name_label">EMAIL OR USERNAME</string>
+    <string name="username">Username</string>
+    <string name="email_address">Email Address</string>
+    <string name="birthday">Birthday</string>
+    <string name="password_label">PASSWORD</string>
+    <string name="change_password_visibility">Change password visibility</string>
+    <string name="clear_text">Clear text</string>
+    <string name="sign_in">Sign in</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="username_or_email_empty">Please enter a valid email address or username</string>
+    <string name="or">or</string>
+    <string name="register_rumble">Register with Rumble</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="sign_in_apple">Sign in with Apple</string>
+    <string name="sing_in_facebook">Sign in with Facebook</string>
+    <string name="provide_username">Please provide your email or username</string>
+    <string name="provide_password">Please provide your password</string>
+    <string name="user_name_password_incorrect">Your username or password is incorrect.</string>
+    <string name="password_at_least_8_characters">Password must be at least 8 characters</string>
+    <string name="must_agree_to_terms">You must agree to the Terms and Privacy Policy</string>
+    <string name="get_free_account">Get a Free Account</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="login">Login</string>
+    <string name="join_rumble">Join Rumble</string>
+    <string name="terms_and_conditions_part_1">By creating an account with Rumble and checking this box, you are providing your written agreement with, and consent to,</string>
+    <string name="and">and</string>
+    <string name="rumble_terms_and_conditions">Rumble’s Website Terms and Conditions of Use and Agency Agreement</string>
+    <string name="rumble_terms_and_conditions_url">https://rumble.com/s/terms?layout=bare</string>
+    <string name="rumble_privacy_policy">Rumble’s Privacy Policy</string>
+    <string name="rumble_privacy_policy_url">https://rumble.com/s/privacy?layout=bare</string>
+    <string name="you_agree_to_our">You agree to our</string>
+    <string name="terms_of_service">terms of service</string>
+    <string name="choose_username">Please choose a username\nto complete registration</string>
+    <string name="username_must_begin_with_letter_or_number">Username must begin with a letter or number</string>
+    <string name="username_can_only_contain">Username can contain only letters, numbers and underscores</string>
+    <string name="username_at_least_3_characters">Username must be at least 3 alphanumeric characters</string>
+    <string name="birthday_empty_error_message">Please provide your birthday</string>
+    <string name="birthday_at_least_13_error_message">You must be at least 13 years old to use the Service</string>
+    <string name="why_we_ask_for_birth">Why do we ask for your date of birth?</string>
+    <string name="date_of_birth_dialog_text_part_1">Rumble requests your date of birth in order to comply with its</string>
+    <string name="date_of_birth_dialog_text_part_2">and applicable privacy laws. If you have any questions, please contact</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="support_email">support@rumble.com</string>
+    <string name="password_reset_instructions">To reset your password please enter your email or username and we\'ll send you an email with further instructions.</string>
+    <string name="email_or_username">Email or Username</string>
+    <string name="password_reset_submit">Submit</string>
+    <string name="password_reset_success_message">Please check your email and follow the instructions to reset your password.</string>
+    <string name="join_free_speech_revolution">Join the free-speech revolution!</string>
+    <string name="continue_with_email">Continue with email</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="continue_with_facebook">Continue with Facebook</string>
+    <string name="skip_for_now">Skip for now</string>
+    <string name="create_account">Create Account</string>
+    <string name="gender">GENDER</string>
+    <string name="select_gender">Select Gender</string>
+    <string name="sign_in_to_rumble">Sign in to Rumble</string>
+    <string name="sign_in_to_access">In order to unlock access to account features you need to sign in to your rumble account.</string>
+
+    <!-- Content -->
+    <string name="nav_feeds">Feeds</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_discover">Discover</string>
+    <string name="nav_camera">Camera</string>
+    <string name="nav_create">Create</string>
+    <string name="nav_library">Library</string>
+    <string name="nav_account">Account</string>
+    <string name="nav_channels">Channels</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Camera -->
+    <string name="coming_soon">Coming Soon!</string>
+    <string name="our_team_is_working_on_something_amazing">Our team is working on something amazing!</string>
+    <string name="meanwhile_upload_videos">Meanwhile, you can upload your videos at</string>
+    <string name="rumble_com_text">rumble.com</string>
+    <string name="flash">Flash</string>
+    <string name="flip">Flip</string>
+
+    <!-- Profile -->
+    <string name="rumbles">Rumbles</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="settings">Settings</string>
+    <string name="referrals">Referrals</string>
+    <string name="earnings">Earnings</string>
+    <string name="notifications">Notifications</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="change_appearance">Change appearance</string>
+    <string name="light_mode">Light mode</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="system_default">System default</string>
+    <string name="sign_out_confirmation_message">Are you sure you want to sign out?</string>
+    <string name="version_copied_message">Version is copied to clipboard</string>
+
+    <!-- Settings -->
+    <string name="enable_all">Enable all</string>
+    <string name="disable_all">Disable all</string>
+    <string name="money_earned">Money earned</string>
+    <string name="video_is_approved_for_monetization">Video is approved for monetization</string>
+    <string name="someone_follows_you">Someone follows you</string>
+    <string name="someone_tags_you">Someone tags you</string>
+    <string name="comments_on_your_video">Comments on your video</string>
+    <string name="replies_to_your_comments">Replies to your comments</string>
+    <string name="new_video_by_someone_you_follow">New video by someone you follow</string>
+    <string name="background_play">Background Play</string>
+    <string name="picture_in_picture">Picture-in-picture</string>
+    <string name="sound_only">Sound only</string>
+    <string name="off">Off</string>
+    <string name="uploads">Uploads</string>
+    <string name="upload_over_wifi_only">Upload over Wi-Fi only</string>
+    <string name="upload_quality">Upload Quality</string>
+    <string name="user_details">User details</string>
+    <string name="debug">Debug</string>
+    <string name="change_email">Change email</string>
+    <string name="change_password">Change password</string>
+    <string name="change_subdomain">Change subdomain</string>
+    <string name="close_account">Close account</string>
+    <string name="app_info">App info</string>
+    <string name="rumble_app_version">Rumble v</string>
+    <string name="credits">Credits</string>
+    <string name="new_email">New email</string>
+    <string name="new_password">New Password</string>
+    <string name="current_password">Current Password</string>
+    <string name="subdomain">Subdomain</string>
+    <string name="enter_current_password">Please enter your current password</string>
+    <string name="enter_valid_email">Please enter a valid email address</string>
+    <string name="email_cannot_be_same_as_current">New email cannot be the same as your current email</string>
+    <string name="email_updated">Email updated</string>
+    <string name="password_updated">Password updated</string>
+    <string name="unable_to_update">Unable to Update</string>
+    <string name="reset_subdomain">Reset subdomain</string>
+    <string name="unlink_account">Unlink %s account</string>
+    <string name="unlink">Unlink</string>
+    <string name="unlink_account_confirmation_question">Are you sure you want to unlink your %s account?</string>
+    <string name="unlink_account_success_message">Your %s account has been unlinked</string>
+    <string name="subdomain_changed_restart_app">Subdomain has been changed, please restart the app</string>
+    <string name="restart_now">Restart now</string>
+    <string name="close_your_rumble_account">Close Your Rumble Account</string>
+    <string name="close_account_description">This will make ALL your Rumble content  inaccesible to you and to other people. You will lose all pending earnings associated with your account once it\'s closed.</string>
+    <string name="proceed_to_next_step">Proceed to next step</string>
+    <string name="close_account_confirmation_dialog_text">We will send you an email with a one-time link to finish closing your account.\n\nAre you sure you want to continue?</string>
+    <string name="please_check_your_email_for_confirmation">Please check your email for confirmation.</string>
+    <string name="license">License</string>
+    <string name="share_logs">Share logs</string>
+    <string name="playback_in_feeds">Playback in feeds</string>
+    <string name="playback_always_on">Always on</string>
+    <string name="playback_wifi_only">Wi-Fi only</string>
+    <string name="send_feedback">Send feedback</string>
+    <string name="disable_ads">Disable ads</string>
+    <string name="force_ads">Force ads</string>
+    <string name="always_play_debug_ad">Always play debug ad</string>
+    <string name="notification_settings">Notification Settings</string>
+    <string name="app_appearance">App appearance</string>
+    <string name="autoplay">Autoplay</string>
+
+    <!-- Edit Profile -->
+    <string name="edit_profile">Edit Profile</string>
+    <string name="name">Name</string>
+    <string name="phone">Phone</string>
+    <string name="address">Address</string>
+    <string name="city">City</string>
+    <string name="state">State</string>
+    <string name="zip_postal_code">ZIP/POSTAL CODE</string>
+    <string name="country">Country</string>
+    <string name="paypal_email_address">Paypal email address</string>
+    <string name="your_payouts_sent_here">Your payouts will be sent here.</string>
+    <string name="please_select_your_country">Please select your country.</string>
+    <string name="please_provide_valid_paypal">Please provide a valid PayPal email address.</string>
+    <string name="check_email_to_confirm_details">Please check your e-mail to confirm updated details.</string>
+    <string name="profile_details_update_success_message">Your profile details have been update successfully.</string>
+    <string name="profile_picture_update_success_message">Your profile picture has been updated successfully.</string>
+
+    <!-- Channel Details -->
+    <string name="join">Join</string>
+    <string name="follow">Follow</string>
+    <string name="unfollow">Unfollow</string>
+    <string name="unblock">Unblock</string>
+    <string name="block">Block</string>
+    <string name="block_account_no_longer_accessible">This account will no longer be accessible</string>
+    <string name="unable_to_report">Unable to report</string>
+    <string name="configure_email_in_settings">Please configure Mail in your Android Settings</string>
+    <string name="email_report_copyright">dmca@rumble.com</string>
+    <string name="email_report_other">moderation@rumble.com</string>
+    <string name="report_why_reporting_account">Why are you reporting this account?</string>
+    <string name="it_is_spam">It’s spam</string>
+    <string name="it_is_inappropriate">It’s inappropriate</string>
+    <string name="it_violates_copyright">It violates copyright</string>
+    <string name="it_violates_terms">It violates our Terms</string>
+    <string name="videos">Videos</string>
+    <plurals name="video">
+        <item quantity="one">video</item>
+        <item quantity="other">videos</item>
+    </plurals>
+    <string name="this_channel_doesnt_have_videos_yet">This channel doesn\'t have videos yet</string>
+    <string name="my_videos_have_not_uploaded_title">No videos yet</string>
+    <string name="my_videos_have_not_uploaded_description">Be yourself and speak freely. Record a video and upload it today!</string>
+    <plurals name="followers">
+        <item quantity="one">Follower</item>
+        <item quantity="other">@string/followers</item>
+    </plurals>
+    <string name="the_channel_has_been_reported">The channel has been reported</string>
+    <string name="verified_icon_description">Verified</string>
+    <string name="unfollow_creator_title">Unfollow this creator?</string>
+    <string name="unfollow_creator_description">By unfollowing you will not see this creator’s content in your feed.</string>
+
+    <!-- Locals-->
+    <string name="locals_access_all_content">Access all content including exclusive and ad-free content</string>
+    <string name="locals_post_and_comment">Post and comment on content and discussions</string>
+    <string name="locals_join_live_chats">Join live chats with all the supporters</string>
+    <string name="community_members">Community Members</string>
+    <string name="comments">Comments</string>
+    <string name="posts">Posts</string>
+    <string name="on_locals">on Locals</string>
+    <string name="support">Support</string>
+    <string name="leave_rumble_to_locals">You will leave the Rumble app and be redirected to Locals.com</string>
+    <string name="join_on_locals">Enjoyed this video? Join my community for exclusive content at locals.com!</string>
+
+    <!-- Notifications -->
+    <string name="email_frequency">Email Frequency</string>
+    <string name="push_for_livestreams">Push notifications for livestreams</string>
+    <string name="push_notifications_for_streams">Push Notifications for Streams</string>
+    <string name="get_notified_as_they_go_live">Get notified as soon as they go live.</string>
+    <string name="email_notifications">Email Notifications</string>
+    <string name="get_regular_emails">Get regular emails with their newest content.</string>
+    <string name="how_frequently_receive_notifications">How frequently would you like to receive emails notifications?</string>
+    <string name="no_longer_see_content">No longer see this content in your feed.</string>
+    <string name="no_notifications_yet">There are no notifications yet</string>
+    <string name="you_will_receive_one_when_exciting_happens">You will receive one as soon as something exciting happens</string>
+
+    <!-- Video -->
+    <plurals name="years_ago">
+        <item quantity="one">a year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">a month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">a day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">1 hr ago</item>
+        <item quantity="other">%d hrs ago</item>
+    </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="one">a min ago</item>
+        <item quantity="other">%d mins ago</item>
+    </plurals>
+    <plurals name="seconds_ago">
+        <item quantity="one">a second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+    <string name="upcoming">Upcoming</string>
+    <string name="starting">Starting</string>
+    <string name="paused">Paused</string>
+    <string name="live">LIVE</string>
+    <string name="ppv">PPV</string>
+    <string name="buy_access">Buy Access</string>
+    <string name="purchased">Purchased</string>
+    <string name="expires_in">Expires in\ </string>
+    <string name="expired">Expired</string>
+    <string name="streamed">Streamed</string>
+    <string name="started">Started</string>
+    <string name="scheduled_for">Scheduled for</string>
+    <string name="likes">Likes</string>
+    <string name="dislikes">Dislikes</string>
+    <string name="video_details_up_next">Up next</string>
+    <string name="description">Description</string>
+    <string name="video_details_comments">Comments</string>
+    <plurals name="replies">
+        <item quantity="one">1 Reply</item>
+        <item quantity="other">%d Replies</item>
+    </plurals>
+    <string name="comment">Comment</string>
+    <string name="add_comment">Add a comment…</string>
+    <string name="add_message">Add a message…</string>
+    <string name="no_comments_yet">No one’s commented yet</string>
+    <string name="be_first_comment">Be the first!</string>
+    <string name="there_is_nothing_to_see_here">There is nothing to see here</string>
+    <string name="the_author_did_not_provide_any_description">The author didn’t provide any description</string>
+    <string name="our_algorithm_still_looking_for_related_videos">Our algorithm’s probably still looking for related videos</string>
+    <string name="comment_too_short">Your message is too short.</string>
+    <string name="add_comment_close">Add comment</string>
+    <string name="sure_discard_message">Are you sure you want to discard your message?</string>
+    <string name="discard">Discard</string>
+    <string name="keep_writing">Keep writing</string>
+    <string name="unable_comment">Unable to Comment</string>
+    <string name="sure_delete_message">Are you sure you want to delete your message?</string>
+    <string name="why_report_comment">Why are you reporting this comment?</string>
+    <string name="why_report_video">Why are you reporting this video?</string>
+    <string name="go_to">Go to</string>
+    <string name="live_chat">Live chat</string>
+    <string name="reply_to">Reply to</string>
+    <string name="add_reply">Add a reply…</string>
+    <string name="comments_disabled">Comments Disabled</string>
+    <string name="reply">Reply</string>
+    <string name="chat_as">Chat As</string>
+    <string name="no_messages_yet">No messages yet.</string>
+    <string name="the_video_has_been_reported">The video has been reported</string>
+    <string name="the_comment_has_been_reported">The comment has been reported</string>
+    <string name="verify_your_email_live_chat">Verify your email to join live chat</string>
+    <string name="verify_your_email_comments">Verify your email to post comments</string>
+    <string name="email_verification_required">Email verification required</string>
+    <string name="resend_verification_link">Resend verification link</string>
+    <string name="check_verification_and_retry">Check verification and retry</string>
+    <string name="check_your_verification_status">Check verification status</string>
+    <string name="email_not_verified">Your email is not verified yet</string>
+    <string name="email_not_verified_try_later">It might take up to 30 minutes for the verification status to be updated. Please try again later.</string>
+    <string name="email_verification_sent">Email verification sent</string>
+    <string name="email_sent_instructions">Please check your email “%s” and follow the instructions to verify your email.</string>
+    <string name="сongratulations">Congratulations!</string>
+    <string name="email_successfully_verified_message">Your email address has been successfully verified</string>
+    <string name="send_rant">Send a Rant</string>
+    <string name="rant_will_stick">The rant will stick for</string>
+    <plurals name="minutes_duration">
+        <item quantity="one">1 minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <string name="buy_send">Buy And Send</string>
+    <string name="rants">Rants</string>
+    <string name="about">About</string>
+    <string name="by_continuing">By continuing, you verify that, in addition to the Rumble Website Terms and Conditions of Use and Rumble Privacy Policy (both of which you agreed to upon creating your Rumble account), you also agree to the following</string>
+    <string name="watching">watching</string>
+    <string name="waiting">waiting</string>
+    <string name="live_chat_deleted_message">Message was removed by moderator</string>
+    <string name="age_restricted">Age Restricted: 18+</string>
+    <string name="mature_content">18+ Mature Content</string>
+    <string name="must_be_18">This content has been marked as mature. You must be 18 or older to view this content.</string>
+    <string name="start_watching">Start Watching</string>
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
+    <string name="rumble_mobile_terms">https://rumble.com/s/mobile-terms?layout=bare</string>
+    <string name="pinned_message">Pinned Message</string>
+    <string name="hide_pinned_message">Hide Pinned Message</string>
+    <string name="message_options">Message Options</string>
+    <string name="mute_user">Mute User</string>
+    <string name="prevent_user_from_chatting">Prevent this user from chatting for a period of time.</string>
+    <string name="delete_message">Delete Message</string>
+    <string name="permanently_remove_message">Permanently remove this message from the chat.</string>
+    <string name="pin_message">Pin message</string>
+    <string name="display_message_on_top">Display this message at the top of chat for a period of time.</string>
+    <string name="unpin_message">Unpin chat message?</string>
+    <string name="unpin_message_confirmation">Are you sure you want to unpin this chat message?</string>
+    <string name="unpin">Unpin</string>
+    <string name="delete_chat_message">Delete chat message?</string>
+    <string name="delete_chat_message_confirmation">Deleting messages is a permanent action and cannot be undone.</string>
+    <string name="mute_user_title">Mute User?</string>
+    <string name="mute_five_minute">For 5 minutes</string>
+    <string name="mute_for_livestream">For this livestream</string>
+    <string name="forever">Forever</string>
+    <string name="sign_in_to_comment">Sign in to join comments</string>
+    <string name="sign_in_to_live_chat">Sign in to join live chat</string>
+
+    <!-- Search -->
+    <string name="search_rumble">Search Rumble</string>
+    <string name="search_following">Search followed channels</string>
+    <string name="recent">Recent</string>
+    <string name="clear_all">Clear all</string>
+    <string name="clear_search">Clear search</string>
+    <string name="no_recent_searches">No recent searches</string>
+    <string name="enter_keywords">Please enter keywords</string>
+    <string name="no_result">No results found</string>
+    <string name="try_different_keywords_filters">Please try different keywords or filters</string>
+    <string name="try_different_keywords">Please try different keywords</string>
+    <string name="no_channels_found">No channels found</string>
+    <string name="channels">Channels</string>
+    <string name="view_all">View all</string>
+    <string name="no_videos_found">No videos found</string>
+    <string name="filter">Filter</string>
+
+    <!-- Sort -->
+    <string name="sort_by">Sort by</string>
+    <string name="sort_relevance">Relevance</string>
+    <string name="sort_most_recent">Most recent</string>
+    <string name="sort_likes">Likes</string>
+    <string name="sort_views">Views</string>
+
+    <!-- Filter -->
+    <string name="upload_date">Upload date</string>
+    <string name="any_time">Any time</string>
+    <string name="today">Today</string>
+    <string name="this_week">This week</string>
+    <string name="this_month">This month</string>
+    <string name="this_year">This year</string>
+
+    <!-- Duration -->
+    <string name="duration">Duration</string>
+    <string name="any_duration">Any</string>
+    <string name="short_duration">Short</string>
+    <string name="long_duration">Long</string>
+
+    <!-- Discover -->
+    <string name="recommended_categories">Recommended Categories</string>
+    <string name="categories">Categories</string>
+    <string name="live_now">Live Now</string>
+    <string name="editor_picks">Editor Picks</string>
+    <string name="top_channels">Top channels</string>
+    <string name="hurry_dont_miss_it">Hurry! Don\'t Miss It</string>
+    <string name="popular_videos">Popular Videos</string>
+    <string name="something_went_wrong">Something went wrong…</string>
+    <string name="retry">Retry</string>
+    <string name="views">Views</string>
+    <string name="live_categories">Top Live Categories</string>
+    <plurals name="viewers">
+        <item quantity="one">viewer</item>
+        <item quantity="other">viewers</item>
+    </plurals>
+    <plurals name="views">
+        <item quantity="one">view</item>
+        <item quantity="other">views</item>
+    </plurals>
+
+    <string name="gaming">Gaming</string>
+    <string name="cooking">Cooking</string>
+    <string name="music">Music</string>
+    <string name="news">News</string>
+    <string name="viral">Viral</string>
+    <string name="podcasts">Podcasts</string>
+    <string name="finance">Finance</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="sports">Sports</string>
+    <string name="science">Science</string>
+    <string name="vlogs">Vlogs</string>
+
+    <string name="swipe">Swipe</string>
+    <string name="tap">Tap</string>
+    <string name="up_for_next_down_for_previous">Up for next, Down for previous</string>
+    <string name="to_pause_play_video">To pause/play video</string>
+    <string name="like">Like</string>
+    <string name="dislike">Dislike</string>
+    <string name="no_live_streams">No Live Streams</string>
+    <string name="no_channels_live">There are currently no channels live at this time. Please check back later.</string>
+    <string name="no_videos">No Videos</string>
+    <string name="no_videos_in_feed">There are currently no videos in this feed. Please check back later.</string>
+    <string name="browse">Browse</string>
+
+    <!-- Following -->
+    <string name="you_are_not_following_any_channels">You are not following any channels</string>
+    <string name="search_for_creators">Search for creators you’ll enjoy to follow</string>
+    <string name="search_now">Search now</string>
+
+    <!--  Referrals  -->
+    <string name="referrals_title">Referrals</string>
+    <string name="total_commissions">Total Commissions</string>
+    <string name="referral_link_clicks">Referral link clicks</string>
+    <string name="referrals_accepted">Referrals Accepted</string>
+    <string name="referred_users">Referred users</string>
+    <string name="copy">Copy</string>
+    <string name="invite_friends">Invite Friends</string>
+    <string name="you_have_not_referred_anyone_yet">You have not referred anyone yet</string>
+    <string name="share_the_link">Share the link below and collect your bonuses</string>
+    <string name="link_copied_to_clipboard">Link copied to clipboard</string>
+
+    <!-- Feed -->
+    <string name="may_we_recommend_channels">May We Recommend</string>
+    <string name="follow_new_channels">follow new channels</string>
+
+    <!-- Earnings -->
+    <string name="estimated_earnings">Estimated Earnings</string>
+    <string name="youtube_earnings">YouTube Earnings</string>
+    <string name="third_party_earnings">3rd Party Earnings</string>
+    <string name="rumble_earnings">Rumble Earnings</string>
+    <string name="total_earnings">Total Earnings</string>
+    <string name="your_videos">Your Videos</string>
+    <string name="uploaded_videos">Uploaded Videos</string>
+    <string name="approved_videos">Approved Videos</string>
+    <string name="approved_percentage">Approved Percentage</string>
+    <string name="percentage">%d%%</string>
+
+    <!-- Video List -->
+    <string name="video_list_technology">Technology</string>
+    <string name="video_list_auto">Auto</string>
+    <string name="video_list_howto">HowTo</string>
+    <string name="video_list_travel">Travel</string>
+    <string name="video_list_editor_picks">Editor Picks</string>
+    <string name="video_list_live">Live</string>
+    <string name="video_list_popular">Popular Videos</string>
+    <string name="video_list_just_for_you">Just for you</string>
+
+    <!-- Library -->
+    <string name="explore_library">Explore Library</string>
+    <string name="library_onboarding_title">Introducing Your Personal Library</string>
+    <string name="library_onboarding_description">Save content for later, continue watching your previous videos, and curate custom playlists to share with the community.</string>
+    <string name="watch_history">Watch History</string>
+    <string name="purchases">Purchases</string>
+    <string name="watch_later">Watch Later</string>
+    <string name="playlists">Playlists</string>
+    <string name="liked_videos">Liked Videos</string>
+    <string name="no_videos_watch_history">No videos in Watch History.</string>
+    <string name="no_videos_watch_later">No videos in Watch Later.</string>
+    <string name="no_playlists_saved">No Playlists have been saved.</string>
+    <string name="no_videos_liked_videos">No videos in Liked Videos.</string>
+    <string name="updated">Updated</string>
+    <string name="playlist">Playlist</string>
+    <string name="play_all">Play All</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="playlist_added_to_library">Playlist added to Library</string>
+    <string name="playlist_removed_from_library">Playlist removed from Library</string>
+    <string name="playlist_deleted">Playlist deleted</string>
+    <string name="watch_history_deleted">Watch history deleted</string>
+    <string name="video_already_in_playlist">Video already in playlist</string>
+    <string name="video_added_to_playlist">Video added to playlist</string>
+    <string name="video_removed_from_playlist">Video removed from playlist</string>
+    <string name="delete_watch_history">Delete all Watch History</string>
+    <string name="playlist_settings">Playlist settings</string>
+    <string name="delete_playlist">Delete playlist</string>
+    <string name="delete_history">Delete History</string>
+    <string name="delete_playlist_alert_description">Are you sure you want to delete this playlist? Deleting playlists is a permanent action and cannot be undone.</string>
+    <string name="delete_watch_history_alert_description">Your Rumble watch history will be cleared from all Rumble apps on all devices.</string>
+    <string name="no_videos_in_playlist">No videos in playlist</string>
+    <string name="new_playlist">New Playlist</string>
+    <string name="edit_playlist">Edit Playlist</string>
+    <string name="select_visibility">Select Visibility</string>
+    <string name="select_channel">Select Channel</string>
+    <string name="plus_new_playlist">+ new playlist</string>
+    <string name="channel_name_prefix">/</string>
+    <string name="username_prefix">\@</string>
+    <string name="error_message_playlist_title_too_long">The playlist title is too long</string>
+    <string name="error_message_playlist_title_empty">Please enter a name</string>
+    <string name="error_message_playlist_description_too_long">The playlist description is too long</string>
+    <string name="save_to_playlist">Save to playlist</string>
+    <string name="remove_from_playlist">Remove from Playlist</string>
+    <string name="save_to_watch_later">Save to Watch Later</string>
+    <string name="remove_from_watch_later">Remove from Watch Later</string>
+    <string name="remove_from_watch_history">Remove from Watch History</string>
+
+    <!-- Ads -->
+    <string name="ad_sponsored">Sponsored</string>
+    <string name="ad">ad</string>
+
+    <!-- Onboarding -->
+    <string name="skip_all">Skip all</string>
+
+    <!-- Video upload -->
+    <string name="record_description">Tap to start record</string>
+    <string name="record_time_description">Recording time</string>
+    <string name="info">Info</string>
+    <string name="next">Next</string>
+    <string name="publish">Publish</string>
+    <string name="thumbnail">Thumbnail</string>
+    <string name="title">Title</string>
+    <string name="select_a_channel">Select a Channel</string>
+    <string name="channel">Channel</string>
+    <string name="selected_channel">selected_channel</string>
+    <string name="optional">optional</string>
+    <string name="publish_under_your_profile">Publish under your profile</string>
+    <string name="you_dont_have_channels">You don’t have channels</string>
+    <string name="you_can_create_one_on_rumble_com">You can create one on rumble.com</string>
+    <string name="select_license">Select a license</string>
+    <string name="visibility">Visibility</string>
+    <string name="schedule">Schedule</string>
+    <string name="available_for_public_videos_only">Available for public videos only</string>
+    <string name="select">Select</string>
+    <string name="you_have_not_signed_exclusive_agreement">You have not signed an exclusive agreement with any other parties.</string>
+    <string name="you_must_agree_you_own_content">You must agree that you own this content</string>
+    <string name="you_must_agree_to_our_terms_of_services">You must agree to our terms of services</string>
+    <string name="error_message_video_title_too_long">The video title is too long</string>
+    <string name="error_message_description_too_long">The video description is too long</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="time_zone_your_local_time">Time zone: your local time</string>
+    <string name="gallery">Gallery</string>
+    <string name="no_videos_yet">No videos yet</string>
+    <string name="tap_record_to_get_started">Tap RECORD button above to get started</string>
+    <string name="recording_error_retry">Recording finished with error, please retry</string>
+    <string name="recording_start_error_retry">Not able to start recording, please restart camera</string>
+    <string name="permissions_required">Permissions required</string>
+    <string name="feature_gallery_access">This feature requires access to your gallery</string>
+    <string name="feature_requires_access_camera_mic_storage">This feature requires access to the camera, microphone and storage</string>
+    <string name="open_settings">Open settings</string>
+    <string name="untitled">Untitled</string>
+    <string name="cancel_uploading">Cancel uploading</string>
+    <string name="sure_want_to_cancel_upload">Are you sure you want to cancel the upload?</string>
+    <string name="upload_over_cellular">Upload over cellular</string>
+    <string name="retry_uploading">Retry uploading</string>
+    <string name="verify_email_to_upload_videos">Verify your email to upload videos</string>
+    <string name="featured">Featured</string>
+    <string name="upload_failed">Uploading failed</string>
+    <string name="upload_success">%s has been successfully uploaded. It will appear under your profile in few minutes.</string>
+    <string name="upload_success_a_video">A video</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+
+    <!-- Premium subscription -->
+    <string name="premium_only">Premium only</string>
+    <string name="get_rumble_premium_plan">Get Rumble Premium Plan</string>
+    <string name="rumble_premium_plan">Rumble Premium Plan</string>
+    <string name="get_premium">Get Premium</string>
+    <string name="premium_only_content">Premium Only Content</string>
+    <string name="this_video_only_rumble_premium">This video is only available to Rumble Premium subscribers. Subscribe to enjoy exclusive content and ad-free viewing.</string>
+    <string name="enjoy_ad_free_viewing">Enjoy an ad-free viewing experience when you are signed in across web, mobile and TV apps.</string>
+    <string name="manage_subscription">Manage Subscription</string>
+    <string name="subscribe_now">Subscribe Now</string>
+    <string name="annually">Annually</string>
+    <string name="monthly">Monthly</string>
+    <string name="per_year">%s/year</string>
+    <string name="per_month">%s/month</string>
+    <string name="per_month_paying_annually">Only %s per month by paying annually</string>
+    <string name="restore_subscription">Restore subscription</string>
+    <string name="subscription_will_renew">Your subscription will automatically renew at the end of each billing period. You can cancel or manage your subscription in the App Store. By subscribing to this premium plan you acknowledge and agree to our</string>
+    <string name="terms_of_service_capital">Terms of Service</string>
+    <string name="rumble_premium">Rumble Premium</string>
+    <string name="upgrade_now">Upgrade Now</string>
+    <string name="you_all_set">You’re all Set</string>
+    <string name="purchase_successful">Your purchase was successful.</string>
+    <string name="subscription_not_available">This subscription is not available in your country</string>
+    <string name="go_premium_to_chat">Go Premium To Chat</string>
+    <string name="go_premium_to_comment">Go Premium To Comment</string>
+
+    <!-- Deep Links -->
+    <string name="deep_link_host">rumble-dev.onelink.me</string>
+
+    <!-- New App Version -->
+    <string name="go_to_store">Go To Store</string>
+    <string name="app_update_required">App Update Required</string>
+    <string name="app_update_required_description">We just released a new version of the Rumble app. In order to access content you need to update to the new app from the app store.</string>
+    <string name="new_app_update_available">New App Update Available</string>
+    <string name="new_app_update_available_description">We just released a new version of the Rumble app. In order to access new features you’ll need to update.</string>
+
+</resources>

@@ -1,0 +1,174 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+// Allows for Kotlin annotation processors
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
+// Safe args allows the passing of data in bundles with type safety
+// See more at https://developer.android.com/guide/navigation/navigation-pass-data
+    id "androidx.navigation.safeargs.kotlin"
+}
+
+def openSourceLicencesFilename = 'open_source_licenses.json'
+
+android {
+
+    compileSdk compileSdkVer
+
+    defaultConfig {
+        minSdkVersion minSdkVer
+        targetSdkVersion targetSdkVer
+        vectorDrawables.useSupportLibrary = true
+        buildConfigField "String", "OPEN_SOURCE_LICENCES_FILENAME", "\"${openSourceLicencesFilename}\""
+    }
+    // Note: Project use both Hilt and data binding require Android Studio 4.0 or higher.
+    buildFeatures {
+        dataBinding true
+        compose true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+        coreLibraryDesugaringEnabled true
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_9.toString()
+    }
+    buildTypes {
+        release {}
+        debug {}
+        qa {}
+    }
+    hilt {
+        enableAggregatingTask = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.0'
+    }
+    namespace 'com.rumble'
+}
+
+dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
+    implementation project(':analytics')
+
+    // Backward support for time classes
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    // region local modules
+    implementation project(path: ':domain')
+    implementation project(path: ':network')
+    implementation project(path: ':utils')
+    implementation project(path: ':leanback')
+    implementation project(path: ':videoPlayer')
+    implementation project(path: ':theme')
+    // endregion
+
+    api("androidx.paging:paging-runtime-ktx:3.1.1")
+
+    // region Logging
+    def timber_version = "5.0.1"
+    implementation "com.jakewharton.timber:timber:$timber_version"
+    // endregion
+
+    // region Dependency injection
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    kapt           "com.google.dagger:hilt-compiler:$hilt_version"
+    // endregion
+
+    // region Networking (OkHttp, GSON, Retrofit)
+    def okhttp_version = "4.10.0"
+    def gson_version = "2.9.1"
+    def retrofit_version = "2.9.0"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    // endregion
+
+    // region ExoPlayer
+    def media_version = "1.1.0"
+    implementation "androidx.media3:media3-exoplayer:$media_version"
+    // endregion
+
+    // region Glide
+    def glide_version = "4.13.2"
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
+    // endregion
+
+    // region Firebase Analytics, Crashlytics, etc.
+//    def firebase_analytics_ktx_version = "21.1.1"
+//    def firebase_crashlytics_ktx_version = "18.2.13"
+//    implementation "com.google.firebase:firebase-analytics-ktx:$firebase_analytics_ktx_version"
+//    implementation "com.google.firebase:firebase-crashlytics-ktx:$firebase_crashlytics_ktx_version"
+    // endregion
+
+    // region circleimageview - TODO deprecated
+    def circleimageview_version = "3.1.0"
+    implementation "de.hdodenhof:circleimageview:$circleimageview_version"
+    // endregion
+
+    // region Android Lifecycle
+    def lifecycle_ktx_version = "2.5.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_ktx_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_ktx_version"
+    // endregion
+
+    // region Fragment Kotlin Extensions
+    def fragment_ktx_version = "1.6.1"
+    implementation "androidx.fragment:fragment-ktx:$fragment_ktx_version"
+    // endregion
+
+    // region Navigation
+    def navigation_ktx_version = "2.7.4"
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigation_ktx_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigation_ktx_version"
+    // endregion
+
+    // region LeakCanary
+    // debugImplementation because LeakCanary should only run in debug builds.
+    // adb shell am start -n "com.rumble.battles.dev/leakcanary.internal.activity.LeakLauncherActivity"
+    // def leakcanary_version = "2.9.1"
+    // debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanary_version"
+    // endregion
+
+    // Backward support for time classes
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
+    // Support of Compose in activity
+    def activity_version = "1.8.0"
+    implementation "androidx.activity:activity-ktx:$activity_version"
+
+    // Jetpack Compose
+    def composeBom = platform('androidx.compose:compose-bom:2024.02.01')
+    implementation composeBom
+    androidTestImplementation composeBom
+    //implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation "androidx.compose.ui:ui-util"
+    implementation 'androidx.activity:activity-compose:1.8.0'
+
+    // Compose for TV dependencies
+    implementation "androidx.tv:tv-foundation:1.0.0-alpha11"
+    implementation "androidx.tv:tv-material:1.0.0-rc02"
+
+    def composeLifecycleVersion = '2.7.0'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$composeLifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:$composeLifecycleVersion"
+
+    implementation "androidx.paging:paging-compose:3.2.1"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+
+    implementation "io.coil-kt:coil-compose:2.5.0"
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+}
+

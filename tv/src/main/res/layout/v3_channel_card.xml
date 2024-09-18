@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="item" type="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/channel_card_width"
+        android:layout_height="@dimen/channel_card_height"
+        android:background="@drawable/v3_selector_channel_background"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/channel_card_icon_width"
+            android:layout_height="@dimen/channel_card_icon_height"
+            android:layout_marginStart="@dimen/channel_card_icon_margin_start"
+            android:layout_marginTop="@dimen/channel_card_icon_margin_top"
+            android:layout_marginEnd="@dimen/channel_card_icon_margin_end"
+            android:layout_marginBottom="@dimen/channel_card_icon_margin_bottom"
+            app:circleImageUrl="@{item.thumbnail}"
+            app:placeholder="@{item.channelTitle}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/all_placeholder" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/title_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon"
+            android:layout_marginTop="@dimen/channel_card_title_margin_top"
+            android:layout_marginBottom="@dimen/channel_card_title_margin_bottom">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center_horizontal"
+                android:maxWidth="@dimen/channel_card_channel_name_max_width"
+                android:text="@{item.channelTitle}"
+                android:textColor="@color/white"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageView
+                android:id="@+id/verified_badge"
+                android:layout_width="@dimen/channel_card_verified_badge_icon_width"
+                android:layout_height="@dimen/channel_card_verified_badge_icon_height"
+                android:layout_marginStart="@dimen/video_card_dot_margin_start"
+                android:src="@drawable/verified_badge"
+                android:visibility="@{item.verifiedBadge ? View.VISIBLE : View.GONE}"
+                android:layout_marginEnd="@dimen/video_card_dot_margin_end"
+                app:layout_constraintTop_toTopOf="@+id/title"
+                app:layout_constraintBottom_toBottomOf="@+id/title"
+                app:layout_constraintStart_toEndOf="@+id/title"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <TextView
+            android:id="@+id/numberOfFollowers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/channel_card_followers_number_margin_top"
+            android:layout_marginBottom="@dimen/channel_card_followers_number_margin_bottom"
+            android:gravity="top"
+            android:text="@string/followers_pattern"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white_60_percent"
+            app:formattedFollowers="@{item.followers}"
+            app:is_followed="@{item.followed}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintEnd_toStartOf="@id/dot"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title_layout" />
+
+        <ImageView
+            android:id="@+id/dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/channel_card_dot_margin_start"
+            android:layout_marginEnd="@dimen/channel_card_dot_margin_end"
+            android:contentDescription="@string/content_description_dot"
+            android:src="@drawable/v3_shape_circle"
+            tools:visibility="gone"
+            android:visibility="@{item.followed ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@+id/numberOfFollowers"
+            app:layout_constraintStart_toEndOf="@+id/numberOfFollowers"
+            app:layout_constraintEnd_toStartOf="@id/isFollowing"
+            app:layout_constraintTop_toTopOf="@+id/numberOfFollowers" />
+
+        <TextView
+            android:id="@+id/isFollowing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/following"
+            android:textColor="@color/rumble_green"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            tools:visibility="gone"
+            android:visibility="@{item.followed ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/numberOfFollowers"
+            app:layout_constraintStart_toEndOf="@+id/dot"
+            app:layout_constraintTop_toTopOf="@+id/numberOfFollowers" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

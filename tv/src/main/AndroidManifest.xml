@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingLeanbackLauncher">
+
+    <!-- Access internet-based media -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+
+    <!-- Touch screen is not required -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <!-- This is an Android TV app only (not intended for mobile) -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:banner="@mipmap/ic_banner"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Rumble"
+        android:usesCleartextTraffic="true"
+        tools:ignore="UnusedAttribute"
+        android:largeHeap="true">
+
+        <activity android:name=".ui3.channel.details.more.GuidedStepActivity"
+            android:noHistory="true"/>
+        <activity android:name=".player.VideoPlaybackActivity"/>
+        <activity android:name=".ui3.channel.details.v4.ChannelDetailsActivityV4"/>
+        <activity android:name=".ui3.home.v4.ViewAllActivityV4"/>
+        <activity android:name=".ui3.web.WebviewActivity"/>
+        <activity android:name=".ui3.category.CategoryDetailsActivity"/>
+        <service
+            android:name="com.rumble.domain.timerange.model.TimeRangeService"
+            android:exported="false"/>
+        <activity android:name=".ui3.channels.RecommendedChannelsScreenActivity" />
+
+    </application>
+
+</manifest>

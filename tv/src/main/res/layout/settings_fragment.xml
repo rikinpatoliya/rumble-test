@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="onDisableAdsCheckChanged"
+            type="android.widget.CompoundButton.OnCheckedChangeListener" />
+
+        <variable
+            name="onForceAdsCheckChanged"
+            type="android.widget.CompoundButton.OnCheckedChangeListener" />
+
+        <variable
+            name="onDisplayDebugAdCheckChanged"
+            type="android.widget.CompoundButton.OnCheckedChangeListener" />
+    </data>
+
+    <androidx.leanback.widget.BrowseFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/rumble_paddingMedium"
+            android:paddingVertical="@dimen/rumble_paddingXLarge"
+            android:paddingTop="@dimen/rumble_paddingXLarge"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Switch
+                android:id="@+id/disable_ads"
+                android:text="@string/disable_ads"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/v3_selector_main_menu_items_color"
+                android:thumbTint="@color/selector_checkbox"
+                android:trackTint="@color/selector_checkbox"
+                android:onCheckedChanged="@{(view, isChecked) -> onDisableAdsCheckChanged.onCheckedChanged(view, isChecked)}" />
+
+            <Switch
+                android:id="@+id/force_ads"
+                android:text="@string/force_ads"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/v3_selector_main_menu_items_color"
+                android:thumbTint="@color/selector_checkbox"
+                android:trackTint="@color/selector_checkbox"
+                android:onCheckedChanged="@{(view, isChecked) -> onForceAdsCheckChanged.onCheckedChanged(view, isChecked)}" />
+
+            <Switch
+                android:id="@+id/display_debug_ad"
+                android:text="@string/always_play_debug_ad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/v3_selector_main_menu_items_color"
+                android:thumbTint="@color/selector_checkbox"
+                android:trackTint="@color/selector_checkbox"
+                android:onCheckedChanged="@{(view, isChecked) -> onDisplayDebugAdCheckChanged.onCheckedChanged(view, isChecked)}" />
+
+        </LinearLayout>
+    </androidx.leanback.widget.BrowseFrameLayout>
+
+</layout>

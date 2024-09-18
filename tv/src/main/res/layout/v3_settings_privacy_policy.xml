@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/horizontal_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintGuide_begin="@dimen/user_not_logged_in_screen_horizontal_guideline_constraint_guide_begin"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/content_label"
+                android:layout_width="@dimen/user_not_logged_in_screen_log_in_label_width"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/user_not_logged_in_screen_log_in_label_margin_bottom"
+                android:layout_marginEnd="@dimen/headers_fragment_container_width"
+                android:gravity="center"
+                android:text="@string/settings_fragment_privacy_policy_content_label"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline4.Regular"
+                app:layout_constraintBottom_toTopOf="@id/horizontal_guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/content_label2"
+                android:layout_width="@dimen/user_not_logged_in_screen_log_in_label_width"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/user_not_logged_in_screen_log_in_label_margin_bottom"
+                android:layout_marginEnd="@dimen/headers_fragment_container_width"
+                android:gravity="center"
+                android:text="@string/settings_fragment_privacy_policy_content_label2"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline2"
+                app:layout_constraintTop_toBottomOf="@id/content_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+</layout>

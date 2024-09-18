@@ -1,0 +1,11 @@
+# Needed by google-api-client to keep generic types and @Key annotations accessed via reflection
+
+-keepclassmembers class * {
+  @com.google.api.client.util.Key <fields>;
+}
+
+-keepattributes Signature,RuntimeVisibleAnnotations,AnnotationDefault
+
+-dontwarn com.google.android.gms.**
+-dontwarn com.google.api.client.**
+-dontwarn org.mortbay.log.**

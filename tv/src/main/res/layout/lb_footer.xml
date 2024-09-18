@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:gravity="start|center_vertical"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:orientation="horizontal"
+    android:minWidth="@dimen/rumble_widget_header_min_width"
+    android:background="@drawable/v3_selector_main_menu_user_item_background"
+    >
+
+    <TextView
+        android:id="@+id/app_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/rumble_widget_header_user_item_title_margin_start"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:gravity="center_vertical"
+        android:textColor="@color/v3_selector_main_menu_items_color"
+        android:text="@string/headers_fragment_login_label"
+        android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+        />
+
+</LinearLayout>

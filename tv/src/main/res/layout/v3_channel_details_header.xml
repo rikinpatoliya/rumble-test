@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="item" type="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <variable name="actionClickHandler" type="android.view.View.OnClickListener"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.rumble.widget.RumbleConstraintLayout
+            android:id="@+id/details_header_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/channel_details_header_row_alignment_offset"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:descendantFocusability="afterDescendants"
+            android:background="@android:color/transparent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/first_left_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/channel_details_header_start_margin" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/second_left_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/channel_details_header_second_start_margin" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/first_horizontal_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="107dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/second_horizontal_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/channel_details_header_second_top_margin" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/right_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/channel_details_header_end_margin" />
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="@dimen/channel_details_icon_size"
+                android:layout_height="@dimen/channel_details_icon_size"
+                android:src="@drawable/all_placeholder"
+                app:circleImageUrl="@{item.thumbnail}"
+                app:placeholder="@{item.channelTitle}"
+                app:layout_constraintStart_toStartOf="@id/first_left_guideline"
+                app:layout_constraintTop_toTopOf="@id/first_horizontal_guideline"
+                app:srcCompat="@drawable/all_placeholder" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/title_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@+id/second_left_guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="@dimen/channel_details_header_end_margin"
+                app:layout_constraintTop_toTopOf="@id/first_horizontal_guideline">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="start|top"
+                    android:maxLines="1"
+                    android:maxWidth="@dimen/channel_details_title_text_max_width"
+                    android:text="@{item.channelTitle}"
+                    android:textAppearance="@style/TextAppearance.Rumble.Headline1"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Big title" />
+
+                <ImageView
+                    android:id="@+id/verified_badge"
+                    android:layout_width="@dimen/channel_details_verified_badge_icon_width"
+                    android:layout_height="@dimen/channel_details_verified_badge_icon_height"
+                    app:layout_constraintStart_toEndOf="@+id/title"
+                    app:layout_constraintTop_toTopOf="@+id/title"
+                    android:src="@drawable/verified_badge"
+                    android:visibility="@{item.verifiedBadge? View.VISIBLE: View.GONE}"
+                    android:layout_marginStart="@dimen/channel_details_verified_badge_margin_start"
+                    app:layout_constraintBottom_toBottomOf="@+id/title"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+            <TextView
+                android:id="@+id/subscribers_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="start|top"
+                android:maxLines="1"
+                android:textColor="@color/bone"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                app:layout_constraintStart_toStartOf="@+id/second_left_guideline"
+                app:layout_constraintTop_toBottomOf="@+id/title_layout"
+                android:text="@string/channel_details_header_subscribers_label" />
+
+            <ImageView
+                android:id="@+id/subscribers_dot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@string/content_description_dot"
+                android:src="@drawable/v3_shape_circle"
+                app:layout_constraintStart_toEndOf="@+id/subscribers_label"
+                app:layout_constraintBottom_toBottomOf="@+id/subscribers_label"
+                app:layout_constraintTop_toTopOf="@+id/subscribers_label"/>
+
+            <TextView
+                android:id="@+id/subscribers_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/channel_details_subscribers_value_start_margin"
+                android:ellipsize="end"
+                android:gravity="start|top"
+                android:maxLines="1"
+                android:textColor="@color/white"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                app:layout_constraintStart_toStartOf="@+id/subscribers_dot"
+                app:layout_constraintBottom_toBottomOf="@+id/subscribers_label"
+                app:layout_constraintTop_toTopOf="@+id/subscribers_label"
+                app:formattedNumber="@{item.followers}"
+                tools:text="6.2K" />
+
+            <TextView
+                android:id="@+id/videos_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/channel_details_videos_label_start_margin"
+                android:ellipsize="end"
+                android:gravity="start|top"
+                android:maxLines="1"
+                android:textColor="@color/bone"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                app:layout_constraintBottom_toBottomOf="@+id/subscribers_label"
+                app:layout_constraintStart_toEndOf="@+id/subscribers_value"
+                app:layout_constraintTop_toTopOf="@+id/subscribers_label"
+                android:text="@string/channel_details_header_videos_label" />
+
+            <ImageView
+                android:id="@+id/videos_dot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/channel_details_videos_dot_start_margin"
+                android:contentDescription="@string/content_description_dot"
+                android:src="@drawable/v3_shape_circle"
+                app:layout_constraintBottom_toBottomOf="@+id/subscribers_label"
+                app:layout_constraintStart_toEndOf="@+id/videos_label"
+                app:layout_constraintTop_toTopOf="@+id/subscribers_label" />
+
+            <TextView
+                android:id="@+id/videos_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/channel_details_videos_value_start_margin"
+                android:ellipsize="end"
+                android:gravity="start|top"
+                android:maxLines="1"
+                android:textColor="@color/white"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                app:layout_constraintStart_toStartOf="@+id/videos_dot"
+                app:layout_constraintBottom_toBottomOf="@+id/subscribers_label"
+                app:layout_constraintTop_toTopOf="@+id/subscribers_label"
+                tools:text="62"
+                app:formattedNumber="@{item.videoCount}" />
+
+            <Button
+                android:id="@+id/subscribe_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:nextFocusRight="@id/more_button"
+                android:minHeight="0dp"
+                android:visibility="gone"
+                android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                android:background="@drawable/v3_selector_channel_subscribe_button_background"
+                android:text="@{item.blocked ? @string/unblock : item.followed ? @string/channel_details_header_unsubscribe_button_title : @string/channel_details_header_subscribe_button_title}"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                android:textColor="@color/v3_channel_details_button_text_color"
+                android:paddingStart="@dimen/channel_details_subscribe_button_padding_start"
+                android:paddingEnd="@dimen/channel_details_subscribe_button_padding_end"
+                android:paddingTop="@dimen/channel_details_subscribe_button_padding_top"
+                android:paddingBottom="@dimen/channel_details_subscribe_button_padding_bottom"
+                app:layout_constraintStart_toStartOf="@+id/second_left_guideline"
+                app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline"
+                />
+
+            <ImageButton
+                android:id="@+id/more_button"
+                android:src="@drawable/v3_ic_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:paddingStart="@dimen/channel_details_subscribe_button_padding_top"
+                android:paddingEnd="@dimen/channel_details_subscribe_button_padding_top"
+                android:paddingTop="@dimen/channel_details_subscribe_button_padding_top"
+                android:paddingBottom="@dimen/channel_details_subscribe_button_padding_bottom"
+                android:layout_marginStart="8dp"
+                android:focusedByDefault="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:nextFocusLeft="@id/subscribe_button"
+                android:nextFocusRight="@id/radio_button_recent"
+                android:minHeight="0dp"
+                android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                android:background="@drawable/v3_selector_channel_radio_button_background"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                android:textColor="@color/v3_channel_details_button_text_color"
+                app:layout_constraintStart_toEndOf="@+id/subscribe_button"
+                app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline"
+                app:layout_constraintBottom_toBottomOf="@+id/subscribe_button"
+                android:tint="@color/v3_channel_details_button_text_color"
+                app:tint="@color/v3_channel_details_button_text_color"
+                tools:ignore="UseAppTint" />
+
+            <RadioGroup
+                android:id="@+id/radio_group"
+                android:checkedButton="@+id/radio_button_recent"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline"
+                app:layout_constraintEnd_toEndOf="@id/right_guideline"
+                >
+                <RadioButton
+                    android:id="@+id/radio_button_recent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:nextFocusRight="@id/radio_button_viewed"
+                    android:nextFocusLeft="@id/more_button"
+                    android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                    android:minHeight="0dp"
+                    android:button="@android:color/transparent"
+                    android:background="@drawable/v3_selector_channel_radio_button_background"
+                    android:text="@string/channel_details_header_recent_button_title"
+                    android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                    android:textStyle="bold"
+                    android:textColor="@color/v3_channel_details_button_text_color"
+                    android:paddingStart="@dimen/channel_details_radio_button_recent_padding_start"
+                    android:paddingEnd="@dimen/channel_details_radio_button_recent_padding_end"
+                    android:paddingTop="@dimen/channel_details_radio_button_recent_padding_top"
+                    android:paddingBottom="@dimen/channel_details_radio_button_recent_padding_bottom"/>
+                <RadioButton
+                    android:id="@+id/radio_button_viewed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:nextFocusLeft="@id/radio_button_recent"
+                    android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                    android:minHeight="0dp"
+                    android:layout_marginStart="@dimen/channel_details_radio_button_viewed_start_margin"
+                    android:button="@android:color/transparent"
+                    android:background="@drawable/v3_selector_channel_radio_button_background"
+                    android:text="@string/channel_details_header_viewed_button_title"
+                    android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                    android:textStyle="bold"
+                    android:textColor="@color/v3_channel_details_button_text_color"
+                    android:paddingStart="@dimen/channel_details_radio_button_viewed_padding_start"
+                    android:paddingEnd="@dimen/channel_details_radio_button_viewed_padding_end"
+                    android:paddingTop="@dimen/channel_details_radio_button_viewed_padding_top"
+                    android:paddingBottom="@dimen/channel_details_radio_button_viewed_padding_bottom"/>
+            </RadioGroup>
+
+        </com.rumble.widget.RumbleConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/top_header_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="@dimen/rumble_logo_width"
+                android:layout_height="@dimen/rumble_logo_height"
+                android:src="@drawable/v3_ic_badge"
+                android:layout_marginTop="@dimen/main_header_icon_margin_top"
+                android:layout_marginEnd="@dimen/main_header_icon_margin_end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+
+
+</layout>

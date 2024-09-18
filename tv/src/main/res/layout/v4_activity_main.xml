@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainConstraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/ivBg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@color/tv_background_color"
+            android:contentDescription="@string/bg_image" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:defaultNavHost="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/rlLeftMenu"
+            app:navGraph="@navigation/v4_main_nav_graph" />
+
+        <com.rumble.util.LeftMenuView
+            android:id="@+id/rlLeftMenu"
+            android:layout_width="@dimen/menu_headers_closed_width"
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            android:elevation="8dp"
+            android:focusableInTouchMode="true"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:context=".ui.activity.MainTabActivity" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="@dimen/rumble_logo_width"
+            android:layout_height="@dimen/rumble_logo_height"
+            android:src="@drawable/v3_ic_badge"
+            android:layout_marginTop="@dimen/main_header_icon_margin_top"
+            android:layout_marginEnd="@dimen/main_header_icon_margin_end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

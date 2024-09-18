@@ -1,0 +1,53 @@
+plugins {
+    id 'com.github.jk1.dependency-license-report' version '2.0'
+}
+
+apply from: '../tv/common.tv.build.gradle'
+
+import com.github.jk1.license.render.JsonReportRenderer
+def openSourceLicencesFilename = 'open_source_licenses.json'
+
+ext.loadSigningConfig = { config, env ->
+    try {
+        def keystoreProperties = new Properties()
+        keystoreProperties.load(new FileInputStream(rootProject.file("tv/keystore/${env}/keystore.properties")))
+
+        config.keyAlias keystoreProperties['fireTvKeyAlias']
+        config.keyPassword keystoreProperties['fireTvKeyPassword']
+        config.storeFile file("../tv/" + keystoreProperties['fireTvStoreFile'])
+        config.storePassword keystoreProperties['fireTvStorePassword']
+    } catch ( FileNotFoundException exception ) {
+        project.logger.lifecycle("Skip loading signing config for ${env}")
+    }
+}
+
+android {
+
+    namespace 'com.rumble.firetv'
+    defaultConfig {
+        applicationId "com.rumble.firetv"
+        buildConfigField "String", "REQUEST_PARAM_APP_NAME", '"com.rumble.firetv.app"'
+        buildConfigField "String", "METADATA_BUNDLE_ID", '"com.rumble.firetv"'
+    }
+    signingConfigs {
+        debugKey {
+            loadSigningConfig(it, "debug")
+        }
+        qaKey {
+            loadSigningConfig(it, "qa")
+        }
+        releaseKey {
+            loadSigningConfig(it, "release")
+        }
+    }
+}
+
+/*
+* The list of licenses is generated with Gradle License Report (https://github.com/jk1/Gradle-License-Report)
+* run "gradle generateLicenseReport" to generate your report in build/reports/dependency-license
+* and then copy the contents of generated file withing dependency array into RumbleConstants file
+*/
+licenseReport {
+    outputDir = "$projectDir/src/main/assets"
+    renderers = [new JsonReportRenderer(fileName: openSourceLicencesFilename)]
+}

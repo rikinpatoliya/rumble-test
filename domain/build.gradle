@@ -1,0 +1,108 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.7.20'
+}
+
+android {
+    compileSdk compileSdkVer
+
+    defaultConfig {
+        minSdk minSdkVer
+        targetSdk targetSdkVer
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas".toString())
+            }
+        }
+    }
+
+    buildTypes {
+        release {}
+        debug {}
+        qa {}
+    }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_9.toString()
+    }
+    namespace 'com.rumble.domain'
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    def okhttp_version = "4.10.0"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:okhttp-sse:4.9.3"
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Data store
+    implementation "androidx.datastore:datastore-preferences:1.1.0"
+
+    // Backward support for time classes
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
+    // Firebase config
+    api platform('com.google.firebase:firebase-bom:32.8.1')
+    api 'com.google.firebase:firebase-config-ktx'
+
+    // region local modules
+    implementation project(path: ':network')
+    implementation project(path: ':utils')
+    implementation project(path: ':analytics')
+    implementation project(path: ':videoPlayer')
+    // endregion
+
+    // region Room database
+    def room_version = "2.6.1"
+    api "androidx.room:room-runtime:$room_version"
+    api "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    // endregion
+
+    // region Paging library
+    def paging_version = "3.2.0"
+    api "androidx.paging:paging-runtime-ktx:$paging_version"
+    // endregion
+
+    // region Hilt DI
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation "androidx.hilt:hilt-navigation-compose:1.2.0"
+    implementation 'androidx.hilt:hilt-work:1.2.0'
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    kapt "androidx.hilt:hilt-compiler:1.2.0"
+    // endregion
+
+    // region OneSignal
+    //OneSignal
+    // Warning version 4.8.5 of this library introduces a bug that breaks WorkManager configuration https://github.com/OneSignal/OneSignal-Android-SDK/issues/1748
+    api 'com.onesignal:OneSignal:4.8.4'
+    // endregion
+
+    // region JSON
+    //https://github.com/Kotlin/kotlinx.serialization/tree/master/docs
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    // endregion
+
+    // region Logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation 'org.slf4j:slf4j-api:2.0.7'
+    implementation 'com.github.tony19:logback-android:3.0.0'
+    // endregion
+
+    def media3_version = "1.2.1"
+    implementation "androidx.media3:media3-transformer:$media3_version"
+    implementation "androidx.media3:media3-effect:$media3_version"
+    implementation "androidx.media3:media3-common:$media3_version"
+}

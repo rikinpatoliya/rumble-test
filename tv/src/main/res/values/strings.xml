@@ -1,0 +1,288 @@
+<resources xmlns:tools="http://schemas.android.com/tools"  tools:ignore="MissingTranslation">
+    <string name="app_name">Rumble</string>
+    <string name="browse_title">Videos by Your Company</string>
+    <string name="related_movies">Related Videos</string>
+    <string name="no_internet">No internet connection</string>
+
+    <!-- Error messages -->
+    <string name="error_fragment_message">An error occurred</string>
+    <string name="dismiss_error">Dismiss</string>
+    <string name="login_to_like">Please sign in to like</string>
+    <string name="login_to_dislike">Please sign in to dislike</string>
+    <string name="login_to_add_to_playlist">Please sign in to add to playlists</string>
+    <string name="generic_error_message">Something went wrong</string>
+    <string name="video_already_added_to_playlist">Error adding video, already in playlist</string>
+    <string name="video_does_not_exist_in_playlist">Error removing video from playlist, video is not in playlist</string>
+
+    <array name="menu_list">
+        <item>Home</item>
+        <item>Search</item>
+        <item>Settings</item>
+    </array>
+
+    <array name="row_list">
+        <item>Editor Picks</item>
+        <item>Viral</item>
+        <item>News</item>
+        <item>Podcasts</item>
+        <item>Sports</item>
+        <item>Science</item>
+    </array>
+
+    <array name="homepage_list_id">
+        <item>_f2</item>
+        <item>_s1</item>
+        <item>_s5</item>
+        <item>_s14</item>
+        <item>_s3</item>
+        <item>_s6</item>
+    </array>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="auth_login_label1">To access this section please log in this device to synchronize your content</string>
+    <string name="auth_login_label2">Visit rumble.com/tv and enter the following code:</string>
+    <string name="auth_login_sample_code">XQC142</string>
+    <string name="auth_login_label3">waiting to activate your tv...</string>
+    <string name="login_text_1">To access this section please log in this device \nto synchronize your content</string>
+    <string name="login_text_2">Visit www.rumble.com/pair and \nenter the following code:</string>
+    <string name="login_text_loading">waiting to activate your tv...</string>
+    <string name="action_unsub">Unsubscribe</string>
+    <string name="action_sub">Subscribe</string>
+    <string name="authentication_token_expire_msg">Your account was logged out of this device.\nPlease login again.</string>
+    <string name="hint_search_videos_channels">Search videos, channels</string>
+    <string name="hint_search">Search</string>
+    <string name="content_description_dot">dot</string>
+    <string name="content_description_views">views</string>
+    <string name="content_description_comments">comments</string>
+    <string name="following">Following</string>
+    <string name="followers_pattern">%s followers</string>
+    <string name="viewers_pattern">%s viewers</string>
+    <string name="no_search_results">No results for \'%s\'</string>
+
+    <!-- region Home -->
+    <string name="home_row_title_popular_channels">Popular channels</string>
+    <string name="home_row_title_live">Live</string>
+    <string name="home_row_title_editor_picks">Editor picks</string>
+    <string name="home_row_title_gaming">Gaming</string>
+    <string name="home_row_title_news">News</string>
+    <string name="home_row_title_viral">Viral</string>
+    <string name="home_row_title_podcasts">Podcasts</string>
+    <string name="home_row_title_finance">Finance</string>
+    <string name="home_row_title_entertainment">Entertainment</string>
+    <string name="home_row_title_sports">Sports</string>
+    <string name="home_row_title_science">Science</string>
+    <string name="home_row_title_music">Music</string>
+    <string name="home_row_title_vlogs">Vlogs</string>
+    <string name="home_row_title_cooking">Cooking</string>
+    <string name="home_row_item_view_all_label">View All</string>
+    <!-- endregion -->
+
+    <!-- region Video card -->
+    <string name="video_card_upcoming_label">Upcoming</string>
+    <string name="video_card_live_starting_label">Starting</string>
+    <string name="video_card_live_paused_label">Paused</string>
+    <string name="video_card_live_label">Live</string>
+    <string name="video_card_live_label_all_caps">LIVE</string>
+    <string name="video_card_live_stream_ended_label">Streamed</string>
+    <string name="video_card_live_stream_ended_pattern_label">Streamed %s</string>
+    <string name="video_card_ppv_label">PPV</string>
+    <string name="video_card_purchased_label">Purchased</string>
+    <string name="verified_icon_description">Verified</string>
+    <string name="streamed">Streamed</string>
+    <string name="stream_started">Stream started</string>
+    <string name="scheduled_for">Scheduled for</string>
+    <string name="at">at</string>
+
+    <!-- endregion -->
+
+    <!-- region Search fragment -->
+    <string name="search_result_row_video_title_pattern">Video results for \'%s\'</string>
+    <string name="search_result_row_channel_title_pattern">Channel results for \'%s\'</string>
+    <string name="search_result_empty_row_video_title_pattern">No video results for \'%s\'</string>
+    <string name="search_result_empty_row_channel_title_pattern">No channel results for \'%s\'</string>
+    <!-- endregion -->
+
+    <!-- region Chanel Details  -->
+    <string name="channel_details_header_subscribers_label">Followers</string>
+    <string name="channel_details_header_videos_label">Videos</string>
+    <string name="channel_details_header_subscribe_button_title">Follow</string>
+    <string name="channel_details_header_unsubscribe_button_title">Unfollow</string>
+    <string name="channel_details_header_recent_button_title">Most Recent</string>
+    <string name="channel_details_header_viewed_button_title">Most Viewed</string>
+    <string name="channel_details_empty_view_text">No videos have been posted for this channel yet.</string>
+    <string name="channel_details_user_not_logged_in">Please sign in to follow.</string>
+    <string name="channel_details_user_not_logged_in_block_channel">Please sign in to block channels.</string>
+    <string name="channel_details_user_not_logged_in_report_channel">Please sign in to report channels.</string>
+
+    <string name="channel_details_more_title">Block or report channel</string>
+    <string name="channel_details_more_block_title">Block</string>
+    <string name="unblock">Unblock</string>
+    <string name="channel_details_more_report_title">Report</string>
+    <string name="channel_details_more_cancel_title">Cancel</string>
+    <string name="channel_details_more_report_screen_title">Report</string>
+    <string name="channel_details_more_report_screen_subtitle">Why are you reporting this account</string>
+    <string name="channel_details_more_report_screen_spam">It’s a spam</string>
+    <string name="channel_details_more_report_screen_inappropriate">It’s inappropriate</string>
+    <string name="channel_details_more_report_screen_copyright">It violates copyright</string>
+    <string name="channel_details_more_report_screen_terms">It violates our Terms</string>
+    <string name="the_channel_has_been_reported">The channel has been reported</string>
+    <!-- endregion -->
+
+    <!-- region Headers Fragment -->
+    <string name="headers_fragment_search_label">Search</string>
+    <string name="headers_fragment_home_label">Home</string>
+    <string name="headers_fragment_live_label">Live</string>
+    <string name="headers_fragment_browse_label">Browse</string>
+    <string name="headers_fragment_channels_label">Channels</string>
+    <string name="headers_fragment_library_label">Library</string>
+    <string name="headers_fragment_subscriptions_label">Following</string>
+    <string name="headers_fragment_settings_label">Settings</string>
+    <string name="headers_fragment_login_label">Login</string>
+    <!-- endregion -->
+
+    <!-- region User authentication error screen -->
+    <string name="user_authentication_error_screen_message_title">A network error has occurred</string>
+    <string name="user_authentication_error_screen_message_description">Unable to retrieve authentication\n code. Please try again.</string>
+    <string name="user_authentication_error_screen_refresh_button_title">Refresh</string>
+    <!-- endregion -->
+
+    <!-- region User logged in screen -->
+    <string name="user_logged_in_screen_title">You are logged in as</string>
+    <string name="user_logged_in_screen_logout_button_title">Logout</string>
+    <!-- endregion -->
+
+    <!-- region User not logged in screen -->
+    <string name="user_not_logged_in_screen_title">To log in to Rumble on your TV visit <a href="https://rumble.com/pair">rumble.com/pair</a> and enter the following code:</string>
+    <!-- endregion -->
+
+    <!-- region Settings Fragment -->
+    <string name="settings_fragment_terms_conditions_label">Terms &amp; Conditions</string>
+    <string name="settings_fragment_privacy_policy_label">Privacy Policy</string>
+    <string name="settings_fragment_copyright_label">Copyright &amp; DMCA</string>
+    <string name="settings_fragment_credits_label">Credits</string>
+    <string name="settings_fragment_settings_label">Settings</string>
+    <string name="settings_fragment_app_version">App Version</string>
+    <string name="settings_fragment_terms_conditions_content_label">To read Rumble’s terms and conditions, visit</string>
+    <string name="settings_fragment_terms_conditions_content_label2">rumble.com/s/terms</string>
+    <string name="settings_fragment_privacy_policy_content_label">To read Rumble’s privacy policy, visit</string>
+    <string name="settings_fragment_privacy_policy_content_label2">rumble.com/s/privacy</string>
+    <string name="settings_fragment_copyright_content_label">To read Rumble’s Copyright &amp; DMCA, visit</string>
+    <string name="settings_fragment_copyright_content_label2">rumble.com/s/dmca</string>
+    <string name="disable_ads">Disable ads</string>
+    <string name="force_ads">Force ads</string>
+    <string name="always_play_debug_ad">Always play debug ad</string>
+    <!-- endregion -->
+
+    <!-- region Subscriptions screen -->
+    <string name="subscriptions_not_logged_in_label">Please sign in \n to see the channels you follow</string>
+    <string name="subscriptions_login_button_label">Login</string>
+    <string name="subscriptions_no_subscription_label">You’re not following any channels</string>
+    <string name="subscriptions_view_channels_button_label">View Channel Recommendations</string>
+    <string name="subscriptions_all_subscriptions_label">My Feed</string>
+    <string name="subscriptions_all_subscriptions_sort_label">Sort Following</string>
+    <!-- endregion -->
+
+    <!-- Feed Titles -->
+    <string name="feed_title_viral">Viral</string>
+    <string name="feed_title_cooking">Cooking</string>
+    <string name="feed_title_sports">Sports</string>
+    <string name="feed_title_gaming">Gaming</string>
+    <string name="feed_title_news">News</string>
+    <string name="feed_title_science">Science</string>
+    <string name="feed_title_technology">Technology</string>
+    <string name="feed_title_auto">Auto</string>
+    <string name="feed_title_howto">HowTo</string>
+    <string name="feed_title_travel">Travel</string>
+    <string name="feed_title_music">Music</string>
+    <string name="feed_title_vlogs">Vlogs</string>
+    <string name="feed_title_podcasts">Podcasts</string>
+    <string name="feed_title_entertainment">Entertainment</string>
+    <string name="feed_title_finance">Finance</string>
+    <string name="feed_title_editor_picks">Editor Picks</string>
+    <string name="feed_title_live">Live</string>
+
+    <!--Video player-->
+    <string name="player_error">Something went wrong</string>
+    <string name="currently_watching">You’re Watching</string>
+    <string name="player_live">LIVE</string>
+    <string name="stream_quality">Stream Quality</string>
+    <string name="choose_stream_quality">Choose a stream quality</string>
+    <string name="all_subscriptions">All Subscriptions</string>
+    <string name="video_has_been_reported">The video has been reported</string>
+
+<!-- V4 -->
+    <string name="bg_image">Main Background Image</string>
+    <string name="home_row_title_top_live_categories">Top Live Categories</string>
+
+    <!--Categories-->
+    <string name="viewers_label">viewers</string>
+    <string name="live_streams">Live Streams</string>
+    <string name="recorded_streams">Recorded Streams</string>
+    <string name="videos">Videos</string>
+    <string name="categories">Categories</string>
+
+    <string name="all_subscription_empty_view">Your feed is empty</string>
+
+    <string name="category_details_live_empty_title">No Live Streams</string>
+    <string name="category_details_live_empty_description">There are currently no channels live at this time. Please check back later.</string>
+    <string name="category_details_videos_empty_title">No Videos</string>
+    <string name="category_details_videos_empty_description">There are currently no videos in this feed. Please check back later.</string>
+
+    <!--mature content-->
+    <string name="mature_content_dialog_title">18+ Mature Content</string>
+    <string name="mature_content_dialog_description">This content has been marked as mature. You must be 18 or older to view this content.</string>
+    <string name="mature_content_dialog_positive_button_text">Start Watching</string>
+    <string name="mature_content_dialog_negative_button_text">Back</string>
+
+    <string name="internet_connection_lost">Internet connection lost. Please check your network.</string>
+
+    <string name="library_screen_title">Library</string>
+    <string name="library_playlists_title">Playlists</string>
+    <string name="watch_history">Watch History</string>
+    <string name="watch_later">Watch Later</string>
+    <string name="purchases">Purchases</string>
+    <string name="liked_videos">Liked Videos</string>
+    <string name="empty_playlist_message">No videos in this playlist yet.</string>
+    <string name="empty_purchase_playlist_message">No videos have been purchased yet.</string>
+    <string name="library_not_logged_in_message">Please sign in \nto start curating content</string>
+    <string name="no_playlists_yet">No playlists yet</string>
+    <string name="library_header_playlist_by">Playlist by\ </string>
+
+    <plurals name="videos_count">
+        <item quantity="one">\ •  %d video</item>
+        <item quantity="other">\ •  %d videos</item>
+    </plurals>
+
+    <string name="refresh">Refresh</string>
+    <string name="play_all">Play All</string>
+    <string name="shuffle_all">Shuffle All</string>
+    <string name="save_to_title">Save to...</string>
+    <string name="channel_name_prefix">/</string>
+    <string name="username_prefix">\@</string>
+    <string name="playlist_private">Private</string>
+    <string name="description_saved">Saved</string>
+    <string name="description_not_saved">Not Saved</string>
+    <string name="back">Back</string>
+
+    <string name="sort_following">Sort Following</string>
+
+    <plurals name="likes">
+        <item quantity="one">\ • %s Like</item>
+        <item quantity="other">\ • %s Likes</item>
+    </plurals>
+
+    <plurals name="views">
+        <item quantity="one">\ • %s View</item>
+        <item quantity="other">\ • %s Views</item>
+    </plurals>
+
+    <string name="waiting">\ • %s waiting</string>
+
+    <string name="started">Started</string>
+    <string name="starting">Starting</string>
+    <string name="scheduled">Scheduled</string>
+    <string name="upcoming">Upcoming</string>
+
+    <string name="recommended_channels_title">Recommended</string>
+
+</resources>

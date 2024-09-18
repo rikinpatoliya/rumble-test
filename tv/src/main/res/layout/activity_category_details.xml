@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable name="item" type="com.rumble.domain.discover.domain.domainmodel.CategoryEntity"/>
+        <variable name="actionClickHandler" type="android.view.View.OnClickListener"/>
+        <import type="android.view.View"/>
+        <import type="com.rumble.utils.extension.LongExtensionsKt"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tv_background_color">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/imageviewLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="@dimen/category_details_icon_margin"
+            android:layout_marginStart="@dimen/category_details_icon_margin">
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="@dimen/category_detail_image_width"
+                android:layout_height="@dimen/category_detail_image_height"
+                tools:src="@color/rumble_green"
+                app:roundedCornerImageUrl="@{item.thumbnail}"
+                app:cornerRadius="@{@dimen/video_card_corner_radius}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/contentView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:animateLayoutChanges="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageviewLayout"
+            app:layout_constraintTop_toTopOf="@+id/imageviewLayout">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/title_layout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="visible"
+                android:layout_marginStart="@dimen/category_details_title_margin"
+                android:layout_marginEnd="@dimen/category_detail_image_width"
+                android:animateLayoutChanges="true"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{item.title}"
+                    android:textAppearance="@style/TextAppearance.Rumble.Headline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Gaming" />
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintHeight_min="@dimen/category_details_description_text_height_min"
+                    android:layout_marginTop="@dimen/category_details_description_margin_top"
+                    android:ellipsize="end"
+                    android:maxLines="5"
+                    android:text="@{item.description}"
+                    android:textAppearance="@style/TextAppearance.Rumble.Label.Regular"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/title"
+                    tools:text="All your gaming needs found in one place, covering PC, consoles, smartphones and everything in between." />
+
+                <TextView
+                    android:id="@+id/viewers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="start|top"
+                    android:maxLines="1"
+                    android:paddingBottom="@dimen/category_details_title_layout_padding_bottom"
+                    app:formattedViewers="@{item.viewersNumber}"
+                    app:viewerSeparator="@{true}"
+                    android:textAppearance="@style/TextAppearance.Rumble.Label.Regular"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/description"
+                    tools:text="6.2K" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/buttonsLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/category_detail_image_width"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/title_layout"
+                app:layout_constraintTop_toBottomOf="@+id/title_layout">
+
+                <RadioGroup
+                    android:id="@+id/radio_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/radio_button_livestream"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline">
+
+                    <RadioButton
+                        android:id="@+id/radio_button_livestream"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/v3_selector_channel_radio_button_background"
+                        android:button="@android:color/transparent"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:minHeight="0dp"
+                        android:nextFocusLeft="@id/more_button"
+                        android:nextFocusRight="@id/radio_button_viewed"
+                        android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                        android:paddingStart="@dimen/channel_details_radio_button_recent_padding_start"
+                        android:paddingTop="@dimen/channel_details_radio_button_recent_padding_top"
+                        android:paddingEnd="@dimen/channel_details_radio_button_recent_padding_end"
+                        android:paddingBottom="@dimen/channel_details_radio_button_recent_padding_bottom"
+                        android:text="@string/live_streams"
+                        android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                        android:textColor="@color/v3_channel_details_button_text_color"
+                        android:textStyle="bold" />
+
+                    <RadioButton
+                        android:id="@+id/radio_button_recorded_stream"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/category_details_radio_button_viewed_start_margin"
+                        android:background="@drawable/v3_selector_channel_radio_button_background"
+                        android:button="@android:color/transparent"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:minHeight="0dp"
+                        android:nextFocusLeft="@id/radio_button_recent"
+                        android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                        android:paddingStart="@dimen/channel_details_radio_button_viewed_padding_start"
+                        android:paddingTop="@dimen/channel_details_radio_button_viewed_padding_top"
+                        android:paddingEnd="@dimen/channel_details_radio_button_viewed_padding_end"
+                        android:paddingBottom="@dimen/channel_details_radio_button_viewed_padding_bottom"
+                        android:text="@string/recorded_streams"
+                        android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                        android:textColor="@color/v3_channel_details_button_text_color"
+                        android:textStyle="bold" />
+
+                    <RadioButton
+                        android:id="@+id/radio_button_videos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/category_details_radio_button_viewed_start_margin"
+                        android:background="@drawable/v3_selector_channel_radio_button_background"
+                        android:button="@android:color/transparent"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:minHeight="0dp"
+                        android:nextFocusLeft="@id/radio_button_recent"
+                        android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                        android:paddingStart="@dimen/channel_details_radio_button_viewed_padding_start"
+                        android:paddingTop="@dimen/channel_details_radio_button_viewed_padding_top"
+                        android:paddingEnd="@dimen/channel_details_radio_button_viewed_padding_end"
+                        android:paddingBottom="@dimen/channel_details_radio_button_viewed_padding_bottom"
+                        android:text="@string/videos"
+                        android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                        android:textColor="@color/v3_channel_details_button_text_color"
+                        android:textStyle="bold" />
+
+                    <RadioButton
+                        android:id="@+id/radio_button_categories"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/category_details_radio_button_viewed_start_margin"
+                        android:background="@drawable/v3_selector_channel_radio_button_background"
+                        android:button="@android:color/transparent"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:minHeight="0dp"
+                        android:nextFocusLeft="@id/radio_button_recent"
+                        android:nextFocusRight="@id/radio_button_categories"
+                        android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                        android:paddingStart="@dimen/channel_details_radio_button_viewed_padding_start"
+                        android:paddingTop="@dimen/channel_details_radio_button_viewed_padding_top"
+                        android:paddingEnd="@dimen/channel_details_radio_button_viewed_padding_end"
+                        android:paddingBottom="@dimen/channel_details_radio_button_viewed_padding_bottom"
+                        android:text="@string/categories"
+                        android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                        android:textColor="@color/v3_channel_details_button_text_color"
+                        android:textStyle="bold" />
+
+                </RadioGroup>
+
+            </LinearLayout>
+
+            <androidx.leanback.widget.BrowseFrameLayout
+                android:id="@+id/categoryDetailsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/category_details_grid_margin_top"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonsLayout" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/categoryDetailsContainer"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonsLayout" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:layout_width="@dimen/rumble_logo_width"
+            android:layout_height="@dimen/rumble_logo_height"
+            android:src="@drawable/v3_ic_badge"
+            android:layout_marginTop="@dimen/main_header_icon_margin_top"
+            android:layout_marginEnd="@dimen/main_header_icon_margin_end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="true"
+            android:visibility="visible"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            android:drawableStart="@drawable/ic_back_arrow"
+            android:drawableTint="@color/v3_channel_details_button_text_color"
+            android:drawablePadding="@dimen/back_arrow_drawable_padding_start"
+            android:text="@string/back"
+            android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+            android:textAllCaps="false"
+            android:layout_marginBottom="5dp"
+            android:layout_marginStart="5dp"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/v3_channel_details_button_text_color"
+            android:paddingStart="@dimen/back_button_padding_start"
+            android:paddingEnd="@dimen/back_button_padding_end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="view_model" type="com.rumble.ui3.user.profile.UserLoggedInViewModel"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingEnd="50dp"
+        android:paddingStart="0dp">
+
+        <TextView
+            android:id="@+id/logged_in_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/user_logged_in_screen_title_margin_top"
+            android:text="@string/user_logged_in_screen_title"
+            android:textSize="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/user_logged_in_screen_icon_width"
+            android:layout_height="@dimen/user_logged_in_screen_icon_height"
+            android:layout_marginTop="@dimen/user_logged_in_screen_icon_margin_top"
+            app:circleImageUrl="@{view_model.userAvatar}"
+            app:placeholder="@{view_model.userName}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/logged_in_label"
+            tools:srcCompat="@drawable/all_placeholder"
+            />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/user_logged_in_screen_user_name_margin_top"
+            android:text="@{view_model.userName}"
+            tools:text="Elise Jenkins"
+            android:textSize="13dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon"
+            />
+
+        <Button
+            android:id="@+id/logout_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/user_logged_in_screen_logout_button_margin_top"
+            android:focusedByDefault="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:minHeight="0dp"
+            android:nextFocusDown="@id/logout_button"
+            android:background="@drawable/v3_selector_logout_button_background"
+            android:text="@string/user_logged_in_screen_logout_button_title"
+            android:textAllCaps="false"
+            android:textSize="16dp"
+            android:textColor="@color/v3_channel_details_button_text_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/user_name"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

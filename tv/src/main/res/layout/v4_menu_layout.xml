@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="OnClickListener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onFocusChangeListener"
+            type="android.view.View.OnFocusChangeListener" />
+    </data>
+
+    <merge>
+
+        <LinearLayout
+            android:id="@+id/menuSearchLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginTop="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuSearchLayout"
+            android:nextFocusDown="@id/menuHomeLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuSearchImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_search_label"
+                android:src="@drawable/v3_ic_search" />
+
+            <TextView
+                android:id="@+id/menuSearchText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_search_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuHomeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginTop="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuSearchLayout"
+            android:nextFocusDown="@id/menuLiveLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintTop_toBottomOf="@+id/menuSearchLayout"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuHomeImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_home_label"
+                android:src="@drawable/v3_ic_home" />
+
+            <TextView
+                android:id="@+id/menuHomeText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_home_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuLiveLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginTop="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuHomeLayout"
+            android:nextFocusDown="@id/menuBrowseLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintTop_toBottomOf="@+id/menuHomeLayout"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuLiveImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_live_label"
+                android:src="@drawable/v3_ic_live" />
+
+            <TextView
+                android:id="@+id/menuLiveText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_live_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuBrowseLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginTop="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuLiveLayout"
+            android:nextFocusDown="@id/menuSubscriptionsLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintTop_toBottomOf="@+id/menuLiveLayout"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuBrowseImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_live_label"
+                android:src="@drawable/v4_ic_browse" />
+
+            <TextView
+                android:id="@+id/menuBrowseText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_browse_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuSubscriptionsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginTop="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuBrowseLayout"
+            android:nextFocusDown="@id/menuLibraryLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintTop_toBottomOf="@+id/menuBrowseLayout"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuSubscriptionsImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_subscriptions_label"
+                android:src="@drawable/v3_ic_subscriptions" />
+
+            <TextView
+                android:id="@+id/menuSubscriptionsText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_subscriptions_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuLibraryLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginTop="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuSubscriptionsLayout"
+            android:nextFocusDown="@id/menuSettingsLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintTop_toBottomOf="@+id/menuSubscriptionsLayout"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuLibraryLayoutImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_library_label"
+                android:src="@drawable/ic_library" />
+
+            <TextView
+                android:id="@+id/menuLibraryText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_library_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuSettingsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginTop="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuLibraryLayout"
+            android:nextFocusDown="@id/menuLoginLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintTop_toBottomOf="@id/menuLibraryLayout"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuSettingsImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_settings_label"
+                android:src="@drawable/v3_ic_settings" />
+
+            <TextView
+                android:id="@+id/menuSettingsText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_settings_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/menuLoginLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="@dimen/menu_headers_margin"
+            android:layout_marginBottom="@dimen/menu_headers_margin"
+            android:background="@drawable/v3_selector_main_menu_user_item_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:nextFocusUp="@id/menuSettingsLayout"
+            android:nextFocusDown="@id/menuLoginLayout"
+            android:onClick="@{OnClickListener}"
+            android:onFocusChangeListener="@{onFocusChangeListener}"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/menu_headers_padding_start"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:ignore="RtlSymmetry">
+
+            <ImageView
+                android:id="@+id/menuLoginImage"
+                android:layout_width="@dimen/menu_headers_icon_size"
+                android:layout_height="@dimen/menu_headers_icon_size"
+                android:contentDescription="@string/headers_fragment_login_label"
+                android:foreground="@drawable/v3_selector_user_header_background"
+                android:src="@drawable/v3_ic_login" />
+
+            <TextView
+                android:id="@+id/menuLoginText"
+                style="@style/LeftMenuStyle"
+                android:layout_width="wrap_content"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+                android:layout_height="@dimen/menu_headers_text_height"
+                android:maxLines="1"
+                android:text="@string/headers_fragment_login_label"
+                android:textColor="@color/v3_selector_main_menu_items_color" />
+        </LinearLayout>
+    </merge>
+</layout>

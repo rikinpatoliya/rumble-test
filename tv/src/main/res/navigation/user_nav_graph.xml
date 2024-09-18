@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/user_nav_graph"
+    app:startDestination="@id/userLoadingFragment">
+
+    <fragment
+        android:id="@+id/userNotLoggedInFragment"
+        android:name="com.rumble.ui3.user.profile.UserNotLoggedInFragment"
+        android:label="UserNotLoggedInFragment"
+        tools:layout="@layout/v3_user_not_logged_in"/>
+
+    <fragment
+        android:id="@+id/userLoggedInFragment"
+        android:name="com.rumble.ui3.user.profile.UserLoggedInFragment"
+        android:label="UserLoggedInFragment"
+        tools:layout="@layout/v3_user_logged_in"/>
+
+    <fragment
+        android:id="@+id/userAuthenticationErrorFragment"
+        android:name="com.rumble.ui3.user.profile.UserAuthenticationErrorFragment"
+        android:label="UserAuthenticationErrorFragment"
+        tools:layout="@layout/v3_user_authentication_error"/>
+
+    <fragment
+        android:id="@+id/userLoadingFragment"
+        android:name="androidx.fragment.app.Fragment"
+        android:label="UserLoadingFragment"/>
+
+</navigation>

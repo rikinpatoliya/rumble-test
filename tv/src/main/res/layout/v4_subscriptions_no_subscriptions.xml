@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="requestCode" type="String"/>
+        <variable
+            name="mainViewModel"
+            type="com.rumble.ui3.main.MainViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/horizontal_guideline"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintGuide_begin="@dimen/subscription_guideline_begin"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subscriptions_no_subscription_label"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline2"
+                app:layout_constraintBottom_toTopOf="@id/horizontal_guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="@dimen/subscriptions_user_not_logged_in_label_margin_bottom"
+                />
+
+            <Button
+                android:id="@+id/login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/subscriptions_user_log_in_button_label_margin_top"
+                android:focusedByDefault="true"
+                android:focusable="true"
+                android:drawableStart="@drawable/v3_ic_refresh_ccw"
+                android:drawableTint="@color/v3_color_selector_white_dark_mode"
+                android:drawablePadding="@dimen/no_subscription_error_refresh_button_drawable_padding"
+                android:focusableInTouchMode="true"
+                android:minHeight="0dp"
+                android:background="@drawable/v3_selector_view_channels_button_background"
+                android:text="@string/subscriptions_view_channels_button_label"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline3"
+                android:textColor="@color/v3_channel_details_button_text_color"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/horizontal_guideline"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+</layout>

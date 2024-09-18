@@ -1,0 +1,38 @@
+<resources>
+
+    <style name="Theme.RumbleBase" parent="@style/Theme.Leanback">
+        <item name="defaultBrandColor">@color/dark_mode</item>
+        <item name="defaultBrandColorDark">@color/dark_mode_50_percent</item>
+
+        <item name="browseHeadersClosingType">width</item>
+        <item name="browseHeadersOpenedWidth">@dimen/headers_fragment_vertical_grid_width</item>
+        <item name="browseHeadersClosedWidth">@dimen/headers_fragment_edge_width</item>
+    </style>
+
+    <style name="Theme.Rumble" parent="Theme.RumbleBase">
+
+        <item name="browseRowsMarginStart">@dimen/rumble_browse_rows_margin_start</item>
+
+        <item name="browseTitleTextStyle">@style/Rumble.Widget.Title.Text</item>
+        <item name="browseTitleIconStyle">@style/Rumble.Widget.Title.Icon</item>
+        <item name="browseTitleViewStyle">@style/Rumble.Widget.TitleView</item>
+
+        <item name="headersVerticalGridStyle">@style/Rumble.Widget.Headers.VerticalGridView</item>
+        <item name="headerStyle">@style/Rumble.Widget.Header.MainMenu</item>
+    </style>
+
+    <style name="Theme.RumbleGuidedStep" parent="@style/Theme.Leanback.GuidedStep">
+
+        <item name="guidanceContainerStyle">@style/Rumble.Widget.GuidanceContainerStyle</item>
+
+        <item name="guidedActionsBackground">@color/dark_mode</item>
+        <item name="guidedActionsListStyle">@style/Rumble.Leanback.GuidedActionsListStyle</item>
+        <item name="guidedSubActionsListStyle">@style/Rumble.Leanback.GuidedSubActionsListStyle</item>
+        <item name="guidedButtonActionsListStyle">@style/Rumble.Leanback.GuidedButtonActionsListStyle</item>
+
+        <item name="guidedActionItemContainerStyle">@style/Rumble.Leanback.GuidedActionItemContainerStyle</item>
+
+    </style>
+
+
+</resources>

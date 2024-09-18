@@ -1,0 +1,72 @@
+package com.rumble.network.di
+
+import com.rumble.network.api.LiveChatEventsApi
+import com.rumble.network.interceptors.ApiVersionInterceptor
+import com.rumble.network.interceptors.HeadersInterceptor
+import com.rumble.network.interceptors.QueryInterceptor
+import com.rumble.network.interceptors.ResponseInterceptor
+import com.rumble.network.interceptors.UrlEncodedInterceptor
+import com.rumble.network.interceptors.UserAgentInterceptor
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import io.harkema.retrofitcurlprinter.RetrofitCurlPrinterInterceptor
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object LiveChatEventModule {
+
+    @Singleton
+    @Provides
+    @LiveChatEventHttpClient
+    fun provideOkHttpClient(
+        loggingInterceptor: HttpLoggingInterceptor,
+        headersInterceptor: HeadersInterceptor,
+        queryInterceptor: QueryInterceptor,
+        urlEncodedInterceptor: UrlEncodedInterceptor,
+        apiVersionInterceptor: ApiVersionInterceptor,
+        responseInterceptor: ResponseInterceptor,
+        userAgentInterceptor: UserAgentInterceptor,
+        curlLoggingInterceptor: RetrofitCurlPrinterInterceptor,
+    ): OkHttpClient {
+        val okHttpClientBuilder = OkHttpClient.Builder()
+            .addInterceptor(headersInterceptor)
+            .addInterceptor(urlEncodedInterceptor)
+            .addInterceptor(userAgentInterceptor)
+            .addInterceptor(queryInterceptor)
+            .addInterceptor(apiVersionInterceptor)
+            .addInterceptor(responseInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .addInterceptor(curlLoggingInterceptor)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+
+        return okHttpClientBuilder.build()
+    }
+
+    @Provides
+    @Singleton
+    @LiveChatEventRetrofit
+    fun provideRetrofit(
+        @LiveChatEventHttpClient httpClient: OkHttpClient,
+        baseUrl: String
+    ): Retrofit {
+        return Retrofit.Builder()
+            .client(httpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(baseUrl)
+            .build()
+    }
+
+    @Provides
+    fun provideLiveChatEventApi(@LiveChatEventRetrofit retrofit: Retrofit): LiveChatEventsApi =
+        retrofit.create(LiveChatEventsApi::class.java)
+}

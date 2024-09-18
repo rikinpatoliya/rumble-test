@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragmentv4"
+    tools:ignore="UnusedNavigation">
+
+    <fragment
+        android:id="@+id/homeFragmentv4"
+        android:name="com.rumble.ui3.home.v4.HomeFragmentV4"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/searchFragmentv4"
+        android:name="com.rumble.ui3.search.v4.SearchFragmentV4"
+        android:label="Searchv4" />
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.rumble.ui3.search.SearchFragment"
+        android:label="Search" />
+
+    <fragment
+        android:id="@+id/liveFragmentv4"
+        android:name="com.rumble.ui3.live.v4.LiveFragmentV4"
+        android:label="Live" />
+
+    <fragment
+        android:id="@+id/browseFragmentv4"
+        android:name="com.rumble.ui3.browse.BrowseMainFragment"
+        android:label="Browse" />
+
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="com.rumble.ui3.library.LibraryFragment"
+        android:label="Library" />
+
+    <fragment
+        android:id="@+id/subscriptionsFragmentV4"
+        android:name="com.rumble.ui3.subscriptions.v4.SubscriptionsMainFragmentV4"
+        android:tag="subscriptionsFragmentV4"
+        android:label="Subscriptions" />
+
+    <fragment
+        android:id="@+id/settingsFragmentV4"
+        android:name="com.rumble.ui3.settings.v4.SettingsMainFragmentV4"
+        android:label="Settings" />
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.rumble.ui3.user.UserFragment"
+        android:label="Login" />
+
+    <!-- playback -->
+    <action android:id="@+id/action_global_playbackActivity"
+        app:destination="@id/playbackActivity"/>
+
+    <activity
+        android:id="@+id/playbackActivity"
+        android:name="com.rumble.player.VideoPlaybackActivity"
+        tools:layout="@layout/activity_video_playback">
+        <argument android:name="video" app:argType="com.rumble.domain.feed.domain.domainmodel.video.VideoEntity" app:nullable="true" android:defaultValue="@null"/>
+        <argument android:name="videoList" app:argType="com.rumble.domain.feed.domain.domainmodel.video.VideoEntity[]" app:nullable="true" android:defaultValue="@null" />
+        <argument android:name="playListTitle" app:argType="string" android:defaultValue=""/>
+        <argument android:name="fromChannel" app:argType="string" android:defaultValue=""/>
+        <argument android:name="shuffle" app:argType="boolean" android:defaultValue="false"/>
+    </activity>
+
+    <!-- more button dialog for channel details -->
+    <action android:id="@+id/action_global_channelDetailsMoreButtonActivity"
+        app:destination="@id/channelDetailsMoreButtonActivity"/>
+    <activity
+        android:id="@+id/channelDetailsMoreButtonActivity"
+        android:name="com.rumble.ui3.channel.details.more.GuidedStepActivity">
+        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+    </activity>
+
+    <!-- Channel details activity -->
+    <action android:id="@+id/action_global_channelDetailsActivityV4"
+        app:destination="@id/channelDetailsActivityV4"/>
+    <activity
+        android:id="@+id/channelDetailsActivityV4"
+        android:name="com.rumble.ui3.channel.details.v4.ChannelDetailsActivityV4"
+        tools:layout="@layout/activity_channel_details">
+        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <argument android:name="show_logo" app:argType="boolean" android:defaultValue="true"/>
+    </activity>
+
+    <!-- channel details fragment -->
+    <action android:id="@+id/action_global_channelDetailsFragmentV4"
+        app:destination="@id/channelDetailsFragmentV4"/>
+
+    <fragment
+        android:id="@+id/channelDetailsFragmentV4"
+        android:name="com.rumble.ui3.channel.details.v4.ChannelDetailsFragmentV4">
+        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <argument android:name="show_logo" app:argType="boolean"/>
+        <argument android:name="from_activity" app:argType="boolean" android:defaultValue="false"/>
+        <argument android:name="is_caching_supported" app:argType="boolean" android:defaultValue="false"/>
+    </fragment>
+
+    <!-- View All activity -->
+    <action android:id="@+id/action_global_viewAllActivity"
+        app:destination="@id/viewAllActivity"/>
+    <activity
+        android:id="@+id/viewAllActivity"
+        android:name="com.rumble.ui3.home.v4.ViewAllActivityV4"
+        tools:layout="@layout/v4_activity_viewall">
+        <argument android:name="feed_id" app:argType="string"/>
+        <argument android:name="feed_title" app:argType="string"/>
+    </activity>
+
+    <!-- view all fragment -->
+    <action android:id="@+id/action_global_viewAllFragmentV4"
+        app:destination="@id/viewAllFragmentV4"/>
+
+    <fragment
+        android:id="@+id/viewAllFragmentV4"
+        android:name="com.rumble.ui3.home.v4.ViewAllFragmentV4">
+        <argument android:name="feed_id" app:argType="string"/>
+        <argument android:name="feed_title" app:argType="string"/>
+    </fragment>
+
+    <!-- Webview activity -->
+    <action android:id="@+id/action_global_webviewActivity"
+        app:destination="@id/webviewActivity"/>
+    <activity
+        android:id="@+id/webviewActivity"
+        android:name="com.rumble.ui3.web.WebviewActivity"
+        tools:layout="@layout/activity_webview">
+        <argument android:name="url" app:argType="string"/>
+    </activity>
+
+    <!-- web view fragment -->
+    <action android:id="@+id/action_global_webViewFragment"
+        app:destination="@id/webViewFragment"/>
+
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="com.rumble.ui3.web.WebViewFragment">
+        <argument android:name="url" app:argType="string"/>
+    </fragment>
+
+    <!-- Category Details activity -->
+    <action
+        android:id="@+id/action_global_categoryDetailsActivity"
+        app:destination="@id/categoryDetailsActivity" />
+    <activity
+        android:id="@+id/categoryDetailsActivity"
+        android:name="com.rumble.ui3.category.CategoryDetailsActivity"
+        tools:layout="@layout/activity_category_details">
+        <argument
+            android:name="path"
+            app:argType="string" />
+    </activity>
+
+    <!-- view all fragment -->
+    <action
+        android:id="@+id/action_global_categoryDetailsFragmentV4"
+        app:destination="@id/categoryDetailsFragmentV4" />
+
+    <fragment
+        android:id="@+id/categoryDetailsFragmentV4"
+        android:name="com.rumble.ui3.category.CategoryDetailsFragment">
+        <argument
+            android:name="path"
+            app:argType="string" />
+    </fragment>
+
+    <activity
+        android:id="@+id/recommendedChannelsScreenActivity"
+        android:name="com.rumble.ui3.channels.RecommendedChannelsScreenActivity" />
+</navigation>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.rumble.ui3.home.v4.HomeViewModelV4" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <androidx.leanback.widget.BrowseFrameLayout
+            android:id="@+id/homeFragmentFrameLayoutMain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.leanback.widget.BrowseFrameLayout
+                android:id="@+id/homeFragmentFrameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <androidx.leanback.widget.VerticalGridView
+                    android:id="@+id/container_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/home_container_margin_start"
+                    android:paddingTop="@dimen/home_container_padding_top"
+                    android:clipToPadding="false"
+                    style="?attr/rowsVerticalGridStyle"/>
+            </androidx.leanback.widget.BrowseFrameLayout>
+
+        </androidx.leanback.widget.BrowseFrameLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="start|top"
+            android:layout_marginStart="@dimen/home_header_row_title_margin_start"
+            android:layout_marginTop="@dimen/home_header_row_title_margin_top"
+            android:maxLines="1"
+            android:text="@string/feed_title_editor_picks"
+            android:visibility="gone"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline3"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/home_header_refresh_button"
+            android:layout_width="@dimen/refresh_button_size"
+            android:layout_height="@dimen/refresh_button_size"
+            android:layout_marginStart="@dimen/all_subscription_icon_margin_start"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:minHeight="0dp"
+            android:nextFocusRight="@id/home_header_refresh_button"
+            android:padding="@dimen/all_subscription_fragment_left_margin"
+            android:src="@drawable/ic_refresh"
+            android:tint="@color/v3_channel_details_button_text_color"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/title"
+            app:layout_constraintStart_toEndOf="@+id/title"
+            app:layout_constraintTop_toTopOf="@+id/title"
+            app:tint="@color/v3_channel_details_button_text_color"
+            tools:ignore="UseAppTint" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

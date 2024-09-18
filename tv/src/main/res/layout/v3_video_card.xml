@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.rumble.domain.feed.domain.domainmodel.video.VideoEntity" />
+
+        <variable
+            name="status"
+            type="com.rumble.domain.feed.domain.domainmodel.video.VideoStatus" />
+
+        <import type="android.view.View" />
+
+        <import type="com.rumble.domain.feed.domain.domainmodel.video.VideoStatus" />
+
+        <import type="com.rumble.utils.extension.LongExtensionsKt" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/video_card_width"
+        android:layout_height="@dimen/video_card_height"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/iconLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/video_card_icon_height"
+            android:padding="@dimen/video_focus_border_image_padding"
+            android:background="@drawable/v3_selector_video_card_frame"
+            app:layout_constraintTop_toTopOf="parent"
+            app:cornerRadius="@dimen/video_card_corner_radius">
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:roundedCornerImageUrl="@{item.videoThumbnail}"
+                app:cornerRadius="@{@dimen/video_card_corner_radius}"
+                app:layout_constraintHorizontal_bias="1.0"
+                tools:srcCompat="@drawable/all_placeholder" />
+
+            <View
+                android:id="@+id/live_frame_border"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:visibility="visible"
+                android:visibility="@{status == VideoStatus.LIVE ? View.VISIBLE : View.GONE}"
+                android:background="@drawable/v3_shape_live_video_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="0dp"
+                android:layout_height="4dp"
+                android:progressDrawable="@drawable/video_card_progress_bar"
+                android:indeterminate="false"
+                android:min="0"
+                android:max="100"
+                android:progress="50"
+                style="?android:attr/progressBarStyleHorizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <TextView android:id="@+id/time_label"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/video_card_time_label_min_width"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            android:visibility='@{(status == VideoStatus.UPLOADED || status == VideoStatus.STREAMED) &amp;&amp; item.duration > 0 ? View.VISIBLE : View.GONE}'
+            android:background="@drawable/v3_shape_video_card_live_ended_label_background"
+            android:gravity="center"
+            tools:text="55:18"
+            android:text="@{LongExtensionsKt.parsedTime(item.duration)}"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white"
+            android:layout_marginStart="@dimen/video_card_time_label_margin_start"
+            android:layout_marginBottom="@dimen/video_card_time_label_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="@id/iconLayout"
+            app:layout_constraintStart_toStartOf="@+id/iconLayout"/>
+
+        <TextView android:id="@+id/upcoming_label"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/video_card_time_label_min_width"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            android:visibility="@{status == VideoStatus.UPCOMING ? View.VISIBLE : View.GONE}"
+            android:background="@drawable/v3_shape_video_card_live_ended_label_background"
+            android:gravity="center"
+            android:text="@string/video_card_upcoming_label"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/v3_ic_clock"
+            android:drawablePadding="@dimen/video_card_time_label_padding_bottom"
+            android:layout_marginStart="@dimen/video_card_time_label_margin_start"
+            android:layout_marginBottom="@dimen/video_card_time_label_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="@id/iconLayout"
+            app:layout_constraintStart_toStartOf="@+id/iconLayout"/>
+
+        <TextView android:id="@+id/scheduled_label"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/video_card_time_label_min_width"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            android:visibility="@{status == VideoStatus.SCHEDULED ? View.VISIBLE : View.GONE}"
+            android:background="@drawable/v3_shape_video_card_live_ended_label_background"
+            android:gravity="center"
+            tools:text="SEP 12, 12:55 PM"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/v3_ic_clock"
+            android:drawablePadding="@dimen/video_card_time_label_padding_bottom"
+            android:layout_marginStart="@dimen/video_card_time_label_margin_start"
+            android:layout_marginBottom="@dimen/video_card_time_label_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="@id/iconLayout"
+            app:layout_constraintStart_toStartOf="@+id/iconLayout"/>
+
+        <TextView android:id="@+id/live_starting_label"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/video_card_time_label_min_width"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            android:visibility="@{status == VideoStatus.STARTING ? View.VISIBLE : View.GONE}"
+            android:background="@drawable/v3_shape_video_card_live_ended_label_background"
+            android:gravity="center"
+            android:text="@string/video_card_live_starting_label"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/v3_ic_clock"
+            android:drawablePadding="@dimen/video_card_time_label_padding_bottom"
+            android:layout_marginStart="@dimen/video_card_time_label_margin_start"
+            android:layout_marginBottom="@dimen/video_card_time_label_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="@id/iconLayout"
+            app:layout_constraintStart_toStartOf="@+id/iconLayout"/>
+
+        <TextView android:id="@+id/live_streaming_label"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/video_card_time_label_min_width"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            android:visibility="@{status == VideoStatus.LIVE ? View.VISIBLE : View.GONE}"
+            android:background="@drawable/v3_shape_video_card_live_ended_label_background"
+            android:gravity="center"
+            tools:text="103K"
+            android:text="@{LongExtensionsKt.shortString(item.watchingNow, true)}"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/v3_ic_views_24_white"
+            android:drawablePadding="@dimen/video_card_time_label_padding_bottom"
+            android:layout_marginStart="@dimen/video_card_time_label_margin_start"
+            android:layout_marginBottom="@dimen/video_card_time_label_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="@id/iconLayout"
+            app:layout_constraintStart_toStartOf="@+id/iconLayout"/>
+
+        <TextView android:id="@+id/live_label"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/video_card_time_label_min_width"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            android:visibility="@{status == VideoStatus.LIVE ? View.VISIBLE : View.GONE}"
+            android:background="@drawable/v3_shape_video_card_live_label_background"
+            android:gravity="center"
+            tools:text="@string/video_card_live_label"
+            android:text="@string/video_card_live_label"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white"
+            android:layout_marginEnd="@dimen/video_card_time_label_margin_start"
+            android:layout_marginBottom="@dimen/video_card_time_label_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="@id/iconLayout"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView android:id="@+id/ppv_label"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/video_card_time_label_min_width"
+            android:layout_height="wrap_content"
+            tools:visibility="gone"
+            app:cardPPVLabel="@{item.ppv}"
+            android:background="@drawable/v3_shape_video_card_ppv_label_background"
+            android:gravity="center"
+            tools:text="@string/video_card_ppv_label"
+            android:text="@string/video_card_ppv_label"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/white"
+            android:layout_marginEnd="@dimen/video_card_time_label_margin_start"
+            android:layout_marginBottom="@dimen/video_card_time_label_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="@id/iconLayout"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ImageView
+            android:id="@+id/premium_lock_icon"
+            android:visibility="@{item.isPremiumExclusiveContent ? View.VISIBLE : View.GONE}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="@dimen/video_card_content_lock_margin"
+            android:layout_marginTop="@dimen/video_card_content_lock_margin"
+            android:src="@drawable/ic_locked_content" />
+
+        <View
+            android:id="@+id/focus_frame"
+            android:layout_width="@dimen/video_card_icon_width"
+            android:layout_height="@dimen/video_card_icon_height"
+            android:background="@drawable/v3_selector_video_card_frame"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/rumble_paddingXXSmall" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/rumble_paddingXXSmall" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title"
+            android:layout_width="0.dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintHeight_min="@dimen/video_card_title_text_height_min"
+            android:layout_marginTop="@dimen/video_card_title_text_margin_top"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@+id/iconLayout"
+            android:layout_gravity="top"
+            android:lines="2"
+            android:ellipsize="end"
+            android:textColor="@color/v3_selector_main_menu_items_color"
+            android:text="@{item.title}"
+            tools:text="春曉本人今天抖音百天慶小姐姐晚上9點在直播間等你哦！不見不散@春曉(10.1百天慶)#豪哥車模之家【豪哥車模之家】"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline4.Bold" />
+
+        <TextView
+            android:id="@+id/channel_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="@dimen/video_card_channel_info_channel_name_max_width"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:text="@{item.channelName}"
+            tools:text="The Chris Salcedo Show"
+            android:textColor="@color/bone"
+            android:textAppearance="@style/TextAppearance.Rumble.Label.Bold"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@+id/title" />
+
+        <ImageView
+            android:id="@+id/verified_badge"
+            android:layout_width="@dimen/video_card_verified_badge_icon_width"
+            android:layout_height="@dimen/video_card_verified_badge_icon_height"
+            android:layout_marginStart="@dimen/video_card_dot_margin_start"
+            android:src="@drawable/verified_badge"
+            android:visibility="@{item.verifiedBadge ? View.VISIBLE : View.GONE}"
+            android:layout_marginEnd="@dimen/video_card_dot_margin_end"
+            app:layout_constraintBottom_toBottomOf="@+id/channel_name"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+            app:layout_constraintStart_toEndOf="@+id/channel_name" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/video_card_stats_views_label_margin_top"
+            android:layout_marginStart="@dimen/video_card_stats_views_label_margin_start"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/channel_name"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:id="@+id/premium_tag_compose_view"
+                android:background="@drawable/video_card_premium_content_tag_background"
+                android:visibility="@{item.isPremiumExclusiveContent ? View.VISIBLE : View.GONE}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/rumble_paddingXXSmall"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/video_card_time_label_padding_left"
+                android:paddingEnd="@dimen/video_card_time_label_padding_right"
+                android:paddingTop="@dimen/video_card_time_label_padding_top"
+                android:paddingBottom="@dimen/video_card_time_label_padding_bottom">
+
+                <ImageView
+                    android:id="@+id/premium_content_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/video_card_thumb_padding"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_premium_content" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/premium_only"
+                    android:textColor="@color/rumble_green"
+                    android:layout_gravity="center_vertical"
+                    android:textAppearance="@style/TextAppearance.Rumble.Headline6" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/meta_data_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:visibility="visible"
+                android:lines="1"
+                android:ellipsize="end"
+                android:text=""
+                tools:text="25.2K"
+                android:textColor="@color/bone"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Regular" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

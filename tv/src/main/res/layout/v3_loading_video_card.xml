@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data></data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/video_card_width"
+        android:layout_height="@dimen/video_card_height"
+        android:focusable="false"
+        android:focusableInTouchMode="false">
+
+        <View
+            android:id="@+id/icon"
+            android:layout_width="@dimen/video_card_icon_width"
+            android:layout_height="@dimen/video_card_icon_height"
+            android:background="@drawable/v3_shape_loading_18_white_12_radius"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/text_line_1"
+            android:layout_width="@dimen/video_card_icon_width"
+            android:layout_height="@dimen/loading_video_card_text_line_1_height"
+            android:layout_marginTop="@dimen/loading_video_card_text_line_1_margin_top"
+            android:background="@drawable/v3_shape_loading_18_white_12_radius"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/icon" />
+
+        <View
+            android:id="@+id/text_line_2"
+            android:layout_width="@dimen/loading_video_card_text_line_3_width"
+            android:layout_height="@dimen/loading_video_card_text_line_3_height"
+            android:layout_marginTop="@dimen/loading_video_card_text_line_3_margin_top"
+            android:background="@drawable/v3_shape_loading_18_white_12_radius"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_line_1" />
+
+        <View
+            android:id="@+id/channel_info"
+            android:layout_width="@dimen/loading_video_card_channel_info_width"
+            android:layout_height="@dimen/loading_video_card_channel_info_height"
+            android:layout_marginTop="@dimen/loading_video_card_channel_info_margin_top"
+            android:background="@drawable/v3_shape_loading_10_white_16_radius"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_line_2" />
+
+        <View
+            android:id="@+id/likes_bar"
+            android:layout_width="@dimen/loading_video_card_likes_bar_width"
+            android:layout_height="@dimen/loading_video_card_likes_bar_height"
+            android:layout_marginTop="@dimen/loading_video_card_likes_bar_margin_top"
+            android:background="@drawable/v3_shape_loading_10_white_16_radius"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/channel_info" />
+
+        <View
+            android:id="@+id/stats_views"
+            android:layout_width="@dimen/loading_video_card_stats_views_width"
+            android:layout_height="@dimen/loading_video_card_stats_views_height"
+            android:layout_marginTop="@dimen/loading_video_card_stats_views_margin_top"
+            android:layout_marginEnd="@dimen/loading_video_card_stats_views_margin_end"
+            android:background="@drawable/v3_shape_loading_10_white_16_radius"
+            app:layout_constraintEnd_toStartOf="@+id/stats_comments"
+            app:layout_constraintTop_toBottomOf="@+id/channel_info" />
+
+        <View
+            android:id="@+id/stats_comments"
+            android:layout_width="@dimen/loading_video_card_stats_comments_width"
+            android:layout_height="@dimen/loading_video_card_stats_comments_height"
+            android:layout_marginStart="@dimen/loading_video_card_stats_comments_margin_start"
+            android:layout_marginTop="@dimen/loading_video_card_stats_comments_margin_top"
+            android:background="@drawable/v3_shape_loading_10_white_16_radius"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/channel_info" />
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

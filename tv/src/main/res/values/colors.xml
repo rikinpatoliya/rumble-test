@@ -1,0 +1,29 @@
+<resources>
+    <color name="background_gradient_start">#ffffff</color>
+    <color name="background_gradient_end">#DDDDDD</color>
+    <color name="bg_color">#F3F3F7</color>
+
+    <color name="rumble_menu_background">#000000</color>
+    <color name="search_opaque">#388E3C</color>
+    <color name="selected_background">#388E3C</color>
+    <color name="primary_dark">#235826</color>
+    <color name="default_background">#553d3d3d</color>
+    <color name="exo_gray">#3d3d3d</color>
+
+    <color name="focused_menu_highlight">#474747</color>
+    <color name="default_sublist_background">#262626</color>
+
+    <!--    v2 -->
+    <color name="main_menu_bg">#061726</color>
+    <color name="main_menu_highlight">#262626</color>
+    <color name="white_with_alpha">#2EFFFFFF</color>
+    <color name="player_seekbar_unplayed">#282828</color>
+
+    <!--v4-->
+    <color name="browse_button_music_color">#67EAFF</color>
+    <color name="browse_button_news_color">#7DD4FF</color>
+    <color name="browse_button_gaming_color">#9D91FF</color>
+    <color name="browse_button_viral_color">#82B1FF</color>
+
+    <color name="dialog_background">#061726</color>
+</resources>

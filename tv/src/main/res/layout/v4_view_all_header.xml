@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="categoryTitle" type="java.lang.String"/>
+        <variable name="actionClickHandler" type="android.view.View.OnClickListener"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="start|top"
+            android:layout_marginStart="@dimen/view_all_header_margin_start"
+            android:layout_marginTop="@dimen/view_all_header_margin_top"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAppearance="@style/Rumble.Widget.Title"
+            tools:text="Big title"
+            android:text="@{categoryTitle}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="@dimen/rumble_logo_width"
+                android:layout_height="@dimen/rumble_logo_height"
+                android:src="@drawable/v3_ic_badge"
+                android:layout_marginTop="@dimen/main_header_icon_margin_top"
+                android:layout_marginEnd="@dimen/main_header_icon_margin_end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:visibility="visible"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            android:drawableStart="@drawable/ic_back_arrow"
+            android:drawableTint="@color/v3_channel_details_button_text_color"
+            android:drawablePadding="@dimen/back_arrow_drawable_padding_start"
+            android:text="@string/back"
+            android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+            android:textAllCaps="false"
+            android:layout_marginBottom="5dp"
+            android:layout_marginStart="5dp"
+            android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+            android:textColor="@color/v3_channel_details_button_text_color"
+            android:paddingStart="@dimen/back_button_padding_start"
+            android:paddingEnd="@dimen/back_button_padding_end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

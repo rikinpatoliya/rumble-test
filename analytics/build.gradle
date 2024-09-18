@@ -1,0 +1,59 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-kapt'
+    id 'com.google.firebase.crashlytics'
+}
+
+android {
+    compileSdk compileSdkVer
+
+    defaultConfig {
+        minSdk minSdkVer
+        targetSdk targetSdkVer
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {}
+        debug {}
+        qa {}
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_9.toString()
+    }
+    namespace 'com.rumble.analytics'
+}
+
+dependencies {
+    // Rumble libraries
+    implementation project(path: ':utils')
+    implementation project(path: ':network')
+
+    // Hilt DI
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:32.8.1')
+
+    // Crashlytics and Analytics libraries
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    //ApsFlyer
+    api 'com.appsflyer:af-android-sdk:6.13.0'
+
+    // Logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    // Backward support for time classes
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+}

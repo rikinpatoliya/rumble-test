@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="item" type="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <!-- TODO: font styles -->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/details_header_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="20dp"
+        android:clipToPadding="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:background="@android:color/transparent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/first_left_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="42dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/second_left_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="104dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/first_horizontal_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintGuide_begin="@dimen/channel_details_header_row_alignment_offset"
+            android:orientation="horizontal" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/second_horizontal_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="@dimen/channel_details_header_second_horizontal_guideline" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/right_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="104dp" />
+
+        <View
+            android:id="@+id/icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            app:layout_constraintStart_toStartOf="@id/first_left_guideline"
+            app:layout_constraintTop_toTopOf="@id/first_horizontal_guideline" />
+
+        <View
+            android:id="@+id/title"
+            android:layout_width="200dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            app:layout_constraintStart_toStartOf="@+id/second_left_guideline"
+            app:layout_constraintTop_toTopOf="@id/first_horizontal_guideline" />
+
+        <View
+            android:id="@+id/subscribers_label"
+            android:layout_width="90dp"
+            android:layout_height="11dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            app:layout_constraintStart_toStartOf="@+id/second_left_guideline"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+            />
+
+        <View
+            android:id="@+id/videos_label"
+            android:layout_width="90dp"
+            android:layout_height="11dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            app:layout_constraintBottom_toBottomOf="@+id/subscribers_label"
+            app:layout_constraintStart_toEndOf="@+id/subscribers_label"
+            app:layout_constraintTop_toTopOf="@+id/subscribers_label"
+            />
+
+        <View
+            android:id="@+id/subscribe_button"
+            android:layout_width="100dp"
+            android:layout_height="25dp"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            app:layout_constraintStart_toStartOf="@+id/second_left_guideline"
+            app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline"
+            />
+
+        <View
+            android:id="@+id/radio_button_recent"
+            android:layout_width="85dp"
+            android:layout_height="25dp"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline"
+            app:layout_constraintEnd_toEndOf="@id/right_guideline"
+            />
+
+        <View
+            android:id="@+id/radio_button_viewed"
+            android:layout_width="65dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/v3_selector_channel_radio_button_background"
+            app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline"
+            app:layout_constraintEnd_toStartOf="@id/radio_button_recent"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/third_horizontal_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="@dimen/channel_details_header_third_horizontal_guideline" />
+
+        <include
+            android:id="@+id/item_00"
+            layout="@layout/v3_loading_video_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@+id/second_left_guideline"
+            app:layout_constraintTop_toTopOf="@+id/third_horizontal_guideline"
+            />
+
+        <include
+            android:id="@+id/item_01"
+            layout="@layout/v3_loading_video_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rumble_vertical_grid_horizontal_spacing"
+            app:layout_constraintStart_toEndOf="@+id/item_00"
+            app:layout_constraintTop_toTopOf="@+id/third_horizontal_guideline"
+            />
+
+        <include
+            android:id="@+id/item_02"
+            layout="@layout/v3_loading_video_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rumble_vertical_grid_horizontal_spacing"
+            app:layout_constraintStart_toEndOf="@+id/item_01"
+            app:layout_constraintTop_toTopOf="@+id/third_horizontal_guideline"
+            />
+
+        <include
+            android:id="@+id/item_10"
+            layout="@layout/v3_loading_video_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/rumble_vertical_grid_vertical_spacing"
+            app:layout_constraintStart_toEndOf="@+id/second_left_guideline"
+            app:layout_constraintTop_toBottomOf="@+id/item_00"
+            />
+
+        <include
+            android:id="@+id/item_11"
+            layout="@layout/v3_loading_video_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rumble_vertical_grid_horizontal_spacing"
+            android:layout_marginTop="@dimen/rumble_vertical_grid_vertical_spacing"
+            app:layout_constraintStart_toEndOf="@+id/item_10"
+            app:layout_constraintTop_toBottomOf="@+id/item_00"
+            />
+
+        <include
+            android:id="@+id/item_12"
+            layout="@layout/v3_loading_video_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rumble_vertical_grid_horizontal_spacing"
+            android:layout_marginTop="@dimen/rumble_vertical_grid_vertical_spacing"
+            app:layout_constraintStart_toEndOf="@+id/item_11"
+            app:layout_constraintTop_toBottomOf="@+id/item_00"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

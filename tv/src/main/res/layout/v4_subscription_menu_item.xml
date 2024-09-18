@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:background="@drawable/v3_selector_subscriptions_menu_item_background">
+
+    <FrameLayout
+        android:layout_width="@dimen/icons_sub"
+        android:layout_height="@dimen/icons_sub"
+        android:layout_marginStart="@dimen/rumble_paddingXXXSmall">
+
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <View
+            android:id="@+id/image_view_border"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/channel_live_outline" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/rumble_paddingXXSmall"
+        android:layout_weight="1"
+        android:ellipsize="marquee"
+        style="@style/Rumble.Widget.Header.Subscriptions" />
+
+    <TextView
+        android:id="@+id/watching_now_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_new_content"
+        android:drawablePadding="@dimen/rumble_paddingXXSmall"
+        android:text="420"
+        android:textSize="@dimen/new_content_text_size"
+        android:paddingHorizontal="@dimen/rumble_paddingXXSmall"
+        android:paddingVertical="@dimen/rumble_paddingXXXXSmall"
+        android:background="@drawable/background_rounded_10" />
+</LinearLayout>

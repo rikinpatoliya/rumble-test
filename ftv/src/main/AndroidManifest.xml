@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+
+    <application
+        android:name=".FireTvApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:banner="@mipmap/ic_banner"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Rumble">
+
+        <activity
+            android:name=".LauncherActivity"
+            android:launchMode="standard"
+            android:banner="@mipmap/ic_banner"
+            android:icon="@drawable/launcher_bg"
+            android:label="@string/app_name"
+            android:exported="true"
+            android:logo="@drawable/launcher_bg"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboard|keyboardHidden|navigation">
+            <!-- Used as the main entry point from the leanback launcher -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+
+        </provider>
+
+    </application>
+
+</manifest>

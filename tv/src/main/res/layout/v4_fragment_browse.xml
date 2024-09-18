@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable name="actionClickHandler" type="android.view.View.OnClickListener"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/contentView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:layout_marginTop="@dimen/browse_header_margin_top">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/titleLayout"
+            android:layout_width="match_parent"
+            android:animateLayoutChanges="true"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/browse_button_image_elevation"
+            android:paddingHorizontal="@dimen/browse_main_padding_horizontal"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/header_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/content_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/headers_fragment_browse_label"
+                    android:textAppearance="@style/Rumble.Widget.Title"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/browse_header_text_size"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/category_buttons_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/browse_header_margin_top"
+                app:layout_constraintTop_toBottomOf="@+id/header_layout">
+
+                <com.rumble.widget.RumbleLinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/browse_button_height"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/btn_gaming"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginVertical="@dimen/browse_button_margin_vertical"
+                            android:background="@drawable/v4_selector_browse_button_background_gaming"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:gravity="center_vertical"
+                            android:paddingStart="@dimen/browse_button_text_padding_start"
+                            android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                            android:textAppearance="@style/TextAppearance.Rumble.Headline4.Bold"
+                            android:textColor="@color/v3_channel_details_button_text_color"
+                            tools:ignore="RtlSymmetry"
+                            tools:text="@string/gaming" />
+
+                        <ImageView
+                            android:id="@+id/img_gaming"
+                            android:layout_width="@dimen/browse_button_image_width"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="@dimen/browse_button_image_margin_end"
+                            android:elevation="@dimen/browse_button_image_elevation"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:src="@drawable/ic_category_gaming" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/browse_button_height"
+                        android:layout_marginStart="20dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/btn_viral"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginVertical="@dimen/browse_button_margin_vertical"
+                            android:background="@drawable/v4_selector_browse_button_background_viral"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:gravity="center_vertical"
+                            android:paddingStart="@dimen/browse_button_text_padding_start"
+                            android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                            android:textAppearance="@style/TextAppearance.Rumble.Headline4.Bold"
+                            android:textColor="@color/v3_channel_details_button_text_color"
+                            tools:ignore="RtlSymmetry"
+                            tools:text="@string/viral" />
+
+                        <ImageView
+                            android:id="@+id/img_viral"
+                            android:layout_width="@dimen/browse_button_image_width"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="@dimen/browse_button_image_margin_end"
+                            android:elevation="@dimen/browse_button_image_elevation"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:src="@drawable/ic_category_viral" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/browse_button_height"
+                        android:layout_marginStart="20dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/btn_music"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginVertical="@dimen/browse_button_margin_vertical"
+                            android:background="@drawable/v4_selector_browse_button_background_music"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:gravity="center_vertical"
+                            android:paddingStart="@dimen/browse_button_text_padding_start"
+                            android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                            android:textAppearance="@style/TextAppearance.Rumble.Headline4.Bold"
+                            android:textColor="@color/v3_channel_details_button_text_color"
+                            tools:ignore="RtlSymmetry"
+                            tools:text="@string/music" />
+
+                        <ImageView
+                            android:id="@+id/img_music"
+                            android:layout_width="@dimen/browse_button_image_width"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="@dimen/browse_button_image_margin_end"
+                            android:elevation="@dimen/browse_button_image_elevation"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:src="@drawable/ic_category_music" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/browse_button_height"
+                        android:layout_marginStart="20dp"
+                        android:layout_weight="1">
+
+                        <Button
+                            android:id="@+id/btn_news"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginVertical="@dimen/browse_button_margin_vertical"
+                            android:background="@drawable/v4_selector_browse_button_background_news"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:gravity="center_vertical"
+                            android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                            android:paddingStart="@dimen/browse_button_text_padding_start"
+                            android:textAppearance="@style/TextAppearance.Rumble.Headline4.Bold"
+                            android:textColor="@color/v3_channel_details_button_text_color"
+                            tools:ignore="RtlSymmetry"
+                            tools:text="@string/news" />
+
+                        <ImageView
+                            android:id="@+id/img_news"
+                            android:layout_width="@dimen/browse_button_image_width"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="@dimen/browse_button_image_margin_end"
+                            android:elevation="@dimen/browse_button_image_elevation"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:src="@drawable/ic_category_news" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.rumble.widget.RumbleLinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/buttonsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/browse_main_padding_horizontal"
+            android:layout_marginEnd="@dimen/category_detail_image_width"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/browse_category_buttons_margin_bottom"
+            android:animateLayoutChanges="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/titleLayout">
+
+            <com.rumble.widget.RumbleRadioGroup
+                android:id="@+id/radio_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/radio_button_categories"
+                android:orientation="horizontal"
+                android:visibility="visible"
+                app:layout_constraintTop_toTopOf="@+id/second_horizontal_guideline">
+
+                <RadioButton
+                    android:id="@+id/radio_button_categories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/v3_selector_channel_radio_button_background"
+                    android:button="@android:color/transparent"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:minHeight="0dp"
+                    android:nextFocusRight="@id/radio_button_livestream"
+                    android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                    android:paddingStart="@dimen/channel_details_radio_button_viewed_padding_start"
+                    android:paddingTop="@dimen/channel_details_radio_button_viewed_padding_top"
+                    android:paddingEnd="@dimen/channel_details_radio_button_viewed_padding_end"
+                    android:paddingBottom="@dimen/channel_details_radio_button_viewed_padding_bottom"
+                    android:text="@string/categories"
+                    android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                    android:textColor="@color/v3_channel_details_button_text_color"
+                    android:textStyle="bold" />
+
+                <RadioButton
+                    android:id="@+id/radio_button_livestream"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/category_details_radio_button_viewed_start_margin"
+                    android:background="@drawable/v3_selector_channel_radio_button_background"
+                    android:button="@android:color/transparent"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:minHeight="0dp"
+                    android:nextFocusLeft="@id/radio_button_categories"
+                    android:nextFocusRight="@id/radio_button_livestream"
+                    android:onClick="@{(v) -> actionClickHandler.onClick(v)}"
+                    android:paddingStart="@dimen/channel_details_radio_button_recent_padding_start"
+                    android:paddingTop="@dimen/channel_details_radio_button_recent_padding_top"
+                    android:paddingEnd="@dimen/channel_details_radio_button_recent_padding_end"
+                    android:paddingBottom="@dimen/channel_details_radio_button_recent_padding_bottom"
+                    android:text="@string/live_streams"
+                    android:textAppearance="@style/TextAppearance.Rumble.Headline6"
+                    android:textColor="@color/v3_channel_details_button_text_color"
+                    android:textStyle="bold" />
+
+            </com.rumble.widget.RumbleRadioGroup>
+        </LinearLayout>
+
+        <androidx.leanback.widget.BrowseFrameLayout
+            android:id="@+id/browseDataContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/browse_category_buttons_margin_bottom"
+            app:layout_constraintTop_toBottomOf="@+id/buttonsLayout"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

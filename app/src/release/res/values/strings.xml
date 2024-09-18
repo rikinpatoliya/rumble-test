@@ -1,0 +1,5 @@
+<resources>
+    <!-- Deep Links -->
+    <string name="deep_link_host">rumble.onelink.me</string>
+
+</resources>

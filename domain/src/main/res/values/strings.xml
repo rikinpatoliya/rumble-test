@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Notifications -->
+    <string name="instant">Instant</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+
+    <!-- Comments Sort -->
+    <string name="sort_new">New</string>
+    <string name="sort_popular">Popular</string>
+
+    <!-- Sort Following -->
+    <string name="default_sort">Default</string>
+    <string name="name_a_z">Name (A-Z)</string>
+    <string name="name_z_a">Name (Z-A)</string>
+    <string name="followers_highest">Followers (highest first)</string>
+    <string name="followers_lowest">Followers (lowest first)</string>
+
+    <!-- Sort -->
+    <string name="sort_by">Sort by</string>
+    <string name="sort_relevance">Relevance</string>
+    <string name="sort_most_recent">Most recent</string>
+    <string name="sort_likes">Likes</string>
+    <string name="sort_views">Views</string>
+
+    <!-- Filter -->
+    <string name="upload_date">Upload date</string>
+    <string name="any_time">Any time</string>
+    <string name="today">Today</string>
+    <string name="this_week">This week</string>
+    <string name="this_month">This month</string>
+    <string name="this_year">This year</string>
+
+    <!-- Duration -->
+    <string name="duration">Duration</string>
+    <string name="any_duration">Any</string>
+    <string name="short_duration">Short</string>
+    <string name="long_duration">Long</string>
+
+    <!-- Login Type -->
+    <string name="unknown">Unknown</string>
+    <string name="facebook">Facebook</string>
+    <string name="google">Google</string>
+    <string name="apple">Apple</string>
+    <string name="rumble">Rumble</string>
+
+    <!-- Upload License -->
+    <string name="video_management">Video Management</string>
+    <string name="rumble_only">Rumble Only</string>
+    <string name="personal_use">Personal Use</string>
+    <string name="exclusive">Exclusive</string>
+    <string name="excluding_youtube">Excluding Youtube</string>
+    <string name="non_exclusive_similar_youTube">Non-exclusive, similar to YouTube</string>
+    <string name="not_monetized_not_searchable_available_to_subscribers">Not monetized, not searchable, available to all your subscribers</string>
+    <string name="licence_description_video_management_exclusive">You are selecting Rumble to be your exclusive, worldwide, perpetual Agent for such Content. You will receive all Net Earnings, less an Agency Fee equal to 40%, collected in relation to your Content.</string>
+    <string name="licence_description_video_management_excluding_youtube">With the exception of YouTube.com which is specifically excluded, you are selecting Rumble to be your exclusive, worldwide, perpetual Agent for such Content. You will receive all Net Earnings, less an Agency Fee equal to 40%, collected in relation to your Content.</string>
+    <string name="licence_description_rumble_only">You will receive all Net Earnings collected in relation to the publication of your Content on the Rumble Player less an Agency Fee equal to 40%. If you select this option, you shall be entitled to remove Content from the Rumble at any time and maintain rights.</string>
+    <string name="licence_description_personal_use">You retain full control and all rights. Rumble will not partake in any promotion or monetization whatsoever relating to your content.</string>
+
+    <!-- Upload Visibility -->
+    <string name="public_visibility">Public</string>
+    <string name="unlisted_visibility">Unlisted</string>
+    <string name="private_visibility">Private</string>
+    <string name="anyone_can_watch">Anyone can watch this video</string>
+    <string name="only_people_with_link_can_watch">Only people with link can watch this video</string>
+    <string name="only_you_can_watch">Only you can watch this video</string>
+
+    <!-- PlayList Visibility -->
+    <string name="anyone_can_search_playlist">Anyone can search for and view</string>
+    <string name="anyone_with_link_can_view">Anyone with the link can view</string>
+    <string name="only_you_can_view">Only you can view</string>
+
+    <!--  Home Category  -->
+    <string name="home_category_my_feed">My Feed</string>
+
+    <!-- Upload Schedule -->
+    <string name="now">Now</string>
+    <string name="choose_date_time">Choose date &amp; time</string>
+    <string name="publish_now">Publish now</string>
+    <string name="video_available_right_away">The video will be available right away</string>
+    <string name="publish_specific_time">Publish at specific time</string>
+
+    <!-- Upload Quality -->
+    <string name="quality_480">480p</string>
+    <string name="quality_720">720p</string>
+    <string name="quality_1080">1080p</string>
+    <string name="quality_full">Full Quality</string>
+    <string name="quality_undefined">Undefined</string>
+
+    <!-- Category Display types -->
+    <string name="category_live_streams">Live Streams</string>
+    <string name="category_recorded_streams">Recorded Streams</string>
+    <string name="category_videos">Videos</string>
+    <string name="category_categories">Categories</string>
+
+    <!-- Onboarding -->
+    <string name="search_rumble">Search Rumble</string>
+    <string name="discover_content">Discover Content</string>
+    <string name="following_channels">Following Channels</string>
+    <string name="your_library">Your Library</string>
+    <string name="search_rumble_description">Looking for that specific video about how to change your lightbulb? This is the place for you.</string>
+    <string name="discover_content_description">Find new content or channels based on your interests or discover something new.</string>
+    <string name="following_channels_description">Get right to the channels you follow and watch videos or live streams with sort and filters.</string>
+    <string name="your_library_description">Save content for later, continue watching your previous videos, and curate custom playlists.</string>
+
+    <!-- Main categories -->
+    <string name="music">Music</string>
+    <string name="news">News</string>
+    <string name="gaming">Gaming</string>
+    <string name="viral">Viral</string>
+
+    <!-- Upload states-->
+    <string name="uploading">Uploading…</string>
+    <string name="finalizing">Finalizing…</string>
+    <string name="uploading_failed">Uploading failed</string>
+    <string name="uploading_succeeded">Uploading succeeded</string>
+    <string name="processing">Processing…</string>
+    <string name="draft">Draft</string>
+    <string name="waiting_wifi">Waiting for WiFi…</string>
+    <string name="waiting_connection">Waiting for connection…</string>
+    <string name="email_verification_needed">Email verification needed…</string>
+    <string name="error_failed_to_upload_thumbnail">Failed to upload the thumbnail</string>
+
+</resources>

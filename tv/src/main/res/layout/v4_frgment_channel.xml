@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data></data>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="start|top"
+        android:layout_marginStart="@dimen/channelV4_header_margin_start"
+        android:layout_marginTop="@dimen/channelV4_header_margin_top"
+        android:maxLines="1"
+        android:textColor="@color/white"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:textAppearance="@style/Rumble.Widget.Title"
+        android:text="Recommended" />
+</layout>

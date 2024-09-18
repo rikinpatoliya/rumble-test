@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data></data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tv_background_color">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="@dimen/rumble_logo_width"
+            android:layout_height="@dimen/rumble_logo_height"
+            android:src="@drawable/v3_ic_badge"
+            android:layout_marginTop="@dimen/main_header_icon_margin_top"
+            android:layout_marginEnd="@dimen/main_header_icon_margin_end"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:layout_width="@dimen/mature_content_dialog_width"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/titleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mature_content_dialog_title"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline3" />
+
+            <TextView
+                android:id="@+id/descriptionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/mature_content_dialog_description_margin_top"
+                android:text="@string/mature_content_dialog_description"
+                android:textAppearance="@style/TextAppearance.Rumble.Label.Regular" />
+
+            <Button
+                android:id="@+id/positive_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/mature_content_dialog_positive_button_margin_top"
+                android:focusedByDefault="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:background="@drawable/v3_selector_channel_radio_button_background"
+                android:text="@string/mature_content_dialog_positive_button_text"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline3"
+                android:textColor="@color/v3_channel_details_button_text_color"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/icon" />
+
+            <Button
+                android:id="@+id/negative_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/mature_content_dialog_negative_button_margin_top"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:background="@drawable/v3_selector_channel_radio_button_background"
+                android:text="@string/mature_content_dialog_negative_button_text"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Rumble.Headline3"
+                android:textColor="@color/v3_channel_details_button_text_color"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/icon" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
