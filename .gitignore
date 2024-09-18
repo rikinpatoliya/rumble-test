@@ -3,3 +3,5 @@
 *.bin
 /.gradle/buildOutputCleanup
 .gradle/config.properties
+*.probe
+*.salive
