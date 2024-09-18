@@ -1,0 +1,5 @@
+
+*.lock
+*.bin
+/.gradle/buildOutputCleanup
+.gradle/config.properties
