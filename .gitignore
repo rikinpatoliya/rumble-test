@@ -6,3 +6,4 @@
 *.probe
 *.salive
 local.properties
+/secrets
