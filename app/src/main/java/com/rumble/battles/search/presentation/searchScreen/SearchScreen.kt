@@ -114,7 +114,6 @@ fun SearchScreen(
                 }
             }
 
-
             LazyColumn(
                 modifier = Modifier
                     .imePadding()
