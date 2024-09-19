@@ -7,3 +7,8 @@
 *.salive
 local.properties
 /secrets
+.idea/
+.DS_Store
+app/.DS_Store
+app/.DS_Store
+app/keystore/.DS_Store
