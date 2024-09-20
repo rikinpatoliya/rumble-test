@@ -1289,6 +1289,7 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private suspend fun fetchDetails(videoId: Long) {
+        state.value = state.value.copy(isLoading = true)
         playerImpressionLogged = false
         getVideoDetailsUseCase(videoId)?.let {
             state.value = state.value.copy(

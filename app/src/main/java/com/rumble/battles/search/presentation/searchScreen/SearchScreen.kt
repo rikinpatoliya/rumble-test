@@ -139,19 +139,21 @@ fun SearchScreen(
                         onDelete = { searchHandler.onDeleteRecentQuery(recentQuery) }
                     )
                 }
-                items(state.autoCompleteChannelsList) { autoCompleteChannel ->
-                    AutoCompleteSearchChannelView(
-                        channelDetailsEntity = autoCompleteChannel,
-                        query = state.query,
-                        onViewChannel = onViewChannel
-                    )
-                }
-                items(state.autoCompleteCategoriesList) { autoCompleteCategory ->
-                    AutoCompleteSearchCategoryView(
-                        categoryEntity = autoCompleteCategory,
-                        query = state.query,
-                        onBrowseCategory = onBrowseCategory
-                    )
+                if (state.query.isNotEmpty()) {
+                    items(state.autoCompleteChannelsList) { autoCompleteChannel ->
+                        AutoCompleteSearchChannelView(
+                            channelDetailsEntity = autoCompleteChannel,
+                            query = state.query,
+                            onViewChannel = onViewChannel
+                        )
+                    }
+                    items(state.autoCompleteCategoriesList) { autoCompleteCategory ->
+                        AutoCompleteSearchCategoryView(
+                            categoryEntity = autoCompleteCategory,
+                            query = state.query,
+                            onBrowseCategory = onBrowseCategory
+                        )
+                    }
                 }
             }
         }

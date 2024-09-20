@@ -276,6 +276,11 @@ class ContentViewModel @Inject constructor(
     override val libraryIconLocationState = MutableStateFlow(Offset.Zero)
     override val appUpdateState: MutableStateFlow<AppUpdateState> =
         MutableStateFlow(AppUpdateState())
+    override val addToPlayListState = MutableStateFlow(AddToPlayListState())
+    override val updatedPlaylist: MutableStateFlow<UpdatePlaylist?> = MutableStateFlow(null)
+    override val editPlayListState = MutableStateFlow(EditPlayListScreenUIState())
+    override val playListSettingsState =
+        MutableStateFlow<PlayListSettingsBottomSheetDialog>(PlayListSettingsBottomSheetDialog.DefaultPopupState)
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
@@ -291,7 +296,6 @@ class ContentViewModel @Inject constructor(
         viewModelScope.launch(errorHandler) {
             subscriptionList = fetchPremiumSubscriptionListUseCase() ?: emptyList()
         }
-        checkAppUpdates()
     }
 
     private fun checkAppUpdates() {
@@ -311,6 +315,7 @@ class ContentViewModel @Inject constructor(
                 appUpdateSuggested = false,
             )
         }
+        saveNewVersionDisplayTimeStamp()
     }
 
     override fun onGoToStore() {
@@ -319,32 +324,52 @@ class ContentViewModel @Inject constructor(
                 appUpdateSuggested = false,
             )
         }
+        saveNewVersionDisplayTimeStamp()
         openPlayStoreUseCase()
     }
 
-    private fun observeUser() {
+    private fun saveNewVersionDisplayTimeStamp() {
         viewModelScope.launch {
+            userPreferenceManager.saveNewVersionDisplayTimeStamp(System.currentTimeMillis())
+        }
+    }
+
+    private fun observeUser() {
+        viewModelScope.launch(errorHandler) {
+            sessionManager.cookiesFlow.distinctUntilChanged().collectLatest {
+                userUIState.update { userState ->
+                    userState.copy(
+                        isLoggedIn = it.isNotEmpty()
+                    )
+                }
+                if (it.isNotEmpty()) {
+                    initAdditionalInfoForLoggedInUser()
+                }
+            }
+        }
+
+        viewModelScope.launch(errorHandler) {
             sessionManager.userIdFlow.distinctUntilChanged().collect { id ->
                 userUIState.update {
                     it.copy(userId = id)
                 }
             }
         }
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             sessionManager.userNameFlow.distinctUntilChanged().collect { name ->
                 userUIState.update {
                     it.copy(userName = name)
                 }
             }
         }
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             sessionManager.userPictureFlow.distinctUntilChanged().collect { picture ->
                 userUIState.update {
                     it.copy(userPicture = picture)
                 }
             }
         }
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             sessionManager.isPremiumUserFlow.distinctUntilChanged().collect { isPremium ->
                 userUIState.update {
                     it.copy(isPremiumUser = isPremium)
@@ -353,9 +378,17 @@ class ContentViewModel @Inject constructor(
         }
     }
 
+    private suspend fun initAdditionalInfoForLoggedInUser() {
+        fetchWatchLaterPlaylist()
+        getAvailablePlayLists()
+        fetchUserUploadChannels()
+        observeNotificationData()
+    }
+
     override fun onContentResumed() {
         viewModelScope.launch(errorHandler) {
             fetchUserInfoUseCase()
+            checkAppUpdates()
         }
     }
 
@@ -446,27 +479,6 @@ class ContentViewModel @Inject constructor(
     }
 
     // region AddToPlayListHandler
-    override val addToPlayListState = MutableStateFlow(AddToPlayListState())
-    override val updatedPlaylist: MutableStateFlow<UpdatePlaylist?> = MutableStateFlow(null)
-
-    init {
-        viewModelScope.launch(errorHandler) {
-            sessionManager.cookiesFlow.distinctUntilChanged().collectLatest {
-                userUIState.update { userState ->
-                    userState.copy(
-                        isLoggedIn = it.isNotEmpty()
-                    )
-                }
-                if (it.isNotEmpty()) {
-                    fetchWatchLaterPlaylist()
-                    getAvailablePlayLists()
-                    fetchUserUploadChannels()
-                    observeNotificationData()
-                }
-            }
-        }
-    }
-
     private fun getAvailablePlayLists(videoId: Long? = null) {
         val availablePlayLists = getLibraryPlayListsPagedUseCase(videoId)
         addToPlayListState.value = addToPlayListState.value.copy(
@@ -566,10 +578,6 @@ class ContentViewModel @Inject constructor(
     // endregion
 
     // region EditPlayListHandler
-    override val editPlayListState = MutableStateFlow(EditPlayListScreenUIState())
-    override val playListSettingsState =
-        MutableStateFlow<PlayListSettingsBottomSheetDialog>(PlayListSettingsBottomSheetDialog.DefaultPopupState)
-
     override fun onTitleChanged(value: String) {
         editPlayListState.value.editPlayListEntity?.let { playListEntity ->
             editPlayListState.update {
