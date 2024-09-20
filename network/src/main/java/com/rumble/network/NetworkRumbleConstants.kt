@@ -19,7 +19,12 @@ object NetworkRumbleConstants {
     const val DEBUG_KEY = "debug"
     const val CAN_SUBMIT_LOGS_KEY = "can_submit_logs"
     const val FIRST_VIDEO_START_REPORT_ERROR = 1001
-    const val FETCH_CONFIG_INTERVAL_MINUTES = 30L
+    const val FETCH_CONFIG_INTERVAL_MINUTES_PROD = 60L
+    const val FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV = 1L
+    const val FIREBASE_CONFIG_SUGGESTED_APP_VERSION = "suggested_app_version"
+    const val FIREBASE_CONFIG_PREMIUM_PROMO_DISPLAY_DELAY_DAYS = "premium_promo_display_delay_days"
+    const val FIREBASE_CONFIG_FORCED_APP_VERSION = "forced_app_version"
+    const val FIREBASE_CONFIG_AUTH_DISPLAY_DELAY_DAYS = "auth_display_delay_days"
     const val ACCEPT_HEADER = "Accept"
     const val USER_AGENT = "User-Agent"
     const val APP_VERSION = "app_version"

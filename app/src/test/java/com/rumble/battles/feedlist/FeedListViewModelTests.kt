@@ -5,7 +5,6 @@ import com.rumble.battles.feed.presentation.feedlist.HomeViewModel
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
-import com.rumble.domain.analytics.domain.usecases.ProvideVideoReportConfigUseCase
 import com.rumble.domain.analytics.domain.usecases.RumbleAdFeedImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelSubscriptionUseCase
@@ -56,7 +55,6 @@ class FeedListViewModelTests {
     private val getViewCollectionTitleUseCase: GetViewCollectionTitleUseCase = mockk(relaxed = true)
     private val initVideoCardPlayerUseCase: InitVideoCardPlayerUseCase = mockk(relaxed = true)
     private val logVideoPlayerImpressionUseCase: LogVideoPlayerImpressionUseCase = mockk(relaxed = true)
-    private val provideVideoReportConfigUseCase: ProvideVideoReportConfigUseCase = mockk(relaxed = true)
     private val saveLastPositionUseCase: SaveLastPositionUseCase = mockk(relaxed = true)
     private val userPreferenceManager: UserPreferenceManager = mockk(relaxed = true)
     private val sessionManager: SessionManager = mockk(relaxed = true)
@@ -86,7 +84,6 @@ class FeedListViewModelTests {
             getViewCollectionTitleUseCase = getViewCollectionTitleUseCase,
             initVideoCardPlayerUseCase = initVideoCardPlayerUseCase,
             logVideoPlayerImpressionUseCase = logVideoPlayerImpressionUseCase,
-            provideVideoReportConfigUseCase = provideVideoReportConfigUseCase,
             saveLastPositionUseCase = saveLastPositionUseCase,
             userPreferenceManager = userPreferenceManager,
             sessionManager = sessionManager,

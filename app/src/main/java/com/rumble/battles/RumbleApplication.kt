@@ -20,8 +20,10 @@ import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE
 import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE_KEY
 import com.rumble.battles.deeplinks.RumbleDeepLinkListener
 import com.rumble.battles.notifications.pushnotifications.RumbleNotificationOpenedHandler
+import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.logging.domain.FileLoggingTree
-import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES
+import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_PROD
+import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD_KEY
 import dagger.hilt.android.HiltAndroidApp
@@ -41,6 +43,9 @@ class RumbleApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var rumbleDeepLinkListener: RumbleDeepLinkListener
+
+    @Inject
+    lateinit var isDevelopModeUseCase: IsDevelopModeUseCase
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -63,12 +68,17 @@ class RumbleApplication : Application(), Configuration.Provider {
         appsFlyerLib.init(BuildConfig.APPS_FLYER_API_ID, null, this)
         val hasConsentForDataUsage = false
         val hasConsentForAdsPersonalization = false
-        appsFlyerLib.setConsentData(AppsFlyerConsent.forGDPRUser(hasConsentForDataUsage, hasConsentForAdsPersonalization))
+        appsFlyerLib.setConsentData(
+            AppsFlyerConsent.forGDPRUser(
+                hasConsentForDataUsage,
+                hasConsentForAdsPersonalization
+            )
+        )
         appsFlyerLib.start(this)
     }
 
     private fun initLogging() {
-        if (BuildConfig.BUILD_TYPE == "qa" || BuildConfig.DEBUG) {
+        if (isDevelopModeUseCase()) {
             Timber.plant(Timber.DebugTree())
             Timber.plant(FileLoggingTree(this))
         }
@@ -87,7 +97,10 @@ class RumbleApplication : Application(), Configuration.Provider {
         val remoteConfig: FirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
         val configSettings = remoteConfigSettings {
             minimumFetchIntervalInSeconds =
-                TimeUnit.MINUTES.toSeconds(FETCH_CONFIG_INTERVAL_MINUTES)
+                if (isDevelopModeUseCase())
+                    TimeUnit.MINUTES.toSeconds(FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV)
+                else
+                    TimeUnit.MINUTES.toSeconds(FETCH_CONFIG_INTERVAL_MINUTES_PROD)
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
         remoteConfig.setDefaultsAsync(
