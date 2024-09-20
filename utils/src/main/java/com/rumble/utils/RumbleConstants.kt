@@ -99,6 +99,7 @@ object RumbleConstants {
     const val TESTING_LAUNCH_UIT_PASSWORD = "uit_password"
     const val TESTING_SUBDOMAIN = "webe27"
     const val TV_MAIN_MENU_FOCUS_DELAY_TIME = 300L
+    const val SUGGESTED_APP_VERSION_DISPLAY_DELAY_MINUTES = 24*60L
 
     @Language("JSON")
     val countriesList = """

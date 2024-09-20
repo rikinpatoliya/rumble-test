@@ -1,6 +1,7 @@
 package com.rumble.domain.premium.domain.usecases
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.rumble.domain.settings.domain.usecase.IsCurrentTimeStampOverTriggerUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.network.session.SessionManager
 import kotlinx.coroutines.flow.first
@@ -11,17 +12,16 @@ import javax.inject.Inject
 class ShouldShowPremiumPromoUseCase @Inject constructor(
     private val sessionManager: SessionManager,
     private val userPreferenceManager: UserPreferenceManager,
+    private val isCurrentTimeStampOverTriggerUseCase: IsCurrentTimeStampOverTriggerUseCase
 ) {
 
     suspend operator fun invoke(): Boolean {
-        return sessionManager.isPremiumUserFlow.first().not() && isOverNextDisplayTrigger()
-    }
-
-    private fun isOverNextDisplayTrigger(): Boolean {
-        val promptInterval = FirebaseRemoteConfig.getInstance().getLong("premium_promo_display_delay_days")
-        val lastPromoTimeStamp =
-            runBlocking { userPreferenceManager.lastPremiumPromoTimeStampFlow.first() }
-        val millisTrigger: Long = TimeUnit.DAYS.toMillis(promptInterval)
-        return (lastPromoTimeStamp + millisTrigger) < System.currentTimeMillis()
+        return sessionManager.isPremiumUserFlow.first().not()
+                && isCurrentTimeStampOverTriggerUseCase(
+            lastTimeStamp = runBlocking { userPreferenceManager.lastPremiumPromoTimeStampFlow.first() },
+            triggerMillis = TimeUnit.DAYS.toMillis(
+                FirebaseRemoteConfig.getInstance().getLong("premium_promo_display_delay_days")
+            )
+        )
     }
 }

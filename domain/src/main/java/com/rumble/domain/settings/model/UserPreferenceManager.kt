@@ -44,6 +44,7 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
     private val autoplayOnKey = booleanPreferencesKey("autoplayOnKey")
     private val displayPremiumBannerKey = booleanPreferencesKey("displayPremiumBannerKey")
     private val lastPremiumPromoTimeStampKey = longPreferencesKey("lastPremiumPromoTimeStampKey")
+    private val lastNewVersionDisplayTimeStampKey = longPreferencesKey("lastNewVersionDisplayTimeStampKey")
     private val disableAdsKey = booleanPreferencesKey("disableAdsKey")
     private val forceAdsKey = booleanPreferencesKey("forceAdsKey")
     private val playDebugAdKey = booleanPreferencesKey("playDebugAdKey")
@@ -164,6 +165,12 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
         }
     val lastPremiumPromoTimeStampFlow: Flow<Long> = context.dataStore.data
         .map { prefs -> prefs[lastPremiumPromoTimeStampKey] ?: 0 }
+        .catch {
+            Timber.tag(TAG).e(it)
+            emit(0)
+        }
+    val lastNewVersionDisplayTimeStampFlow: Flow<Long> = context.dataStore.data
+        .map { prefs -> prefs[lastNewVersionDisplayTimeStampKey] ?: 0 }
         .catch {
             Timber.tag(TAG).e(it)
             emit(0)
@@ -341,6 +348,16 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
         try {
             context.dataStore.edit { prefs ->
                 prefs[lastPremiumPromoTimeStampKey] = timestamp
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveNewVersionDisplayTimeStamp(timestamp: Long) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[lastNewVersionDisplayTimeStampKey] = timestamp
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)
