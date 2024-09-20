@@ -2,10 +2,20 @@ package com.rumble.battles.discover.presentation.categories
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -56,7 +66,6 @@ import com.rumble.theme.paddingNone
 import com.rumble.theme.paddingSmall
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
-import com.rumble.utils.extension.rememberLazyListState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -76,8 +85,8 @@ fun BrowseCategoriesScreen(
     val configuration = LocalConfiguration.current
     var isCollapsed by remember { mutableStateOf(false) }
     val soundOn by categoryHandler.soundState.collectAsStateWithLifecycle(initialValue = false)
-    val gridState: LazyGridState = rememberLazyGridState()
-    val listState = rememberLazyListState()
+    val gridState: LazyGridState = remember { LazyGridState() }
+    val listState: LazyListState = remember { LazyListState() }
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             categoryHandler.onCreatePlayerForVisibleFeed()
