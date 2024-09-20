@@ -3,6 +3,7 @@ package com.rumble.domain.premium.domain.usecases
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.rumble.domain.settings.domain.usecase.IsCurrentTimeStampOverTriggerUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
+import com.rumble.network.NetworkRumbleConstants.FIREBASE_CONFIG_PREMIUM_PROMO_DISPLAY_DELAY_DAYS
 import com.rumble.network.session.SessionManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -20,7 +21,7 @@ class ShouldShowPremiumPromoUseCase @Inject constructor(
                 && isCurrentTimeStampOverTriggerUseCase(
             lastTimeStamp = runBlocking { userPreferenceManager.lastPremiumPromoTimeStampFlow.first() },
             triggerMillis = TimeUnit.DAYS.toMillis(
-                FirebaseRemoteConfig.getInstance().getLong("premium_promo_display_delay_days")
+                FirebaseRemoteConfig.getInstance().getLong(FIREBASE_CONFIG_PREMIUM_PROMO_DISPLAY_DELAY_DAYS)
             )
         )
     }

@@ -1,6 +1,7 @@
 package com.rumble.domain.landing.usecases
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.rumble.network.NetworkRumbleConstants.FIREBASE_CONFIG_AUTH_DISPLAY_DELAY_DAYS
 import com.rumble.network.session.SessionManager
 import kotlinx.coroutines.flow.first
 import java.time.Duration
@@ -14,7 +15,7 @@ class LoginRequiredUseCase @Inject constructor(
     private val sessionManager: SessionManager
 ) {
     suspend operator fun invoke(): Boolean {
-        val promptPeriod = FirebaseRemoteConfig.getInstance().getLong("auth_display_delay_days")
+        val promptPeriod = FirebaseRemoteConfig.getInstance().getLong(FIREBASE_CONFIG_AUTH_DISPLAY_DELAY_DAYS)
         val cookies = sessionManager.cookiesFlow.first()
         val lastLoginPromptTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(sessionManager.lastLoginPromptTimeFlow.first()), ZoneId.of("UTC"))
         val daysFromLastPrompt = Duration.between(lastLoginPromptTime, LocalDateTime.now().atOffset(ZoneOffset.UTC)).toDays()
