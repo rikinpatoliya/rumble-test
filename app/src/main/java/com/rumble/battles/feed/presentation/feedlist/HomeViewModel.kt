@@ -18,7 +18,6 @@ import com.rumble.domain.analytics.domain.domainmodel.feedScreen
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
-import com.rumble.domain.analytics.domain.usecases.ProvideVideoReportConfigUseCase
 import com.rumble.domain.analytics.domain.usecases.RumbleAdFeedImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FreshChannelListResult
@@ -37,7 +36,6 @@ import com.rumble.domain.feed.domain.usecase.GetVideoCollectionsUseCase
 import com.rumble.domain.feed.domain.usecase.GetViewCollectionTitleUseCase
 import com.rumble.domain.feed.domain.usecase.SaveVideoCollectionViewUseCase
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
-import com.rumble.domain.report.domain.VideoReportConfig
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoCardPlayerUseCase
@@ -88,7 +86,6 @@ interface HomeHandler {
     val updatedEntity: StateFlow<VideoEntity?>
     val currentPlayerState: State<RumblePlayer?>
     val soundState: Flow<Boolean>
-    val reportConfig: VideoReportConfig
     val alertDialogState: State<AlertDialogState>
     val eventFlow: Flow<HomeEvent>
 
@@ -130,7 +127,6 @@ class HomeViewModel @Inject constructor(
     private val saveLastPositionUseCase: SaveLastPositionUseCase,
     private val getLastPositionUseCase: GetLastPositionUseCase,
     private val logVideoPlayerImpressionUseCase: LogVideoPlayerImpressionUseCase,
-    private val provideVideoReportConfigUseCase: ProvideVideoReportConfigUseCase,
     private val userPreferenceManager: UserPreferenceManager,
     private val initVideoCardPlayerUseCase: InitVideoCardPlayerUseCase,
     private val getViewCollectionTitleUseCase: GetViewCollectionTitleUseCase,
@@ -151,9 +147,6 @@ class HomeViewModel @Inject constructor(
     override val currentPlayerState: MutableState<RumblePlayer?> = mutableStateOf(null)
 
     override val soundState = userPreferenceManager.videoCardSoundStateFlow
-
-    override val reportConfig: VideoReportConfig
-        get() = provideVideoReportConfigUseCase()
 
     override val alertDialogState: MutableState<AlertDialogState> =
         mutableStateOf(AlertDialogState())
