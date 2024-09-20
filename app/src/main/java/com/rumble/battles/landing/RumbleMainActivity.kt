@@ -177,6 +177,7 @@ class RumbleMainActivity : FragmentActivity() {
         }
 
         NavHost(navController = navController, graph = navGraph)
+        viewModel.startObserveCookies()
         viewModel.initLogging()
     }
 

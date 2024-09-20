@@ -26,6 +26,7 @@ import com.rumble.domain.notifications.domain.domainmodel.NotificationHandlerRes
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.notifications.domain.usecases.RumbleNotificationHandlerUseCase
 import com.rumble.domain.profile.domain.GetUserHasUnreadNotificationsUseCase
+import com.rumble.domain.profile.domain.SignOutUseCase
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.usecase.PrepareAppForTestingUseCase
@@ -68,6 +69,7 @@ interface RumbleActivityHandler {
     suspend fun backgroundSoundIsAvailable(): Boolean
     suspend fun getCookies(): String
     fun getVideoDetails(rumbleNotificationData: RumbleNotificationData)
+    fun startObserveCookies()
     fun initLogging()
     fun updateSession(session: MediaSessionCompat)
     fun onError(e: Throwable)
@@ -112,6 +114,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val getUserCookiesUseCase: GetUserCookiesUseCase,
     private val transferUserDataUseCase: TransferUserDataUseCase,
     private val silentLoginUseCase: SilentLoginUseCase,
+    private val signOutUseCase: SignOutUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val sessionManager: SessionManager,
     private val rumbleNotificationHandlerUseCase: RumbleNotificationHandlerUseCase,
@@ -209,6 +212,16 @@ class RumbleActivityViewModel @Inject constructor(
                         onShowAlertDialog(RumbleActivityAlertReason.VideoDetailsFromNotificationFailedReason)
                         sessionManager.allowContentLoadFlow(true)
                     }
+                }
+            }
+        }
+    }
+
+    override fun startObserveCookies() {
+        viewModelScope.launch {
+            sessionManager.cookiesFlow.distinctUntilChanged().collect {
+                if (it.isEmpty()) {
+                    if (silentLoginUseCase().not()) signOutUseCase(true)
                 }
             }
         }

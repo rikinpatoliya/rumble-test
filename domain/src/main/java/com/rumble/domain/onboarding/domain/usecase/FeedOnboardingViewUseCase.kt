@@ -24,14 +24,18 @@ class FeedOnboardingViewUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(versionCode: Int): OnboardingViewState {
-        val libraryResult = handleLibraryOnboardingTransition()
+        val oldLibraryResult = handleLibraryOnboardingTransition()
+        val libraryPopupResult = onboardingViewRepository.getOnboarding(
+            onboardingType = OnboardingType.YourLibrary,
+            version = CURRENT_ONBOARDING_VERSION
+        )
         val feedResult = handleFeedOnboardingTransition()
         val playbackResult = onboardingViewRepository.getOnboarding(
             onboardingType = OnboardingType.PlaybackSettings,
             version = CURRENT_ONBOARDING_VERSION
         )
         val onboardingList = filterOnboardingList(onboardingViewRepository.getOnboardingList())
-        return if (libraryResult == null && showLibraryOnboardingUseCase(versionCode)) {
+        return if (oldLibraryResult == null && libraryPopupResult == null && showLibraryOnboardingUseCase(versionCode)) {
             ShowLibraryOnboarding
         } else if (feedResult == null || playbackResult == null || onboardingList.isNotEmpty()) {
             ShowOnboardingPopups(onboardingList)

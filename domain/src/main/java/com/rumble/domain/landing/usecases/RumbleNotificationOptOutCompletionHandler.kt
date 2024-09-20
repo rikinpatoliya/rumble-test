@@ -15,7 +15,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "RumbleNotificationOptOutCompletionHandler"
-private const val BACKUP_DELAY_ONESIGNAL_COMPLETION_HANDLER = 15000L
+private const val BACKUP_DELAY_ONESIGNAL_COMPLETION_HANDLER = 500L
 
 class RumbleNotificationOptOutCompletionHandler @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
