@@ -67,6 +67,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
+import java.time.ZoneOffset
 import java.util.UUID
 import javax.inject.Inject
 
@@ -804,16 +805,24 @@ class CameraViewModel @Inject constructor(
     }
 
     override fun onDateChanged(newUtcMillis: Long) {
-        val utcNow = Instant.now().toEpochMilli()
+        val utcNow = Instant.now()
+        val currentMillis = utcNow.toEpochMilli()
+        val currentUtcDate = utcNow.atZone(ZoneOffset.UTC).toLocalDate()
+        val selectedDate = Instant.ofEpochMilli(newUtcMillis).atZone(ZoneOffset.UTC).toLocalDate()
+        val adjustedMillis = if (selectedDate == currentUtcDate) {
+            currentMillis
+        } else {
+            newUtcMillis
+        }
         uiState.update {
             it.copy(
                 selectedUploadSchedule = uiState.value.selectedUploadSchedule.copy(
-                    utcMillis = if (newUtcMillis > utcNow) newUtcMillis else uiState.value.selectedUploadSchedule.utcMillis
+                    utcMillis = adjustedMillis
                 )
             )
         }
         uploadVideoData = uploadVideoData.copy(
-            publishDate = newUtcMillis
+            publishDate = adjustedMillis
         )
         saveDraftToDB()
     }
