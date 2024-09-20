@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -75,8 +77,11 @@ fun BrowseCategoriesScreen(
     val configuration = LocalConfiguration.current
     var isCollapsed by remember { mutableStateOf(false) }
     val soundOn by categoryHandler.soundState.collectAsStateWithLifecycle(initialValue = false)
-    val gridState: LazyGridState = rememberLazyGridState()
-    val listState = videoListItems.rememberLazyListState()
+
+    // Preserving state across recompositions and navigation
+    val gridState: LazyGridState = rememberSaveable(saver = LazyGridState.Saver) { LazyGridState() }
+    val listState: LazyListState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
+
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             categoryHandler.onCreatePlayerForVisibleFeed()
