@@ -29,6 +29,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadCh
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserUploadChannelsUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
+import com.rumble.domain.common.domain.usecase.CheckCurrentDateAndAdjustUseCase
 import com.rumble.domain.common.domain.usecase.CombineTimeWithDateUseCase
 import com.rumble.domain.common.domain.usecase.OpenPhoneSettingUseCase
 import com.rumble.domain.common.domain.usecase.OpenUriUseCase
@@ -227,6 +228,7 @@ class CameraViewModel @Inject constructor(
     private val createTempThumbnailFileUseCase: CreateTempThumbnailFileUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
     private val combineTimeWithDateUseCase: CombineTimeWithDateUseCase,
+    private val checkCurrentDateAndAdjustUseCase: CheckCurrentDateAndAdjustUseCase
 ) : ViewModel(), CameraUploadHandler, CameraHandler {
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
@@ -804,16 +806,16 @@ class CameraViewModel @Inject constructor(
     }
 
     override fun onDateChanged(newUtcMillis: Long) {
-        val utcNow = Instant.now().toEpochMilli()
+        val adjustedMillis = checkCurrentDateAndAdjustUseCase(newUtcMillis)
         uiState.update {
             it.copy(
                 selectedUploadSchedule = uiState.value.selectedUploadSchedule.copy(
-                    utcMillis = if (newUtcMillis > utcNow) newUtcMillis else uiState.value.selectedUploadSchedule.utcMillis
+                    utcMillis = adjustedMillis
                 )
             )
         }
         uploadVideoData = uploadVideoData.copy(
-            publishDate = newUtcMillis
+            publishDate = adjustedMillis
         )
         saveDraftToDB()
     }

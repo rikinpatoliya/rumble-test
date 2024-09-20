@@ -4,6 +4,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.settings.domain.usecase.IsCurrentTimeStampOverTriggerUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
+import com.rumble.network.NetworkRumbleConstants.FIREBASE_CONFIG_SUGGESTED_APP_VERSION
 import com.rumble.utils.RumbleConstants.SUGGESTED_APP_VERSION_DISPLAY_DELAY_MINUTES
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -22,7 +23,7 @@ class ShouldSuggestNewAppVersionUseCase @Inject constructor(
     operator fun invoke(versionName: String): Boolean {
         return try {
             val suggestedVersion =
-                FirebaseRemoteConfig.getInstance().getString("suggested_app_version")
+                FirebaseRemoteConfig.getInstance().getString(FIREBASE_CONFIG_SUGGESTED_APP_VERSION)
             isVersionNameGreaterUseCase(suggestedVersion, versionName)
                     && isCurrentTimeStampOverTriggerUseCase(
                 lastTimeStamp = runBlocking { userPreferenceManager.lastNewVersionDisplayTimeStampFlow.first() },
