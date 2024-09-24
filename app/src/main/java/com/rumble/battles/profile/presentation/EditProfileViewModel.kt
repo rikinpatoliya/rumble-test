@@ -15,6 +15,7 @@ import com.rumble.domain.profile.domainmodel.UserProfileEntity
 import com.rumble.domain.settings.domain.domainmodel.UpdateUserProfileResult
 import com.rumble.domain.validation.usecases.EmailValidationUseCase
 import com.rumble.network.session.SessionManager
+import com.rumble.utils.errors.InputValidationError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 interface EditProfileHandler {
@@ -42,9 +44,12 @@ interface EditProfileHandler {
     fun onPostalCodeChanged(value: String)
     fun onCountryChanged(countryEntity: CountryEntity)
     fun onSelectCountry()
+    fun onSelectBirthday()
+    fun onBirthdayChanged(value: LocalDate)
     fun onPaypalEmailChanged(value: String)
     fun onProfileImageChanged(uri: Uri?)
     fun onUpdateUserProfile()
+    fun onGenderSelected(gender: Gender)
 }
 
 data class UserProfileUIState(
@@ -63,10 +68,16 @@ data class UserProfileUIState(
     val stateErrorMessage: String = "",
     val postalCodeError: Boolean = false,
     val postalCodeErrorMessage: String = "",
+    val birthdayError: Pair<Boolean, InputValidationError> = Pair(
+        false,
+        InputValidationError.None
+    ),
+    val gender: Gender = Gender.Unspecified
 )
 
 sealed class EditProfileVmEvent {
     object ShowCountrySelection : EditProfileVmEvent()
+    object ShowDateSelectionDialog : EditProfileVmEvent()
     data class Error(val errorMessage: String? = null) : EditProfileVmEvent()
     data class ProfileUpdateResult(val messageStringId: Int) : EditProfileVmEvent()
 }
@@ -182,6 +193,23 @@ class EditProfileViewModel @Inject constructor(
         emitVmEvent(EditProfileVmEvent.ShowCountrySelection)
     }
 
+    override fun onSelectBirthday() {
+        emitVmEvent(EditProfileVmEvent.ShowDateSelectionDialog)
+    }
+
+    override fun onBirthdayChanged(value: LocalDate) {
+        userProfileEntity = userProfileEntity.copy(
+            birthday = value
+        )
+        uiState.update {
+            it.copy(
+                userProfileEntity = userProfileEntity,
+                birthdayError = Pair(false, InputValidationError.None)
+            )
+        }
+    }
+
+
     override fun onCountryChanged(countryEntity: CountryEntity) {
         userProfileEntity = userProfileEntity.copy(
             country = countryEntity
@@ -262,6 +290,15 @@ class EditProfileViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    override fun onGenderSelected(gender: Gender) {
+        userProfileEntity = userProfileEntity.copy(
+            gender = gender
+        )
+        uiState.update {
+            it.copy(gender = gender)
         }
     }
 

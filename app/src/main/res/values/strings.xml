@@ -201,7 +201,7 @@
     <string name="state">State</string>
     <string name="zip_postal_code">ZIP/POSTAL CODE</string>
     <string name="country">Country</string>
-    <string name="paypal_email_address">Paypal email address</string>
+     <string name="paypal_email_address">Paypal email address</string>
     <string name="your_payouts_sent_here">Your payouts will be sent here.</string>
     <string name="please_select_your_country">Please select your country.</string>
     <string name="please_provide_valid_paypal">Please provide a valid PayPal email address.</string>

@@ -10,6 +10,9 @@ import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,8 +41,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,18 +63,23 @@ import com.rumble.battles.EditProfileTag
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.CheckMarkItem
 import com.rumble.battles.commonViews.MainActionBottomCardView
+import com.rumble.battles.commonViews.MenuSelectionItem
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
+import com.rumble.battles.commonViews.RumbleDropDownMenu
 import com.rumble.battles.commonViews.RumbleInputFieldView
 import com.rumble.battles.commonViews.RumbleInputSelectorFieldView
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.RumbleProgressIndicator
+import com.rumble.battles.commonViews.RumbleWheelDataPicker
 import com.rumble.battles.commonViews.keyboardAsState
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.domain.profile.domainmodel.CountryEntity
+import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.theme.RumbleTypography
+import com.rumble.theme.enforcedGray900
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageXXLarge
 import com.rumble.theme.paddingLarge
@@ -79,13 +89,17 @@ import com.rumble.theme.radiusXMedium
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.RumbleConstants.ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE
 import com.rumble.utils.RumbleConstants.PROFILE_IMAGE_BITMAP_MAX_WIDTH
+import com.rumble.utils.RumbleConstants.UPLOAD_DATE_PATTERN
 import com.rumble.utils.extension.clickableNoRipple
+import com.rumble.utils.extension.convertToDate
 import com.rumble.utils.extension.scaleToMaxWidth
+import com.rumble.utils.extension.toUtcLocalDate
+import com.rumble.utils.extension.toUtcLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 const val NEW_IMAGE_URI_KEY = "newImageUri"
-
+private const val TAG = "EditProfileScreen"
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EditProfileScreen(
@@ -102,6 +116,8 @@ fun EditProfileScreen(
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
+    var showDatePicker by remember { mutableStateOf(false) }
+
     BackHandler(bottomSheetState.isVisible) {
         coroutineScope.launch { bottomSheetState.hide() }
     }
@@ -129,6 +145,10 @@ fun EditProfileScreen(
                     coroutineScope.launch {
                         bottomSheetState.show()
                     }
+                }
+
+                EditProfileVmEvent.ShowDateSelectionDialog -> {
+                    showDatePicker = showDatePicker.not()
                 }
             }
         }
@@ -171,6 +191,17 @@ fun EditProfileScreen(
                 ) {
                     launcher.launch(ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE)
                 }
+
+                AnimatedVisibility(
+                     visible = showDatePicker,
+                    enter = slideInVertically(initialOffsetY = { it }),
+                    exit = slideOutVertically(targetOffsetY = { it })
+                ) {
+                    RumbleWheelDataPicker(
+                        initialValue = state.userProfileEntity.birthday?.toUtcLong() ?: 0L,
+                        onChanged = { editProfileHandler.onBirthdayChanged(it.toUtcLocalDate()) })
+                }
+
                 if (!keyboardAsState().value) {
                     MainActionBottomCardView(
                         modifier = Modifier,
@@ -181,6 +212,8 @@ fun EditProfileScreen(
             }
         }
     }
+
+
     if (state.loading) {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -308,6 +341,7 @@ private fun EditProfileContent(
     context: Context,
     onImageClick: () -> Unit,
 ) {
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -407,8 +441,52 @@ private fun EditProfileContent(
         ) { editProfileHandler.onSelectCountry() }
         Spacer(
             Modifier
+                .height(paddingMedium)
+        )
+
+        RumbleInputSelectorFieldView(
+            label = stringResource(id = R.string.date).uppercase(),
+            labelColor = MaterialTheme.colors.primary,
+            value = state.userProfileEntity.birthday?.toUtcLong()
+                ?.convertToDate(pattern = UPLOAD_DATE_PATTERN) ?: "",
+        ) { editProfileHandler.onSelectBirthday() }
+
+
+        Spacer(
+            Modifier
+                .height(paddingMedium)
+        )
+
+        RumbleDropDownMenu(
+            modifier = Modifier.fillMaxWidth(),
+            placeHolder = stringResource(id = R.string.select_gender),
+            label = stringResource(id = R.string.gender),
+            backgroundColor = enforcedGray900,
+            textColor = enforcedWhite,
+            iconTint = enforcedWhite,
+            labelColor = enforcedWhite,
+            initialValue = buildGenderInitialSelection(gender = state.gender),
+            items = listOf(
+                MenuSelectionItem(
+                    text = stringResource(id = R.string.gender_male),
+                    action = { editProfileHandler.onGenderSelected(Gender.Mail) }
+                ),
+                MenuSelectionItem(
+                    text = stringResource(id = R.string.gender_female),
+                    action = { editProfileHandler.onGenderSelected(Gender.Female) }
+                )
+            ),
+            onClearSelection = {
+                editProfileHandler.onGenderSelected(Gender.Unspecified)
+            }
+        )
+
+        Spacer(
+            Modifier
                 .height(paddingLarge)
         )
+
+
         Divider(
             color = MaterialTheme.colors.secondaryVariant
         )
@@ -438,3 +516,12 @@ private fun EditProfileContent(
         )
     }
 }
+
+@Composable
+private fun buildGenderInitialSelection(gender: Gender): MenuSelectionItem? =
+    when (gender) {
+        Gender.Mail -> MenuSelectionItem(text = stringResource(id = R.string.gender_male))
+        Gender.Female -> MenuSelectionItem(text = stringResource(id = R.string.gender_female))
+        Gender.Unspecified -> null
+    }
+
