@@ -18,4 +18,6 @@ data class SubscriptionBodyData(
     val packageName: String,
     @SerializedName("iid")
     val installationId: String,
+    @SerializedName("video_id")
+    val videoId: Long?,
 )

@@ -87,8 +87,7 @@ dependencies {
 
     // region OneSignal
     //OneSignal
-    // Warning version 4.8.5 of this library introduces a bug that breaks WorkManager configuration https://github.com/OneSignal/OneSignal-Android-SDK/issues/1748
-    api 'com.onesignal:OneSignal:4.8.4'
+    api 'com.onesignal:OneSignal:5.1.21'
     // endregion
 
     // region JSON

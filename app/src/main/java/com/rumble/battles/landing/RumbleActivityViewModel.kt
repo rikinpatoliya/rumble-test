@@ -233,7 +233,7 @@ class RumbleActivityViewModel @Inject constructor(
         viewModelScope.launch {
             sessionManager.cookiesFlow.distinctUntilChanged().collect {
                 if (it.isEmpty()) {
-                    if (silentLoginUseCase().not()) signOutUseCase(true)
+                    if (silentLoginUseCase().not()) signOutUseCase()
                 }
             }
         }

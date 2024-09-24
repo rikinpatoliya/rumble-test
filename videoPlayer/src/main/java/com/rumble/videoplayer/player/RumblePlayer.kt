@@ -413,6 +413,9 @@ class RumblePlayer(
             setupService()
             startReport()
         }
+        if (playerTarget.value == PlayerTarget.AD && viewResumed) {
+            resumeAdPlayer()
+        }
     }
 
     internal fun updateUiType(type: UiType) {
@@ -1298,6 +1301,15 @@ class RumblePlayer(
         adPlayerView.player = null
         adsPlayer?.release()
         adsPlayer = null
+    }
+
+    private fun resumeAdPlayer() {
+        playerAdsHelper.currentPreRollUrl?.let {
+            prepareAdPlayer(Uri.parse(it.url))
+            playAd()
+            if (_adPlaybackState.value == AdPlaybackState.Paused) adsPlayer?.pause()
+            adPlayerView.onResume()
+        }
     }
 
     private fun sendErrorReport(errorMessage: String) {
