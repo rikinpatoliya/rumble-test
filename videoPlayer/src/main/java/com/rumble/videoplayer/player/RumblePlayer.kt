@@ -238,6 +238,10 @@ class RumblePlayer(
     internal var playList: RumblePlayList? = null
     internal var lastFocusedPlayListIndex = 0
 
+    var targetChangeListener: PlayerTargetChangeListener? = null
+
+    var enableMidRolls: Boolean = true
+
     val videoTitle: String
         get() = rumbleVideo?.title ?: ""
 
@@ -366,6 +370,7 @@ class RumblePlayer(
 
     internal fun setPlayerTarget(target: PlayerTarget) {
         _playerTarget.value = target
+        targetChangeListener?.onPlayerTargetChanged(target)
     }
 
     internal fun onSeekChanged(inProgress: Boolean) {
@@ -407,9 +412,8 @@ class RumblePlayer(
             setupService()
             startReport()
         }
-        if (playerTarget.value == PlayerTarget.AD) {
-            if (viewResumed) resumeAdPlayer()
-            else pauseAdPlayer()
+        if (playerTarget.value == PlayerTarget.AD && viewResumed) {
+            resumeAdPlayer()
         }
     }
 
@@ -673,7 +677,7 @@ class RumblePlayer(
     }
 
     private fun resetState() {
-        _playerTarget.value = PlayerTarget.LOCAL
+        setPlayerTarget(PlayerTarget.LOCAL)
         _playbackSate.value = PlayerPlaybackState.Idle()
         _adPlaybackState.value = AdPlaybackState.None
         playerAdsHelper.onClear()
@@ -857,7 +861,7 @@ class RumblePlayer(
                 }
             }
             .setAdErrorListener {
-                _playerTarget.value = PlayerTarget.LOCAL
+                setPlayerTarget(PlayerTarget.LOCAL)
                 _adPlaybackState.value = AdPlaybackState.None
                 sendErrorReport(it.error.message)
                 sendAnalyticsEvent(ImaFailedEvent, true)
@@ -1086,30 +1090,30 @@ class RumblePlayer(
     }
 
     private fun loadAd(isMidRoll: Boolean = false) {
-        if (_adPlaybackState.value !is AdPlaybackState.Buffering) {
+        if (_adPlaybackState.value !is AdPlaybackState.Buffering
+            && (isMidRoll.not() || (viewResumed && enableMidRolls))
+        ) {
             _adPlaybackState.value = AdPlaybackState.Buffering
             adsPlayer?.stop()
-            if (viewResumed && controlsEnabled.value) {
-                playerAdsHelper.getNextPreRollUrl()?.let {
-                    try {
-                        reportAdEvent(it.requestedUrlList)
-                        rumbleVideo?.let { video ->
-                            sendAnalyticsEvent(
-                                ImaRequestedEvent(video.userId, video.channelId),
-                                true
-                            )
-                        }
-                        createAdsLoader(applicationContext, isMidRoll)
-                        prepareAdPlayer(Uri.parse(it.url))
-                    } catch (e: Exception) {
-                        sendError(TAG, e)
-                        resumeVideo()
+            playerAdsHelper.getNextPreRollUrl()?.let {
+                try {
+                    reportAdEvent(it.requestedUrlList)
+                    rumbleVideo?.let { video ->
+                        sendAnalyticsEvent(
+                            ImaRequestedEvent(video.userId, video.channelId),
+                            true
+                        )
                     }
-
-                } ?: run {
-                    _adPlaybackState.value = AdPlaybackState.None
+                    createAdsLoader(applicationContext, isMidRoll)
+                    prepareAdPlayer(Uri.parse(it.url))
+                } catch (e: Exception) {
+                    sendError(TAG, e)
                     resumeVideo()
                 }
+
+            } ?: run {
+                _adPlaybackState.value = AdPlaybackState.None
+                resumeVideo()
             }
         }
     }
@@ -1126,15 +1130,15 @@ class RumblePlayer(
     }
 
     private fun playAd() {
-        if ( _playerTarget.value == PlayerTarget.LOCAL) pauseVideo()
-        _playerTarget.value = PlayerTarget.AD
+        if (_playerTarget.value == PlayerTarget.LOCAL) pauseVideo()
+        setPlayerTarget(PlayerTarget.AD)
         _adPlaybackState.value = AdPlaybackState.Resumed
         adsPlayer?.play()
     }
 
     private fun resumeVideo() {
-        _playerTarget.value = PlayerTarget.LOCAL
         _playbackSate.value = PlayerPlaybackState.Playing(false)
+        setPlayerTarget(PlayerTarget.LOCAL)
         playVideo()
     }
 

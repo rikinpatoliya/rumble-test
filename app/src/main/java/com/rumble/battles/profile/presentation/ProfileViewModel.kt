@@ -141,7 +141,7 @@ class ProfileViewModel @Inject constructor(
         alertDialogState.value = AlertDialogState()
         viewModelScope.launch(errorHandler) {
             screenSate.value = ProfileScreenState.Loading
-            signOutUseCase(withUnsubscribeFromPushNotifications = true) {
+            signOutUseCase {
                 LoginManager.getInstance().logOut()
                 googleSignInClient.signOut()
                 screenSate.value = ProfileScreenState.LoggedOut

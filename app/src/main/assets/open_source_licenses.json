@@ -90,36 +90,36 @@
         },
         {
             "moduleName": "androidx.camera:camera-camera2",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
-            "moduleVersion": "1.3.4",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
+            "moduleVersion": "1.3.3",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-core",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
-            "moduleVersion": "1.3.4",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
+            "moduleVersion": "1.3.3",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-lifecycle",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
-            "moduleVersion": "1.3.4",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
+            "moduleVersion": "1.3.3",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-video",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
-            "moduleVersion": "1.3.4",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
+            "moduleVersion": "1.3.3",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-view",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
-            "moduleVersion": "1.3.4",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
+            "moduleVersion": "1.3.3",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },

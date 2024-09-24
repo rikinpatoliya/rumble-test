@@ -288,6 +288,7 @@ class ContentViewModel @Inject constructor(
 
     private var purchaseInProgress: Boolean = false
     private var currentSubscriptionData: PremiumSubscriptionData? = null
+    private var currentSubscriptionVideoId: Long? = null
 
     init {
         loadDeepLink()
@@ -939,7 +940,8 @@ class ContentViewModel @Inject constructor(
     }
     // endregion
 
-    override fun onShowPremiumPromo() {
+    override fun onShowPremiumPromo(videoId: Long?) {
+        currentSubscriptionVideoId = videoId
         analyticsEventUseCase(PremiumPromoViewEvent)
         updateBottomSheetUiState(BottomSheetContent.PremiumPromo)
     }
@@ -953,12 +955,13 @@ class ContentViewModel @Inject constructor(
 
     override fun onGetPremium() {
         analyticsEventUseCase(PremiumPromoGetButtonTapEvent)
-        onShowSubscriptionOptions()
+        onShowSubscriptionOptions(currentSubscriptionVideoId)
     }
 
-    override fun onShowSubscriptionOptions() {
+    override fun onShowSubscriptionOptions(videoId: Long?) {
         if (userUIState.value.isLoggedIn) {
             if (subscriptionList.isNotEmpty() or developModeUseCase()) {
+                currentSubscriptionVideoId = videoId
                 updateBottomSheetUiState(BottomSheetContent.PremiumSubscription)
             } else {
                 emitVmEvent(
@@ -985,10 +988,9 @@ class ContentViewModel @Inject constructor(
             if (result is PurchaseResult.Success) {
                 viewModelScope.launch(errorHandler) {
                     currentSubscriptionData?.let {
-                        sendPremiumPurchasedEventUseCase(it.type)
-                        currentSubscriptionData = null
+                        sendPremiumPurchasedEventUseCase(it.type, currentSubscriptionVideoId)
                     }
-                    when (val proofResult = postSubscriptionProofUseCase(result.purchaseToken)) {
+                    when (val proofResult = postSubscriptionProofUseCase(result.purchaseToken, currentSubscriptionVideoId)) {
                         is SubscriptionResult.Success -> {
                             sessionManager.saveIsPremiumUser(true)
                             emitVmEvent(
@@ -1006,9 +1008,13 @@ class ContentViewModel @Inject constructor(
                             emitVmEvent(ContentScreenVmEvent.Error())
                         }
                     }
+                    currentSubscriptionData = null
+                    currentSubscriptionVideoId = null
                 }
             } else {
                 emitVmEvent(ContentScreenVmEvent.Error())
+                currentSubscriptionData = null
+                currentSubscriptionVideoId = null
             }
         }
     }

@@ -16,12 +16,12 @@ class SetOneSignalUserPremiumTagUseCase @Inject constructor(
         if (loggedIn) {
             fetchUserInfoUseCase()
             if (sessionManager.isPremiumUserFlow.first()) {
-                OneSignal.sendTag(UserTag.Premium.value , UserTagValue.True.value)
+                OneSignal.User.addTag(UserTag.Premium.value, UserTagValue.True.value)
             } else {
-                OneSignal.sendTag(UserTag.Premium.value , UserTagValue.False.value)
+                OneSignal.User.addTag(UserTag.Premium.value, UserTagValue.False.value)
             }
         } else {
-            OneSignal.sendTag(UserTag.Premium.value , UserTagValue.NonApplicable.value)
+            OneSignal.User.addTag(UserTag.Premium.value, UserTagValue.NonApplicable.value)
         }
     }
 }

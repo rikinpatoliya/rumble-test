@@ -8,5 +8,6 @@ interface SubscriptionRepository {
         purchaseToken: String,
         appId: String,
         appsFlyerId: String,
+        videoId: Long?,
     ): SubscriptionResult
 }

@@ -30,6 +30,6 @@ class UserLoggedInViewModel @Inject constructor(
     }
 
     fun onLogoutClick() {
-        viewModelScope.launch(errorHandler) { signOutUseCase() }
+        viewModelScope.launch(errorHandler) { signOutUseCase(isTV = true) }
     }
 }
