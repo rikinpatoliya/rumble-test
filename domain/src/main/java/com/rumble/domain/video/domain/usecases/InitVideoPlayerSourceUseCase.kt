@@ -41,7 +41,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
         liveVideoReport: ((Long, Long, Int?) -> Unit)? = null,
         onVideoSizeDefined: ((Int, Int) -> Unit)? = null,
-        onNextVideo: ((Long, String, Boolean) -> Unit)? = null
+        onNextVideo: ((Long, String, Boolean) -> Unit)? = null,
+        sendInitialPlaybackEvent: (() -> Unit)? = null
     ): RumblePlayer {
         val videoEntity = getVideoDetailsUseCase(videoId)
         val relatedVideoList =
@@ -88,7 +89,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 onNextVideo = onNextVideo,
                 fetchPreRollList = if (showAds) fetchVideoAdListUseCase::invoke else null,
                 reportAdEvent = if (showAds) sendAdEventUseCase::invoke else null,
-                playList = null
+                playList = null,
+                sendInitialPlaybackEvent = sendInitialPlaybackEvent
             )
         }
         return videoPlayer
@@ -101,7 +103,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
         liveVideoReport: ((Long, Long, Int?) -> Unit)? = null,
         onVideoSizeDefined: ((Int, Int) -> Unit)? = null,
-        onNextVideo: ((Long, String, Boolean) -> Unit)? = null
+        onNextVideo: ((Long, String, Boolean) -> Unit)? = null,
+        sendInitialPlaybackEvent: (() -> Unit)? = null
     ): RumblePlayer {
         val initialVideo = playList.videoList.first()
         return createPlayerUseCase().apply {
@@ -121,7 +124,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 onNextVideo = onNextVideo,
                 fetchPreRollList = if (showAds) fetchVideoAdListUseCase::invoke else null,
                 reportAdEvent = if (showAds) sendAdEventUseCase::invoke else null,
-                playList = playList
+                playList = playList,
+                sendInitialPlaybackEvent = sendInitialPlaybackEvent
             )
         }
     }

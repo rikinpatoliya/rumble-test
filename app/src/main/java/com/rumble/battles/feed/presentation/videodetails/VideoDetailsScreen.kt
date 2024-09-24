@@ -346,9 +346,6 @@ fun VideoDetailsScreen(
                 is VideoDetailsEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
                 }
-                is VideoDetailsEvent.PlaybackStarted -> {
-
-                }
             }
         }
     }

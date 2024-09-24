@@ -151,6 +151,7 @@ class RumblePlayer(
     private var onTimeRange: ((TimeRangeData) -> Unit)? = null
     private var onVideoSizeDefined: ((Int, Int) -> Unit)? = null
     private var reportAdEvent: (suspend (List<String>, Long) -> Unit)? = null
+    private var sendInitialPlaybackEvent: (() -> Unit)? = null
 
     // Internal logic
     private val getCurrentDeviceVolumeUseCase: GetCurrentDeviceVolumeUseCase
@@ -429,7 +430,8 @@ class RumblePlayer(
         onTimeRange: ((TimeRangeData) -> Unit)?,
         onNextVideo: ((Long, String, Boolean) -> Unit)?,
         fetchPreRollList: (suspend (Long, Float, Long, PublisherId, Boolean) -> VideoAdDataEntity)?,
-        reportAdEvent: (suspend (List<String>, Long) -> Unit)?
+        reportAdEvent: (suspend (List<String>, Long) -> Unit)?,
+        sendInitialPlaybackEvent: (() -> Unit)?
     ) {
         initTime = System.currentTimeMillis()
         this.reportLiveVideo = reportLiveVideo
@@ -441,6 +443,7 @@ class RumblePlayer(
         this.onNextVideo = onNextVideo
         this.fetchPreRollData = fetchPreRollList
         this.reportAdEvent = reportAdEvent
+        this.sendInitialPlaybackEvent = sendInitialPlaybackEvent
         relatedVideoList = video.relatedVideoList
         _hasRelatedVideos.value =
             hasNextRelatedVideoUseCase(video.relatedVideoList, video, getAutoplayValue())
@@ -917,7 +920,11 @@ class RumblePlayer(
                     }
 
                     Player.STATE_READY -> {
-                        when (this@RumblePlayer.playbackState.value) {
+                        val currentState = this@RumblePlayer.playbackState.value
+                        if (currentState is PlayerPlaybackState.Fetching){
+                            sendInitialPlaybackEvent?.invoke()
+                        }
+                        when (currentState) {
                             is PlayerPlaybackState.Paused -> PlayerPlaybackState.Paused(false)
                             is PlayerPlaybackState.Playing -> PlayerPlaybackState.Playing(false)
                             else -> _playbackSate.value
