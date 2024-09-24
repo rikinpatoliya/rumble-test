@@ -14,6 +14,7 @@ import com.appsflyer.AppsFlyerLib
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.onesignal.OneSignal
+import com.onesignal.debug.LogLevel
 import com.rumble.analytics.REPORT_DELAY
 import com.rumble.analytics.REPORT_DELAY_KYE
 import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE
@@ -86,11 +87,9 @@ class RumbleApplication : Application(), Configuration.Provider {
 
     private fun initOneSignal() {
         if (BuildConfig.DEBUG)
-            OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE)
-        OneSignal.initWithContext(this)
-        OneSignal.setAppId(BuildConfig.ONE_SIGNAL_APP_ID)
-        OneSignal.setNotificationOpenedHandler(rumbleNotificationOpenedHandler)
-        OneSignal.unsubscribeWhenNotificationsAreDisabled(true)
+            OneSignal.Debug.logLevel = LogLevel.VERBOSE
+        OneSignal.initWithContext(this, BuildConfig.ONE_SIGNAL_APP_ID)
+        OneSignal.Notifications.addClickListener(rumbleNotificationOpenedHandler)
     }
 
     private fun initFirebaseConfig() {

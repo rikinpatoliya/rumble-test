@@ -18,12 +18,13 @@ class PostSubscriptionProofUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : RumbleUseCase {
 
-    suspend operator fun invoke(purchaseToken: String): SubscriptionResult {
+    suspend operator fun invoke(purchaseToken: String, videoId: Long?): SubscriptionResult {
         val result = subscriptionRepository.purchaseSubscription(
             appId = appId,
             productId = PremiumSubscription.SUBSCRIPTION_ID,
             purchaseToken = purchaseToken,
-            appsFlyerId = AppsFlyerLib.getInstance().getAppsFlyerUID(context) ?: ""
+            appsFlyerId = AppsFlyerLib.getInstance().getAppsFlyerUID(context) ?: "",
+            videoId = videoId,
         )
         if (result is SubscriptionResult.Failure) {
             rumbleErrorUseCase(result.rumbleError)

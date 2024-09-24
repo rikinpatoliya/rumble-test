@@ -5,7 +5,6 @@ import com.rumble.domain.common.domain.usecase.RumbleUseCase
 import com.rumble.domain.landing.usecases.AppsFlySetUserIdUseCase
 import com.rumble.domain.landing.usecases.ExtractCookiesUseCase
 import com.rumble.domain.landing.usecases.OneSignalExternalUserIdUseCase
-import com.rumble.domain.landing.usecases.OneSignalPushNotificationEnableUseCase
 import com.rumble.domain.landing.usecases.SetOneSignalUserPremiumTagUseCase
 import com.rumble.domain.login.domain.domainmodel.LoginResult
 import com.rumble.domain.login.domain.domainmodel.LoginType
@@ -19,7 +18,6 @@ class SSOLoginUseCase @Inject constructor(
     private val sessionManager: SessionManager,
     private val extractCookiesUseCase: ExtractCookiesUseCase,
     private val oneSignalExternalUserIdUseCase: OneSignalExternalUserIdUseCase,
-    private val oneSignalPushNotificationEnableUseCase: OneSignalPushNotificationEnableUseCase,
     private val setOneSignalUserPremiumTagUseCase: SetOneSignalUserPremiumTagUseCase,
     private val appsFlySetUserIdUseCase: AppsFlySetUserIdUseCase,
     override val rumbleErrorUseCase: RumbleErrorUseCase,
@@ -35,7 +33,6 @@ class SSOLoginUseCase @Inject constructor(
             result.userId?.let {
                 sessionManager.saveUserId(it.toUserIdString())
                 oneSignalExternalUserIdUseCase(it)
-                oneSignalPushNotificationEnableUseCase(true)
                 appsFlySetUserIdUseCase(it.toUserIdString())
             }
             result.userName?.let { sessionManager.saveUserName(it) }

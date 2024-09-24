@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.media3.common.util.UnstableApi
 import com.google.gson.Gson
-import com.onesignal.OSNotificationOpenedResult
-import com.onesignal.OneSignal.OSNotificationOpenedHandler
+import com.onesignal.notifications.INotificationClickEvent
+import com.onesignal.notifications.INotificationClickListener
 import com.rumble.analytics.PushNotificationInteractionEvent
 import com.rumble.battles.landing.LandingActivity
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
@@ -31,14 +31,14 @@ class RumbleNotificationOpenedHandler @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val sessionManager: SessionManager,
     private val notificationDataManager: NotificationDataManager,
-) : OSNotificationOpenedHandler {
+) : INotificationClickListener {
 
-    override fun notificationOpened(result: OSNotificationOpenedResult) {
+    override fun onClick(event: INotificationClickEvent) {
         analyticsEventUseCase(PushNotificationInteractionEvent)
         var notificationData = RumbleOneSignalNotificationData()
         try {
             notificationData = Gson().fromJson(
-                result.notification.additionalData.toString(),
+                event.notification.additionalData.toString(),
                 RumbleOneSignalNotificationData::class.java
             )
         } catch (throwable: Throwable) {

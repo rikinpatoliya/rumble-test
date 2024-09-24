@@ -327,7 +327,7 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    contentHandler.onShowPremiumPromo()
+                    contentHandler.onShowPremiumPromo(state.videoEntity?.id)
                 }
 
                 is VideoDetailsEvent.OpenMuteMenu -> {
@@ -338,7 +338,7 @@ fun VideoDetailsScreen(
                     muteBottomSheetState.hide()
                 }
                 is VideoDetailsEvent.OpenPremiumSubscriptionOptions -> {
-                    contentHandler.onShowSubscriptionOptions()
+                    contentHandler.onShowSubscriptionOptions(state.videoEntity?.id)
                 }
                 is VideoDetailsEvent.SetOrientation -> {
                     activity.requestedOrientation = it.orientation
@@ -508,7 +508,9 @@ fun VideoDetailsView(
                             ),
                         url = state.videoEntity?.videoThumbnail ?: "",
                         onBack = { handler.onBack() },
-                        onSubscribeNow = contentHandler::onShowSubscriptionOptions
+                        onSubscribeNow = {
+                            contentHandler.onShowSubscriptionOptions(state.videoEntity?.id)
+                        }
                     )
                 } else {
                     VideoPlayerView(

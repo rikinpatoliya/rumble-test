@@ -230,7 +230,8 @@ fun ContentScreen(
     LaunchedEffect(contentHandler.userUIState) {
         contentHandler.userUIState.collectLatest {
             if (it.isLoggedIn) {
-                OneSignal.promptForPushNotifications()
+                val permission = OneSignal.Notifications.requestPermission(false)
+                if (permission) OneSignal.User.pushSubscription.optIn()
             }
         }
     }
