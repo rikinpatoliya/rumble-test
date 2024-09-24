@@ -257,6 +257,7 @@ sealed class VideoDetailsEvent {
     object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
     object OpenAuthMenu: VideoDetailsEvent()
+    object PlaybackStarted : VideoDetailsEvent()
 }
 
 private const val TAG = "VideoDetailsViewModel"
