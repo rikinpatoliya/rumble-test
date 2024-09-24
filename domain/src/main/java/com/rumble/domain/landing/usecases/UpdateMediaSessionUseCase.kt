@@ -12,34 +12,34 @@ class UpdateMediaSessionUseCase @Inject constructor() {
             PlaybackStateCompat.ACTION_PAUSE or
             PlaybackStateCompat.ACTION_PLAY_PAUSE
 
-    operator fun  invoke(session: MediaSessionCompat, player: RumblePlayer?) {
+    operator fun  invoke(session: MediaSessionCompat, player: RumblePlayer?, addPlayActions: Boolean = true) {
         player?.let {
-            updateSessionState(session, it.isPlaying())
+            updateSessionState(session, it.isPlaying(), addPlayActions)
             session.setCallback(object : MediaSessionCompat.Callback() {
                 override fun onPause() {
                     it.pauseVideo()
-                    updateSessionState(session, false)
+                    updateSessionState(session, false, addPlayActions)
                 }
 
                 override fun onPlay() {
                     if (it.videoFinished) it.replay()
                     else it.playVideo()
-                    updateSessionState(session, true)
+                    updateSessionState(session, true, addPlayActions)
                 }
             })
             it.onVideoFinished = {
-                updateSessionState(session, false)
+                updateSessionState(session, false, addPlayActions)
             }
         }
     }
 
-    private fun updateSessionState(session: MediaSessionCompat, isPlaying: Boolean) {
+    private fun updateSessionState(session: MediaSessionCompat, isPlaying: Boolean, addPlayActions: Boolean) {
         val state =
             if (isPlaying) PlaybackStateCompat.STATE_PLAYING
             else PlaybackStateCompat.STATE_PAUSED
         val builder = PlaybackStateCompat.Builder()
-            .setActions(actionPlayPause)
             .setState(state, 0, PlaybackSpeed.NORMAL.value)
+        if (addPlayActions) builder.setActions(actionPlayPause)
         session.setPlaybackState(builder.build())
     }
 }

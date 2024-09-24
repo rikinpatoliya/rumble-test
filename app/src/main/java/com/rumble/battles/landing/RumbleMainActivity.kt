@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.session.MediaControllerCompat
@@ -111,11 +112,19 @@ class RumbleMainActivity : FragmentActivity() {
         lifecycleScope.launch {
             if (viewModel.pipIsAvailable(packageManager)) {
                 enterPictureInPictureMode(PictureInPictureParams.Builder().build())
-                viewModel.onEnterPipMode()
             } else if (viewModel.backgroundSoundIsAvailable().not()) {
                 viewModel.currentPlayer?.pauseVideo()
             }
         }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        if (isInPictureInPictureMode) viewModel.onEnterPipMode()
+        else viewModel.onExitPipMode()
     }
 
     override fun onPause() {
@@ -343,7 +352,7 @@ class RumbleMainActivity : FragmentActivity() {
         session = MediaSessionCompat(this, TAG)
         session.isActive = true
         MediaControllerCompat.setMediaController(this, session.controller)
-        viewModel.updateSession(session)
+        viewModel.initMediaSession(session)
     }
 
     private fun initGeneralErrorHandler() {

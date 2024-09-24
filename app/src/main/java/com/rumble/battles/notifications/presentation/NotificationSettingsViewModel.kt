@@ -99,7 +99,7 @@ class NotificationSettingsViewModel @Inject constructor(
                 )
             } else {
                 state.value = state.value.copy(loading = false)
-                emitVmEvent(NotificationSettingsEvent.Error(message = notificationSettingsResult.error))
+                emitVmEvent(NotificationSettingsEvent.Error())
             }
         }
     }
