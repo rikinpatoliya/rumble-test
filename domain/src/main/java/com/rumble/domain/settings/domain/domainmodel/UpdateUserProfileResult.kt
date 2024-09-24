@@ -14,5 +14,6 @@ sealed class UpdateUserProfileResult {
         val stateErrorMessage: String,
         val postalCodeError: Boolean,
         val postalCodeErrorMessage: String,
+        val birthdayErrorMessage:String
     ) : UpdateUserProfileResult()
 }

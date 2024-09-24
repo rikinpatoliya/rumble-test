@@ -79,6 +79,7 @@ import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.theme.RumbleTypography
+import com.rumble.theme.enforcedBone
 import com.rumble.theme.enforcedGray900
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageXXLarge
@@ -88,8 +89,9 @@ import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusXMedium
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.RumbleConstants.ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE
+import com.rumble.utils.RumbleConstants.BIRTHDAY_DATE_PATTERN
 import com.rumble.utils.RumbleConstants.PROFILE_IMAGE_BITMAP_MAX_WIDTH
-import com.rumble.utils.RumbleConstants.UPLOAD_DATE_PATTERN
+import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.convertToDate
 import com.rumble.utils.extension.scaleToMaxWidth
@@ -149,6 +151,7 @@ fun EditProfileScreen(
 
                 EditProfileVmEvent.ShowDateSelectionDialog -> {
                     showDatePicker = showDatePicker.not()
+                    if (showDatePicker) focusManager.clearFocus()
                 }
             }
         }
@@ -192,22 +195,21 @@ fun EditProfileScreen(
                     launcher.launch(ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE)
                 }
 
-                AnimatedVisibility(
-                     visible = showDatePicker,
-                    enter = slideInVertically(initialOffsetY = { it }),
-                    exit = slideOutVertically(targetOffsetY = { it })
-                ) {
-                    RumbleWheelDataPicker(
-                        initialValue = state.userProfileEntity.birthday?.toUtcLong() ?: 0L,
-                        onChanged = { editProfileHandler.onBirthdayChanged(it.toUtcLocalDate()) })
-                }
-
                 if (!keyboardAsState().value) {
                     MainActionBottomCardView(
                         modifier = Modifier,
                         title = stringResource(id = R.string.save),
                         onClick = editProfileHandler::onUpdateUserProfile
                     )
+                }
+                AnimatedVisibility(
+                    visible = showDatePicker,
+                    enter = slideInVertically(initialOffsetY = { it }),
+                    exit = slideOutVertically(targetOffsetY = { it })
+                ) {
+                    RumbleWheelDataPicker(initialValue = state.userProfileEntity.birthday?.toUtcLong()
+                        ?: 0L,
+                        onChanged = { editProfileHandler.onBirthdayChanged(it.toUtcLocalDate()) })
                 }
             }
         }
@@ -445,12 +447,27 @@ private fun EditProfileContent(
         )
 
         RumbleInputSelectorFieldView(
-            label = stringResource(id = R.string.date).uppercase(),
-            labelColor = MaterialTheme.colors.primary,
-            value = state.userProfileEntity.birthday?.toUtcLong()
-                ?.convertToDate(pattern = UPLOAD_DATE_PATTERN) ?: "",
-        ) { editProfileHandler.onSelectBirthday() }
+            label = stringResource(id = R.string.birthday).uppercase(),
+            labelColor = enforcedWhite,
+            backgroundColor = enforcedGray900,
+            textColor = enforcedWhite,
+            errorMessageColor = enforcedBone,
+            value = if (state.userProfileEntity.birthday == null) "" else state.userProfileEntity.birthday?.toUtcLong()
+                ?.convertToDate(
+                    pattern = BIRTHDAY_DATE_PATTERN, useUtc = true
+                ) ?: "",
+            hasError = state.birthdayError.first,
+            errorMessage = when (state.birthdayError.second) {
+                InputValidationError.Empty -> stringResource(id = R.string.birthday_empty_error_message)
+                InputValidationError.MinCharacters -> stringResource(
+                    id = R.string.birthday_at_least_13_error_message
+                )
 
+                else -> ""
+            }
+        ) {
+            editProfileHandler.onSelectBirthday()
+        }
 
         Spacer(
             Modifier

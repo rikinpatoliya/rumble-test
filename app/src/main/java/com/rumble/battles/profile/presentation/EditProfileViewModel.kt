@@ -13,9 +13,11 @@ import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
 import com.rumble.domain.settings.domain.domainmodel.UpdateUserProfileResult
+import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
 import com.rumble.domain.validation.usecases.EmailValidationUseCase
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.errors.InputValidationError
+import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
@@ -93,6 +95,7 @@ class EditProfileViewModel @Inject constructor(
     private val getCountriesUseCase: GetCountriesUseCase,
     private val emailValidationUseCase: EmailValidationUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
+    private val birthdayValidationUseCase: BirthdayValidationUseCase,
 ) : ViewModel(), EditProfileHandler {
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
@@ -272,6 +275,7 @@ class EditProfileViewModel @Inject constructor(
                                 cityErrorMessage = result.cityErrorMessage,
                                 stateErrorMessage = result.stateErrorMessage,
                                 postalCodeErrorMessage = result.postalCodeErrorMessage,
+                                //map birthday error message from api here
                             )
                         }
                     }
@@ -334,6 +338,19 @@ class EditProfileViewModel @Inject constructor(
             }
             validInput = false
         }
+
+        if (userProfileEntity.birthday != null) {
+            val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday!!.toUtcLong())
+            if (birthdayError.first) {
+                uiState.update {
+                    it.copy(
+                        birthdayError = birthdayError
+                    )
+                }
+                validInput = false
+            }
+        }
+
         return validInput
     }
 
