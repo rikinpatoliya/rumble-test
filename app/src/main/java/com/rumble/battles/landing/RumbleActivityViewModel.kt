@@ -35,6 +35,7 @@ import com.rumble.domain.video.domain.usecases.GenerateViewerIdUseCase
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.SCREEN_OFF_DELAY
 import com.rumble.utils.extension.isScreenOn
+import com.rumble.videoplayer.player.PlayerTargetChangeListener
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerTarget
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,10 +72,11 @@ interface RumbleActivityHandler {
     fun getVideoDetails(rumbleNotificationData: RumbleNotificationData)
     fun startObserveCookies()
     fun initLogging()
-    fun updateSession(session: MediaSessionCompat)
+    fun initMediaSession(session: MediaSessionCompat)
     fun onError(e: Throwable)
     fun onAppPaused()
     fun onEnterPipMode()
+    fun onExitPipMode()
     fun clearNotifications()
     fun loadNotificationState()
     fun disableDynamicOrientationChangeBasedOnDeviceType()
@@ -126,7 +128,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
     private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
     application: Application,
-) : AndroidViewModel(application), RumbleActivityHandler {
+) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
     override var isLaunchedFromNotification: Boolean = false
     override val colorMode: Flow<ColorMode> = userPreferenceManager.colorMode
@@ -136,10 +138,15 @@ class RumbleActivityViewModel @Inject constructor(
     override val activityHandlerState: MutableStateFlow<ActivityHandlerState> =
         MutableStateFlow(ActivityHandlerState())
     override var currentPlayer: RumblePlayer? = null
+        set(value) {
+            field = value
+            field?.targetChangeListener = this
+        }
     override var dynamicOrientationChangeDisabled: Boolean = true
     override val sensorBasedOrientationChangeEnabled: Boolean
         get() = getSensorBasedOrientationChangeEnabledUseCase()
 
+    private var mediaSession: MediaSessionCompat? = null
     private var notificationGuid: String = ""
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
@@ -151,6 +158,12 @@ class RumbleActivityViewModel @Inject constructor(
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())
         }
         loadNotificationState()
+    }
+
+    override fun onPlayerTargetChanged(currentTarget: PlayerTarget) {
+        mediaSession?.let {
+            updateMediaSessionUseCase(it, currentPlayer, currentTarget != PlayerTarget.AD)
+        }
     }
 
     override fun onPrepareAppForTesting(
@@ -169,7 +182,6 @@ class RumbleActivityViewModel @Inject constructor(
     override suspend fun pipIsAvailable(packageManager: PackageManager): Boolean =
         pipIsAvailableUseCase()
             && currentPlayer != null
-            && currentPlayer?.playerTarget?.value != PlayerTarget.AD
 
     override suspend fun getCookies(): String {
         try {
@@ -235,8 +247,9 @@ class RumbleActivityViewModel @Inject constructor(
         }
     }
 
-    override fun updateSession(session: MediaSessionCompat) =
-        updateMediaSessionUseCase(session, currentPlayer)
+    override fun initMediaSession(session: MediaSessionCompat) {
+        mediaSession = session
+    }
 
     override suspend fun backgroundSoundIsAvailable(): Boolean =
         userPreferenceManager.backgroundPlayFlow.first() == BackgroundPlay.SOUND
@@ -257,8 +270,16 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     override fun onEnterPipMode() {
+        mediaSession?.let {
+            updateMediaSessionUseCase(it, currentPlayer, currentPlayer?.playerTarget?.value != PlayerTarget.AD)
+        }
         currentPlayer?.hideControls()
+        currentPlayer?.enableMidRolls = false
         emitVmEvent(RumbleEvent.PipModeEntered)
+    }
+
+    override fun onExitPipMode() {
+        currentPlayer?.enableMidRolls = true
     }
 
     private fun emitVmEvent(event: RumbleEvent) =
