@@ -416,9 +416,6 @@ fun VideoDetailsScreen(
                     .testTag(VideoDetails)
             ) {
                 VideoDetailsView(
-                    modifier = Modifier.conditional(playerTarget?.value == PlayerTarget.REMOTE) {
-                        padding(bottom = paddingXGiant)
-                    },
                     handler = handler,
                     contentHandler = contentHandler,
                     activityHandler = activityHandler,
@@ -614,6 +611,7 @@ private fun ChannelContentView(
     contentListState: LazyListState
 ) {
     val state by handler.state
+    val playerTarget = state.rumblePlayer?.playerTarget
     val playListState by handler.playListState.collectAsStateWithLifecycle()
 
     LazyColumn(
@@ -702,6 +700,11 @@ private fun ChannelContentView(
                             onMoreClick = { contentHandler.onMoreVideoOptionsClicked(it) },
                             onImpression = handler::onVideoCardImpression,
                         )
+                    }
+                }
+                if (playerTarget?.value == PlayerTarget.REMOTE) {
+                    item {
+                        Spacer(modifier = Modifier.height(paddingXGiant))
                     }
                 }
             } else {
