@@ -9,7 +9,6 @@ import com.rumble.battles.navigation.LandingPath
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.SendEmailUseCase
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.login.domain.domainmodel.RegisterResult
@@ -64,6 +63,7 @@ interface RegisterHandler {
 sealed class RegistrationScreenVmEvent {
     data class Error(val errorMessage: String? = null) : RegistrationScreenVmEvent()
     object NavigateToHomeScreen : RegistrationScreenVmEvent()
+    data class NavigateToWebView(val url: String) : RegistrationScreenVmEvent()
 }
 
 sealed class RegistrationScreenAlertDialogReason : AlertDialogReason {
@@ -117,7 +117,6 @@ class RegisterViewModel @Inject constructor(
     private val birthdayValidationUseCase: BirthdayValidationUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     stateHandle: SavedStateHandle
 ) : ViewModel(), RegisterHandler {
@@ -225,7 +224,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     override fun onOpenUri(tag: String, uri: String) {
-        openUriUseCase.invoke(tag, uri)
+        emitVmEvent(RegistrationScreenVmEvent.NavigateToWebView(uri))
     }
 
     override fun onJoin() {

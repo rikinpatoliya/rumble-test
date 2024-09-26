@@ -46,11 +46,14 @@ class PlayerAdsHelper {
     }
 
     fun onPreRollPlayed() {
-        if (currentPreRollList.isNotEmpty()) currentPreRollList.removeFirst()
-        if(currentPreRollList.isEmpty())  {
+        if (currentPreRollList.isNotEmpty()) {
+            currentPreRollList.removeFirst()
             currentIndex?.let {
-                preRollHash.remove(currentIndex)
+                if (preRollHash[currentIndex]?.isNotEmpty() == true)
+                    preRollHash[currentIndex]?.removeFirst()
             }
+        }
+        if (currentPreRollList.isEmpty()) {
             currentIndex = null
         }
     }

@@ -28,8 +28,6 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUs
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelVideosUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.LogChannelViewUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.ReportChannelUseCase
-import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
@@ -144,6 +142,7 @@ sealed class ChannelDetailsVmEvent {
     data class Error(val errorMessage: String? = null) : ChannelDetailsVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : ChannelDetailsVmEvent()
     object OpenAuthMenu: ChannelDetailsVmEvent()
+    data class OpenWebView(val url: String): ChannelDetailsVmEvent()
 }
 
 private const val TAG = "ChannelDetailsViewModel"
@@ -153,9 +152,7 @@ class ChannelDetailsViewModel @Inject constructor(
     private val getChannelDataUseCase: GetChannelDataUseCase,
     private val logChannelViewUseCase: LogChannelViewUseCase,
     getChannelVideosUseCase: GetChannelVideosUseCase,
-    private val updateNotificationsUseCase: UpdateChannelNotificationsUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val stateHandle: SavedStateHandle,
     private val reportChannelUseCase: ReportChannelUseCase,
     private val userPreferenceManager: UserPreferenceManager,
@@ -341,7 +338,7 @@ class ChannelDetailsViewModel @Inject constructor(
     }
 
     override fun onOpenLocalsUrl(tag: String, url: String) {
-        openUriUseCase.invoke(tag, url)
+        emitVmEvent(ChannelDetailsVmEvent.OpenWebView(url))
     }
 
     override fun onActionMenuClicked() {

@@ -83,6 +83,7 @@ import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.feed.presentation.views.VideoCompactView
 import com.rumble.battles.feed.presentation.views.VideoView
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.DisplayScreenType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
@@ -99,6 +100,7 @@ import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 private const val TAG = "ChannelDetailsScreen"
@@ -112,6 +114,7 @@ fun ChannelDetailsScreen(
     currentDestinationRoute: String?,
     channelDetailsHandler: ChannelDetailsHandler,
     contentHandler: ContentHandler,
+    activityHandler: RumbleActivityHandler,
     onBackClick: () -> Unit,
     onVideoClick: (id: Feed) -> Unit,
 ) {
@@ -183,7 +186,7 @@ fun ChannelDetailsScreen(
 
     LaunchedEffect(key1 = context) {
         lifecycleOwner.lifecycle.addObserver(observer)
-        channelDetailsHandler.vmEvents.collect { event ->
+        channelDetailsHandler.vmEvents.distinctUntilChanged().collectLatest { event ->
             when (event) {
                 is ChannelDetailsVmEvent.Error -> {
                     snackBarHostState.showRumbleSnackbar(
@@ -211,6 +214,9 @@ fun ChannelDetailsScreen(
 
                 is ChannelDetailsVmEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
+                }
+                is ChannelDetailsVmEvent.OpenWebView -> {
+                    activityHandler.onOpenWebView(event.url)
                 }
 
                 else -> {}

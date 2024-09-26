@@ -94,6 +94,8 @@ import com.rumble.utils.RumbleConstants.TAG_URL
 import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.conditional
 import com.rumble.utils.extension.convertToDate
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 private const val TAG = "RegisterScreen"
 
@@ -104,6 +106,7 @@ fun RegisterScreen(
     registerHandler: RegisterHandler,
     onNavigateToHomeScreen: () -> Unit,
     onNavigateBack: () -> Unit,
+    onNavigateToWebView: (String) -> Unit,
 ) {
     val state by registerHandler.uiState.collectAsStateWithLifecycle()
     val alertDialogState by registerHandler.alertDialogState.collectAsStateWithLifecycle()
@@ -118,7 +121,7 @@ fun RegisterScreen(
     }
 
     LaunchedEffect(key1 = context) {
-        registerHandler.vmEvents.collect { event ->
+        registerHandler.vmEvents.distinctUntilChanged().collectLatest { event ->
             when (event) {
                 is RegistrationScreenVmEvent.Error -> {
                     snackBarHostState.showRumbleSnackbar(
@@ -129,6 +132,9 @@ fun RegisterScreen(
 
                 is RegistrationScreenVmEvent.NavigateToHomeScreen -> {
                     onNavigateToHomeScreen()
+                }
+                is RegistrationScreenVmEvent.NavigateToWebView -> {
+                    onNavigateToWebView(event.url)
                 }
             }
         }

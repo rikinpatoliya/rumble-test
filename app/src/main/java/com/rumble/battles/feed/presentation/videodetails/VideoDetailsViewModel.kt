@@ -41,7 +41,6 @@ import com.rumble.domain.common.domain.domainmodel.EmptyResult
 import com.rumble.domain.common.domain.domainmodel.PlayListResult
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
@@ -260,6 +259,7 @@ sealed class VideoDetailsEvent {
     object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
     object OpenAuthMenu : VideoDetailsEvent()
+    data class OpenWebView(val url: String) : VideoDetailsEvent()
 }
 
 private const val TAG = "VideoDetailsViewModel"
@@ -271,7 +271,6 @@ class VideoDetailsViewModel @Inject constructor(
     private val getVideoDetailsUseCase: GetVideoDetailsUseCase,
     private val initVideoPlayerSourceUseCase: InitVideoPlayerSourceUseCase,
     private val getChannelDataUseCase: GetChannelDataUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val shareUseCase: ShareUseCase,
@@ -440,7 +439,9 @@ class VideoDetailsViewModel @Inject constructor(
         annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
     }
 
-    override fun onOpenUri(tag: String, channelUrl: String) = openUriUseCase.invoke(tag, channelUrl)
+    override fun onOpenUri(tag: String, channelUrl: String) {
+        emitVmEvent(VideoDetailsEvent.OpenWebView(channelUrl))
+    }
 
     override fun onLike() {
         if (state.value.isLoggedIn.not()) {
@@ -831,7 +832,9 @@ class VideoDetailsViewModel @Inject constructor(
             }
         )
 
-    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) = openUriUseCase(TAG, rumbleAd.clickUrl)
+    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) {
+        emitVmEvent(VideoDetailsEvent.OpenWebView(rumbleAd.clickUrl))
+    }
 
     override fun onRumbleAdImpression(rumbleAd: RumbleAdEntity) {
         viewModelScope.launch(errorHandler) {

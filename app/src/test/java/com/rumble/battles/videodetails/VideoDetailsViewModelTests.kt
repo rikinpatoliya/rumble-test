@@ -34,6 +34,8 @@ import com.rumble.domain.library.domain.usecase.GetPlayListUseCase
 import com.rumble.domain.library.domain.usecase.GetPlayListVideosUseCase
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.SendRantPurchasedEventUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStartUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStopUseCase
 import com.rumble.domain.premium.domain.usecases.ShouldShowPremiumPromoUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.settings.domain.usecase.HasPremiumRestrictionUseCase
@@ -106,6 +108,8 @@ class VideoDetailsViewModelTests {
     private val hasPremiumRestrictionUseCase: HasPremiumRestrictionUseCase = mockk(relaxed = true)
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase = mockk(relaxed = true)
     private val shouldShowPremiumPromoUseCase: ShouldShowPremiumPromoUseCase = mockk(relaxed = true)
+    private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase = mockk(relaxed = true)
+    private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase = mockk(relaxed = true)
 
     private lateinit var videoDetailsViewModel: VideoDetailsViewModel
 
@@ -126,7 +130,6 @@ class VideoDetailsViewModelTests {
             getVideoDetailsUseCase = getVideoDetailsUseCase,
             initVideoPlayerSourceUseCase = initVideoPlayerSourceUseCase,
             getChannelDataUseCase = getChannelDataUseCase,
-            openUriUseCase = openUriUseCase,
             annotatedStringUseCase = annotatedStringUseCase,
             voteVideoUseCase = voteVideoUseCase,
             shareUseCase = shareUseCase,
@@ -160,7 +163,9 @@ class VideoDetailsViewModelTests {
             getPlayListVideosUseCase = getPlayListVideosUseCase,
             hasPremiumRestrictionUseCase = hasPremiumRestrictionUseCase,
             sendRantPurchasedEventUseCase = sendRantPurchasedEventUseCase,
-            shouldShowPremiumPromoUseCase = shouldShowPremiumPromoUseCase
+            shouldShowPremiumPromoUseCase = shouldShowPremiumPromoUseCase,
+            videoLoadTimeTraceStartUseCase = videoLoadTimeTraceStartUseCase,
+            videoLoadTimeTraceStopUseCase = videoLoadTimeTraceStopUseCase
         )
     }
 

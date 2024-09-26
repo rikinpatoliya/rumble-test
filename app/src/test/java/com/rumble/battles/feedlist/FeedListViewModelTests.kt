@@ -7,9 +7,7 @@ import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.RumbleAdFeedImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelSubscriptionUseCase
 import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VoteResult
@@ -41,7 +39,6 @@ class FeedListViewModelTests {
     private val voteVideoUseCase = mockk<VoteVideoUseCase>(relaxed = true)
     private val videoEntity = mockk<VideoEntity>(relaxed = true)
     private val unhandledErrorUseCase: UnhandledErrorUseCase = mockk(relaxed = true)
-    private val openUriUseCase: OpenUriUseCase = mockk(relaxed = true)
     private val adFeedImpressionUseCase: RumbleAdFeedImpressionUseCase = mockk(relaxed = true)
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase = mockk(relaxed = true)
     private val getFreshChannelsUseCase: GetFreshChannelsUseCase = mockk(relaxed = true)
@@ -58,7 +55,6 @@ class FeedListViewModelTests {
     private val saveLastPositionUseCase: SaveLastPositionUseCase = mockk(relaxed = true)
     private val userPreferenceManager: UserPreferenceManager = mockk(relaxed = true)
     private val sessionManager: SessionManager = mockk(relaxed = true)
-    private val updateChannelSubscriptionUseCase: UpdateChannelSubscriptionUseCase = mockk(relaxed = true)
 
     private lateinit var viewModel: HomeViewModel
 
@@ -71,7 +67,6 @@ class FeedListViewModelTests {
             getHomeListUseCase = getHomeListUseCase,
             voteVideoUseCase = voteVideoUseCase,
             unhandledErrorUseCase = unhandledErrorUseCase,
-            openUriUseCase = openUriUseCase,
             adFeedImpressionUseCase = adFeedImpressionUseCase,
             logVideoCardImpressionUseCase = logVideoCardImpressionUseCase,
             getFreshChannelsUseCase = getFreshChannelsUseCase,

@@ -15,6 +15,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
+import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.internal.notification.NotificationData
 import com.rumble.videoplayer.player.internal.notification.RumbleNotificationManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -147,15 +148,18 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
             object : ForwardingPlayer(player) {
 
                 override fun play() {
-                    currentPlayer?.playVideo()
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.playVideo()
                 }
 
                 override fun pause() {
-                    currentPlayer?.pauseVideo()
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.pauseVideo()
                 }
 
                 override fun seekTo(positionMs: Long) {
-                    currentPlayer?.seekTo(positionMs)
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.seekTo(positionMs)
                 }
 
                 override fun getAvailableCommands(): Player.Commands {

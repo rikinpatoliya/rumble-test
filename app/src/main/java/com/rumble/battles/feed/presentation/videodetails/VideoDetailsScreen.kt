@@ -169,6 +169,7 @@ import com.rumble.videoplayer.presentation.views.MiniControllerView
 import com.rumble.videoplayer.presentation.views.VideoSettingsBottomSheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -263,7 +264,7 @@ fun VideoDetailsScreen(
     }
 
     LaunchedEffect(Unit) {
-        handler.eventFlow.collectLatest {
+        handler.eventFlow.distinctUntilChanged().collectLatest {
             when (it) {
                 is VideoDetailsEvent.VideoDetailsError -> {
                     snackbarHostState.showRumbleSnackbar(
@@ -345,6 +346,9 @@ fun VideoDetailsScreen(
                 }
                 is VideoDetailsEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
+                }
+                is VideoDetailsEvent.OpenWebView -> {
+                    activityHandler.onOpenWebView(it.url)
                 }
             }
         }
@@ -533,7 +537,8 @@ fun VideoDetailsView(
                                 .weight(2f)
                                 .fillMaxHeight(),
                             handler = handler,
-                            liveChatHandler = liveChatHandler
+                            liveChatHandler = liveChatHandler,
+                            activityHandler = activityHandler
                         )
                     }
                 }
@@ -552,7 +557,8 @@ fun VideoDetailsView(
                             LiveChatView(
                                 modifier = sheetContentModifier,
                                 handler = handler,
-                                liveChatHandler = liveChatHandler
+                                liveChatHandler = liveChatHandler,
+                                activityHandler = activityHandler
                             )
                         } else {
                             CommentsView(

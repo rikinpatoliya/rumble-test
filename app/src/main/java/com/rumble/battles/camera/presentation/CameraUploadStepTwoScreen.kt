@@ -17,6 +17,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,8 +32,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.UploadForm2Tag
 import com.rumble.battles.commonViews.ActionButton
-import com.rumble.battles.commonViews.UploadCheckBoxView
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
+import com.rumble.battles.commonViews.UploadCheckBoxView
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.camera.UploadScheduleOption
 import com.rumble.domain.camera.UploadVisibility
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
@@ -54,12 +56,15 @@ import com.rumble.utils.RumbleConstants.UPLOAD_DATE_PATTERN
 import com.rumble.utils.RumbleConstants.UPLOAD_TIME_PATTERN
 import com.rumble.utils.extension.conditional
 import com.rumble.utils.extension.convertToDate
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 private const val TAG = "CameraUploadStepTwoScreen"
 
 @Composable
 fun CameraUploadStepTwoScreen(
     cameraUploadHandler: CameraUploadHandler,
+    activityHandler: RumbleActivityHandler,
     onPublishClick: () -> Unit,
     onSelectLicense: () -> Unit,
     onSelectVisibility: () -> Unit,
@@ -67,6 +72,18 @@ fun CameraUploadStepTwoScreen(
     onBackClick: () -> Unit,
 ) {
     val uiState by cameraUploadHandler.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(cameraUploadHandler.eventFlow) {
+        cameraUploadHandler.eventFlow.distinctUntilChanged().collectLatest { event ->
+            when (event) {
+                is CameraUploadVmEvent.OpenWebView -> {
+                    activityHandler.onOpenWebView(event.url)
+                }
+
+                else -> {}
+            }
+        }
+    }
 
     Column(
         modifier = Modifier

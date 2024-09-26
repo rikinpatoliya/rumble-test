@@ -32,7 +32,6 @@ import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.CheckCurrentDateAndAdjustUseCase
 import com.rumble.domain.common.domain.usecase.CombineTimeWithDateUseCase
 import com.rumble.domain.common.domain.usecase.OpenPhoneSettingUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -200,6 +199,7 @@ data class UserUploadUIState(
 sealed class CameraUploadVmEvent {
     object ShowDateSelectionDialog : CameraUploadVmEvent()
     object ShowTimeSelectionDialog : CameraUploadVmEvent()
+    data class OpenWebView(val url: String) : CameraUploadVmEvent()
 }
 
 private const val TAG_UPLOAD_VM = "CameraUploadViewModel"
@@ -212,7 +212,6 @@ class CameraViewModel @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val getUserUploadChannelsUseCase: GetUserUploadChannelsUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val openPhoneSettingUseCase: OpenPhoneSettingUseCase,
     private val getTrimBitmapDataUseCase: GetTrimBitmapDataUseCase,
     private val generateThumbnailUseCase: GenerateThumbnailUseCase,
@@ -680,7 +679,9 @@ class CameraViewModel @Inject constructor(
         offset: Int
     ) = annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
 
-    override fun onOpenUri(tag: String, uri: String) = openUriUseCase.invoke(tag, uri)
+    override fun onOpenUri(tag: String, uri: String) {
+        emitVmEvent(CameraUploadVmEvent.OpenWebView(uri))
+    }
 
     override fun onUploadChannelSelected(channelId: String) {
         uiState.update { state ->

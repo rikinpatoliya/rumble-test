@@ -161,6 +161,7 @@ import com.rumble.utils.extension.navigationSafeEncode
 import com.rumble.utils.replaceUrlParameter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 
@@ -211,7 +212,7 @@ fun ContentScreen(
     }
 
     LaunchedEffect(activityHandler.eventFlow) {
-        activityHandler.eventFlow.collectLatest {
+        activityHandler.eventFlow.distinctUntilChanged().collectLatest {
             if (it is RumbleEvent.NavigateToVideoDetailsFromNotification) {
                 navController.navigate(
                     RumbleScreens.VideoDetailsScreen.getPath(
@@ -222,6 +223,12 @@ fun ContentScreen(
             } else if (it is RumbleEvent.UnexpectedError) {
                 snackBarHostState.showRumbleSnackbar(
                     context.getString(R.string.generic_error_message_try_later)
+                )
+            } else if (it is RumbleEvent.OpenWebView) {
+                navController.navigate(
+                    RumbleScreens.RumbleWebViewScreen.getPath(
+                        it.url
+                    )
                 )
             }
         }
@@ -243,7 +250,7 @@ fun ContentScreen(
     }
 
     LaunchedEffect(contentHandler.eventFlow) {
-        contentHandler.eventFlow.collectLatest { event ->
+        contentHandler.eventFlow.distinctUntilChanged().collectLatest { event ->
             when (event) {
                 ContentScreenVmEvent.HideBottomSheetEvent -> {
                     coroutineScope.launch { bottomSheetState.hide() }
@@ -347,6 +354,11 @@ fun ContentScreen(
 
                 is ContentScreenVmEvent.ChannelSubscriptionUpdated -> {
                     bottomSheetState.hide()
+                }
+
+                is ContentScreenVmEvent.OpenWebViewAndHideBottomSheet -> {
+                    coroutineScope.launch { bottomSheetState.hide() }
+                    activityHandler.onOpenWebView(event.url)
                 }
 
                 is ContentScreenVmEvent.PlayListUpdated -> {}
@@ -597,7 +609,7 @@ private fun createNavigationGraph(
                             )
                         )
                     } else if (it is AdEntity) navController.navigate(
-                        RumbleScreens.AdDetails.getPath(
+                        RumbleScreens.RumbleWebViewScreen.getPath(
                             it.adUrl
                         )
                     )
@@ -674,6 +686,7 @@ private fun createNavigationGraph(
         composable(RumbleScreens.CameraUploadStepTwo.rootName) { navBackStackEntry ->
             CameraUploadStepTwoScreen(
                 cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, navController),
+                activityHandler = activityHandler,
                 onPublishClick = {
                     navController.navigate(
                         route = RumbleScreens.Library.rootName,
@@ -925,6 +938,7 @@ private fun createNavigationGraph(
                 currentDestinationRoute = navController.currentDestination?.route,
                 channelDetailsHandler = channelDetailsViewModel,
                 contentHandler = contentHandler,
+                activityHandler = activityHandler,
                 onBackClick = { navController.navigateUp() },
                 onVideoClick = {
                     if (it is VideoEntity)
@@ -971,10 +985,10 @@ private fun createNavigationGraph(
             )
         }
         composable(
-            RumbleScreens.AdDetails.rootName,
-            arguments = listOf(navArgument(RumblePath.AD.path) { type = NavType.StringType })
+            RumbleScreens.RumbleWebViewScreen.rootName,
+            arguments = listOf(navArgument(RumblePath.URL.path) { type = NavType.StringType })
         ) { backStackEntry ->
-            RumbleWebView(url = backStackEntry.arguments?.getString(RumblePath.AD.path) ?: "")
+            RumbleWebView(url = backStackEntry.arguments?.getString(RumblePath.URL.path) ?: "")
         }
         composable(
             RumbleScreens.Search.rootName,
@@ -1113,6 +1127,7 @@ private fun createNavigationGraph(
             val creditsScreenViewModel: CreditsScreenViewModel = hiltViewModel()
             CreditsScreen(
                 creditsScreenHandler = creditsScreenViewModel,
+                activityHandler = activityHandler,
                 onBackClick = { navController.navigateUp() }
             )
         }

@@ -55,7 +55,6 @@ import com.rumble.domain.common.domain.domainmodel.RemoveFromPlaylistResult
 import com.rumble.domain.common.domain.usecase.AddToPlaylistUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.common.domain.usecase.OpenPlayStoreUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.RemoveFromPlaylistUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
@@ -218,6 +217,7 @@ sealed class ContentScreenVmEvent {
     ) : ContentScreenVmEvent()
 
     data class SortFollowingTypeUpdated(val sortFollowingType: SortFollowingType) : ContentScreenVmEvent()
+    data class OpenWebViewAndHideBottomSheet(val url: String) : ContentScreenVmEvent()
 }
 
 private const val TAG = "ContentViewModel"
@@ -248,7 +248,6 @@ class ContentViewModel @Inject constructor(
     private val analyticsEventUseCase: AnalyticsEventUseCase,
     getUploadNotificationVideoUseCase: GetUploadNotificationVideoUseCase,
     private val fetchPremiumSubscriptionListUseCase: FetchPremiumSubscriptionListUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val buildPremiumSubscriptionParamsUseCase: BuildPremiumSubscriptionParamsUseCase,
     private val billingClient: BillingClient,
     purchaseUpdateListener: RumblePurchaseUpdateListener,
@@ -974,12 +973,11 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onRestoreSubscription() {
-        emitVmEvent(ContentScreenVmEvent.HideBottomSheetEvent)
-        openUriUseCase(TAG, PremiumSubscription.RESTORE_SUBSCRIPTION_LINK)
+        emitVmEvent(ContentScreenVmEvent.OpenWebViewAndHideBottomSheet(PremiumSubscription.RESTORE_SUBSCRIPTION_LINK))
     }
 
     override fun onLinkClicked(link: String) {
-        openUriUseCase(TAG, link)
+        emitVmEvent(ContentScreenVmEvent.OpenWebViewAndHideBottomSheet(link))
     }
 
     override fun onPurchaseFinished(result: PurchaseResult) {

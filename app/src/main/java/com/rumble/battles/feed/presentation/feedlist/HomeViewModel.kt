@@ -22,7 +22,6 @@ import com.rumble.domain.analytics.domain.usecases.RumbleAdFeedImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FreshChannelListResult
 import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
 import com.rumble.domain.feed.domain.domainmodel.channel.FreshChannel
@@ -78,6 +77,7 @@ sealed class HomeAlertReason : AlertDialogReason {
 sealed class HomeEvent {
     data class PlayVideo(val videoEntity: VideoEntity) : HomeEvent()
     data class NavigateToChannelDetails(val channelId: String) : HomeEvent()
+    data class OpenWebView(val url: String) : HomeEvent()
 }
 
 interface HomeHandler {
@@ -118,7 +118,6 @@ class HomeViewModel @Inject constructor(
     private val getHomeListUseCase: GetHomeListUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val adFeedImpressionUseCase: RumbleAdFeedImpressionUseCase,
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase,
     private val getFreshChannelsUseCase: GetFreshChannelsUseCase,
@@ -184,7 +183,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) = openUriUseCase(TAG, rumbleAd.clickUrl)
+    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) {
+        emitVmEvent(HomeEvent.OpenWebView(rumbleAd.clickUrl))
+    }
 
     override fun onRumbleAdImpression(rumbleAd: RumbleAdEntity) {
         viewModelScope.launch(errorHandler) {

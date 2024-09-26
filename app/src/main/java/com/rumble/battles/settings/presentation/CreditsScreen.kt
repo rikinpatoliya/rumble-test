@@ -35,16 +35,20 @@ import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.settings.domain.domainmodel.License
 import com.rumble.theme.RumbleTypography.body1
 import com.rumble.theme.RumbleTypography.body1Bold
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXLarge
 import com.rumble.theme.rumbleGreen
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun CreditsScreen(
     creditsScreenHandler: CreditsScreenHandler,
+    activityHandler: RumbleActivityHandler,
     onBackClick: () -> Unit,
 ) {
     val state by creditsScreenHandler.uiState.collectAsStateWithLifecycle()
@@ -52,13 +56,17 @@ fun CreditsScreen(
     val snackBarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = context) {
-        creditsScreenHandler.vmEvents.collect { event ->
+        creditsScreenHandler.vmEvents.distinctUntilChanged().collectLatest { event ->
             when (event) {
                 is CreditsScreenVmEvent.Error -> {
                     snackBarHostState.showRumbleSnackbar(
                         message = event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
+                }
+
+                is CreditsScreenVmEvent.OpenWebView -> {
+                    activityHandler.onOpenWebView(event.url)
                 }
             }
         }

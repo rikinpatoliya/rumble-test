@@ -35,10 +35,10 @@ sealed class RumbleScreens(val rootName: String) {
         fun getPath(channelId: String): String = "channel/$channelId"
     }
 
-    object AdDetails : RumbleScreens("ads/{${RumblePath.AD.path}}") {
-        fun getPath(adUrl: String): String {
-            val encodedUrl = URLEncoder.encode(adUrl, StandardCharsets.UTF_8.toString())
-            return "ads/$encodedUrl"
+    object RumbleWebViewScreen : RumbleScreens("webView/{${RumblePath.URL.path}}") {
+        fun getPath(url: String): String {
+            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+            return "webView/$encodedUrl"
         }
     }
 
@@ -124,7 +124,7 @@ sealed class RumbleScreens(val rootName: String) {
 }
 
 enum class RumblePath(val path: String) {
-    AD("adUrl"),
+    URL("url"),
     CHANNEL("channelId"),
     QUERY("query"),
     SORT("sort"),
