@@ -496,6 +496,9 @@ class RumblePlayer(
     }
 
     fun playVideo() {
+        if (!_isMuted.value) {
+            binder?.requestAudioFocus()
+        }
         if (playerTarget.value == PlayerTarget.LOCAL) {
             player.prepare()
             player.playWhenReady = true
@@ -505,6 +508,7 @@ class RumblePlayer(
     }
 
     fun pauseVideo() {
+        binder?.abandonAudioFocus()
         if (isPlaying()) {
             notifyTimeRange()
             setTimeRangeStartPosition()
@@ -561,11 +565,13 @@ class RumblePlayer(
     }
 
     fun mute() {
+        binder?.abandonAudioFocus()
         player.volume = 0f
         _isMuted.value = true
     }
 
     fun unMute() {
+        binder?.requestAudioFocus()
         player.volume = 1f
         _isMuted.value = false
     }
@@ -586,6 +592,7 @@ class RumblePlayer(
         supervisorJob.cancel()
         player.stop()
         player.release()
+        binder?.abandonAudioFocus()
         binder?.stopPlay()
         binder?.let {
             applicationContext.unbindService(serviceConnection)
