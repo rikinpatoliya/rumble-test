@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.google.android.gms.common.util.DeviceProperties
+import com.google.firebase.perf.metrics.Trace
 import com.rumble.analytics.CardSize
 import com.rumble.analytics.ImaDestroyedEvent
 import com.rumble.analytics.LocalsJoinButtonEvent
@@ -69,6 +70,8 @@ import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.SendRantPurchasedEventUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStartUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStopUseCase
 import com.rumble.domain.premium.domain.usecases.ShouldShowPremiumPromoUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
@@ -256,7 +259,7 @@ sealed class VideoDetailsEvent {
     object CloseMuteMenu : VideoDetailsEvent()
     object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
-    object OpenAuthMenu: VideoDetailsEvent()
+    object OpenAuthMenu : VideoDetailsEvent()
 }
 
 private const val TAG = "VideoDetailsViewModel"
@@ -302,6 +305,8 @@ class VideoDetailsViewModel @Inject constructor(
     private val application: Application,
     private val sessionManager: SessionManager,
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase,
+    private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
+    private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase
 ) : ViewModel(), VideoDetailsHandler, DefaultLifecycleObserver {
     private val videoId = savedState.get<Long>(RumblePath.VIDEO.path)
     private val playListId = savedState.get<String>(RumblePath.PLAYLIST.path) ?: ""
@@ -313,6 +318,7 @@ class VideoDetailsViewModel @Inject constructor(
 
     private var lockPortraitVertical = false
     private var playerImpressionLogged = false
+    private var videoLoadTimeTrace: Trace? = null
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
@@ -335,6 +341,9 @@ class VideoDetailsViewModel @Inject constructor(
     override val autoplayFlow: Flow<Boolean> = userPreferenceManager.autoplayFlow
 
     init {
+        videoId?.let {
+            videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(it.toString())
+        }
         viewModelScope.launch(errorHandler) {
             loadContent()
         }
@@ -440,7 +449,8 @@ class VideoDetailsViewModel @Inject constructor(
             state.value.videoEntity?.let {
                 viewModelScope.launch(errorHandler) {
                     val result = voteVideoUseCase(it, UserVote.LIKE)
-                    if (result.success) state.value = state.value.copy(videoEntity = result.updatedFeed)
+                    if (result.success) state.value =
+                        state.value.copy(videoEntity = result.updatedFeed)
                 }
             }
         }
@@ -453,7 +463,8 @@ class VideoDetailsViewModel @Inject constructor(
             state.value.videoEntity?.let {
                 viewModelScope.launch(errorHandler) {
                     val result = voteVideoUseCase(it, UserVote.DISLIKE)
-                    if (result.success) state.value = state.value.copy(videoEntity = result.updatedFeed)
+                    if (result.success) state.value =
+                        state.value.copy(videoEntity = result.updatedFeed)
                 }
             }
         }
@@ -1178,7 +1189,13 @@ class VideoDetailsViewModel @Inject constructor(
             onVideoSizeDefined = ::onVideoSizeDefined,
             autoplay = true,
             onNextVideo = ::onNextVideo,
-            showAds = sessionManager.isPremiumUserFlow.first().not()
+            showAds = sessionManager.isPremiumUserFlow.first().not(),
+            sendInitialPlaybackEvent = {
+                videoLoadTimeTrace?.let {
+                    videoLoadTimeTraceStopUseCase(it)
+                }
+                videoLoadTimeTrace = null
+            }
         )
         if (hasPremiumRestrictionUseCase(videoEntity).not())
             player.playVideo()
@@ -1195,6 +1212,7 @@ class VideoDetailsViewModel @Inject constructor(
         autoplay: Boolean
     ) {
         viewModelScope.launch(errorHandler) {
+            videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(videoId.toString())
             state.value.rumblePlayer?.pauseVideo()
             fetchDetails(videoId)
             state.value.rumblePlayer?.let { player ->
