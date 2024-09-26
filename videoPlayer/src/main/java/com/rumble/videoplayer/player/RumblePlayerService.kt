@@ -180,6 +180,11 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
                         currentPlayer?.seekTo(positionMs)
                 }
 
+                override fun setPlayWhenReady(playWhenReady: Boolean) {
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.playVideo()
+                }
+
                 override fun getAvailableCommands(): Player.Commands {
                     return super.getAvailableCommands()
                         .buildUpon()
@@ -194,7 +199,7 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         mediaSession =
             MediaSession.Builder(this@RumblePlayerService, forwardingPlayer).build()
         mediaSession?.let { mediaSession ->
-            val notificationData = NotificationData(mediaSession, player, enableSeekBar)
+            val notificationData = NotificationData(mediaSession, forwardingPlayer, enableSeekBar)
             startForegroundWithNotification(
                 notificationManager.getNotification(notificationData)
             )
