@@ -35,10 +35,13 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
     private var resumeAfterPause = false
     private var onSaveLastPosition: ((Long, Long) -> Unit)? = null
     private var videoId: Long = 0
+    private lateinit var audioManager: AudioManager
+    private var audioFocusRequest: AudioFocusRequest? = null
+
 
     override fun onCreate() {
         super.onCreate()
-        startListenToAudioFocusChange()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
     }
 
     override fun onBind(intent: Intent?): IBinder = playerBinder
@@ -99,6 +102,14 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
             }
         }
 
+        fun requestAudioFocus() {
+            this@RumblePlayerService.requestAudioFocus()
+        }
+
+        fun abandonAudioFocus() {
+            this@RumblePlayerService.abandonAudioFocus()
+        }
+
         fun stopPlay() {
             stopCurrentSession()
             stopForeground()
@@ -119,27 +130,34 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    private fun startListenToAudioFocusChange() {
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            audioManager.addOnModeChangedListener(ContextCompat.getMainExecutor(this)) {
-                when (it) {
-                    AudioManager.MODE_NORMAL -> resumeIfNeeded()
-                    else -> pauseIfNeeded()
-                }
-            }
-        }
+
+    private fun requestAudioFocus() {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            audioManager.requestAudioFocus(
-                AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                     .setOnAudioFocusChangeListener(this).build()
-            )
+            audioFocusRequest?.let {
+                audioManager.requestAudioFocus(it)
+            }
+
         } else {
             audioManager.requestAudioFocus(
                 this,
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN
             )
+        }
+    }
+
+    private fun abandonAudioFocus() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioFocusRequest?.let {
+                audioManager.abandonAudioFocusRequest(
+                    it
+                )
+            }
+        } else {
+            audioManager.abandonAudioFocus(this)
         }
     }
 
