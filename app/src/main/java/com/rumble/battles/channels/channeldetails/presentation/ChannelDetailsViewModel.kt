@@ -84,7 +84,6 @@ interface ChannelDetailsHandler {
 
     //region CHANNEL ACTIONS
     fun onJoin(localsCommunityEntity: LocalsCommunityEntity)
-    fun onOpenLocalsUrl(tag: String, url: String)
     fun onActionMenuClicked()
     fun onBlockMenuClicked()
     fun onReportMenuClicked()
@@ -142,7 +141,6 @@ sealed class ChannelDetailsVmEvent {
     data class Error(val errorMessage: String? = null) : ChannelDetailsVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : ChannelDetailsVmEvent()
     object OpenAuthMenu: ChannelDetailsVmEvent()
-    data class OpenWebView(val url: String): ChannelDetailsVmEvent()
 }
 
 private const val TAG = "ChannelDetailsViewModel"
@@ -335,10 +333,6 @@ class ChannelDetailsViewModel @Inject constructor(
         )
         popupState.value = ChannelDetailsDialog.LocalsPopupDialog(localsCommunityEntity)
         emitVmEvent(ChannelDetailsVmEvent.ShowLocalsPopup)
-    }
-
-    override fun onOpenLocalsUrl(tag: String, url: String) {
-        emitVmEvent(ChannelDetailsVmEvent.OpenWebView(url))
     }
 
     override fun onActionMenuClicked() {

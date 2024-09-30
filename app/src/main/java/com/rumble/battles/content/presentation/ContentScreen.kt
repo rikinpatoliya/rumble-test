@@ -161,7 +161,6 @@ import com.rumble.utils.extension.navigationSafeEncode
 import com.rumble.utils.replaceUrlParameter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 
@@ -212,7 +211,7 @@ fun ContentScreen(
     }
 
     LaunchedEffect(activityHandler.eventFlow) {
-        activityHandler.eventFlow.distinctUntilChanged().collectLatest {
+        activityHandler.eventFlow.collectLatest {
             if (it is RumbleEvent.NavigateToVideoDetailsFromNotification) {
                 navController.navigate(
                     RumbleScreens.VideoDetailsScreen.getPath(
@@ -250,7 +249,7 @@ fun ContentScreen(
     }
 
     LaunchedEffect(contentHandler.eventFlow) {
-        contentHandler.eventFlow.distinctUntilChanged().collectLatest { event ->
+        contentHandler.eventFlow.collectLatest { event ->
             when (event) {
                 ContentScreenVmEvent.HideBottomSheetEvent -> {
                     coroutineScope.launch { bottomSheetState.hide() }
@@ -1258,13 +1257,11 @@ private fun createNavigationGraph(
         ) {
             val videoDetailsViewModel: VideoDetailsViewModel = hiltViewModel()
             val liveChatViewModel: LiveChatViewModel = hiltViewModel()
-            val authViewModel: AuthViewModel = hiltViewModel()
             VideoDetailsScreen(
                 activityHandler = activityHandler,
                 handler = videoDetailsViewModel,
                 contentHandler = contentHandler,
                 liveChatHandler = liveChatViewModel,
-                authHandler = authViewModel,
                 contentBottomSheetState = bottomSheetState,
                 onBackClick = { navController.navigateUp() },
                 onChannelClick = { navController.navigate(RumbleScreens.Channel.getPath(it)) },

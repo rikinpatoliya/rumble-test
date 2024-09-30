@@ -189,14 +189,6 @@ class VideoDetailsViewModelTests {
     }
 
     @Test
-    fun testOnOpenUri() {
-        val testTag = "testTag"
-        val testUri = "testUri"
-        videoDetailsViewModel.onOpenUri(testTag, testUri)
-        verify { openUriUseCase.invoke(testTag, testUri) }
-    }
-
-    @Test
     fun testOnLike() {
         videoDetailsViewModel.onLike()
         coVerify { voteVideoUseCase.invoke(videoEntity, UserVote.LIKE) }

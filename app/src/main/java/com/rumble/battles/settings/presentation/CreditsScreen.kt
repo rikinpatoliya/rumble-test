@@ -42,8 +42,6 @@ import com.rumble.theme.RumbleTypography.body1Bold
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXLarge
 import com.rumble.theme.rumbleGreen
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun CreditsScreen(
@@ -56,17 +54,13 @@ fun CreditsScreen(
     val snackBarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(key1 = context) {
-        creditsScreenHandler.vmEvents.distinctUntilChanged().collectLatest { event ->
+        creditsScreenHandler.vmEvents.collect { event ->
             when (event) {
                 is CreditsScreenVmEvent.Error -> {
                     snackBarHostState.showRumbleSnackbar(
                         message = event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
-                }
-
-                is CreditsScreenVmEvent.OpenWebView -> {
-                    activityHandler.onOpenWebView(event.url)
                 }
             }
         }
@@ -92,7 +86,7 @@ fun CreditsScreen(
                     end = paddingMedium,
                     top = paddingMedium
                 ),
-            creditsScreenHandler = creditsScreenHandler,
+            activityHandler = activityHandler,
             licenseList = state.licenseList
         )
     }
@@ -111,7 +105,7 @@ fun CreditsScreen(
 @Composable
 fun CreditsScreenContent(
     modifier: Modifier = Modifier,
-    creditsScreenHandler: CreditsScreenHandler,
+    activityHandler: RumbleActivityHandler,
     licenseList: List<License>
 ) {
     Column(
@@ -119,7 +113,7 @@ fun CreditsScreenContent(
     ) {
         licenseList.onEachIndexed { index, license ->
             Column {
-                LicenseView(license, creditsScreenHandler)
+                LicenseView(license, activityHandler)
                 if (index != licenseList.lastIndex)
                     Divider()
                 else
@@ -130,7 +124,7 @@ fun CreditsScreenContent(
 }
 
 @Composable
-private fun LicenseView(license: License, creditsScreenHandler: CreditsScreenHandler) {
+private fun LicenseView(license: License, activityHandler: RumbleActivityHandler) {
     Column(
         modifier = Modifier.padding(
             top = paddingMedium,
@@ -155,9 +149,7 @@ private fun LicenseView(license: License, creditsScreenHandler: CreditsScreenHan
             text = license.licenseName.ifEmpty { stringResource(id = R.string.license) },
             modifier = Modifier
                 .clickable(license.licenseUrl.isNotEmpty()) {
-                    creditsScreenHandler.onLicenseClicked(
-                        license
-                    )
+                    activityHandler.onOpenWebView(license.licenseUrl)
                 },
             color = if (license.licenseUrl.isNotEmpty()) rumbleGreen else MaterialTheme.colors.primary,
             textDecoration = if (license.licenseUrl.isNotEmpty()) TextDecoration.Underline else TextDecoration.None,

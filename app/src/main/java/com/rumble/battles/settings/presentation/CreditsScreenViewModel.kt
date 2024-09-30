@@ -21,13 +21,10 @@ private const val TAG = "CreditsScreenViewModel"
 interface CreditsScreenHandler {
     val uiState: StateFlow<LicenseScreenState>
     val vmEvents: Flow<CreditsScreenVmEvent>
-
-    fun onLicenseClicked(license: License)
 }
 
 sealed class CreditsScreenVmEvent {
     data class Error(val errorMessage: String? = null) : CreditsScreenVmEvent()
-    data class OpenWebView(val url: String) : CreditsScreenVmEvent()
 }
 
 data class LicenseScreenState(
@@ -66,10 +63,6 @@ class CreditsScreenViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    override fun onLicenseClicked(license: License) {
-        emitVmEvent(CreditsScreenVmEvent.OpenWebView(license.licenseUrl))
     }
 
     private fun emitVmEvent(event: CreditsScreenVmEvent) {

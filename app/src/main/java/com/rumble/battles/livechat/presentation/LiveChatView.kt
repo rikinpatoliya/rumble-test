@@ -13,7 +13,6 @@ import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.theme.commentActionButtonWidth
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun LiveChatView(
@@ -23,7 +22,7 @@ fun LiveChatView(
     activityHandler: RumbleActivityHandler
 ) {
     LaunchedEffect(Unit) {
-        liveChatHandler.eventFlow.distinctUntilChanged().collectLatest {
+        liveChatHandler.eventFlow.collectLatest {
             when (it) {
                 is LiveChatEvent.RantPurchaseSucceeded -> {
                     handler.onRantPurchaseSucceeded(it.rantLevel)
@@ -40,10 +39,6 @@ fun LiveChatView(
 
                 is LiveChatEvent.Error -> {
                     handler.onError()
-                }
-
-                is LiveChatEvent.OpenWebView -> {
-                    activityHandler.onOpenWebView(it.url)
                 }
 
                 else -> return@collectLatest

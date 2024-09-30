@@ -41,6 +41,7 @@ import com.rumble.domain.common.domain.domainmodel.EmptyResult
 import com.rumble.domain.common.domain.domainmodel.PlayListResult
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
+import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
@@ -124,8 +125,6 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
         annotatedTextWithActions: AnnotatedStringWithActionsList,
         offset: Int,
     )
-
-    fun onOpenUri(tag: String, channelUrl: String)
     fun onLike()
     fun onDislike()
     fun onLikeRelated(videoEntity: VideoEntity)
@@ -259,7 +258,6 @@ sealed class VideoDetailsEvent {
     object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
     object OpenAuthMenu : VideoDetailsEvent()
-    data class OpenWebView(val url: String) : VideoDetailsEvent()
 }
 
 private const val TAG = "VideoDetailsViewModel"
@@ -305,7 +303,8 @@ class VideoDetailsViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase,
     private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
-    private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase
+    private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
+    private val openUriUseCase: OpenUriUseCase
 ) : ViewModel(), VideoDetailsHandler, DefaultLifecycleObserver {
     private val videoId = savedState.get<Long>(RumblePath.VIDEO.path)
     private val playListId = savedState.get<String>(RumblePath.PLAYLIST.path) ?: ""
@@ -437,10 +436,6 @@ class VideoDetailsViewModel @Inject constructor(
         offset: Int
     ) {
         annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
-    }
-
-    override fun onOpenUri(tag: String, channelUrl: String) {
-        emitVmEvent(VideoDetailsEvent.OpenWebView(channelUrl))
     }
 
     override fun onLike() {
@@ -833,7 +828,7 @@ class VideoDetailsViewModel @Inject constructor(
         )
 
     override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) {
-        emitVmEvent(VideoDetailsEvent.OpenWebView(rumbleAd.clickUrl))
+        openUriUseCase(TAG, rumbleAd.clickUrl)
     }
 
     override fun onRumbleAdImpression(rumbleAd: RumbleAdEntity) {

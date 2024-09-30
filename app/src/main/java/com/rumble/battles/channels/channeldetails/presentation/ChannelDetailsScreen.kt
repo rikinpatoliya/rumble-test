@@ -100,7 +100,6 @@ import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 private const val TAG = "ChannelDetailsScreen"
@@ -186,7 +185,7 @@ fun ChannelDetailsScreen(
 
     LaunchedEffect(key1 = context) {
         lifecycleOwner.lifecycle.addObserver(observer)
-        channelDetailsHandler.vmEvents.distinctUntilChanged().collectLatest { event ->
+        channelDetailsHandler.vmEvents.collect { event ->
             when (event) {
                 is ChannelDetailsVmEvent.Error -> {
                     snackBarHostState.showRumbleSnackbar(
@@ -214,9 +213,6 @@ fun ChannelDetailsScreen(
 
                 is ChannelDetailsVmEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
-                }
-                is ChannelDetailsVmEvent.OpenWebView -> {
-                    activityHandler.onOpenWebView(event.url)
                 }
 
                 else -> {}
@@ -253,6 +249,7 @@ fun ChannelDetailsScreen(
                 state.channelDetailsEntity,
                 contentHandler,
                 channelDetailsHandler,
+                activityHandler
             )
         }) {
         Box(
@@ -569,6 +566,7 @@ private fun ChannelDetailsScreenDialog(
     channelDetailsEntity: ChannelDetailsEntity?,
     contentHandler: ContentHandler,
     channelDetailsHandler: ChannelDetailsHandler,
+    activityHandler: RumbleActivityHandler,
 ) {
     when (dialogState) {
         is ChannelDetailsDialog.ActionMenuDialog -> {
@@ -609,10 +607,7 @@ private fun ChannelDetailsScreenDialog(
                     ),
                 dialogState.localsCommunityEntity,
                 onSupport = {
-                    channelDetailsHandler.onOpenLocalsUrl(
-                        tag = TAG,
-                        url = dialogState.localsCommunityEntity.channelUrl
-                    )
+                    activityHandler.onOpenWebView(dialogState.localsCommunityEntity.channelUrl)
                 },
                 onCancel = { coroutineScope.launch { bottomSheetState.hide() } }
             )

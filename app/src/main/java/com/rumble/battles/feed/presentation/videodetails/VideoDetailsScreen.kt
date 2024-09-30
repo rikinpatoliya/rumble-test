@@ -126,7 +126,6 @@ import com.rumble.battles.livechat.presentation.LiveChatHandler
 import com.rumble.battles.livechat.presentation.LiveChatModerationMenu
 import com.rumble.battles.livechat.presentation.LiveChatView
 import com.rumble.battles.livechat.presentation.MuteUserBottomSheet
-import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -169,7 +168,6 @@ import com.rumble.videoplayer.presentation.views.MiniControllerView
 import com.rumble.videoplayer.presentation.views.VideoSettingsBottomSheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -183,7 +181,6 @@ fun VideoDetailsScreen(
     handler: VideoDetailsHandler,
     contentHandler: ContentHandler,
     liveChatHandler: LiveChatHandler,
-    authHandler: AuthHandler,
     contentBottomSheetState: ModalBottomSheetState,
     onBackClick: () -> Unit,
     onChannelClick: (String) -> Unit,
@@ -264,7 +261,7 @@ fun VideoDetailsScreen(
     }
 
     LaunchedEffect(Unit) {
-        handler.eventFlow.distinctUntilChanged().collectLatest {
+        handler.eventFlow.collectLatest {
             when (it) {
                 is VideoDetailsEvent.VideoDetailsError -> {
                     snackbarHostState.showRumbleSnackbar(
@@ -347,9 +344,6 @@ fun VideoDetailsScreen(
                 is VideoDetailsEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
                 }
-                is VideoDetailsEvent.OpenWebView -> {
-                    activityHandler.onOpenWebView(it.url)
-                }
             }
         }
     }
@@ -403,7 +397,7 @@ fun VideoDetailsScreen(
                 BottomSheetDialog(
                     handler = handler,
                     liveChatHandler = liveChatHandler,
-                    authHandler = authHandler,
+                    activityHandler = activityHandler,
                     coroutineScope = coroutineScope,
                     bottomSheetState = bottomSheetState
                 )
@@ -670,6 +664,7 @@ private fun ChannelContentView(
                     .clip(RoundedCornerShape(radiusMedium))
                     .background(color = MaterialTheme.colors.surface),
                 handler = handler,
+                activityHandler = activityHandler,
                 coroutineScope = coroutineScope,
                 videoEntity = state.videoEntity,
                 onCategoryClick = onCategoryClick,
@@ -877,13 +872,14 @@ fun VideoDetailsPlayListView(
 fun DescriptionView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
+    activityHandler: RumbleActivityHandler,
     description: String?
 ) {
     if (!description.isNullOrEmpty()) {
         ExpandableText(
             modifier = modifier,
             text = description,
-            onUriClick = { handler.onOpenUri(TAG, it) },
+            onUriClick = { activityHandler.onOpenWebView(it) },
             onAnnotatedTextClicked = handler::onAnnotatedTextClicked
         )
     }
@@ -971,6 +967,7 @@ private fun JoinOnLocalsView(
 private fun VideoDetailsInfoView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
+    activityHandler: RumbleActivityHandler,
     coroutineScope: CoroutineScope,
     videoEntity: VideoEntity?,
     onCategoryClick: (String) -> Unit,
@@ -1005,6 +1002,7 @@ private fun VideoDetailsInfoView(
             DescriptionView(
                 modifier = Modifier.padding(top = paddingSmall),
                 handler = handler,
+                activityHandler = activityHandler,
                 description = videoEntity?.description
             )
         }
@@ -1257,7 +1255,7 @@ private fun VideoDetailsActionButton(
 private fun BottomSheetDialog(
     handler: VideoDetailsHandler,
     liveChatHandler: LiveChatHandler,
-    authHandler: AuthHandler,
+    activityHandler: RumbleActivityHandler,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState
 ) {
@@ -1276,6 +1274,7 @@ private fun BottomSheetDialog(
         when (reason) {
             BottomSheetReason.JoinOnLocals -> JoinLocalsSheet(
                 handler = handler,
+                activityHandler = activityHandler,
                 coroutineScope = coroutineScope,
                 bottomSheetState = bottomSheetState
             )
@@ -1328,6 +1327,7 @@ private fun BottomSheetDialog(
                 BuyRantSheet(
                     handler = handler,
                     liveChatHandler = liveChatHandler,
+                    activityHandler = activityHandler,
                     expanded = buyRantBottomSheetExpanded
                 )
             }
@@ -1353,6 +1353,7 @@ private fun BottomSheetDialog(
 @OptIn(ExperimentalMaterialApi::class)
 private fun JoinLocalsSheet(
     handler: VideoDetailsHandler,
+    activityHandler: RumbleActivityHandler,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState
 ) {
@@ -1369,10 +1370,7 @@ private fun JoinLocalsSheet(
                 ),
             localsCommunityEntity,
             onSupport = {
-                handler.onOpenUri(
-                    TAG,
-                    localsCommunityEntity.channelUrl
-                )
+                activityHandler.onOpenWebView(localsCommunityEntity.channelUrl)
             },
             onCancel = { coroutineScope.launch { bottomSheetState.hide() } }
         )

@@ -109,7 +109,6 @@ interface CameraUploadHandler {
         offset: Int
     )
 
-    fun onOpenUri(tag: String, uri: String)
     fun onUploadChannelSelected(channelId: String)
     fun onTitleChanged(value: String)
     fun onDescriptionChanged(value: String)
@@ -199,7 +198,6 @@ data class UserUploadUIState(
 sealed class CameraUploadVmEvent {
     object ShowDateSelectionDialog : CameraUploadVmEvent()
     object ShowTimeSelectionDialog : CameraUploadVmEvent()
-    data class OpenWebView(val url: String) : CameraUploadVmEvent()
 }
 
 private const val TAG_UPLOAD_VM = "CameraUploadViewModel"
@@ -529,6 +527,7 @@ class CameraViewModel @Inject constructor(
     }
 
     override fun startRecording(recording: Recording?) {
+        orientationEventListener.disable()
         recording?.let {
             cameraHandlerUiState.update {
                 it.copy(
@@ -557,6 +556,7 @@ class CameraViewModel @Inject constructor(
                 )
             }
         }
+        orientationEventListener.enable()
     }
 
     override fun stopRecordingWithError(exception: Throwable) {
@@ -678,10 +678,6 @@ class CameraViewModel @Inject constructor(
         annotatedTextWithActions: AnnotatedStringWithActionsList,
         offset: Int
     ) = annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
-
-    override fun onOpenUri(tag: String, uri: String) {
-        emitVmEvent(CameraUploadVmEvent.OpenWebView(uri))
-    }
 
     override fun onUploadChannelSelected(channelId: String) {
         uiState.update { state ->
@@ -901,6 +897,7 @@ class CameraViewModel @Inject constructor(
                         )
                     }
                 }
+                else -> {}
             }
         }
     }

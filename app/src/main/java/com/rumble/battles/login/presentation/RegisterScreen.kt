@@ -94,8 +94,6 @@ import com.rumble.utils.RumbleConstants.TAG_URL
 import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.conditional
 import com.rumble.utils.extension.convertToDate
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 private const val TAG = "RegisterScreen"
 
@@ -121,7 +119,7 @@ fun RegisterScreen(
     }
 
     LaunchedEffect(key1 = context) {
-        registerHandler.vmEvents.distinctUntilChanged().collectLatest { event ->
+        registerHandler.vmEvents.collect { event ->
             when (event) {
                 is RegistrationScreenVmEvent.Error -> {
                     snackBarHostState.showRumbleSnackbar(

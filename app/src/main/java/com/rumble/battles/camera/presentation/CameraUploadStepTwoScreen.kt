@@ -57,7 +57,6 @@ import com.rumble.utils.RumbleConstants.UPLOAD_TIME_PATTERN
 import com.rumble.utils.extension.conditional
 import com.rumble.utils.extension.convertToDate
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 private const val TAG = "CameraUploadStepTwoScreen"
 
@@ -72,18 +71,6 @@ fun CameraUploadStepTwoScreen(
     onBackClick: () -> Unit,
 ) {
     val uiState by cameraUploadHandler.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(cameraUploadHandler.eventFlow) {
-        cameraUploadHandler.eventFlow.distinctUntilChanged().collectLatest { event ->
-            when (event) {
-                is CameraUploadVmEvent.OpenWebView -> {
-                    activityHandler.onOpenWebView(event.url)
-                }
-
-                else -> {}
-            }
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -135,7 +122,7 @@ fun CameraUploadStepTwoScreen(
             onToggleCheckedState = cameraUploadHandler::onTermsOfServiceCheckedChanged,
             hasError = uiState.termsOfServiceError,
             errorMessage = stringResource(id = R.string.you_must_agree_to_our_terms_of_services),
-            annotatedTextWithActions = buildTermsAndConditionsStringWithActions(cameraUploadHandler),
+            annotatedTextWithActions = buildTermsAndConditionsStringWithActions(activityHandler),
             onAnnotatedTextClicked = cameraUploadHandler::onAnnotatedTextClicked
         )
         Text(
@@ -237,7 +224,7 @@ private fun getScheduleDescription(uiState: UserUploadUIState) =
     }"
 
 @Composable
-private fun buildTermsAndConditionsStringWithActions(cameraUploadHandler: CameraUploadHandler): AnnotatedStringWithActionsList {
+private fun buildTermsAndConditionsStringWithActions(activityHandler: RumbleActivityHandler): AnnotatedStringWithActionsList {
     val actionList = mutableListOf<AnnotatedTextAction>()
     val text = buildAnnotatedString {
         pushStyle(SpanStyle(color = if (MaterialTheme.colors.isLight) enforcedDarkmo else enforcedWhite))
@@ -246,9 +233,7 @@ private fun buildTermsAndConditionsStringWithActions(cameraUploadHandler: Camera
         val urlColor = if (MaterialTheme.colors.isLight) wokeGreen else rumbleGreen
         withStyle(style = SpanStyle(color = urlColor)) {
             actionList.add(AnnotatedTextAction(RumbleConstants.TAG_URL) { uri ->
-                cameraUploadHandler.onOpenUri(
-                    TAG, uri
-                )
+                activityHandler.onOpenWebView(uri)
             })
             val startIndexTerms = this.length
             append(stringResource(id = R.string.terms_of_service))

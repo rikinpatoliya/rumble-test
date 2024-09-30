@@ -75,7 +75,7 @@ interface LiveChatHandler {
     fun onInitLiveChat(videoId: Long)
     fun onRantClicked(rantEntity: RantEntity)
     fun onDismissBottomSheet()
-    fun openUrl(url: String)
+    fun onReportRantTermsEvent()
     fun onBuyRant(pendingMessageInfo: PendingMessageInfo)
     fun onRantLevelSelected(rantLevel: RantLevel)
     fun onScrolledToBottom()
@@ -124,7 +124,6 @@ sealed class LiveChatEvent {
     data class RantPurchaseSucceeded(val rantLevel: RantLevel) : LiveChatEvent()
     object OpenModerationMenu : LiveChatEvent()
     object HideModerationMenu : LiveChatEvent()
-    data class OpenWebView(val url: String) : LiveChatEvent()
 }
 
 sealed class LiveChatAlertReason : AlertDialogReason {
@@ -230,8 +229,7 @@ class LiveChatViewModel @Inject constructor(
         purchaseUpdateListener.unsubscribeFromPurchaseUpdate(this)
     }
 
-    override fun openUrl(url: String) {
-        emitEvent(LiveChatEvent.OpenWebView(url))
+    override fun onReportRantTermsEvent() {
         analyticsEventUseCase(RantTermsLinkTapEvent)
     }
 

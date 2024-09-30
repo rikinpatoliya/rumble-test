@@ -79,7 +79,6 @@ import com.rumble.utils.RumbleConstants.PLAYER_MIN_VISIBILITY
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
 import com.rumble.utils.extension.rememberLazyListState
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 private const val ITEMS_SHIFT_USER_LOGGED_IN = 2
 private const val ITEMS_SHIFT_USER_NOT_LOGGED_IN = 1
@@ -149,7 +148,7 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        homeHandler.eventFlow.distinctUntilChanged().collectLatest {
+        homeHandler.eventFlow.collectLatest {
             when (it) {
                 is HomeEvent.PlayVideo -> {
                     onVideoClick(it.videoEntity)
@@ -157,10 +156,6 @@ fun HomeScreen(
 
                 is HomeEvent.NavigateToChannelDetails -> {
                     onChannelClick(it.channelId)
-                }
-
-                is HomeEvent.OpenWebView -> {
-                    activityHandler.onOpenWebView(it.url)
                 }
             }
         }
