@@ -15,6 +15,7 @@ fun RumbleWebView(url: String) {
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
         factory = {
             WebView(it).apply {
+                settings.javaScriptEnabled = true
                 webViewClient = WebViewClient()
                 loadUrl(url)
             }

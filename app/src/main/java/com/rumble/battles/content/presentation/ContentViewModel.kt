@@ -86,7 +86,6 @@ import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboarding
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.domain.onboarding.domain.usecase.FeedOnboardingViewUseCase
 import com.rumble.domain.onboarding.domain.usecase.SaveFeedOnboardingUseCase
-import com.rumble.domain.premium.domain.domainmodel.PremiumSubscription
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscriptionData
 import com.rumble.domain.premium.domain.domainmodel.SubscriptionResult
 import com.rumble.domain.premium.domain.usecases.BuildPremiumSubscriptionParamsUseCase
@@ -217,7 +216,6 @@ sealed class ContentScreenVmEvent {
     ) : ContentScreenVmEvent()
 
     data class SortFollowingTypeUpdated(val sortFollowingType: SortFollowingType) : ContentScreenVmEvent()
-    data class OpenWebViewAndHideBottomSheet(val url: String) : ContentScreenVmEvent()
 }
 
 private const val TAG = "ContentViewModel"
@@ -970,14 +968,6 @@ class ContentViewModel @Inject constructor(
         } else {
             onOpenAuthMenu()
         }
-    }
-
-    override fun onRestoreSubscription() {
-        emitVmEvent(ContentScreenVmEvent.OpenWebViewAndHideBottomSheet(PremiumSubscription.RESTORE_SUBSCRIPTION_LINK))
-    }
-
-    override fun onLinkClicked(link: String) {
-        emitVmEvent(ContentScreenVmEvent.OpenWebViewAndHideBottomSheet(link))
     }
 
     override fun onPurchaseFinished(result: PurchaseResult) {

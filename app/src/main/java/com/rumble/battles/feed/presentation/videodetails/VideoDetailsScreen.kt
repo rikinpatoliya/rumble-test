@@ -653,7 +653,9 @@ private fun ChannelContentView(
                         end = paddingMedium
                     ),
                     rumbleAdEntity = it,
-                    onClick = handler::onRumbleAdClick,
+                    onClick = { adEntity ->
+                        activityHandler.onOpenWebView(adEntity.clickUrl)
+                    },
                     onLaunch = handler::onRumbleAdImpression
                 )
             }

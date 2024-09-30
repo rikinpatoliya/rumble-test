@@ -31,8 +31,11 @@ import com.rumble.battles.PremiumTag
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.DrawerCloseIndicatorView
-import com.rumble.battles.premium.presentation.PremiumSubscriptionHandler
+import com.rumble.battles.content.presentation.BottomSheetContent
+import com.rumble.battles.content.presentation.ContentHandler
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.premium.presentation.SubscriptionTypeView
+import com.rumble.domain.premium.domain.domainmodel.PremiumSubscription
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.RumbleTypography.tinyBody
@@ -52,7 +55,8 @@ import com.rumble.utils.RumbleConstants.TAG_URL
 
 @Composable
 fun PremiumSubscriptionBottomSheet(
-    handler: PremiumSubscriptionHandler
+    handler: ContentHandler,
+    activityHandler: RumbleActivityHandler
 ) {
     var selected by remember { mutableStateOf(handler.subscriptionList.firstOrNull()) }
     val notes = buildAnnotatedString {
@@ -98,7 +102,12 @@ fun PremiumSubscriptionBottomSheet(
 
             Text(
                 modifier = Modifier
-                    .padding(top = paddingSmall, start = paddingLarge, end = paddingGiant, bottom = paddingXXXXLarge),
+                    .padding(
+                        top = paddingSmall,
+                        start = paddingLarge,
+                        end = paddingGiant,
+                        bottom = paddingXXXXLarge
+                    ),
                 text = stringResource(id = R.string.enjoy_ad_free_viewing),
                 color = enforcedWhite,
                 style = RumbleTypography.h6Light
@@ -106,7 +115,10 @@ fun PremiumSubscriptionBottomSheet(
 
             handler.subscriptionList.forEach {
                 SubscriptionTypeView(
-                    modifier = Modifier.padding(horizontal = paddingLarge, vertical = paddingXXSmall),
+                    modifier = Modifier.padding(
+                        horizontal = paddingLarge,
+                        vertical = paddingXXSmall
+                    ),
                     subscriptionData = it,
                     selected = it == selected,
                     onClick = { newSelection ->
@@ -118,7 +130,12 @@ fun PremiumSubscriptionBottomSheet(
             Text(
                 modifier = Modifier
                     .padding(horizontal = paddingLarge, vertical = paddingXXSmall)
-                    .clickable { handler.onRestoreSubscription() },
+                    .clickable {
+                        activityHandler.onOpenWebView(PremiumSubscription.RESTORE_SUBSCRIPTION_LINK)
+                        handler.updateBottomSheetUiState(
+                            BottomSheetContent.HideBottomSheet
+                        )
+                    },
                 text = stringResource(id = R.string.restore_subscription),
                 color = enforcedLite,
                 style = h6
@@ -132,7 +149,10 @@ fun PremiumSubscriptionBottomSheet(
                 style = tinyBody,
                 onClick = { offset ->
                     notes.getStringAnnotations(start = offset, end = offset).firstOrNull()?.let {
-                        handler.onLinkClicked(it.item)
+                        activityHandler.onOpenWebView(it.item)
+                        handler.updateBottomSheetUiState(
+                            BottomSheetContent.HideBottomSheet
+                        )
                     }
                 }
             )

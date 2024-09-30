@@ -327,7 +327,9 @@ fun HomeScreen(
                                         vertical = paddingXMedium
                                     ),
                                     rumbleAdEntity = it,
-                                    onClick = homeHandler::onRumbleAdClick,
+                                    onClick = { addEntity ->
+                                        activityHandler.onOpenWebView(addEntity.clickUrl)
+                                    },
                                     onLaunch = homeHandler::onRumbleAdImpression,
                                     onResumed = homeHandler::onRumbleAdResumed
                                 )

@@ -14,7 +14,6 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetai
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserCommentAuthorsUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -68,7 +67,6 @@ class VideoDetailsViewModelTests {
     private val getVideoDetailsUseCase: GetVideoDetailsUseCase = mockk(relaxed = true)
     private val initVideoPlayerSourceUseCase: InitVideoPlayerSourceUseCase = mockk(relaxed = true)
     private val getChannelDataUseCase: GetChannelDataUseCase = mockk(relaxed = true)
-    private val openUriUseCase: OpenUriUseCase = mockk(relaxed = true)
     private val annotatedStringUseCase: AnnotatedStringUseCase = mockk(relaxed = true)
     private val voteVideoUseCase: VoteVideoUseCase = mockk(relaxed = true)
     private val shareUseCase: ShareUseCase = mockk(relaxed = true)
