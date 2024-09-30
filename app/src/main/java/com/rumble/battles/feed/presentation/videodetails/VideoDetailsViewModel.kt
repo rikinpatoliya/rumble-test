@@ -41,7 +41,6 @@ import com.rumble.domain.common.domain.domainmodel.EmptyResult
 import com.rumble.domain.common.domain.domainmodel.PlayListResult
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
@@ -144,7 +143,6 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onCloseComments()
     fun onChangeCommentSortOrder(commentSortOrder: CommentSortOrder)
     fun getSortedCommentsList(commentsList: List<CommentEntity>?): List<CommentEntity>?
-    fun onRumbleAdClick(rumbleAd: RumbleAdEntity)
     fun onRumbleAdImpression(rumbleAd: RumbleAdEntity)
     fun onVideoPlayerImpression()
     fun onVideoCardImpression(videoEntity: VideoEntity)
@@ -304,7 +302,6 @@ class VideoDetailsViewModel @Inject constructor(
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase,
     private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
-    private val openUriUseCase: OpenUriUseCase
 ) : ViewModel(), VideoDetailsHandler, DefaultLifecycleObserver {
     private val videoId = savedState.get<Long>(RumblePath.VIDEO.path)
     private val playListId = savedState.get<String>(RumblePath.PLAYLIST.path) ?: ""
@@ -826,10 +823,6 @@ class VideoDetailsViewModel @Inject constructor(
                     it.date
             }
         )
-
-    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) {
-        openUriUseCase(TAG, rumbleAd.clickUrl)
-    }
 
     override fun onRumbleAdImpression(rumbleAd: RumbleAdEntity) {
         viewModelScope.launch(errorHandler) {

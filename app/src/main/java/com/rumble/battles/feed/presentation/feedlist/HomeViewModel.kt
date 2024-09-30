@@ -22,7 +22,6 @@ import com.rumble.domain.analytics.domain.usecases.RumbleAdFeedImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FreshChannelListResult
 import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
 import com.rumble.domain.feed.domain.domainmodel.channel.FreshChannel
@@ -92,7 +91,6 @@ interface HomeHandler {
     fun onRefreshAll()
     fun onLike(videoEntity: VideoEntity)
     fun onDislike(videoEntity: VideoEntity)
-    fun onRumbleAdClick(rumbleAd: RumbleAdEntity)
     fun onRumbleAdImpression(rumbleAd: RumbleAdEntity)
     fun onVideoCardImpression(videoEntity: VideoEntity)
     fun onPlayerImpression(videoEntity: VideoEntity)
@@ -132,7 +130,6 @@ class HomeViewModel @Inject constructor(
     private val analyticsEventUseCase: AnalyticsEventUseCase,
     private val internetConnectionObserver: InternetConnectionObserver,
     private val internetConnectionUseCase: InternetConnectionUseCase,
-    private val openUriUseCase: OpenUriUseCase,
 ) : AndroidViewModel(application), HomeHandler {
 
     override val homeScreenState: MutableStateFlow<HomeScreenState> = MutableStateFlow(
@@ -182,10 +179,6 @@ class HomeViewModel @Inject constructor(
             val result = voteVideoUseCase(videoEntity, UserVote.DISLIKE)
             if (result.success) updatedEntity.value = result.updatedFeed
         }
-    }
-
-    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) {
-        openUriUseCase(TAG, rumbleAd.clickUrl)
     }
 
     override fun onRumbleAdImpression(rumbleAd: RumbleAdEntity) {

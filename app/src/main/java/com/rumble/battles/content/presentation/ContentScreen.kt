@@ -355,11 +355,6 @@ fun ContentScreen(
                     bottomSheetState.hide()
                 }
 
-                is ContentScreenVmEvent.OpenWebViewAndHideBottomSheet -> {
-                    coroutineScope.launch { bottomSheetState.hide() }
-                    activityHandler.onOpenWebView(event.url)
-                }
-
                 is ContentScreenVmEvent.PlayListUpdated -> {}
                 is ContentScreenVmEvent.PlayListCreated -> {}
                 is ContentScreenVmEvent.ChannelNotificationsUpdated -> {}
@@ -378,6 +373,7 @@ fun ContentScreen(
                 bottomSheetData = bottomSheetUiState.data,
                 contentHandler = contentHandler,
                 authHandler = authHandler,
+                activityHandler = activityHandler,
                 navController = navController,
                 onHideBottomSheet = {
                     hideBottomSheet(

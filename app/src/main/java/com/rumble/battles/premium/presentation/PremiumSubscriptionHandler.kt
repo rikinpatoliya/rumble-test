@@ -9,7 +9,5 @@ interface PremiumSubscriptionHandler {
     fun onClosePremiumPromo()
     fun onGetPremium()
     fun onShowSubscriptionOptions(videoId: Long? = null)
-    fun onRestoreSubscription()
-    fun onLinkClicked(link: String)
     fun onSubscribe(premiumSubscriptionData: PremiumSubscriptionData)
 }
