@@ -10,6 +10,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.theme.commentActionButtonWidth
 import kotlinx.coroutines.flow.collectLatest
 
@@ -17,7 +18,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun LiveChatView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
-    liveChatHandler: LiveChatHandler
+    liveChatHandler: LiveChatHandler,
+    activityHandler: RumbleActivityHandler
 ) {
     LaunchedEffect(Unit) {
         liveChatHandler.eventFlow.collectLatest {

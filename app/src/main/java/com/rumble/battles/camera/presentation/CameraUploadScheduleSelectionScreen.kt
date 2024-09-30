@@ -72,6 +72,7 @@ fun CameraUploadScheduleSelectionScreen(
                         uiState.selectedUploadSchedule.utcMillis,
                     )
                 }
+                else -> {}
             }
         }
     }

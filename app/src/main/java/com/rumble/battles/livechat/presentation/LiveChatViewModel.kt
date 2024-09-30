@@ -20,7 +20,6 @@ import com.rumble.domain.billing.domain.usecase.FetchRantProductDetailsUseCase
 import com.rumble.domain.billing.model.PurchaseHandler
 import com.rumble.domain.billing.model.PurchaseResult
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.model.RumbleError
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.DeleteMessageResult
@@ -76,7 +75,7 @@ interface LiveChatHandler {
     fun onInitLiveChat(videoId: Long)
     fun onRantClicked(rantEntity: RantEntity)
     fun onDismissBottomSheet()
-    fun openUrl(url: String)
+    fun onReportRantTermsEvent()
     fun onBuyRant(pendingMessageInfo: PendingMessageInfo)
     fun onRantLevelSelected(rantLevel: RantLevel)
     fun onScrolledToBottom()
@@ -140,7 +139,6 @@ class LiveChatViewModel @Inject constructor(
     private val getLiveChatEventsUseCase: GetLiveChatEventsUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val getRantListUseCase: GetRantListUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val analyticsEventUseCase: AnalyticsEventUseCase,
     private val buildProductDetailsParamsUseCase: BuildProductDetailsParamsUseCase,
     private val billingClient: BillingClient,
@@ -184,7 +182,7 @@ class LiveChatViewModel @Inject constructor(
             if (result is PurchaseResult.Success) {
                 viewModelScope.launch(errorHandler) {
                     state.value.rantSelected?.let {
-                        sendEvent(LiveChatEvent.RantPurchaseSucceeded(it))
+                        emitEvent(LiveChatEvent.RantPurchaseSucceeded(it))
                     }
                     state.value.pendingMessageInfo?.let {
                         when (postPaymentProofUseCase(it, result.purchaseToken)) {
@@ -193,14 +191,14 @@ class LiveChatViewModel @Inject constructor(
                             }
 
                             is PaymentProofResult.Failure -> {
-                                sendEvent(LiveChatEvent.Error)
+                                emitEvent(LiveChatEvent.Error)
                             }
                         }
                     }
                 }
             } else if (result is PurchaseResult.Failure) {
                 rumbleErrorUseCase(RumbleError(IAP_FAILED, result.errorMessage, result.code))
-                sendEvent(LiveChatEvent.Error)
+                emitEvent(LiveChatEvent.Error)
             }
         }
     }
@@ -218,7 +216,7 @@ class LiveChatViewModel @Inject constructor(
     }
 
     override fun onDismissBottomSheet() {
-        sendEvent(LiveChatEvent.CloseBottomSheet)
+        emitEvent(LiveChatEvent.CloseBottomSheet)
         state.value = state.value.copy(
             rantPopupMessage = null,
             selectedMessage = null
@@ -231,8 +229,7 @@ class LiveChatViewModel @Inject constructor(
         purchaseUpdateListener.unsubscribeFromPurchaseUpdate(this)
     }
 
-    override fun openUrl(url: String) {
-        openUriUseCase(TAG, url)
+    override fun onReportRantTermsEvent() {
         analyticsEventUseCase(RantTermsLinkTapEvent)
     }
 
@@ -243,14 +240,14 @@ class LiveChatViewModel @Inject constructor(
                 rantSelected.productDetails?.let {
                     state.value = state.value.copy(pendingMessageInfo = pendingMessageInfo)
                     purchaseInProgress = true
-                    sendEvent(
+                    emitEvent(
                         LiveChatEvent.StartPurchase(
                             billingClient,
                             buildProductDetailsParamsUseCase(it)
                         )
                     )
                 } ?: run {
-                    sendEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error)
                 }
             }
         }
@@ -266,7 +263,7 @@ class LiveChatViewModel @Inject constructor(
 
     override fun onViewUnreadMessages() {
         state.value = state.value.copy(unreadMessageCount = 0)
-        sendEvent(LiveChatEvent.ScrollToBottom)
+        emitEvent(LiveChatEvent.ScrollToBottom)
     }
 
     override fun onHidePinnedMessage() {
@@ -286,22 +283,22 @@ class LiveChatViewModel @Inject constructor(
                 selectedMessage = message,
                 moderationMenuType = type
             )
-            sendEvent(LiveChatEvent.OpenModerationMenu)
+            emitEvent(LiveChatEvent.OpenModerationMenu)
         }
     }
 
     override fun onHideModerationMenu() {
         state.value = state.value.copy(selectedMessage = null)
-        sendEvent(LiveChatEvent.HideModerationMenu)
+        emitEvent(LiveChatEvent.HideModerationMenu)
     }
 
     override fun onPinMessage(videoId: Long) {
-        sendEvent(LiveChatEvent.HideModerationMenu)
+        emitEvent(LiveChatEvent.HideModerationMenu)
         state.value.selectedMessage?.let {
             viewModelScope.launch(errorHandler) {
                 val result = pinMessageUseCase(videoId = videoId, messageId = it.messageId)
                 if (result is MessageModerationResult.Failure) {
-                    sendEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error)
                 }
                 state.value = state.value.copy(
                     selectedMessage = null
@@ -323,7 +320,7 @@ class LiveChatViewModel @Inject constructor(
             viewModelScope.launch(errorHandler) {
                 val result = unpinMessageUseCase(videoId = videoId, messageId = it.messageId)
                 if (result is MessageModerationResult.Failure) {
-                    sendEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error)
                 }
                 state.value = state.value.copy(
                     selectedMessage = null
@@ -348,13 +345,13 @@ class LiveChatViewModel @Inject constructor(
 
     override fun onConfirmDeleteMessage() {
         onDismiss()
-        sendEvent(LiveChatEvent.HideModerationMenu)
+        emitEvent(LiveChatEvent.HideModerationMenu)
         viewModelScope.launch(errorHandler) {
             state.value.liveChatConfig?.chatId?.let { chatId ->
                 state.value.selectedMessage?.let { message ->
                     val result = deleteMessageUseCase(chatId = chatId, message.messageId)
                     if (result is DeleteMessageResult.Failure) {
-                        sendEvent(LiveChatEvent.Error)
+                        emitEvent(LiveChatEvent.Error)
                     }
                     state.value = state.value.copy(
                         selectedMessage = null
@@ -365,7 +362,7 @@ class LiveChatViewModel @Inject constructor(
     }
 
     override fun onMuteUserConfirmed(videoId: Long, mutePeriod: MutePeriod) {
-        sendEvent(LiveChatEvent.HideModerationMenu)
+        emitEvent(LiveChatEvent.HideModerationMenu)
         viewModelScope.launch(errorHandler) {
             state.value.selectedMessage?.let {
                 val result = muteUseCase(
@@ -374,7 +371,7 @@ class LiveChatViewModel @Inject constructor(
                     mutePeriod = mutePeriod
                 )
                 if (result is MuteUserResult.Failure) {
-                    sendEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error)
                 } else if (result is MuteUserResult.MuteFailure) {
                     alertDialogState.value = alertDialogState.value.copy(
                         show = true,
@@ -388,7 +385,7 @@ class LiveChatViewModel @Inject constructor(
         }
     }
 
-    private fun sendEvent(event: LiveChatEvent) {
+    private fun emitEvent(event: LiveChatEvent) {
         viewModelScope.launch { eventFlow.emit(event) }
     }
 
@@ -431,7 +428,7 @@ class LiveChatViewModel @Inject constructor(
                             ?: false
                     )
                     delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
-                    sendEvent(LiveChatEvent.ScrollLiveChat(max(messageList.size - 1, 0)))
+                    emitEvent(LiveChatEvent.ScrollLiveChat(max(messageList.size - 1, 0)))
                 }
             }
         }
@@ -476,7 +473,7 @@ class LiveChatViewModel @Inject constructor(
                         rantList = getRantListUseCase(messageList, config.rantConfig)
                     )
                     if (state.value.rantList.isNotEmpty()) {
-                        sendEvent(LiveChatEvent.ScrollRant(state.value.rantList.size - 1))
+                        emitEvent(LiveChatEvent.ScrollRant(state.value.rantList.size - 1))
                     }
                 }
             }

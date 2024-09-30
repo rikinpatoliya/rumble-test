@@ -63,6 +63,7 @@ import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.keyboardAsState
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.RantConfig
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
@@ -97,6 +98,7 @@ fun BuyRantSheet(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
     liveChatHandler: LiveChatHandler,
+    activityHandler: RumbleActivityHandler,
     expanded: Boolean
 ) {
     val state by remember { handler.state }
@@ -132,7 +134,10 @@ fun BuyRantSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             HeaderView(
-                onTerms = { liveChatHandler.openUrl(it) },
+                onTerms = {
+                    liveChatHandler.onReportRantTermsEvent()
+                    activityHandler.onOpenWebView(it)
+                },
                 onClose = {
                     handler.onCloseBuyRant(rantMessage)
                 })

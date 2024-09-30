@@ -151,6 +151,7 @@ class RumblePlayer(
     private var onTimeRange: ((TimeRangeData) -> Unit)? = null
     private var onVideoSizeDefined: ((Int, Int) -> Unit)? = null
     private var reportAdEvent: (suspend (List<String>, Long) -> Unit)? = null
+    private var sendInitialPlaybackEvent: (() -> Unit)? = null
 
     // Internal logic
     private val getCurrentDeviceVolumeUseCase: GetCurrentDeviceVolumeUseCase
@@ -240,7 +241,7 @@ class RumblePlayer(
 
     var targetChangeListener: PlayerTargetChangeListener? = null
 
-    var enableMidRolls: Boolean = true
+    var pipModeOn: Boolean = false
 
     val videoTitle: String
         get() = rumbleVideo?.title ?: ""
@@ -412,7 +413,10 @@ class RumblePlayer(
             setupService()
             startReport()
         }
-        if (playerTarget.value == PlayerTarget.AD && viewResumed) {
+        if (playerTarget.value == PlayerTarget.AD
+            && viewResumed
+            && rumbleVideo?.backgroundMode == BackgroundMode.Off
+        ) {
             resumeAdPlayer()
         }
     }
@@ -433,7 +437,8 @@ class RumblePlayer(
         onTimeRange: ((TimeRangeData) -> Unit)?,
         onNextVideo: ((Long, String, Boolean) -> Unit)?,
         fetchPreRollList: (suspend (Long, Float, Long, PublisherId, Boolean) -> VideoAdDataEntity)?,
-        reportAdEvent: (suspend (List<String>, Long) -> Unit)?
+        reportAdEvent: (suspend (List<String>, Long) -> Unit)?,
+        sendInitialPlaybackEvent: (() -> Unit)?
     ) {
         initTime = System.currentTimeMillis()
         this.reportLiveVideo = reportLiveVideo
@@ -445,6 +450,7 @@ class RumblePlayer(
         this.onNextVideo = onNextVideo
         this.fetchPreRollData = fetchPreRollList
         this.reportAdEvent = reportAdEvent
+        this.sendInitialPlaybackEvent = sendInitialPlaybackEvent
         relatedVideoList = video.relatedVideoList
         _hasRelatedVideos.value =
             hasNextRelatedVideoUseCase(video.relatedVideoList, video, getAutoplayValue())
@@ -490,6 +496,9 @@ class RumblePlayer(
     }
 
     fun playVideo() {
+        if (!_isMuted.value) {
+            binder?.requestAudioFocus()
+        }
         if (playerTarget.value == PlayerTarget.LOCAL) {
             player.prepare()
             player.playWhenReady = true
@@ -499,6 +508,7 @@ class RumblePlayer(
     }
 
     fun pauseVideo() {
+        binder?.abandonAudioFocus()
         if (isPlaying()) {
             notifyTimeRange()
             setTimeRangeStartPosition()
@@ -555,11 +565,13 @@ class RumblePlayer(
     }
 
     fun mute() {
+        binder?.abandonAudioFocus()
         player.volume = 0f
         _isMuted.value = true
     }
 
     fun unMute() {
+        binder?.requestAudioFocus()
         player.volume = 1f
         _isMuted.value = false
     }
@@ -571,7 +583,6 @@ class RumblePlayer(
         if (isPlaying()) notifyTimeRange()
         saveLastPosition()
         releaseAdPlayer()
-        adsLoader?.release()
         playerAdsHelper.onClear()
         _playbackSate.value = PlayerPlaybackState.PlayerPlaybackReleased()
         progressJob.cancel()
@@ -581,6 +592,7 @@ class RumblePlayer(
         supervisorJob.cancel()
         player.stop()
         player.release()
+        binder?.abandonAudioFocus()
         binder?.stopPlay()
         binder?.let {
             applicationContext.unbindService(serviceConnection)
@@ -800,16 +812,11 @@ class RumblePlayer(
                     }
 
                     AdEvent.AdEventType.ALL_ADS_COMPLETED -> {
-                        if (_adPlaybackState.value != AdPlaybackState.None) {
-                            sendAnalyticsEvent(ImaCompletedEvent, true)
-                        }
-                        _adPlaybackState.value = AdPlaybackState.None
-                        playerAdsHelper.onPreRollPlayed()
-                        loadAd()
-                        backgroundScope.launch { resetWatchedTimeSinceLastAdUseCase() }
+                        handleAdFinish()
                     }
 
                     AdEvent.AdEventType.STARTED -> {
+                        _adPlaybackState.value = AdPlaybackState.Resumed
                         playerAdsHelper.currentPreRollUrl?.let {
                             reportAdEvent(it.impressionUrlList)
                             rumbleVideo?.let { rumbleVideo ->
@@ -840,7 +847,7 @@ class RumblePlayer(
                     }
 
                     AdEvent.AdEventType.SKIPPED -> {
-                        _adPlaybackState.value = AdPlaybackState.None
+                        _adPlaybackState.value = AdPlaybackState.Paused
                         sendAnalyticsEvent(ImaSkippedEvent, true)
                     }
 
@@ -921,7 +928,11 @@ class RumblePlayer(
                     }
 
                     Player.STATE_READY -> {
-                        when (this@RumblePlayer.playbackState.value) {
+                        val currentState = this@RumblePlayer.playbackState.value
+                        if (currentState is PlayerPlaybackState.Fetching){
+                            sendInitialPlaybackEvent?.invoke()
+                        }
+                        when (currentState) {
                             is PlayerPlaybackState.Paused -> PlayerPlaybackState.Paused(false)
                             is PlayerPlaybackState.Playing -> PlayerPlaybackState.Playing(false)
                             else -> _playbackSate.value
@@ -967,15 +978,9 @@ class RumblePlayer(
 
     private fun listenToAdsPlayerState(exoPlayer: ExoPlayer) {
         exoPlayer.addListener(object : Player.Listener {
-            override fun onPlayerError(error: PlaybackException) {
-                sendErrorReport(errorMessage = error.message ?: "Ads player PlaybackException")
-                _adPlaybackState.value = AdPlaybackState.None
-                sendAnalyticsEvent(ImaFailedEvent, true)
-                loadAd()
-            }
-
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (isPlaying) _adPlaybackState.value = AdPlaybackState.Resumed
+                else if (adPlaybackState.value != AdPlaybackState.Paused) handleAdFinish()
             }
         })
     }
@@ -1091,7 +1096,8 @@ class RumblePlayer(
 
     private fun loadAd(isMidRoll: Boolean = false) {
         if (_adPlaybackState.value !is AdPlaybackState.Buffering
-            && (isMidRoll.not() || (viewResumed && enableMidRolls))
+            && viewResumed
+            && pipModeOn.not()
         ) {
             _adPlaybackState.value = AdPlaybackState.Buffering
             adsPlayer?.stop()
@@ -1115,13 +1121,16 @@ class RumblePlayer(
                 _adPlaybackState.value = AdPlaybackState.None
                 resumeVideo()
             }
+        } else if (playerTarget.value == PlayerTarget.AD) {
+            _adPlaybackState.value = AdPlaybackState.None
+            resumeVideo()
         }
     }
 
     private fun prepareAdPlayer(uri: Uri) {
         _adPlaybackState.value = AdPlaybackState.Buffering
         val mediaItem = MediaItem.Builder()
-            .setUri(currentVideoSource?.videoUrl)
+            .setUri(uri)
             .setAdsConfiguration(MediaItem.AdsConfiguration.Builder(uri).build())
             .build()
         adsPlayer = createAdsPlayer(applicationContext)
@@ -1285,24 +1294,34 @@ class RumblePlayer(
     }
 
     private fun pauseAdPlayer() {
+        _adPlaybackState.value = AdPlaybackState.Paused
         adPlayerView.onPause()
-        releaseAdPlayer()
+        adsPlayer?.pause()
     }
 
     private fun releaseAdPlayer() {
+        adsPlayer?.stop()
         adsLoader?.setPlayer(null)
-        adPlayerView.player = null
         adsPlayer?.release()
+        adsLoader?.release()
         adsPlayer = null
+        _adPlaybackState.value = AdPlaybackState.None
+    }
+
+    private fun handleAdFinish() {
+        if (_adPlaybackState.value != AdPlaybackState.Paused) {
+            sendAnalyticsEvent(ImaCompletedEvent, true)
+        }
+        playerAdsHelper.onPreRollPlayed()
+        releaseAdPlayer()
+        backgroundScope.launch { resetWatchedTimeSinceLastAdUseCase() }
+        loadAd()
     }
 
     private fun resumeAdPlayer() {
-        playerAdsHelper.currentPreRollUrl?.let {
-            prepareAdPlayer(Uri.parse(it.url))
-            playAd()
-            if (_adPlaybackState.value == AdPlaybackState.Paused) adsPlayer?.pause()
-            adPlayerView.onResume()
-        }
+        adPlayerView.onResume()
+        adsPlayer?.play()
+        _adPlaybackState.value = AdPlaybackState.Resumed
     }
 
     private fun sendErrorReport(errorMessage: String) {

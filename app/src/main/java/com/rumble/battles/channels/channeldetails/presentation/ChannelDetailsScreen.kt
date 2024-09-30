@@ -83,6 +83,7 @@ import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.feed.presentation.views.VideoCompactView
 import com.rumble.battles.feed.presentation.views.VideoView
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.DisplayScreenType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
@@ -112,6 +113,7 @@ fun ChannelDetailsScreen(
     currentDestinationRoute: String?,
     channelDetailsHandler: ChannelDetailsHandler,
     contentHandler: ContentHandler,
+    activityHandler: RumbleActivityHandler,
     onBackClick: () -> Unit,
     onVideoClick: (id: Feed) -> Unit,
 ) {
@@ -247,6 +249,7 @@ fun ChannelDetailsScreen(
                 state.channelDetailsEntity,
                 contentHandler,
                 channelDetailsHandler,
+                activityHandler
             )
         }) {
         Box(
@@ -563,6 +566,7 @@ private fun ChannelDetailsScreenDialog(
     channelDetailsEntity: ChannelDetailsEntity?,
     contentHandler: ContentHandler,
     channelDetailsHandler: ChannelDetailsHandler,
+    activityHandler: RumbleActivityHandler,
 ) {
     when (dialogState) {
         is ChannelDetailsDialog.ActionMenuDialog -> {
@@ -603,10 +607,7 @@ private fun ChannelDetailsScreenDialog(
                     ),
                 dialogState.localsCommunityEntity,
                 onSupport = {
-                    channelDetailsHandler.onOpenLocalsUrl(
-                        tag = TAG,
-                        url = dialogState.localsCommunityEntity.channelUrl
-                    )
+                    activityHandler.onOpenWebView(dialogState.localsCommunityEntity.channelUrl)
                 },
                 onCancel = { coroutineScope.launch { bottomSheetState.hide() } }
             )

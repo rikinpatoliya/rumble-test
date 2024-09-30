@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -192,6 +193,12 @@ class RumbleMainActivity : FragmentActivity() {
 
     private fun createNavigationGraph(navController: NavController) =
         navController.createGraph(startDestination = getStartDestination().screenName) {
+            composable(
+                LandingScreens.RumbleWebViewScreen.screenName,
+                arguments = listOf(navArgument(LandingPath.URL.path) { type = NavType.StringType })
+            ) { backStackEntry ->
+                RumbleWebView(url = backStackEntry.arguments?.getString(LandingPath.URL.path) ?: "")
+            }
             composable(LandingScreens.AuthLandingScreen.screenName) {
                 val loginViewModel: LoginViewModel = hiltViewModel()
                 val authViewModel: AuthViewModel = hiltViewModel()
@@ -242,9 +249,6 @@ class RumbleMainActivity : FragmentActivity() {
                     }
                 )
             }
-            composable(LandingScreens.AppleLoginScreen.screenName) {
-                RumbleWebView(url = "https://google.com")
-            }
             composable(LandingScreens.ContentScreen.screenName) {
                 val contentViewModel: ContentViewModel = hiltViewModel()
                 val authViewModel: AuthViewModel = hiltViewModel()
@@ -268,6 +272,13 @@ class RumbleMainActivity : FragmentActivity() {
                     },
                     onNavigateBack = {
                         navController.navigateUp()
+                    },
+                    onNavigateToWebView = {
+                        navController.navigate(
+                            LandingScreens.RumbleWebViewScreen.getPath(
+                                it
+                            )
+                        )
                     }
                 )
             }
@@ -288,6 +299,13 @@ class RumbleMainActivity : FragmentActivity() {
                     },
                     onNavigateBack = {
                         navController.navigateUp()
+                    },
+                    onNavigateToWebView = {
+                        navController.navigate(
+                            LandingScreens.RumbleWebViewScreen.getPath(
+                                it
+                            )
+                        )
                     }
                 )
             }

@@ -26,6 +26,7 @@ import com.rumble.domain.sort.NotificationFrequency
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoCardPlayerUseCase
 import com.rumble.domain.video.domain.usecases.SaveLastPositionUseCase
+import com.rumble.network.session.SessionManager
 import com.rumble.videoplayer.player.config.ReportType
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -58,7 +59,6 @@ internal class ChannelDetailsViewModelTest {
     private val notificationFrequency = mockk<NotificationFrequency>(relaxed = true)
     private val sendEmailUseCase = mockk<SendEmailUseCase>(relaxed = true)
     private val logChannelViewUseCase = mockk<LogChannelViewUseCase>(relaxed = true)
-    private val mockOpenUriUseCase = mockk<OpenUriUseCase>(relaxed = true)
     private val userPreferenceManager: UserPreferenceManager = mockk(relaxed = true)
     private val unhandledErrorUseCase: UnhandledErrorUseCase = mockk(relaxed = true)
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase = mockk(relaxed = true)
@@ -69,6 +69,7 @@ internal class ChannelDetailsViewModelTest {
     private val saveLastPositionUseCase: SaveLastPositionUseCase = mockk(relaxed = true)
     private val logVideoPlayerImpressionUseCase: LogVideoPlayerImpressionUseCase = mockk(relaxed = true)
     private val shareUseCase: ShareUseCase = mockk(relaxed = true)
+    private val sessionManager: SessionManager = mockk(relaxed = true)
 
     private lateinit var viewModel: ChannelDetailsViewModel
 
@@ -81,9 +82,7 @@ internal class ChannelDetailsViewModelTest {
             getChannelDataUseCase = getChannelDataUseCase,
             logChannelViewUseCase = logChannelViewUseCase,
             getChannelVideosUseCase = getChannelVideosUseCase,
-            updateNotificationsUseCase = updateNotificationsUseCase,
             voteVideoUseCase = voteVideoUseCase,
-            openUriUseCase = mockOpenUriUseCase,
             stateHandle = savedStateHandle,
             userPreferenceManager = userPreferenceManager,
             unhandledErrorUseCase = unhandledErrorUseCase,
@@ -94,7 +93,8 @@ internal class ChannelDetailsViewModelTest {
             getLastPositionUseCase = getLastPositionUseCase,
             saveLastPositionUseCase = saveLastPositionUseCase,
             logVideoPlayerImpressionUseCase = logVideoPlayerImpressionUseCase,
-            shareUseCase = shareUseCase
+            shareUseCase = shareUseCase,
+            sessionManager = sessionManager,
         )
     }
 

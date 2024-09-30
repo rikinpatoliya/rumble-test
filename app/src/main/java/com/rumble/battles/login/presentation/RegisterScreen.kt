@@ -104,6 +104,7 @@ fun RegisterScreen(
     registerHandler: RegisterHandler,
     onNavigateToHomeScreen: () -> Unit,
     onNavigateBack: () -> Unit,
+    onNavigateToWebView: (String) -> Unit,
 ) {
     val state by registerHandler.uiState.collectAsStateWithLifecycle()
     val alertDialogState by registerHandler.alertDialogState.collectAsStateWithLifecycle()
@@ -129,6 +130,9 @@ fun RegisterScreen(
 
                 is RegistrationScreenVmEvent.NavigateToHomeScreen -> {
                     onNavigateToHomeScreen()
+                }
+                is RegistrationScreenVmEvent.NavigateToWebView -> {
+                    onNavigateToWebView(event.url)
                 }
             }
         }

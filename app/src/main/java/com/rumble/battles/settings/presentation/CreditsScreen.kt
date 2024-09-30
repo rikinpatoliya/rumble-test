@@ -35,6 +35,7 @@ import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.settings.domain.domainmodel.License
 import com.rumble.theme.RumbleTypography.body1
 import com.rumble.theme.RumbleTypography.body1Bold
@@ -45,6 +46,7 @@ import com.rumble.theme.rumbleGreen
 @Composable
 fun CreditsScreen(
     creditsScreenHandler: CreditsScreenHandler,
+    activityHandler: RumbleActivityHandler,
     onBackClick: () -> Unit,
 ) {
     val state by creditsScreenHandler.uiState.collectAsStateWithLifecycle()
@@ -84,7 +86,7 @@ fun CreditsScreen(
                     end = paddingMedium,
                     top = paddingMedium
                 ),
-            creditsScreenHandler = creditsScreenHandler,
+            activityHandler = activityHandler,
             licenseList = state.licenseList
         )
     }
@@ -103,7 +105,7 @@ fun CreditsScreen(
 @Composable
 fun CreditsScreenContent(
     modifier: Modifier = Modifier,
-    creditsScreenHandler: CreditsScreenHandler,
+    activityHandler: RumbleActivityHandler,
     licenseList: List<License>
 ) {
     Column(
@@ -111,7 +113,7 @@ fun CreditsScreenContent(
     ) {
         licenseList.onEachIndexed { index, license ->
             Column {
-                LicenseView(license, creditsScreenHandler)
+                LicenseView(license, activityHandler)
                 if (index != licenseList.lastIndex)
                     Divider()
                 else
@@ -122,7 +124,7 @@ fun CreditsScreenContent(
 }
 
 @Composable
-private fun LicenseView(license: License, creditsScreenHandler: CreditsScreenHandler) {
+private fun LicenseView(license: License, activityHandler: RumbleActivityHandler) {
     Column(
         modifier = Modifier.padding(
             top = paddingMedium,
@@ -147,9 +149,7 @@ private fun LicenseView(license: License, creditsScreenHandler: CreditsScreenHan
             text = license.licenseName.ifEmpty { stringResource(id = R.string.license) },
             modifier = Modifier
                 .clickable(license.licenseUrl.isNotEmpty()) {
-                    creditsScreenHandler.onLicenseClicked(
-                        license
-                    )
+                    activityHandler.onOpenWebView(license.licenseUrl)
                 },
             color = if (license.licenseUrl.isNotEmpty()) rumbleGreen else MaterialTheme.colors.primary,
             textDecoration = if (license.licenseUrl.isNotEmpty()) TextDecoration.Underline else TextDecoration.None,

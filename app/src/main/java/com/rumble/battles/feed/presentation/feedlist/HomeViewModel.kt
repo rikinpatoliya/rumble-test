@@ -118,7 +118,6 @@ class HomeViewModel @Inject constructor(
     private val getHomeListUseCase: GetHomeListUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val adFeedImpressionUseCase: RumbleAdFeedImpressionUseCase,
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase,
     private val getFreshChannelsUseCase: GetFreshChannelsUseCase,
@@ -133,6 +132,7 @@ class HomeViewModel @Inject constructor(
     private val analyticsEventUseCase: AnalyticsEventUseCase,
     private val internetConnectionObserver: InternetConnectionObserver,
     private val internetConnectionUseCase: InternetConnectionUseCase,
+    private val openUriUseCase: OpenUriUseCase,
 ) : AndroidViewModel(application), HomeHandler {
 
     override val homeScreenState: MutableStateFlow<HomeScreenState> = MutableStateFlow(
@@ -184,7 +184,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) = openUriUseCase(TAG, rumbleAd.clickUrl)
+    override fun onRumbleAdClick(rumbleAd: RumbleAdEntity) {
+        openUriUseCase(TAG, rumbleAd.clickUrl)
+    }
 
     override fun onRumbleAdImpression(rumbleAd: RumbleAdEntity) {
         viewModelScope.launch(errorHandler) {

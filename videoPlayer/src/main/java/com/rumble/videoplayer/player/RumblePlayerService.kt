@@ -15,6 +15,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
+import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.internal.notification.NotificationData
 import com.rumble.videoplayer.player.internal.notification.RumbleNotificationManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,10 +35,13 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
     private var resumeAfterPause = false
     private var onSaveLastPosition: ((Long, Long) -> Unit)? = null
     private var videoId: Long = 0
+    private lateinit var audioManager: AudioManager
+    private var audioFocusRequest: AudioFocusRequest? = null
+
 
     override fun onCreate() {
         super.onCreate()
-        startListenToAudioFocusChange()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
     }
 
     override fun onBind(intent: Intent?): IBinder = playerBinder
@@ -98,6 +102,14 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
             }
         }
 
+        fun requestAudioFocus() {
+            this@RumblePlayerService.requestAudioFocus()
+        }
+
+        fun abandonAudioFocus() {
+            this@RumblePlayerService.abandonAudioFocus()
+        }
+
         fun stopPlay() {
             stopCurrentSession()
             stopForeground()
@@ -118,21 +130,16 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    private fun startListenToAudioFocusChange() {
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            audioManager.addOnModeChangedListener(ContextCompat.getMainExecutor(this)) {
-                when (it) {
-                    AudioManager.MODE_NORMAL -> resumeIfNeeded()
-                    else -> pauseIfNeeded()
-                }
-            }
-        }
+
+    private fun requestAudioFocus() {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            audioManager.requestAudioFocus(
-                AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                     .setOnAudioFocusChangeListener(this).build()
-            )
+            audioFocusRequest?.let {
+                audioManager.requestAudioFocus(it)
+            }
+
         } else {
             audioManager.requestAudioFocus(
                 this,
@@ -142,20 +149,40 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         }
     }
 
+    private fun abandonAudioFocus() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioFocusRequest?.let {
+                audioManager.abandonAudioFocusRequest(
+                    it
+                )
+            }
+        } else {
+            audioManager.abandonAudioFocus(this)
+        }
+    }
+
     private fun startAsForegroundService(player: ExoPlayer, enableSeekBar: Boolean) {
         val forwardingPlayer =
             object : ForwardingPlayer(player) {
 
                 override fun play() {
-                    currentPlayer?.playVideo()
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.playVideo()
                 }
 
                 override fun pause() {
-                    currentPlayer?.pauseVideo()
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.pauseVideo()
                 }
 
                 override fun seekTo(positionMs: Long) {
-                    currentPlayer?.seekTo(positionMs)
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.seekTo(positionMs)
+                }
+
+                override fun setPlayWhenReady(playWhenReady: Boolean) {
+                    if (currentPlayer?.playerTarget?.value == PlayerTarget.LOCAL)
+                        currentPlayer?.playVideo()
                 }
 
                 override fun getAvailableCommands(): Player.Commands {
@@ -172,7 +199,7 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         mediaSession =
             MediaSession.Builder(this@RumblePlayerService, forwardingPlayer).build()
         mediaSession?.let { mediaSession ->
-            val notificationData = NotificationData(mediaSession, player, enableSeekBar)
+            val notificationData = NotificationData(mediaSession, forwardingPlayer, enableSeekBar)
             startForegroundWithNotification(
                 notificationManager.getNotification(notificationData)
             )

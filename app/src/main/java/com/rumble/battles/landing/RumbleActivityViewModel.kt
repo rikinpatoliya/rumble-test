@@ -85,6 +85,7 @@ interface RumbleActivityHandler {
     fun onDeepLinkNavigated()
     fun enableContentLoad()
     fun onPremiumPurchased()
+    fun onOpenWebView(url: String)
 }
 
 
@@ -94,6 +95,7 @@ sealed class RumbleEvent {
     object PipModeEntered : RumbleEvent()
     object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
     object PremiumPurchased : RumbleEvent()
+    data class OpenWebView(val url: String) : RumbleEvent()
 }
 
 sealed class RumbleActivityAlertReason : AlertDialogReason {
@@ -274,12 +276,12 @@ class RumbleActivityViewModel @Inject constructor(
             updateMediaSessionUseCase(it, currentPlayer, currentPlayer?.playerTarget?.value != PlayerTarget.AD)
         }
         currentPlayer?.hideControls()
-        currentPlayer?.enableMidRolls = false
+        currentPlayer?.pipModeOn = true
         emitVmEvent(RumbleEvent.PipModeEntered)
     }
 
     override fun onExitPipMode() {
-        currentPlayer?.enableMidRolls = true
+        currentPlayer?.pipModeOn = false
     }
 
     private fun emitVmEvent(event: RumbleEvent) =
@@ -325,5 +327,9 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onPremiumPurchased() {
         emitVmEvent(RumbleEvent.PremiumPurchased)
+    }
+
+    override fun onOpenWebView(url: String) {
+        emitVmEvent(RumbleEvent.OpenWebView(url))
     }
 }

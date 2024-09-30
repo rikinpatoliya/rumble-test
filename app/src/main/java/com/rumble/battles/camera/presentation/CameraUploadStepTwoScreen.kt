@@ -17,6 +17,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,8 +32,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.UploadForm2Tag
 import com.rumble.battles.commonViews.ActionButton
-import com.rumble.battles.commonViews.UploadCheckBoxView
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
+import com.rumble.battles.commonViews.UploadCheckBoxView
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.camera.UploadScheduleOption
 import com.rumble.domain.camera.UploadVisibility
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
@@ -54,12 +56,14 @@ import com.rumble.utils.RumbleConstants.UPLOAD_DATE_PATTERN
 import com.rumble.utils.RumbleConstants.UPLOAD_TIME_PATTERN
 import com.rumble.utils.extension.conditional
 import com.rumble.utils.extension.convertToDate
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "CameraUploadStepTwoScreen"
 
 @Composable
 fun CameraUploadStepTwoScreen(
     cameraUploadHandler: CameraUploadHandler,
+    activityHandler: RumbleActivityHandler,
     onPublishClick: () -> Unit,
     onSelectLicense: () -> Unit,
     onSelectVisibility: () -> Unit,
@@ -118,7 +122,7 @@ fun CameraUploadStepTwoScreen(
             onToggleCheckedState = cameraUploadHandler::onTermsOfServiceCheckedChanged,
             hasError = uiState.termsOfServiceError,
             errorMessage = stringResource(id = R.string.you_must_agree_to_our_terms_of_services),
-            annotatedTextWithActions = buildTermsAndConditionsStringWithActions(cameraUploadHandler),
+            annotatedTextWithActions = buildTermsAndConditionsStringWithActions(activityHandler),
             onAnnotatedTextClicked = cameraUploadHandler::onAnnotatedTextClicked
         )
         Text(
@@ -220,7 +224,7 @@ private fun getScheduleDescription(uiState: UserUploadUIState) =
     }"
 
 @Composable
-private fun buildTermsAndConditionsStringWithActions(cameraUploadHandler: CameraUploadHandler): AnnotatedStringWithActionsList {
+private fun buildTermsAndConditionsStringWithActions(activityHandler: RumbleActivityHandler): AnnotatedStringWithActionsList {
     val actionList = mutableListOf<AnnotatedTextAction>()
     val text = buildAnnotatedString {
         pushStyle(SpanStyle(color = if (MaterialTheme.colors.isLight) enforcedDarkmo else enforcedWhite))
@@ -229,9 +233,7 @@ private fun buildTermsAndConditionsStringWithActions(cameraUploadHandler: Camera
         val urlColor = if (MaterialTheme.colors.isLight) wokeGreen else rumbleGreen
         withStyle(style = SpanStyle(color = urlColor)) {
             actionList.add(AnnotatedTextAction(RumbleConstants.TAG_URL) { uri ->
-                cameraUploadHandler.onOpenUri(
-                    TAG, uri
-                )
+                activityHandler.onOpenWebView(uri)
             })
             val startIndexTerms = this.length
             append(stringResource(id = R.string.terms_of_service))

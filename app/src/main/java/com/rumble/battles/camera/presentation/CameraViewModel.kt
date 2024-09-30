@@ -32,7 +32,6 @@ import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.CheckCurrentDateAndAdjustUseCase
 import com.rumble.domain.common.domain.usecase.CombineTimeWithDateUseCase
 import com.rumble.domain.common.domain.usecase.OpenPhoneSettingUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -110,7 +109,6 @@ interface CameraUploadHandler {
         offset: Int
     )
 
-    fun onOpenUri(tag: String, uri: String)
     fun onUploadChannelSelected(channelId: String)
     fun onTitleChanged(value: String)
     fun onDescriptionChanged(value: String)
@@ -212,7 +210,6 @@ class CameraViewModel @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val getUserUploadChannelsUseCase: GetUserUploadChannelsUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val openPhoneSettingUseCase: OpenPhoneSettingUseCase,
     private val getTrimBitmapDataUseCase: GetTrimBitmapDataUseCase,
     private val generateThumbnailUseCase: GenerateThumbnailUseCase,
@@ -530,6 +527,7 @@ class CameraViewModel @Inject constructor(
     }
 
     override fun startRecording(recording: Recording?) {
+        orientationEventListener.disable()
         recording?.let {
             cameraHandlerUiState.update {
                 it.copy(
@@ -558,6 +556,7 @@ class CameraViewModel @Inject constructor(
                 )
             }
         }
+        orientationEventListener.enable()
     }
 
     override fun stopRecordingWithError(exception: Throwable) {
@@ -679,8 +678,6 @@ class CameraViewModel @Inject constructor(
         annotatedTextWithActions: AnnotatedStringWithActionsList,
         offset: Int
     ) = annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
-
-    override fun onOpenUri(tag: String, uri: String) = openUriUseCase.invoke(tag, uri)
 
     override fun onUploadChannelSelected(channelId: String) {
         uiState.update { state ->
@@ -900,6 +897,7 @@ class CameraViewModel @Inject constructor(
                         )
                     }
                 }
+                else -> {}
             }
         }
     }

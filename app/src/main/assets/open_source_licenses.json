@@ -90,36 +90,36 @@
         },
         {
             "moduleName": "androidx.camera:camera-camera2",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
-            "moduleVersion": "1.3.3",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
+            "moduleVersion": "1.3.4",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-core",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
-            "moduleVersion": "1.3.3",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
+            "moduleVersion": "1.3.4",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-lifecycle",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
-            "moduleVersion": "1.3.3",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
+            "moduleVersion": "1.3.4",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-video",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
-            "moduleVersion": "1.3.3",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
+            "moduleVersion": "1.3.4",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
             "moduleName": "androidx.camera:camera-view",
-            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.3",
-            "moduleVersion": "1.3.3",
+            "moduleUrl": "https://developer.android.com/jetpack/androidx/releases/camera#1.3.4",
+            "moduleVersion": "1.3.4",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
@@ -1631,8 +1631,26 @@
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
+            "moduleName": "com.google.firebase:firebase-perf",
+            "moduleVersion": "20.5.2",
+            "moduleLicense": "The Apache Software License, Version 2.0",
+            "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+            "moduleName": "com.google.firebase:firebase-perf-ktx",
+            "moduleVersion": "20.5.2",
+            "moduleLicense": "The Apache Software License, Version 2.0",
+            "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
             "moduleName": "com.google.firebase:firebase-sessions",
             "moduleVersion": "1.2.4",
+            "moduleLicense": "The Apache Software License, Version 2.0",
+            "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+            "moduleName": "com.google.firebase:protolite-well-known-types",
+            "moduleVersion": "18.0.0",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
@@ -1657,6 +1675,13 @@
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
         {
+            "moduleName": "com.google.protobuf:protobuf-javalite",
+            "moduleUrl": "https://developers.google.com/protocol-buffers/",
+            "moduleVersion": "3.21.11",
+            "moduleLicense": "BSD-3-Clause",
+            "moduleLicenseUrl": "https://opensource.org/licenses/BSD-3-Clause"
+        },
+        {
             "moduleName": "com.google.zxing:core",
             "moduleVersion": "3.3.3",
             "moduleLicense": "The Apache Software License, Version 2.0",
@@ -1671,10 +1696,38 @@
         },
         {
             "moduleName": "com.onesignal:OneSignal",
-            "moduleUrl": "https://github.com/one-signal/OneSignal-Android-SDK",
-            "moduleVersion": "4.8.4",
+            "moduleUrl": "https://github.com/onesignal/onesignal-android-sdk",
+            "moduleVersion": "5.1.21",
             "moduleLicense": "MIT License",
-            "moduleLicenseUrl": "https://raw.githubusercontent.com/one-signal/OneSignal-Android-SDK/master/LICENSE"
+            "moduleLicenseUrl": "https://raw.githubusercontent.com/onesignal/onesignal-android-sdk/master/LICENSE"
+        },
+        {
+            "moduleName": "com.onesignal:core",
+            "moduleUrl": "https://github.com/onesignal/onesignal-android-sdk",
+            "moduleVersion": "5.1.21",
+            "moduleLicense": "MIT License",
+            "moduleLicenseUrl": "https://raw.githubusercontent.com/onesignal/onesignal-android-sdk/master/LICENSE"
+        },
+        {
+            "moduleName": "com.onesignal:in-app-messages",
+            "moduleUrl": "https://github.com/onesignal/onesignal-android-sdk",
+            "moduleVersion": "5.1.21",
+            "moduleLicense": "MIT License",
+            "moduleLicenseUrl": "https://raw.githubusercontent.com/onesignal/onesignal-android-sdk/master/LICENSE"
+        },
+        {
+            "moduleName": "com.onesignal:location",
+            "moduleUrl": "https://github.com/onesignal/onesignal-android-sdk",
+            "moduleVersion": "5.1.21",
+            "moduleLicense": "MIT License",
+            "moduleLicenseUrl": "https://raw.githubusercontent.com/onesignal/onesignal-android-sdk/master/LICENSE"
+        },
+        {
+            "moduleName": "com.onesignal:notifications",
+            "moduleUrl": "https://github.com/onesignal/onesignal-android-sdk",
+            "moduleVersion": "5.1.21",
+            "moduleLicense": "MIT License",
+            "moduleLicenseUrl": "https://raw.githubusercontent.com/onesignal/onesignal-android-sdk/master/LICENSE"
         },
         {
             "moduleName": "com.squareup.okhttp3:logging-interceptor",

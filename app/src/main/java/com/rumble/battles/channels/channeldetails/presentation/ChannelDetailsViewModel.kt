@@ -28,8 +28,6 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUs
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelVideosUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.LogChannelViewUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.ReportChannelUseCase
-import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
@@ -86,7 +84,6 @@ interface ChannelDetailsHandler {
 
     //region CHANNEL ACTIONS
     fun onJoin(localsCommunityEntity: LocalsCommunityEntity)
-    fun onOpenLocalsUrl(tag: String, url: String)
     fun onActionMenuClicked()
     fun onBlockMenuClicked()
     fun onReportMenuClicked()
@@ -153,9 +150,7 @@ class ChannelDetailsViewModel @Inject constructor(
     private val getChannelDataUseCase: GetChannelDataUseCase,
     private val logChannelViewUseCase: LogChannelViewUseCase,
     getChannelVideosUseCase: GetChannelVideosUseCase,
-    private val updateNotificationsUseCase: UpdateChannelNotificationsUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
-    private val openUriUseCase: OpenUriUseCase,
     private val stateHandle: SavedStateHandle,
     private val reportChannelUseCase: ReportChannelUseCase,
     private val userPreferenceManager: UserPreferenceManager,
@@ -338,10 +333,6 @@ class ChannelDetailsViewModel @Inject constructor(
         )
         popupState.value = ChannelDetailsDialog.LocalsPopupDialog(localsCommunityEntity)
         emitVmEvent(ChannelDetailsVmEvent.ShowLocalsPopup)
-    }
-
-    override fun onOpenLocalsUrl(tag: String, url: String) {
-        openUriUseCase.invoke(tag, url)
     }
 
     override fun onActionMenuClicked() {

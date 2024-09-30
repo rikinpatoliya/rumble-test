@@ -15,6 +15,7 @@ class AnnotatedStringUseCase @Inject constructor() {
                 end = offset
             ).firstOrNull()?.let { annotatedStringRange ->
                 annotatedTextAction.action.invoke(annotatedStringRange.item)
+                return
             }
         }
     }

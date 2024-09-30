@@ -126,7 +126,6 @@ import com.rumble.battles.livechat.presentation.LiveChatHandler
 import com.rumble.battles.livechat.presentation.LiveChatModerationMenu
 import com.rumble.battles.livechat.presentation.LiveChatView
 import com.rumble.battles.livechat.presentation.MuteUserBottomSheet
-import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -182,7 +181,6 @@ fun VideoDetailsScreen(
     handler: VideoDetailsHandler,
     contentHandler: ContentHandler,
     liveChatHandler: LiveChatHandler,
-    authHandler: AuthHandler,
     contentBottomSheetState: ModalBottomSheetState,
     onBackClick: () -> Unit,
     onChannelClick: (String) -> Unit,
@@ -399,7 +397,7 @@ fun VideoDetailsScreen(
                 BottomSheetDialog(
                     handler = handler,
                     liveChatHandler = liveChatHandler,
-                    authHandler = authHandler,
+                    activityHandler = activityHandler,
                     coroutineScope = coroutineScope,
                     bottomSheetState = bottomSheetState
                 )
@@ -412,9 +410,6 @@ fun VideoDetailsScreen(
                     .testTag(VideoDetails)
             ) {
                 VideoDetailsView(
-                    modifier = Modifier.conditional(playerTarget?.value == PlayerTarget.REMOTE) {
-                        padding(bottom = paddingXGiant)
-                    },
                     handler = handler,
                     contentHandler = contentHandler,
                     activityHandler = activityHandler,
@@ -533,7 +528,8 @@ fun VideoDetailsView(
                                 .weight(2f)
                                 .fillMaxHeight(),
                             handler = handler,
-                            liveChatHandler = liveChatHandler
+                            liveChatHandler = liveChatHandler,
+                            activityHandler = activityHandler
                         )
                     }
                 }
@@ -552,7 +548,8 @@ fun VideoDetailsView(
                             LiveChatView(
                                 modifier = sheetContentModifier,
                                 handler = handler,
-                                liveChatHandler = liveChatHandler
+                                liveChatHandler = liveChatHandler,
+                                activityHandler = activityHandler
                             )
                         } else {
                             CommentsView(
@@ -608,6 +605,7 @@ private fun ChannelContentView(
     contentListState: LazyListState
 ) {
     val state by handler.state
+    val playerTarget = state.rumblePlayer?.playerTarget
     val playListState by handler.playListState.collectAsStateWithLifecycle()
 
     LazyColumn(
@@ -666,6 +664,7 @@ private fun ChannelContentView(
                     .clip(RoundedCornerShape(radiusMedium))
                     .background(color = MaterialTheme.colors.surface),
                 handler = handler,
+                activityHandler = activityHandler,
                 coroutineScope = coroutineScope,
                 videoEntity = state.videoEntity,
                 onCategoryClick = onCategoryClick,
@@ -696,6 +695,11 @@ private fun ChannelContentView(
                             onMoreClick = { contentHandler.onMoreVideoOptionsClicked(it) },
                             onImpression = handler::onVideoCardImpression,
                         )
+                    }
+                }
+                if (playerTarget?.value == PlayerTarget.REMOTE) {
+                    item {
+                        Spacer(modifier = Modifier.height(paddingXGiant))
                     }
                 }
             } else {
@@ -868,13 +872,14 @@ fun VideoDetailsPlayListView(
 fun DescriptionView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
+    activityHandler: RumbleActivityHandler,
     description: String?
 ) {
     if (!description.isNullOrEmpty()) {
         ExpandableText(
             modifier = modifier,
             text = description,
-            onUriClick = { handler.onOpenUri(TAG, it) },
+            onUriClick = { activityHandler.onOpenWebView(it) },
             onAnnotatedTextClicked = handler::onAnnotatedTextClicked
         )
     }
@@ -962,6 +967,7 @@ private fun JoinOnLocalsView(
 private fun VideoDetailsInfoView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
+    activityHandler: RumbleActivityHandler,
     coroutineScope: CoroutineScope,
     videoEntity: VideoEntity?,
     onCategoryClick: (String) -> Unit,
@@ -996,6 +1002,7 @@ private fun VideoDetailsInfoView(
             DescriptionView(
                 modifier = Modifier.padding(top = paddingSmall),
                 handler = handler,
+                activityHandler = activityHandler,
                 description = videoEntity?.description
             )
         }
@@ -1248,7 +1255,7 @@ private fun VideoDetailsActionButton(
 private fun BottomSheetDialog(
     handler: VideoDetailsHandler,
     liveChatHandler: LiveChatHandler,
-    authHandler: AuthHandler,
+    activityHandler: RumbleActivityHandler,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState
 ) {
@@ -1267,6 +1274,7 @@ private fun BottomSheetDialog(
         when (reason) {
             BottomSheetReason.JoinOnLocals -> JoinLocalsSheet(
                 handler = handler,
+                activityHandler = activityHandler,
                 coroutineScope = coroutineScope,
                 bottomSheetState = bottomSheetState
             )
@@ -1319,6 +1327,7 @@ private fun BottomSheetDialog(
                 BuyRantSheet(
                     handler = handler,
                     liveChatHandler = liveChatHandler,
+                    activityHandler = activityHandler,
                     expanded = buyRantBottomSheetExpanded
                 )
             }
@@ -1344,6 +1353,7 @@ private fun BottomSheetDialog(
 @OptIn(ExperimentalMaterialApi::class)
 private fun JoinLocalsSheet(
     handler: VideoDetailsHandler,
+    activityHandler: RumbleActivityHandler,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState
 ) {
@@ -1360,10 +1370,7 @@ private fun JoinLocalsSheet(
                 ),
             localsCommunityEntity,
             onSupport = {
-                handler.onOpenUri(
-                    TAG,
-                    localsCommunityEntity.channelUrl
-                )
+                activityHandler.onOpenWebView(localsCommunityEntity.channelUrl)
             },
             onCancel = { coroutineScope.launch { bottomSheetState.hide() } }
         )
