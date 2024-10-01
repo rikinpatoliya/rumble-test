@@ -22,13 +22,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.SettingsSubdomainTag
-import com.rumble.battles.commonViews.dialogs.DialogActionItem
-import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.MainActionBottomCardView
-import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleInputFieldView
 import com.rumble.battles.commonViews.RumbleProgressIndicator
+import com.rumble.battles.commonViews.dialogs.DialogActionItem
+import com.rumble.battles.commonViews.dialogs.DialogActionType
+import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.theme.paddingLarge
@@ -57,7 +57,9 @@ fun ChangeSubdomainScreen(
     }
 
     Column(
-        modifier = Modifier.testTag(SettingsSubdomainTag)
+        modifier = Modifier
+            .testTag(SettingsSubdomainTag)
+            .systemBarsPadding()
     ) {
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.change_subdomain),
@@ -70,7 +72,6 @@ fun ChangeSubdomainScreen(
         ChangeSubdomainView(state.subdomain, changeSubdomainHandler)
         Spacer(modifier = Modifier.weight(1F))
         MainActionBottomCardView(
-            modifier = Modifier,
             title = stringResource(id = R.string.update),
             onClick = { changeSubdomainHandler.onUpdate() }
         )

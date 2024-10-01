@@ -1,7 +1,12 @@
 package com.rumble.battles.referrals.presentation.views
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -14,16 +19,26 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ActionButton
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.RumbleTextActionButton
-import com.rumble.theme.*
+import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h6
+import com.rumble.theme.bottomBarMinimalSpacerBehind
+import com.rumble.theme.buttonHeight
+import com.rumble.theme.copyLinkHeight
+import com.rumble.theme.elevationMedium
+import com.rumble.theme.enforcedDarkmo
+import com.rumble.theme.paddingLarge
+import com.rumble.theme.paddingMedium
+import com.rumble.theme.paddingXSmall
+import com.rumble.theme.radiusMedium
+import com.rumble.theme.radiusXMedium
 
 @Composable
 fun ReferralShareView(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     referralUrl: String,
     onShare: (title: String, text: String) -> Unit,
     onCopy: () -> Unit
@@ -33,7 +48,7 @@ fun ReferralShareView(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(topStart = radiusXMedium, topEnd = radiusXMedium),
-        elevation = 16.dp,
+        elevation = elevationMedium,
         contentColor = MaterialTheme.colors.primary
     ) {
         Column(Modifier.padding(top = paddingLarge)) {
@@ -80,6 +95,7 @@ fun ReferralShareView(
                 textColor = enforcedDarkmo,
                 onClick = { onShare.invoke(shareTitle, referralUrl) }
             )
+            BottomNavigationBarScreenSpacer(bottomBarMinimalSpacerBehind)
         }
     }
 }

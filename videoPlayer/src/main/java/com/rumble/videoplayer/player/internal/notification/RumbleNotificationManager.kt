@@ -12,6 +12,7 @@ import androidx.media3.ui.PlayerNotificationManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
+@UnstableApi
 internal class RumbleNotificationManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

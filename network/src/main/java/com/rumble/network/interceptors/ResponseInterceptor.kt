@@ -58,13 +58,14 @@ class ResponseInterceptor @Inject constructor(private val sessionManager: Sessio
             saveReportEventInfo(userState)
             response
         } catch (e: Throwable) {
-            Response.Builder()
+            val errorResponse = Response.Builder()
                 .request(chain.request())
                 .protocol(Protocol.HTTP_2)
                 .code(1001)
                 .message(e.message ?: "An unknown error inside response interceptor")
                 .body("$e".toResponseBody(null))
                 .build()
+            return chain.proceed(errorResponse.request)
         }
     }
 

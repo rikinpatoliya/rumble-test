@@ -385,6 +385,9 @@ class CategoryViewModel @Inject constructor(
                 if (videoEntity.id == videoId) saveLastPosition(position, videoId)
             }
         }
+        currentPlayerState.value?.stopPlayer()
+        currentPlayerState.value = null
+        lastDisplayedFeed = null
         emitVmEvent(CategoryEvent.PlayVideo(videoEntity))
     }
 

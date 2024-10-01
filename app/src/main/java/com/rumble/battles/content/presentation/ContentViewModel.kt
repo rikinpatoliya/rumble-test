@@ -1,5 +1,8 @@
 package com.rumble.battles.content.presentation
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -119,9 +122,12 @@ import javax.inject.Inject
 interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayListHandler,
     PlayListOptionsHandler, SubscriptionHandler, NotificationsHandler, PremiumSubscriptionHandler,
     PurchaseHandler, SortFollowingHandler, OnboardingHandler, AppUpdateHandler {
+    val userNameFlow: Flow<String>
+    val userPictureFlow: Flow<String>
     val bottomSheetUiState: StateFlow<BottomSheetUIState>
     val eventFlow: Flow<ContentScreenVmEvent>
     val uploadsToNotifyAbout: Flow<List<UploadVideoEntity>>
+    val videoDetailsState: State<VideoDetailsState>
     val userUIState: StateFlow<UserUIState>
 
     fun updateColorMode(colorMode: ColorMode)
@@ -129,14 +135,21 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun notifyUserAboutUploads(list: List<UploadVideoEntity>)
     fun onDeepLinkNavigated()
     fun onContentResumed()
-    fun isPremiumUser() : Boolean
+    fun isPremiumUser(): Boolean
     fun onOpenAuthMenu()
     fun onError(errorMessage: String?)
+    fun onOpenVideoDetails(videoId: Long, playListId: String? = null, shuffle: Boolean? = null)
+    fun onCloseVideoDetails()
+    fun onNavigateHome()
 }
+
+data class VideoDetailsState(
+    val visible: Boolean = false
+)
 
 data class BottomSheetUIState(val data: BottomSheetContent)
 data class UserUIState(
-    val userId: String =  "",
+    val userId: String = "",
     val userName: String = "",
     val userPicture: String = "",
     val isPremiumUser: Boolean = false,
@@ -176,7 +189,7 @@ sealed class BottomSheetContent {
     object PremiumOptions : BottomSheetContent()
     object PremiumSubscription : BottomSheetContent()
     data class SortFollowingSheet(val sortFollowingType: SortFollowingType) : BottomSheetContent()
-    object AuthMenu: BottomSheetContent()
+    object AuthMenu : BottomSheetContent()
 }
 
 sealed class ContentScreenVmEvent {
@@ -194,6 +207,7 @@ sealed class ContentScreenVmEvent {
         val message: String? = null
     ) : ContentScreenVmEvent()
 
+    object NavigateHome : ContentScreenVmEvent()
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
     data class Error(val errorMessage: String? = null) : ContentScreenVmEvent()
     data class ShowSnackBarMessage(val messageId: Int) : ContentScreenVmEvent()
@@ -214,7 +228,7 @@ sealed class ContentScreenVmEvent {
         val billingClient: BillingClient,
         val billingParams: BillingFlowParams
     ) : ContentScreenVmEvent()
-
+    data class ExpendVideoDetails(val videoId: Long, val playListId: String?, val shuffle: Boolean?): ContentScreenVmEvent()
     data class SortFollowingTypeUpdated(val sortFollowingType: SortFollowingType) : ContentScreenVmEvent()
 }
 
@@ -258,6 +272,8 @@ class ContentViewModel @Inject constructor(
     private val shouldForceNewAppVersionUseCase: ShouldForceNewAppVersionUseCase,
     private val openPlayStoreUseCase: OpenPlayStoreUseCase,
 ) : ViewModel(), ContentHandler {
+    override val userNameFlow: Flow<String> = sessionManager.userNameFlow
+    override val userPictureFlow: Flow<String> = sessionManager.userPictureFlow
     override val bottomSheetUiState =
         MutableStateFlow(BottomSheetUIState(BottomSheetContent.HideBottomSheet))
     override val eventFlow: MutableSharedFlow<ContentScreenVmEvent> = MutableSharedFlow()
@@ -273,6 +289,9 @@ class ContentViewModel @Inject constructor(
     override val libraryIconLocationState = MutableStateFlow(Offset.Zero)
     override val appUpdateState: MutableStateFlow<AppUpdateState> =
         MutableStateFlow(AppUpdateState())
+    override val videoDetailsState: MutableState<VideoDetailsState> = mutableStateOf(
+        VideoDetailsState()
+    )
     override val addToPlayListState = MutableStateFlow(AddToPlayListState())
     override val updatedPlaylist: MutableStateFlow<UpdatePlaylist?> = MutableStateFlow(null)
     override val editPlayListState = MutableStateFlow(EditPlayListScreenUIState())
@@ -527,7 +546,11 @@ class ContentViewModel @Inject constructor(
             editPlayListState.value.userUploadChannels
         )
 
-    private fun removeVideoFromPlayList(playListId: String, videoId: Long, withPadding: Boolean = false) {
+    private fun removeVideoFromPlayList(
+        playListId: String,
+        videoId: Long,
+        withPadding: Boolean = false
+    ) {
         viewModelScope.launch(errorHandler) {
             when (removeFromPlaylistUseCase(playListId, videoId)) {
                 is RemoveFromPlaylistResult.Failure ->
@@ -549,7 +572,11 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    private fun addVideoToPlayList(playListId: String, videoId: Long, withPadding: Boolean = false) {
+    private fun addVideoToPlayList(
+        playListId: String,
+        videoId: Long,
+        withPadding: Boolean = false
+    ) {
         viewModelScope.launch(errorHandler) {
             when (val result = addToPlaylistUseCase(playListId, videoId)) {
                 is AddToPlaylistResult.Failure ->
@@ -861,6 +888,7 @@ class ContentViewModel @Inject constructor(
             emailNotificationsEnabled = enable
         )
     }
+
     override fun onSortFollowingSelected(sortFollowingType: SortFollowingType) {
         emitVmEvent(ContentScreenVmEvent.SortFollowingTypeUpdated(sortFollowingType))
     }
@@ -918,7 +946,13 @@ class ContentViewModel @Inject constructor(
     private suspend fun updateOnboardingState(popupsList: List<OnboardingPopupType>) {
         when (onboardingViewState.value) {
             ShowOnboarding -> saveFeedOnboardingUseCase(OnboardingType.FeedScreen)
-            ShowLibraryOnboarding -> saveFeedOnboardingUseCase(listOf(OnboardingType.LibraryScreen, OnboardingType.YourLibrary))
+            ShowLibraryOnboarding -> saveFeedOnboardingUseCase(
+                listOf(
+                    OnboardingType.LibraryScreen,
+                    OnboardingType.YourLibrary
+                )
+            )
+
             is ShowOnboardingPopups -> {
                 if (popupsList.isNotEmpty()) {
                     saveFeedOnboardingUseCase(popupsList.map {
@@ -931,6 +965,7 @@ class ContentViewModel @Inject constructor(
                     })
                 }
             }
+
             None, DoNotShow -> {}
         }
         onboardingViewState.value = DoNotShow
@@ -1025,11 +1060,30 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onOpenAuthMenu() {
-       updateBottomSheetUiState(BottomSheetContent.AuthMenu)
+        updateBottomSheetUiState(BottomSheetContent.AuthMenu)
     }
 
     override fun onError(errorMessage: String?) {
         emitVmEvent(ContentScreenVmEvent.Error(errorMessage))
+    }
+
+    override fun onOpenVideoDetails(videoId: Long, playListId: String?, shuffle: Boolean?) {
+        viewModelScope.launch {
+            sessionManager.saveVideoDetailsState(true)
+            emitVmEvent(ContentScreenVmEvent.ExpendVideoDetails(videoId, playListId, shuffle))
+            videoDetailsState.value = videoDetailsState.value.copy(visible = true)
+        }
+    }
+
+    override fun onCloseVideoDetails() {
+        viewModelScope.launch {
+            sessionManager.saveVideoDetailsState(false)
+            videoDetailsState.value = videoDetailsState.value.copy(visible = false)
+        }
+    }
+
+    override fun onNavigateHome() {
+        emitVmEvent(ContentScreenVmEvent.NavigateHome)
     }
 
     private fun emitVmEvent(event: ContentScreenVmEvent) =

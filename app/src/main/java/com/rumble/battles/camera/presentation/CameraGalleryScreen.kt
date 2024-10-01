@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.view.ViewGroup
+import androidx.activity.compose.BackHandler
 import androidx.camera.core.Preview
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.animateDp
@@ -72,15 +73,14 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.rumble.battles.R
 import com.rumble.battles.UploadGalleryTag
 import com.rumble.battles.camera.presentation.views.CameraRecordIcon
-import com.rumble.battles.commonViews.BottomNavigationBar
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.EmptyViewAction
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.login.presentation.AuthPlaceholderScreen
-import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.domain.camera.GalleryVideoEntity
 import com.rumble.theme.RumbleTypography.h6Heavy
 import com.rumble.theme.RumbleTypography.tinyBodyExtraBold
@@ -113,14 +113,17 @@ private const val SCROLL_TRIGGER = 200
 @Composable
 fun CameraGalleryScreen(
     cameraHandler: CameraHandler,
+    contentHandler: ContentHandler,
     authHandler: AuthHandler,
-    onClose: () -> Unit,
     onOpenCameraMode: () -> Unit,
     onPreviewRecording: (uri: String) -> Unit,
-    onNavigationItemClicked: (String) -> Unit,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
+    BackHandler {
+        contentHandler.onNavigateHome()
+    }
+
     val permissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         rememberMultiplePermissionsState(
             permissions = listOf(
@@ -243,7 +246,7 @@ fun CameraGalleryScreen(
                     onClick = {
                         if (clickHandled.not()) {
                             clickHandled = true
-                            onClose()
+                            contentHandler.onNavigateHome()
                         }
                     }
                 ) {
@@ -387,16 +390,6 @@ fun CameraGalleryScreen(
                 authHandler = authHandler,
                 onNavigateToRegistration = onNavigateToRegistration,
                 onEmailLogin = onNavigateToLogin
-            )
-
-            BottomNavigationBar(
-                modifier = Modifier.constrainAs(navigation) {
-                    bottom.linkTo(parent.bottom)
-                },
-                userName = uiState.userName,
-                userPicture = uiState.userPicture,
-                currentRoute = RumbleScreens.CameraGalleryScreen.rootName,
-                onNavigationItemClicked = onNavigationItemClicked
             )
         }
     }

@@ -22,14 +22,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.SettingsEmailTag
-import com.rumble.battles.commonViews.dialogs.DialogActionItem
-import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.MainActionBottomCardView
 import com.rumble.battles.commonViews.PasswordView
-import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleInputFieldView
 import com.rumble.battles.commonViews.RumbleProgressIndicator
+import com.rumble.battles.commonViews.dialogs.DialogActionItem
+import com.rumble.battles.commonViews.dialogs.DialogActionType
+import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.theme.paddingLarge
@@ -61,6 +61,7 @@ fun ChangeEmailScreen(
         modifier = Modifier
             .testTag(SettingsEmailTag)
             .fillMaxSize()
+            .systemBarsPadding()
             .background(MaterialTheme.colors.background)
     ) {
         RumbleBasicTopAppBar(
@@ -73,7 +74,6 @@ fun ChangeEmailScreen(
         ChangeEmailView(state, changeEmailHandler)
         Spacer(modifier = Modifier.weight(1F))
         MainActionBottomCardView(
-            modifier = Modifier,
             title = stringResource(id = R.string.update),
             onClick = { changeEmailHandler.onUpdate() }
         )

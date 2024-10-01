@@ -189,8 +189,8 @@ private fun EmbeddedControls(
                 onClick = onBack
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = stringResource(id = R.string.back),
+                    painter = painterResource(id = R.drawable.ic_caret_down),
+                    contentDescription = stringResource(id = R.string.collapse),
                     tint = enforcedWhite
                 )
             }

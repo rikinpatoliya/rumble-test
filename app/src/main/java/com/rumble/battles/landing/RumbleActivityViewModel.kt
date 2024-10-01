@@ -38,6 +38,7 @@ import com.rumble.utils.extension.isScreenOn
 import com.rumble.videoplayer.player.PlayerTargetChangeListener
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerTarget
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
@@ -276,12 +277,12 @@ class RumbleActivityViewModel @Inject constructor(
             updateMediaSessionUseCase(it, currentPlayer, currentPlayer?.playerTarget?.value != PlayerTarget.AD)
         }
         currentPlayer?.hideControls()
-        currentPlayer?.pipModeOn = true
+        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Pip
         emitVmEvent(RumbleEvent.PipModeEntered)
     }
 
     override fun onExitPipMode() {
-        currentPlayer?.pipModeOn = false
+        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Normal
     }
 
     private fun emitVmEvent(event: RumbleEvent) =

@@ -12,3 +12,4 @@ local.properties
 app/.DS_Store
 app/.DS_Store
 app/keystore/.DS_Store
+network/.DS_Store

@@ -49,6 +49,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.rumble.battles.CategoryTag
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
@@ -117,6 +118,12 @@ fun CategoryScreen(
         } else if (event == Lifecycle.Event.ON_RESUME) {
             categoryHandler.onViewResumed()
         }
+    }
+
+    val videoDetailsState by contentHandler.videoDetailsState
+
+    LaunchedEffect(videoDetailsState) {
+        if (videoDetailsState.visible.not()) categoryHandler.onCreatePlayerForVisibleFeed()
     }
 
     LaunchedEffect(Unit) {
@@ -284,6 +291,9 @@ fun CategoryScreen(
                             )
                         }
                     }
+                    item {
+                        BottomNavigationBarScreenSpacer()
+                    }
                 }
             } else {
                 LazyVerticalGrid(
@@ -305,6 +315,9 @@ fun CategoryScreen(
                                 },
                             subcategory = item
                         )
+                    }
+                    items(SUBCATEGORY_ROWS_QUANTITY) {
+                        BottomNavigationBarScreenSpacer()
                     }
                 }
             }

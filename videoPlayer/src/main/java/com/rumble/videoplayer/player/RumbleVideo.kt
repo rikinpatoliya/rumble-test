@@ -8,12 +8,12 @@ import com.rumble.videoplayer.player.config.StreamStatus
 import java.time.LocalDateTime
 
 data class RumbleVideo(
-    val videoId: Long,
+    val videoId: Long = 0,
     val videoList: List<PlayerVideoSource> = emptyList(),
     val videoThumbnailUri: String? = null,
     val supportsDvr: Boolean = false,
-    val watchingNow: Long,
-    val scheduledDate: LocalDateTime?,
+    val watchingNow: Long = 0,
+    val scheduledDate: LocalDateTime? = null,
     val backgroundMode: BackgroundMode = BackgroundMode.On,
     val loop: Boolean = false,
     val title: String = "",
@@ -36,13 +36,13 @@ data class RumbleVideo(
     val uploadDate: LocalDateTime,
     val viewsNumber: Long = 0,
     val videoStatus: RumbleVideoStatus = RumbleVideoStatus.UPLOADED,
-    val livestreamStatus: RumbleLiveStreamStatus,
-    val liveDateTime: LocalDateTime?,
-    val liveStreamedOn: LocalDateTime?,
+    val livestreamStatus: RumbleLiveStreamStatus = RumbleLiveStreamStatus.UNKNOWN,
+    val liveDateTime: LocalDateTime? = null,
+    val liveStreamedOn: LocalDateTime? = null,
     val likeNumber: Long = 0,
     val dislikeNumber: Long = 0,
     val userId: String = "",
-    val isPremiumExclusiveContent: Boolean,
+    val isPremiumExclusiveContent: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

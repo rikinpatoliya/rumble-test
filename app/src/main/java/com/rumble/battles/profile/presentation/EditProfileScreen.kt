@@ -121,9 +121,11 @@ fun EditProfileScreen(
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
                 }
+
                 is EditProfileVmEvent.ProfileUpdateResult -> {
                     snackBarHostState.showRumbleSnackbar(message = context.getString(event.messageStringId))
                 }
+
                 is EditProfileVmEvent.ShowCountrySelection -> {
                     focusManager.clearFocus()
                     coroutineScope.launch {
@@ -134,8 +136,6 @@ fun EditProfileScreen(
         }
     }
 
-    val modifier = Modifier
-        .systemBarsPadding()
     if (state.initialFetch.not()) {
         RumbleModalBottomSheetLayout(
             sheetState = bottomSheetState,
@@ -149,10 +149,10 @@ fun EditProfileScreen(
                 )
             }) {
             Column(
-                modifier = modifier
+                modifier = Modifier
                     .testTag(EditProfileTag)
                     .fillMaxSize()
-                    .background(MaterialTheme.colors.background)
+                    .systemBarsPadding()
             ) {
                 RumbleBasicTopAppBar(
                     title = stringResource(id = R.string.edit_profile),
@@ -173,7 +173,6 @@ fun EditProfileScreen(
                 }
                 if (!keyboardAsState().value) {
                     MainActionBottomCardView(
-                        modifier = Modifier,
                         title = stringResource(id = R.string.save),
                         onClick = editProfileHandler::onUpdateUserProfile
                     )
@@ -314,6 +313,7 @@ private fun EditProfileContent(
             .imePadding()
             .padding(
                 start = paddingMedium,
+                end = paddingMedium,
             )
             .verticalScroll(rememberScrollState())
     ) {

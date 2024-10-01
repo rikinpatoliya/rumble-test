@@ -25,6 +25,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.rumble.battles.R
 import com.rumble.battles.RecommendedChannelsTag
 import com.rumble.battles.SwipeRefreshTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
@@ -36,6 +37,7 @@ import com.rumble.battles.feed.presentation.views.RecommendedChannelCard
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
+import com.rumble.utils.RumbleConstants.RECOMMENDED_CHANNELS_COLUMNS_QUANTITY
 
 @Composable
 fun RecommendedChannelScreen(
@@ -81,7 +83,7 @@ fun RecommendedChannelScreen(
                 LazyVerticalGrid(
                     modifier = Modifier
                         .fillMaxSize(),
-                    columns = GridCells.Fixed(2),
+                    columns = GridCells.Fixed(RECOMMENDED_CHANNELS_COLUMNS_QUANTITY),
                     horizontalArrangement = Arrangement.spacedBy(paddingSmall),
                     verticalArrangement = Arrangement.spacedBy(paddingSmall),
                     contentPadding = PaddingValues(
@@ -99,6 +101,9 @@ fun RecommendedChannelScreen(
                                 onSubscriptionUpdate = contentHandler::onUpdateSubscription
                             )
                         }
+                    }
+                    items(RECOMMENDED_CHANNELS_COLUMNS_QUANTITY) {
+                        BottomNavigationBarScreenSpacer()
                     }
 
                     channelPagingItems.apply {

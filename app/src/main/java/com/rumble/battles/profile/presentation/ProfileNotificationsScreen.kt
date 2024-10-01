@@ -43,6 +43,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.rumble.battles.NotificationsTag
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
@@ -56,6 +57,7 @@ import com.rumble.battles.discover.presentation.views.ErrorView
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.profile.domainmodel.ProfileNotificationEntity
 import com.rumble.theme.RumbleTypography.smallBody
+import com.rumble.theme.bottomBarSpacerBehind
 import com.rumble.theme.notificationsVideoWidth
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
@@ -111,6 +113,7 @@ fun ProfileNotificationsScreen(
             BoxWithConstraints(
                 modifier = Modifier
                     .weight(1f)
+                    .padding(bottom = bottomBarSpacerBehind)
             ) {
                 EmptyView(
                     modifier = Modifier
@@ -141,6 +144,9 @@ fun ProfileNotificationsScreen(
                         notificationsList[it]?.let { item ->
                             ProfileNotificationItem(item, context, onChannelClick, onVideoClick)
                         }
+                    }
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
                     notificationsList.apply {
                         item {
