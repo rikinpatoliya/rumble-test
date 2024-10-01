@@ -16,6 +16,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
+import com.rumble.domain.common.domain.usecase.LinkUrl
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
@@ -35,7 +36,9 @@ fun LiveChatMessageView(
     messageEntity: LiveChatMessageEntity,
     badges: Map<String, BadgeEntity>,
     liveChatConfig: LiveChatConfig?,
+    links: (String) -> List<LinkUrl>,
     onClick: (LiveChatMessageEntity) -> Unit,
+    onLinkClick: (String) -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -85,6 +88,8 @@ fun LiveChatMessageView(
                 badges = badges,
                 atMentionRange = messageEntity.atMentionRange,
                 userNameColor = messageEntity.userNameColor ?: MaterialTheme.colors.primary,
+                links = links,
+                onLinkClick = onLinkClick,
                 onClick = {
                     onClick(messageEntity)
                 }
@@ -112,7 +117,9 @@ private fun Preview() {
             ),
             badges = emptyMap(),
             liveChatConfig = null,
-            onClick = {}
+            links = { emptyList() },
+            onClick = {},
+            onLinkClick = {}
         )
     }
 }
