@@ -6,10 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.library.presentation.playlist.PlayListAction
 import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.battles.sort.SortFollowingBottomSheet
+import com.rumble.domain.premium.domain.domainmodel.PremiumSubscription
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -18,6 +20,7 @@ fun BottomSheetOverNavBarContent(
     bottomSheetData: BottomSheetContent,
     contentHandler: ContentHandler,
     authHandler: AuthHandler,
+    activityHandler: RumbleActivityHandler,
     navController: NavHostController,
     onHideBottomSheet: () -> Unit,
     onNavigateToLogin: () -> Unit,
@@ -138,12 +141,18 @@ fun BottomSheetOverNavBarContent(
                 bottomSheetState = bottomSheetState,
                 isPremiumUser = true
             ) {
-                contentHandler.onRestoreSubscription()
+                activityHandler.onOpenWebView(PremiumSubscription.RESTORE_SUBSCRIPTION_LINK)
+                contentHandler.updateBottomSheetUiState(
+                    BottomSheetContent.HideBottomSheet
+                )
             }
         }
 
         is BottomSheetContent.PremiumSubscription -> {
-            PremiumSubscriptionBottomSheet(handler = contentHandler)
+            PremiumSubscriptionBottomSheet(
+                handler = contentHandler,
+                activityHandler = activityHandler
+            )
         }
 
         is BottomSheetContent.SortFollowingSheet -> {
