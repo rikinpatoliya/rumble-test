@@ -28,6 +28,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -41,9 +42,11 @@ import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
 import com.rumble.theme.wokeGreen
+import com.rumble.utils.LinkUtil
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.getBoundingBoxes
 import com.rumble.utils.extension.getEmoteName
+
 
 @Composable
 fun LiveChatContentView(
@@ -67,7 +70,7 @@ fun LiveChatContentView(
     var shouldHighlight = false
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val annotatedText = buildAnnotatedString {
+    val preAnnotatedText = buildAnnotatedString {
         userName?.let {
             withStyle(SpanStyle().copy(color = userNameColor, fontWeight = FontWeight.Bold)) {
                 append(it)
@@ -103,7 +106,12 @@ fun LiveChatContentView(
             } else {
                 if (word == mentioned && shouldHighlight.not()) {
                     shouldHighlight = true
-                    withStyle(SpanStyle().copy(color = atTextColor, fontWeight = FontWeight.SemiBold)) {
+                    withStyle(
+                        SpanStyle().copy(
+                            color = atTextColor,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    ) {
                         append(word)
                     }
                 } else {
@@ -111,6 +119,25 @@ fun LiveChatContentView(
                 }
             }
             append(" ")
+        }
+    }
+
+    val links = message?.let { LinkUtil.extractLinks(preAnnotatedText.text) }
+
+    val annotatedText = buildAnnotatedString {
+        append(preAnnotatedText)
+        links?.forEach {
+            addStyle(
+                style = SpanStyle(textDecoration = TextDecoration.Underline),
+                start = it.start,
+                end = it.end
+            )
+            addStringAnnotation(
+                tag = "URL",
+                annotation = it.url,
+                start = it.start,
+                end = it.end
+            )
         }
     }
 
@@ -138,14 +165,23 @@ fun LiveChatContentView(
     } ?: emptyMap()
 
     val inlineEmotesContent = emotesContent(emotes = emotes, liveChatConfig = liveChatConfig)
+    val context = LocalContext.current
 
     Text(
         modifier = modifier
             .drawBehind { onDraw() }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    layoutResult?.getOffsetForPosition(offset)?.let { position ->
-                        if (position <= (userName?.length ?: 0)) onClick()
+                    layoutResult?.let {
+                        val position = it.getOffsetForPosition(offset)
+                        val result = annotatedText
+                            .getStringAnnotations("URL", position, position)
+                            .firstOrNull()
+                        if (result != null) {
+                            LinkUtil.openInAppBrowser(context, result.item)
+                        } else {
+                            if (position <= (userName?.length ?: 0)) onClick()
+                        }
                     }
                 }
             },
@@ -166,7 +202,10 @@ fun LiveChatContentView(
                                     val paddingPx = paddingXXXXSmall.toPx()
                                     drawRoundRect(
                                         color = atHighlightColor,
-                                        cornerRadius = CornerRadius(x = radiusXSmall.toPx(), y = radiusXSmall.toPx()),
+                                        cornerRadius = CornerRadius(
+                                            x = radiusXSmall.toPx(),
+                                            y = radiusXSmall.toPx()
+                                        ),
                                         topLeft = bound.topLeft.copy(
                                             x = bound.topLeft.x - paddingPx,
                                             y = bound.topLeft.y - paddingPx
