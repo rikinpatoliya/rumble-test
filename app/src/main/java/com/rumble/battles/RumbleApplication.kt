@@ -30,6 +30,7 @@ import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.logging.domain.FileLoggingTree
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_PROD
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD_KEY
 import dagger.hilt.android.HiltAndroidApp
@@ -77,16 +78,16 @@ class RumbleApplication : Application(), Configuration.Provider {
         val conversionDataListener = object : AppsFlyerConversionListener {
             override fun onConversionDataSuccess(data: MutableMap<String, Any>?) {
                 // check for conversion event and it's type and log it
-                data?.get("af_status")?.let {
+                data?.get(RumbleConstants.CONVERSION_TYPE_KEY)?.let {
                     when (it) {
-                        "Organic" -> {
+                        RumbleConstants.ORGANIC_CONVERSION -> {
                             analyticsEventUseCase.invoke(
                                 ConversionOrganicEvent,
                                 true
                             )
                         }
 
-                        "Non-organic" -> {
+                        RumbleConstants.NON_ORGANIC_CONVERSION -> {
                             analyticsEventUseCase.invoke(
                                 ConversionNonOrganicEvent,
                                 true
