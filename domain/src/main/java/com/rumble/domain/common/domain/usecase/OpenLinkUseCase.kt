@@ -2,6 +2,7 @@ package com.rumble.domain.common.domain.usecase
 
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,6 +17,7 @@ class OpenLinkUseCase @Inject constructor(
     operator fun invoke(url: String) {
         val builder = CustomTabsIntent.Builder()
         val customTabsIntent = builder.build()
+        customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val link = if (!url.startsWith("http")) {
             "https://$url"
         } else {
