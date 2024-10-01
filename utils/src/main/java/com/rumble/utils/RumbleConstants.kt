@@ -100,6 +100,9 @@ object RumbleConstants {
     const val TESTING_SUBDOMAIN = "webe27"
     const val TV_MAIN_MENU_FOCUS_DELAY_TIME = 300L
     const val SUGGESTED_APP_VERSION_DISPLAY_DELAY_MINUTES = 24*60L
+    const val CONVERSION_TYPE_KEY = "af_status"
+    const val ORGANIC_CONVERSION = "Organic"
+    const val NON_ORGANIC_CONVERSION = "Non-organic"
 
     @Language("JSON")
     val countriesList = """
