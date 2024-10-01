@@ -56,6 +56,7 @@ class ResponseInterceptor @Inject constructor(private val sessionManager: Sessio
             saveCanSubmitLogs(userState)
             saveTimeRangeReportInfo(userState)
             saveReportEventInfo(userState)
+
             response
         } catch (e: Throwable) {
             val errorResponse = Response.Builder()
