@@ -105,4 +105,7 @@ dependencies {
     implementation "androidx.media3:media3-transformer:$media3_version"
     implementation "androidx.media3:media3-effect:$media3_version"
     implementation "androidx.media3:media3-common:$media3_version"
+
+    // custom chrome tabs
+    implementation 'androidx.browser:browser:1.8.0'
 }

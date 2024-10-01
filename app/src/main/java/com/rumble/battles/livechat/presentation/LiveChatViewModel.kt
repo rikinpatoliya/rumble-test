@@ -20,6 +20,9 @@ import com.rumble.domain.billing.domain.usecase.FetchRantProductDetailsUseCase
 import com.rumble.domain.billing.model.PurchaseHandler
 import com.rumble.domain.billing.model.PurchaseResult
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
+import com.rumble.domain.common.domain.usecase.ExtractLinksUseCase
+import com.rumble.domain.common.domain.usecase.LinkUrl
+import com.rumble.domain.common.domain.usecase.OpenLinkUseCase
 import com.rumble.domain.common.model.RumbleError
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.DeleteMessageResult
@@ -91,6 +94,8 @@ interface LiveChatHandler {
     fun onDeleteMessage()
     fun onConfirmDeleteMessage()
     fun onMuteUserConfirmed(videoId: Long, mutePeriod: MutePeriod)
+    fun onLinkClick(url: String)
+    fun getLinks(text: String): List<LinkUrl>
 }
 
 data class LiveChatState(
@@ -152,6 +157,8 @@ class LiveChatViewModel @Inject constructor(
     private val muteUseCase: MuteUserUseCase,
     private val sessionManager: SessionManager,
     private val rumbleErrorUseCase: RumbleErrorUseCase,
+    private val openLinkUseCase: OpenLinkUseCase,
+    private val extractLinksUseCase: ExtractLinksUseCase,
 ) : ViewModel(), LiveChatHandler, PurchaseHandler {
 
     private var currentUserid: Long? = null
@@ -491,5 +498,15 @@ class LiveChatViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onLinkClick(url: String) {
+        viewModelScope.launch(errorHandler) {
+            openLinkUseCase.invoke(url)
+        }
+    }
+
+    override fun getLinks(text: String): List<LinkUrl> {
+       return extractLinksUseCase.invoke(text)
     }
 }
