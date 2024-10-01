@@ -239,7 +239,9 @@ fun LiveChatViewContent(
                                     messageEntity = message,
                                     badges = liveChatState.badges,
                                     liveChatConfig = liveChatState.liveChatConfig,
-                                    onClick = liveChatHandler::onDisplayModerationMenu
+                                    links = liveChatHandler::getLinks,
+                                    onClick = liveChatHandler::onDisplayModerationMenu,
+                                    onLinkClick = liveChatHandler::onLinkClick
                                 )
                             }
                         }

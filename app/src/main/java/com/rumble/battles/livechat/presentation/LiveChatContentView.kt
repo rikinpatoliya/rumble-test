@@ -33,6 +33,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.rumble.domain.common.domain.usecase.LinkUrl
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.theme.RumbleTypography
@@ -42,7 +43,6 @@ import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
 import com.rumble.theme.wokeGreen
-import com.rumble.utils.LinkUtil
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.getBoundingBoxes
 import com.rumble.utils.extension.getEmoteName
@@ -58,7 +58,9 @@ fun LiveChatContentView(
     badges: Map<String, BadgeEntity> = emptyMap(),
     atMentionRange: IntRange? = null,
     userNameColor: Color = MaterialTheme.colors.primary,
+    links: ((String) -> List<LinkUrl>)? = null,
     onClick: () -> Unit = {},
+    onLinkClick: (String) -> Unit = {},
 ) {
     val mentioned = atMentionRange?.let { message?.substring(it) }
     val pattern = remember { Regex(RumbleConstants.EMOTE_PATTERN) }
@@ -122,11 +124,9 @@ fun LiveChatContentView(
         }
     }
 
-    val links = message?.let { LinkUtil.extractLinks(preAnnotatedText.text) }
-
     val annotatedText = buildAnnotatedString {
         append(preAnnotatedText)
-        links?.forEach {
+        links?.invoke(preAnnotatedText.text)?.forEach {
             addStyle(
                 style = SpanStyle(textDecoration = TextDecoration.Underline),
                 start = it.start,
@@ -165,7 +165,6 @@ fun LiveChatContentView(
     } ?: emptyMap()
 
     val inlineEmotesContent = emotesContent(emotes = emotes, liveChatConfig = liveChatConfig)
-    val context = LocalContext.current
 
     Text(
         modifier = modifier
@@ -178,7 +177,7 @@ fun LiveChatContentView(
                             .getStringAnnotations("URL", position, position)
                             .firstOrNull()
                         if (result != null) {
-                            LinkUtil.openInAppBrowser(context, result.item)
+                            onLinkClick(result.item)
                         } else {
                             if (position <= (userName?.length ?: 0)) onClick()
                         }
