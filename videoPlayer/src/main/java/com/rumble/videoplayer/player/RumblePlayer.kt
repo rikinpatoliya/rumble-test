@@ -929,7 +929,7 @@ class RumblePlayer(
 
                     Player.STATE_READY -> {
                         val currentState = this@RumblePlayer.playbackState.value
-                        if (currentState is PlayerPlaybackState.Fetching){
+                        if (currentState is PlayerPlaybackState.Fetching) {
                             sendInitialPlaybackEvent?.invoke()
                         }
                         when (currentState) {
@@ -1025,9 +1025,11 @@ class RumblePlayer(
             .build()
     }
 
-    private fun buildMediaData(rumbleVideo: RumbleVideo?) =
-        MediaMetadata.Builder()
-            .setArtworkUri(Uri.parse(rumbleVideo?.videoThumbnailUri))
+    private fun buildMediaData(rumbleVideo: RumbleVideo?): MediaMetadata {
+        val videoThumbnailUri = rumbleVideo?.videoThumbnailUri
+        val uri = if (videoThumbnailUri == null) null else Uri.parse(videoThumbnailUri)
+        return MediaMetadata.Builder()
+            .setArtworkUri(uri)
             .setTitle(rumbleVideo?.title)
             .setDisplayTitle(rumbleVideo?.title)
             .setDescription(rumbleVideo?.description)
@@ -1036,6 +1038,7 @@ class RumblePlayer(
             .setAlbumArtist(rumbleVideo?.title)
             .setArtist(rumbleVideo?.description)
             .build()
+    }
 
     private fun listenToProgress(exoPlayer: ExoPlayer) {
         progressJob = backgroundScope.launch {
