@@ -137,7 +137,6 @@ fun DiscoverScreen(
                 activityHandler.clearNotifications()
                 onViewNotifications()
             },
-            onSettings = onNavigateToSettings
         )
 
         SwipeRefresh(

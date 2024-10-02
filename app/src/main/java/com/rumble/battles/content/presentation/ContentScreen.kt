@@ -741,9 +741,6 @@ private fun createNavigationGraph(
                 onViewNotifications = {
                     currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
                 },
-                onNavigateToSettings = {
-                    currentNavController.navigate(RumbleScreens.Settings.getPath())
-                },
             )
         }
         composable(
@@ -894,9 +891,6 @@ private fun createNavigationGraph(
                 bottomSheetState = bottomSheetState,
                 onViewNotifications = {
                     currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
-                },
-                onNavigateToSettings = {
-                    currentNavController.navigate(RumbleScreens.Settings.getPath())
                 },
                 onNavigateToRegistration = { loginType, userId, token, email ->
                     parentController.navigate(
@@ -1052,7 +1046,10 @@ private fun createNavigationGraph(
                 },
                 onNavigateToLogin = {
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
-                }
+                },
+                onNavigateToSettings = {
+                    currentNavController.navigate(RumbleScreens.Settings.getPath())
+                },
             )
         }
         composable(

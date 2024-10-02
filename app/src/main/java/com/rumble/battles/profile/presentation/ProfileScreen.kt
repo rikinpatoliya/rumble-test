@@ -75,6 +75,7 @@ import com.rumble.domain.uploadmanager.dto.VideoUploadsIndicatorStatus
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h6Light
 import com.rumble.theme.borderXXSmall
+import com.rumble.theme.followingHeaderIconSize
 import com.rumble.theme.logoHeaderHeight
 import com.rumble.theme.logoHeaderHeightTablets
 import com.rumble.theme.logoHeight
@@ -101,6 +102,7 @@ fun ProfileScreen(
     bottomSheetState: ModalBottomSheetState,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val alertDialogState by profileHandler.alertDialogState.collectAsStateWithLifecycle()
     val uiState by profileHandler.uiState
@@ -173,7 +175,7 @@ fun ProfileScreen(
                             .background(MaterialTheme.colors.onPrimary)
                             .height(if (tablet) logoHeaderHeightTablets else logoHeaderHeight)
                     ) {
-                        val (version, logo, mode, line) = createRefs()
+                        val (version, logo, mode, settings, line) = createRefs()
 
                         RumbleLogoView(
                             modifier = Modifier
@@ -208,9 +210,8 @@ fun ProfileScreen(
 
                         IconButton(
                             modifier = Modifier
-                                .padding(end = paddingMedium)
                                 .constrainAs(mode) {
-                                    end.linkTo(parent.end)
+                                    end.linkTo(settings.start)
                                     top.linkTo(logo.top)
                                     bottom.linkTo(logo.bottom)
                                 },
@@ -220,6 +221,23 @@ fun ProfileScreen(
                             Icon(
                                 painter = painterResource(id = getAppearanceIconDrawable(colorMode)),
                                 contentDescription = stringResource(id = R.string.change_appearance),
+                            )
+                        }
+
+                        IconButton(
+                            modifier = Modifier
+                                .constrainAs(settings) {
+                                    end.linkTo(parent.end)
+                                    top.linkTo(logo.top)
+                                    bottom.linkTo(logo.bottom)
+                                },
+                            onClick = onNavigateToSettings
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(followingHeaderIconSize),
+                                painter = painterResource(id = R.drawable.ic_settings),
+                                contentDescription = stringResource(id = R.string.settings),
+                                tint = MaterialTheme.colors.primary
                             )
                         }
 
@@ -400,7 +418,8 @@ fun ProfileScreen(
                         },
                     authHandler = authHandler,
                     onNavigateToRegistration = onNavigateToRegistration,
-                    onEmailLogin = onNavigateToLogin
+                    onEmailLogin = onNavigateToLogin,
+                    onSettings = onNavigateToSettings
                 )
             }
         }

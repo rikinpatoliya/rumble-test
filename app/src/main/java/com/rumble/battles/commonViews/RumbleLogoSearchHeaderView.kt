@@ -39,7 +39,6 @@ fun RumbleLogoSearchHeaderView(
     userLoggedIn: Boolean = true,
     onSearch: () -> Unit,
     onNotifications: (() -> Unit),
-    onSettings: () -> Unit,
     onSearchIconGlobalMeasured: ((Offset) -> Unit)? = null,
     onFollowingIconGlobalMeasured: ((Offset) -> Unit)? = null,
     onFollowing: (() -> Unit)? = null,
@@ -69,7 +68,6 @@ fun RumbleLogoSearchHeaderView(
         )
 
         Row(modifier = Modifier
-            .padding(end = paddingMedium)
             .constrainAs(mode) {
                 end.linkTo(parent.end)
                 top.linkTo(logo.top)
@@ -126,17 +124,6 @@ fun RumbleLogoSearchHeaderView(
                         )
                     }
                 }
-            } else {
-                IconButton(
-                    onClick = onSettings
-                ) {
-                    Icon(
-                        modifier = Modifier.size(followingHeaderIconSize),
-                        painter = painterResource(id = R.drawable.ic_settings),
-                        contentDescription = stringResource(id = R.string.settings),
-                        tint = MaterialTheme.colors.primary
-                    )
-                }
             }
         }
 
@@ -161,7 +148,6 @@ private fun PreviewRumbleLogoSearchHeaderView() {
         onSearch = { },
         onNotifications = {},
         onFollowing = {},
-        onSettings = {}
     )
 }
 
@@ -175,7 +161,6 @@ private fun PreviewRumbleLogoSearchHeaderViewNotLoggedIn() {
             onSearch = { },
             onNotifications = {},
             onFollowing = {},
-            onSettings = {}
         )
     }
 }
