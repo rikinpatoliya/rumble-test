@@ -105,7 +105,6 @@ data class LiveChatState(
     val rantPopupMessage: LiveChatMessageEntity? = null,
     val liveChatConfig: LiveChatConfig? = null,
     val connectionState: InternetConnectionState = InternetConnectionState.CONNECTED,
-    val observationStarted: Boolean = false,
     val pendingMessageInfo: PendingMessageInfo? = null,
     val rantSelected: RantLevel? = null,
     val unreadMessageCount: Int = 0,
@@ -161,6 +160,7 @@ class LiveChatViewModel @Inject constructor(
     private val extractLinksUseCase: ExtractLinksUseCase,
 ) : ViewModel(), LiveChatHandler, PurchaseHandler {
 
+    private var eventsJob: Job = Job()
     private var currentUserid: Long? = null
     private var purchaseInProgress: Boolean = false
     private var liveChatConfig: LiveChatConfig? = null
@@ -211,11 +211,11 @@ class LiveChatViewModel @Inject constructor(
     }
 
     override fun onInitLiveChat(videoId: Long) {
-        if (state.value.observationStarted.not()) {
-            state.value = state.value.copy(observationStarted = true)
-            observeEventFlow(videoId)
-            observeConnectionState(videoId)
-        }
+        messageList = emptyList()
+        liveChatConfig = null
+        state.value = LiveChatState()
+        observeEventFlow(videoId)
+        observeConnectionState(videoId)
     }
 
     override fun onRantClicked(rantEntity: RantEntity) {
@@ -397,7 +397,9 @@ class LiveChatViewModel @Inject constructor(
     }
 
     private fun observeEventFlow(videoId: Long) {
-        viewModelScope.launch(errorHandler) {
+        eventsJob.cancel()
+        eventsJob = viewModelScope.launch(errorHandler) {
+            messageList = mutableListOf()
             getLiveChatEventsUseCase(videoId).collect { result ->
                 if (liveChatConfig == null) {
                     result.liveChatConfig?.let {

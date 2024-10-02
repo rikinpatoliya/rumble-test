@@ -36,6 +36,7 @@ internal val nowPlayingOffset = 20.dp
 internal val nowPlayingOffsetShrank = 40.dp
 internal val nowPlayingOffsetShort = 50.dp
 internal val nowPlayingOffsetShortShrank = 60.dp
+internal val miniPlayerSeekBarHeight = 4.dp
 
 val playButtonSize = 84.dp
 val playControl = 32.dp

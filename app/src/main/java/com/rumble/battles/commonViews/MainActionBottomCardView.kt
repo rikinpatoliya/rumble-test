@@ -1,43 +1,45 @@
 package com.rumble.battles.commonViews
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import com.rumble.battles.EditProfileMainActionButtonTag
-import com.rumble.theme.*
+import com.rumble.theme.elevation
+import com.rumble.theme.enforcedDarkmo
+import com.rumble.theme.paddingMedium
+import com.rumble.theme.radiusXMedium
 
 @Composable
 fun MainActionBottomCardView(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     title: String,
     onClick: () -> Unit,
 ) {
-    Card(
-        modifier = modifier
-            .clip(RoundedCornerShape(topStart = radiusXMedium, topEnd = radiusXMedium))
-            .background(MaterialTheme.colors.background),
-        elevation = elevation
+    Surface(
+        modifier = modifier,
+        elevation = elevation,
+        shape = RoundedCornerShape(topStart = radiusXMedium, topEnd = radiusXMedium)
     ) {
-        MainActionButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    top = paddingMedium,
-                    start = paddingMedium,
-                    end = paddingMedium,
-                    bottom = paddingXLarge
-                )
-                .testTag(EditProfileMainActionButtonTag),
-            text = title,
-            textColor = enforcedDarkmo,
-            onClick = onClick
-        )
+        Column {
+            MainActionButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = paddingMedium,
+                        start = paddingMedium,
+                        end = paddingMedium,
+                    )
+                    .testTag(EditProfileMainActionButtonTag),
+                text = title,
+                textColor = enforcedDarkmo,
+                onClick = onClick
+            )
+            BottomNavigationBarScreenSpacer()
+        }
     }
 }

@@ -17,15 +17,18 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -45,10 +48,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.ContentDescriptionProfileMenuTag
 import com.rumble.battles.ProfileMenuTag
 import com.rumble.battles.R
-import com.rumble.battles.commonViews.BottomNavigationBar
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.IsTablet
-import com.rumble.battles.commonViews.NotificationIconView
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.RumbleLogoView
@@ -61,7 +63,6 @@ import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
-import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.login.presentation.AuthPlaceholderScreen
 import com.rumble.battles.navigation.RumbleScreens
@@ -74,7 +75,6 @@ import com.rumble.domain.uploadmanager.dto.VideoUploadsIndicatorStatus
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h6Light
 import com.rumble.theme.borderXXSmall
-import com.rumble.theme.followingHeaderIconSize
 import com.rumble.theme.logoHeaderHeight
 import com.rumble.theme.logoHeaderHeightTablets
 import com.rumble.theme.logoHeight
@@ -88,34 +88,42 @@ import com.rumble.theme.paddingXLarge
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.conditional
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
-    activityHandler: RumbleActivityHandler,
     profileHandler: ProfileHandler,
     authHandler: AuthHandler,
     onProfileItemClicked: (navigationId: String) -> Unit,
     contentHandler: ContentHandler,
-    onNavigationItemClicked: (String) -> Unit,
+    bottomSheetState: ModalBottomSheetState,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit,
-    onNavigateToSettings: () -> Unit,
-    onViewNotifications: () -> Unit,
 ) {
     val alertDialogState by profileHandler.alertDialogState.collectAsStateWithLifecycle()
     val uiState by profileHandler.uiState
     val screenSate by profileHandler.screenSate
+    val colorMode by profileHandler.colorMode.collectAsStateWithLifecycle(initialValue = ColorMode.SYSTEM_DEFAULT)
     val appVersion by profileHandler.appVersionState.collectAsStateWithLifecycle()
-    val activityHandlerState by activityHandler.activityHandlerState.collectAsStateWithLifecycle()
-
-    BackHandler(screenSate == ProfileScreenState.Loading) {
-        //Do nothing ignore swipe back and block any action
-    }
+    val coroutineScope = rememberCoroutineScope()
     val channelDetailsEntity: ChannelDetailsEntity? =
         (screenSate as? ProfileScreenState.LoggedIn)?.channelDetailsEntity
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val clipboard: ClipboardManager = LocalClipboardManager.current
+
+    BackHandler {
+        if (bottomSheetState.isVisible) {
+            coroutineScope.launch { bottomSheetState.hide() }
+        }
+        else if (screenSate == ProfileScreenState.Loading) {
+            Timber.d("BackHandler: Do nothing ignore swipe back and block any action while ProfileScreenState.Loading")
+        } else {
+            contentHandler.onNavigateHome()
+        }
+    }
 
     LaunchedEffect(profileHandler.vmEvents) {
         profileHandler.vmEvents.collect {
@@ -165,7 +173,7 @@ fun ProfileScreen(
                             .background(MaterialTheme.colors.onPrimary)
                             .height(if (tablet) logoHeaderHeightTablets else logoHeaderHeight)
                     ) {
-                        val (version, logo, notifications, settings, line) = createRefs()
+                        val (version, logo, mode, line) = createRefs()
 
                         RumbleLogoView(
                             modifier = Modifier
@@ -198,34 +206,20 @@ fun ProfileScreen(
                             )
                         }
 
-                        NotificationIconView(
-                            modifier = Modifier
-                                .constrainAs(notifications) {
-                                    end.linkTo(settings.start)
-                                    top.linkTo(logo.top)
-                                    bottom.linkTo(logo.bottom)
-                                },
-                            showDot = activityHandlerState.hasUnreadNotifications,
-                            onClick = {
-                                activityHandler.clearNotifications()
-                                onViewNotifications()
-                            }
-                        )
-
                         IconButton(
                             modifier = Modifier
-                                .constrainAs(settings) {
+                                .padding(end = paddingMedium)
+                                .constrainAs(mode) {
                                     end.linkTo(parent.end)
                                     top.linkTo(logo.top)
                                     bottom.linkTo(logo.bottom)
                                 },
-                            onClick = onNavigateToSettings
-                        ) {
+                            onClick = {
+                                contentHandler.updateBottomSheetUiState(BottomSheetContent.ChangeAppearance)
+                            }) {
                             Icon(
-                                modifier = Modifier.size(followingHeaderIconSize),
-                                painter = painterResource(id = R.drawable.ic_settings),
-                                contentDescription = stringResource(id = R.string.settings),
-                                tint = MaterialTheme.colors.primary
+                                painter = painterResource(id = getAppearanceIconDrawable(colorMode)),
+                                contentDescription = stringResource(id = R.string.change_appearance),
                             )
                         }
 
@@ -259,10 +253,7 @@ fun ProfileScreen(
                             )
 
                             Text(
-                                modifier = Modifier.padding(
-                                    top = paddingMedium,
-                                    bottom = paddingMedium
-                                ),
+                                modifier = Modifier.padding(top = paddingMedium, bottom = paddingMedium),
                                 text = uiState.userName,
                                 style = RumbleTypography.h1
                             )
@@ -292,11 +283,8 @@ fun ProfileScreen(
                                         ),
                                     iconId = R.drawable.ic_discover,
                                     labelId = R.string.rumble_premium_plan,
-                                    onClick = {
-                                        contentHandler.updateBottomSheetUiState(
-                                            BottomSheetContent.PremiumOptions
-                                        )
-                                    },
+                                    onClick = { contentHandler.updateBottomSheetUiState(
+                                        BottomSheetContent.PremiumOptions) },
                                     tint = rumbleGreen
                                 )
                             } else {
@@ -351,6 +339,18 @@ fun ProfileScreen(
                                         vertical = paddingSmall,
                                         horizontal = paddingLarge
                                     ),
+                                iconId = R.drawable.ic_settings,
+                                labelId = R.string.settings,
+                                onClick = { onProfileItemClicked(RumbleScreens.Settings.getPath()) }
+                            )
+
+                            ProfileItemView(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        vertical = paddingSmall,
+                                        horizontal = paddingLarge
+                                    ),
                                 iconId = R.drawable.ic_referrals,
                                 labelId = R.string.referrals,
                                 onClick = { onProfileItemClicked(RumbleScreens.Referrals.rootName) }
@@ -386,6 +386,7 @@ fun ProfileScreen(
                                 labelId = R.string.sign_out,
                                 onClick = profileHandler::onSignOut
                             )
+                            BottomNavigationBarScreenSpacer()
                         }
                     }
                 }
@@ -399,20 +400,9 @@ fun ProfileScreen(
                         },
                     authHandler = authHandler,
                     onNavigateToRegistration = onNavigateToRegistration,
-                    onEmailLogin = onNavigateToLogin,
-                    onSettings = onNavigateToSettings
+                    onEmailLogin = onNavigateToLogin
                 )
             }
-
-            BottomNavigationBar(
-                modifier = Modifier.constrainAs(navigation) {
-                    bottom.linkTo(parent.bottom)
-                },
-                userName = uiState.userName,
-                userPicture = uiState.userPicture,
-                currentRoute = RumbleScreens.Profile.rootName,
-                onNavigationItemClicked = onNavigationItemClicked
-            )
         }
     }
 

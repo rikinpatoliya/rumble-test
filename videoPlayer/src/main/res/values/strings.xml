@@ -45,6 +45,9 @@
     <string name="check">Check</string>
     <string name="up_next">Up Next</string>
     <string name="ad_begins">Ad begins in %d</string>
+    <string name="collapse">Collapse</string>
+    <string name="video_play_after_ad">Video will play after ad</string>
+    <string name="sponsored">Sponsored</string>
 
     <string name="video_card_upcoming_label">Upcoming</string>
     <string name="video_card_live_starting_label">Starting</string>

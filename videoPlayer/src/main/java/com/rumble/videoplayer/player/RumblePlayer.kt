@@ -66,6 +66,7 @@ import com.rumble.videoplayer.player.config.PlaybackSpeed
 import com.rumble.videoplayer.player.config.PlayerPlaybackState
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.PlayerVideoSource
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.player.config.StreamStatus
 import com.rumble.videoplayer.player.internal.notification.PlayListType
 import com.rumble.videoplayer.player.internal.notification.RumblePlayList
@@ -241,10 +242,13 @@ class RumblePlayer(
 
     var targetChangeListener: PlayerTargetChangeListener? = null
 
-    var pipModeOn: Boolean = false
+    var rumbleVideoMode: RumbleVideoMode = RumbleVideoMode.Normal
 
     val videoTitle: String
         get() = rumbleVideo?.title ?: ""
+
+    val channelName: String
+        get() = rumbleVideo?.channelName ?: ""
 
     val videoDescription: String
         get() = rumbleVideo?.description ?: ""
@@ -524,6 +528,11 @@ class RumblePlayer(
         timeRangeJob.cancel()
         saveLastPosition()
         stopTrackingWatchedTime()
+    }
+
+    fun pauseAndResetState() {
+        pauseVideo()
+        _playbackSate.value = PlayerPlaybackState.Idle()
     }
 
     fun seekBack(duration: Int = seekDuration) {
@@ -1100,7 +1109,7 @@ class RumblePlayer(
     private fun loadAd(isMidRoll: Boolean = false) {
         if (_adPlaybackState.value !is AdPlaybackState.Buffering
             && viewResumed
-            && pipModeOn.not()
+            && rumbleVideoMode == RumbleVideoMode.Normal
         ) {
             _adPlaybackState.value = AdPlaybackState.Buffering
             adsPlayer?.stop()

@@ -30,7 +30,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
-import com.rumble.battles.commonViews.BottomNavigationBar
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.RumbleLogoSearchHeaderView
 import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
@@ -47,7 +47,6 @@ import com.rumble.battles.library.presentation.views.LibrarySectionView
 import com.rumble.battles.library.presentation.views.PlayListsSectionView
 import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.login.presentation.AuthPlaceholderScreen
-import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.videolist.domain.model.VideoList
@@ -74,7 +73,6 @@ fun LibraryScreen(
     onViewPlayLists: () -> Unit,
     onViewPlayList: (playListId: String) -> Unit,
     bottomSheetState: ModalBottomSheetState,
-    onNavigationItemClicked: (String) -> Unit,
     onViewNotifications: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
@@ -102,8 +100,13 @@ fun LibraryScreen(
         }
     }
 
-    BackHandler(bottomSheetState.isVisible) {
-        coroutineScope.launch { bottomSheetState.hide() }
+    BackHandler {
+        if (bottomSheetState.isVisible) {
+            coroutineScope.launch { bottomSheetState.hide() }
+        }
+        else {
+            contentHandler.onNavigateHome()
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -151,6 +154,7 @@ fun LibraryScreen(
                     activityHandler.clearNotifications()
                     onViewNotifications()
                 },
+                onSettings = onNavigateToSettings
             )
 
             SwipeRefresh(
@@ -273,6 +277,9 @@ fun LibraryScreen(
                                 }
                             }
                         }
+                        item {
+                            BottomNavigationBarScreenSpacer()
+                        }
                     }
                 }
             }
@@ -289,16 +296,6 @@ fun LibraryScreen(
                 onEmailLogin = onNavigateToLogin
             )
         }
-
-        BottomNavigationBar(
-            modifier = Modifier.constrainAs(navigation) {
-                bottom.linkTo(parent.bottom)
-            },
-            userName = userUIState.userName,
-            userPicture = userUIState.userPicture,
-            currentRoute = RumbleScreens.Library.rootName,
-            onNavigationItemClicked = onNavigationItemClicked
-        )
     }
 
     if (alertDialogState.show) {

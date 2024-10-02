@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.CreditsTag
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
@@ -120,6 +121,7 @@ fun CreditsScreenContent(
                     Spacer(modifier = Modifier.height(paddingXLarge))
             }
         }
+        BottomNavigationBarScreenSpacer()
     }
 }
 

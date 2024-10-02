@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.SettingsPasswordTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.MainActionBottomCardView
@@ -60,6 +61,7 @@ fun ChangePasswordScreen(
         modifier = Modifier
             .testTag(SettingsPasswordTag)
             .fillMaxSize()
+            .systemBarsPadding()
             .background(MaterialTheme.colors.background)
     ) {
         RumbleBasicTopAppBar(
@@ -73,7 +75,6 @@ fun ChangePasswordScreen(
         ChangePasswordView(state, changePasswordHandler)
         Spacer(modifier = Modifier.weight(1F))
         MainActionBottomCardView(
-            modifier = Modifier,
             title = stringResource(id = R.string.update),
             onClick = { changePasswordHandler.onUpdate() }
         )

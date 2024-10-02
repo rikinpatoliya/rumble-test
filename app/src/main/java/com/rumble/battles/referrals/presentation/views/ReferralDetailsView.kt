@@ -2,7 +2,13 @@ package com.rumble.battles.referrals.presentation.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -13,13 +19,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
 import com.rumble.domain.referrals.domain.domainmodel.ReferralDetailsEntity
-import com.rumble.theme.*
+import com.rumble.theme.RumbleTypography
+import com.rumble.theme.borderXXSmall
+import com.rumble.theme.commissionsGroupHeight
+import com.rumble.theme.paddingLarge
+import com.rumble.theme.radiusMedium
 import com.rumble.utils.extension.toCurrencyString
 
 @Composable
 fun ReferralDetailsView(referralDetails: ReferralDetailsEntity) {
     Column(
         modifier = Modifier
+            .height(commissionsGroupHeight)
+            .fillMaxWidth()
             .border(
                 borderXXSmall,
                 MaterialTheme.colors.secondaryVariant,
@@ -28,16 +40,17 @@ fun ReferralDetailsView(referralDetails: ReferralDetailsEntity) {
             .background(
                 color = MaterialTheme.colors.surface,
                 shape = RoundedCornerShape(radiusMedium)
-            )
-            .height(commissionsGroupHeight)
-            .fillMaxWidth(),
+            ),
     ) {
 
         Column(
             modifier = Modifier
                 .fillMaxHeight(0.5f)
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.onSecondary),
+                .background(
+                    color = MaterialTheme.colors.onSecondary,
+                    shape = RoundedCornerShape(topStart = radiusMedium, topEnd = radiusMedium)
+                ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

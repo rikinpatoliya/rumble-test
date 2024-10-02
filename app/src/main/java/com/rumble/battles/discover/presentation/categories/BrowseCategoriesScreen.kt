@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -46,6 +49,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.rumble.battles.CategoriesBrowse
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
@@ -109,6 +113,12 @@ fun BrowseCategoriesScreen(
         } else if (event == Lifecycle.Event.ON_RESUME) {
             categoryHandler.onViewResumed()
         }
+    }
+
+    val videoDetailsState by contentHandler.videoDetailsState
+
+    LaunchedEffect(videoDetailsState) {
+        if (videoDetailsState.visible.not()) categoryHandler.onCreatePlayerForVisibleFeed()
     }
 
     LaunchedEffect(Unit) {
@@ -215,6 +225,9 @@ fun BrowseCategoriesScreen(
                             subcategory = item
                         )
                     }
+                    items(RumbleConstants.SUBCATEGORY_ROWS_QUANTITY) {
+                        BottomNavigationBarScreenSpacer()
+                    }
                 }
             } else {
                 LazyColumn(
@@ -257,6 +270,9 @@ fun BrowseCategoriesScreen(
                                 }
                             }
                         }
+                    }
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
                 }
             }

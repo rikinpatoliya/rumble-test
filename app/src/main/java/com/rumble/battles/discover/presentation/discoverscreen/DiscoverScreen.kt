@@ -1,5 +1,6 @@
 package com.rumble.battles.discover.presentation.discoverscreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,7 +34,7 @@ import com.rumble.battles.DiscoverTag
 import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
-import com.rumble.battles.commonViews.BottomNavigationBar
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.RumbleLogoSearchHeaderView
 import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
@@ -49,7 +50,6 @@ import com.rumble.battles.discover.presentation.views.LiveNowList
 import com.rumble.battles.discover.presentation.views.PopularVideosView
 import com.rumble.battles.discover.presentation.views.TopChannelsView
 import com.rumble.battles.landing.RumbleActivityHandler
-import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.videolist.domain.model.VideoList
 import com.rumble.theme.commentActionButtonWidth
@@ -81,7 +81,6 @@ fun DiscoverScreen(
     onViewTopChannels: () -> Unit = {},
     onBrowseCategory: (String) -> Unit = {},
     onBrowseAllCategories: () -> Unit = {},
-    onNavigationItemClicked: (String) -> Unit,
     onViewNotifications: () -> Unit,
     onNavigateToSettings: () -> Unit,
 ) {
@@ -96,6 +95,10 @@ fun DiscoverScreen(
             discoverHandler.onViewResumed()
             discoverHandler.onVideoPlayerImpression()
         }
+    }
+
+    BackHandler {
+        contentHandler.onNavigateHome()
     }
 
     LaunchedEffect(Unit) {
@@ -123,7 +126,7 @@ fun DiscoverScreen(
             .fillMaxSize()
             .systemBarsPadding()
     ) {
-        val (header, list, navigation) = createRefs()
+        val (header, list) = createRefs()
 
         RumbleLogoSearchHeaderView(
             modifier = Modifier.constrainAs(header) { top.linkTo(parent.top) },
@@ -134,6 +137,7 @@ fun DiscoverScreen(
                 activityHandler.clearNotifications()
                 onViewNotifications()
             },
+            onSettings = onNavigateToSettings
         )
 
         SwipeRefresh(
@@ -141,7 +145,7 @@ fun DiscoverScreen(
                 .testTag(SwipeRefreshTag)
                 .constrainAs(list) {
                     top.linkTo(header.bottom)
-                    bottom.linkTo(navigation.top)
+                    bottom.linkTo(parent.bottom)
                     height = Dimension.fillToConstraints
                 },
             state = rememberSwipeRefreshState(
@@ -294,19 +298,12 @@ fun DiscoverScreen(
                             )
                         }
                     }
+                    item {
+                        BottomNavigationBarScreenSpacer()
+                    }
                 }
             }
         }
-
-        BottomNavigationBar(
-            modifier = Modifier.constrainAs(navigation) {
-                bottom.linkTo(parent.bottom)
-            },
-            userName = userUIState.userName,
-            userPicture = userUIState.userPicture,
-            currentRoute = RumbleScreens.Discover.rootName,
-            onNavigationItemClicked = onNavigationItemClicked
-        )
     }
 
     if (alertDialogState.show) {

@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.SettingsUploadingQualityTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CheckMarkItem
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.domain.settings.domain.domainmodel.UploadQuality
@@ -57,6 +58,9 @@ fun UploadQualityScreen(
                         settingsHandler.onUpdateUploadQuality(quality)
                     }
                 }
+            }
+            item {
+                BottomNavigationBarScreenSpacer()
             }
         }
     }

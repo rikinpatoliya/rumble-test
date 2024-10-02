@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.rumbleGreen
 import com.rumble.videoplayer.player.RumblePlayer
@@ -30,6 +31,7 @@ import com.rumble.videoplayer.presentation.internal.defaults.embeddedSeekBarHeig
 internal fun EmbeddedSeekBar(
     modifier: Modifier = Modifier,
     rumblePlayer: RumblePlayer,
+    seekBarHeight: Dp = embeddedSeekBarHeight,
     onSeekInProgress: (Boolean) -> Unit = {}
 ) {
     val progressPercentage by rumblePlayer.progressPercentage
@@ -74,7 +76,7 @@ internal fun EmbeddedSeekBar(
 
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
-                    .height(embeddedSeekBarHeight.times(2)))
+                    .height(seekBarHeight.times(2)))
 
                 Box {
                     Box(
@@ -82,7 +84,7 @@ internal fun EmbeddedSeekBar(
                             .background(enforcedWhite.copy(0.6f))
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .height(embeddedSeekBarHeight)
+                            .height(seekBarHeight)
                     )
 
                     if (playerState.isBuffering) {
@@ -90,7 +92,7 @@ internal fun EmbeddedSeekBar(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .fillMaxWidth()
-                                .height(embeddedSeekBarHeight)
+                                .height(seekBarHeight)
                         )
                     }
 
@@ -98,7 +100,7 @@ internal fun EmbeddedSeekBar(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .height(embeddedSeekBarHeight),
+                            .height(seekBarHeight),
                         progress = if (isDragging) progress else progressPercentage,
                         color = rumbleGreen.copy(alpha = 0.8f),
                         trackColor = Color.Transparent

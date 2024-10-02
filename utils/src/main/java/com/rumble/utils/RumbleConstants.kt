@@ -39,6 +39,7 @@ object RumbleConstants {
     const val GALLERY_ROWS_QUANTITY = 3
     const val MAIN_CATEGORY_ITEMS_IN_ROW_QUANTITY = 2
     const val SUBCATEGORY_ROWS_QUANTITY = 3
+    const val RECOMMENDED_CHANNELS_COLUMNS_QUANTITY = 2
     const val GALLERY_THUMB_SIZE = 600
     const val ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE = "image/*"
     const val TAG_URL = "URL"
@@ -99,6 +100,8 @@ object RumbleConstants {
     const val TESTING_LAUNCH_UIT_PASSWORD = "uit_password"
     const val TESTING_SUBDOMAIN = "webe27"
     const val TV_MAIN_MENU_FOCUS_DELAY_TIME = 300L
+    const val NAV_BAR_ANIMATION_DURATION = 150
+    const val COLLAPSE_ANIMATION_DURATION = 500
     const val SUGGESTED_APP_VERSION_DISPLAY_DELAY_MINUTES = 24*60L
     const val CONVERSION_TYPE_KEY = "af_status"
     const val ORGANIC_CONVERSION = "Organic"
