@@ -1345,7 +1345,8 @@ class VideoDetailsViewModel @Inject constructor(
             state.value = state.value.copy(
                 userProfile = result.userProfileEntity
             )
-        } else {
+        } else if (state.value.isLoggedIn){
+            // show error only when user is logged in and user profile has error
             handleError()
         }
     }
