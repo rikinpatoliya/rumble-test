@@ -416,7 +416,7 @@ class LiveChatViewModel @Inject constructor(
                 liveChatConfig?.let { config ->
                     messageList = handleDeletedMessages(result)
                     messageList =
-                        messageList + updateRantColor(initAtMentionUseCase(result.messageList))
+                        messageList + updateRantColor(initAtMentionUseCase(result.messageList, config.channels))
                     val messageCount = state.value.unreadMessageCount + result.messageList.size
                     val currentSelection = state.value.rantSelected
 
