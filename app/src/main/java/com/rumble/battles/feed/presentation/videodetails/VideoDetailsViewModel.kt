@@ -1340,14 +1340,16 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private suspend fun fetchUserProfile() {
-        val result = getUserProfileUseCase()
-        if (result.success) {
-            state.value = state.value.copy(
-                userProfile = result.userProfileEntity
-            )
-        } else if (state.value.isLoggedIn){
-            // show error only when user is logged in and user profile has error
-            handleError()
+        // fetch user profile only when user is logged in
+        if (state.value.isLoggedIn) {
+            val result = getUserProfileUseCase()
+            if (result.success) {
+                state.value = state.value.copy(
+                    userProfile = result.userProfileEntity
+                )
+            } else {
+                handleError()
+            }
         }
     }
 
