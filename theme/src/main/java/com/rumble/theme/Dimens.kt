@@ -99,7 +99,7 @@ val authContentWidthTablet = 340.dp
 val loginContentWidthTablet = 380.dp
 val miniPlayerHeight = 48.dp
 val miniPlayerWidth = 86.dp
-val miniPlayerBottomPadding = paddingXXSmall + bottomBarHeight + paddingSmall
+val miniPlayerBottomPadding = paddingXXSmall + bottomBarHeight + paddingXXXSmall
 val miniPlayerBottomThreshold = miniPlayerBottomPadding + miniPlayerHeight
 val commentViewHeight = 48.dp
 
