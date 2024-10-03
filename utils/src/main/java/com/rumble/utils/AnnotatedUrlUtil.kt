@@ -23,8 +23,8 @@ fun getRumbleUrlAnnotations(text: String, spanStyle: SpanStyle? = null): List<Ru
         matchEnd = matcher.end()
 
         var url = text.substring(matchStart, matchEnd)
-        if (!url.startsWith("http://") && !url.startsWith("https://"))
-            url = "https://$url"
+        if (!url.startsWith(RumbleConstants.HTTP_PREFIX) && !url.startsWith(RumbleConstants.HTTPS_PREFIX))
+            url = "${RumbleConstants.HTTPS_PREFIX}$url"
 
         annotations.add(RumbleUrlAnnotation(url, matchStart, matchEnd, spanStyle))
     }

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -129,7 +130,7 @@ fun LiveChatContentView(
         append(preAnnotatedText)
         rumbleUrlAnnotations.forEach {
             addStyle(
-                style = SpanStyle(color = blueLinkColor),
+                style = SpanStyle(color = blueLinkColor, textDecoration = TextDecoration.Underline),
                 start = it.start,
                 end = it.end
             )
