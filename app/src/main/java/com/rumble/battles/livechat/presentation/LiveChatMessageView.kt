@@ -16,7 +16,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
-import com.rumble.domain.common.domain.usecase.LinkUrl
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
@@ -27,6 +26,7 @@ import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusMedium
 import com.rumble.utils.RumbleConstants.BADGE_RECURRING_SUBSCRIPTION
+import com.rumble.utils.RumbleUrlAnnotation
 import com.rumble.utils.extension.conditional
 import java.time.LocalDateTime
 
@@ -36,7 +36,6 @@ fun LiveChatMessageView(
     messageEntity: LiveChatMessageEntity,
     badges: Map<String, BadgeEntity>,
     liveChatConfig: LiveChatConfig?,
-    links: (String) -> List<LinkUrl>,
     onClick: (LiveChatMessageEntity) -> Unit,
     onLinkClick: (String) -> Unit,
 ) {
@@ -88,7 +87,6 @@ fun LiveChatMessageView(
                 badges = badges,
                 atMentionRange = messageEntity.atMentionRange,
                 userNameColor = messageEntity.userNameColor ?: MaterialTheme.colors.primary,
-                links = links,
                 onLinkClick = onLinkClick,
                 onClick = {
                     onClick(messageEntity)
@@ -117,7 +115,6 @@ private fun Preview() {
             ),
             badges = emptyMap(),
             liveChatConfig = null,
-            links = { emptyList() },
             onClick = {},
             onLinkClick = {}
         )

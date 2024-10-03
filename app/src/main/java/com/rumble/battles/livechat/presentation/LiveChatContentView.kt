@@ -33,10 +33,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.rumble.domain.common.domain.usecase.LinkUrl
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.theme.RumbleTypography
+import com.rumble.theme.blueLinkColor
 import com.rumble.theme.liveChatBadgePadding
 import com.rumble.theme.liveChatBadgeSize
 import com.rumble.theme.paddingXXXXSmall
@@ -46,6 +46,7 @@ import com.rumble.theme.wokeGreen
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.getBoundingBoxes
 import com.rumble.utils.extension.getEmoteName
+import com.rumble.utils.getRumbleUrlAnnotations
 
 
 @Composable
@@ -58,7 +59,6 @@ fun LiveChatContentView(
     badges: Map<String, BadgeEntity> = emptyMap(),
     atMentionRange: IntRange? = null,
     userNameColor: Color = MaterialTheme.colors.primary,
-    links: ((String) -> List<LinkUrl>)? = null,
     onClick: () -> Unit = {},
     onLinkClick: (String) -> Unit = {},
 ) {
@@ -124,16 +124,18 @@ fun LiveChatContentView(
         }
     }
 
+    val rumbleUrlAnnotations = getRumbleUrlAnnotations(preAnnotatedText.text)
+
     val annotatedText = buildAnnotatedString {
         append(preAnnotatedText)
-        links?.invoke(preAnnotatedText.text)?.forEach {
+        rumbleUrlAnnotations.forEach {
             addStyle(
-                style = SpanStyle(textDecoration = TextDecoration.Underline),
+                style = SpanStyle(color = blueLinkColor, textDecoration = TextDecoration.Underline),
                 start = it.start,
                 end = it.end
             )
             addStringAnnotation(
-                tag = "URL",
+                tag = RumbleConstants.TAG_URL,
                 annotation = it.url,
                 start = it.start,
                 end = it.end
@@ -174,7 +176,7 @@ fun LiveChatContentView(
                     layoutResult?.let {
                         val position = it.getOffsetForPosition(offset)
                         val result = annotatedText
-                            .getStringAnnotations("URL", position, position)
+                            .getStringAnnotations(RumbleConstants.TAG_URL, position, position)
                             .firstOrNull()
                         if (result != null) {
                             onLinkClick(result.item)
