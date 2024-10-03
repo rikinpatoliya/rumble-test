@@ -147,7 +147,6 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onRumbleAdImpression(rumbleAd: RumbleAdEntity)
     fun onVideoPlayerImpression()
     fun onVideoCardImpression(videoEntity: VideoEntity)
-    fun onNavigated()
     fun onVerifyEmailForLiveChat()
     fun onCloseBuyRant(message: String)
     fun onPipModeEntered()
@@ -886,11 +885,6 @@ class VideoDetailsViewModel @Inject constructor(
                 cardSize = CardSize.REGULAR
             )
         }
-    }
-
-    override fun onNavigated() {
-        state.value.rumblePlayer?.pauseAndResetState()
-        playerImpressionLogged = false
     }
 
     override fun onCloseBuyRant(message: String) {
