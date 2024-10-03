@@ -93,6 +93,7 @@ import com.rumble.battles.feed.presentation.feedlist.HomeScreen
 import com.rumble.battles.feed.presentation.feedlist.HomeViewModel
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelScreen
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelsViewModel
+import com.rumble.battles.feed.presentation.videodetails.CollapsableLayoutState
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsScreen
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsViewModel
 import com.rumble.battles.landing.AppUpdateAvailableAlertDialog
@@ -512,11 +513,11 @@ fun ContentScreen(
             liveChatHandler = liveChatViewModel,
             contentBottomSheetState = bottomSheetState,
             onChannelClick = {
-                contentHandler.onCloseVideoDetails()
+                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
                 navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(it))
             },
             onCategoryClick = {
-                contentHandler.onCloseVideoDetails()
+                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
                 navControllers[selectedTabIndex].navigate(
                     RumbleScreens.CategoryScreen.getPath(
                         it,
@@ -525,7 +526,7 @@ fun ContentScreen(
                 )
             },
             onTagClick = {
-                contentHandler.onCloseVideoDetails()
+                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
                 navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
             },
         )

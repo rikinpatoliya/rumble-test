@@ -505,14 +505,8 @@ fun VideoDetailsScreen(
                             collapsePercentage = collapsePercentage,
                             collapseDirection = collapseDirection,
                             onChannelClick = onChannelClick,
-                            onCategoryClick = {
-                                handler.onNavigated()
-                                onCategoryClick(it)
-                            },
-                            onTagClick = {
-                                handler.onNavigated()
-                                onTagClick(it)
-                            },
+                            onCategoryClick = onCategoryClick,
+                            onTagClick = onTagClick,
                             liveChatBottomSheetState = liveChatBottomSheetState,
                             contentListState = contentListState,
                             onEnforceCollapse = { handler.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED) }
@@ -1241,10 +1235,7 @@ private fun VideoDetailsHeaderView(
                             action
                         )
                     },
-                    onChannelClick = { channelId ->
-                        handler.onNavigated()
-                        onChannelClick(channelId)
-                    }
+                    onChannelClick = onChannelClick
                 )
             }
 
