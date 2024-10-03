@@ -105,3 +105,7 @@ annotation class DebugLogRetrofit
 @Retention(AnnotationRetention.BINARY)
 annotation class AppFlyerId
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DebugHttpClient
+

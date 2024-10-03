@@ -48,4 +48,5 @@ object NetworkRumbleConstants {
     const val CONTENT_TYPE = "Content-Type"
     const val JSON_CONTENT_VALUE = "application/json"
     const val URL_ENCODED_VALUE = "application/x-www-form-urlencoded"
+    const val ERROR_RESPONSE_CODE = 1001
 }

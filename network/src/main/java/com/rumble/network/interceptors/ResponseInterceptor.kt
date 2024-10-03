@@ -7,6 +7,7 @@ import com.rumble.network.NetworkRumbleConstants.CHAT_KEY
 import com.rumble.network.NetworkRumbleConstants.COOKIES_HEADER
 import com.rumble.network.NetworkRumbleConstants.DEBUG_KEY
 import com.rumble.network.NetworkRumbleConstants.ENDPOINT_KEY
+import com.rumble.network.NetworkRumbleConstants.ERROR_RESPONSE_CODE
 import com.rumble.network.NetworkRumbleConstants.EVENT_URL_KEY
 import com.rumble.network.NetworkRumbleConstants.INTERVAL_KEY
 import com.rumble.network.NetworkRumbleConstants.LIVE_PING_ENDPOINT_KEY
@@ -61,7 +62,7 @@ class ResponseInterceptor @Inject constructor(private val sessionManager: Sessio
             val errorResponse = Response.Builder()
                 .request(chain.request())
                 .protocol(Protocol.HTTP_2)
-                .code(1001)
+                .code(ERROR_RESPONSE_CODE)
                 .message(e.message ?: "An unknown error inside response interceptor")
                 .body("$e".toResponseBody(null))
                 .build()
