@@ -142,9 +142,6 @@ fun BottomSheetOverNavBarContent(
                 isPremiumUser = true
             ) {
                 activityHandler.onOpenWebView(PremiumSubscription.RESTORE_SUBSCRIPTION_LINK)
-                contentHandler.updateBottomSheetUiState(
-                    BottomSheetContent.HideBottomSheet
-                )
             }
         }
 

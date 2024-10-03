@@ -83,7 +83,7 @@ interface RumbleActivityHandler {
     fun disableDynamicOrientationChangeBasedOnDeviceType()
     fun onShowAlertDialog(reason: RumbleActivityAlertReason)
     fun onDismissDialog()
-    fun onDeepLinkNavigated()
+    fun onPauseVideo()
     fun enableContentLoad()
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
@@ -318,7 +318,7 @@ class RumbleActivityViewModel @Inject constructor(
         alertDialogState.value = AlertDialogState()
     }
 
-    override fun onDeepLinkNavigated() {
+    override fun onPauseVideo() {
         currentPlayer?.pauseVideo()
     }
 

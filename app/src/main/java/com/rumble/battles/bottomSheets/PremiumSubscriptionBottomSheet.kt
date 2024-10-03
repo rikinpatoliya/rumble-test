@@ -31,7 +31,6 @@ import com.rumble.battles.PremiumTag
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.DrawerCloseIndicatorView
-import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.premium.presentation.SubscriptionTypeView
@@ -132,9 +131,6 @@ fun PremiumSubscriptionBottomSheet(
                     .padding(horizontal = paddingLarge, vertical = paddingXXSmall)
                     .clickable {
                         activityHandler.onOpenWebView(PremiumSubscription.RESTORE_SUBSCRIPTION_LINK)
-                        handler.updateBottomSheetUiState(
-                            BottomSheetContent.HideBottomSheet
-                        )
                     },
                 text = stringResource(id = R.string.restore_subscription),
                 color = enforcedLite,
@@ -150,9 +146,6 @@ fun PremiumSubscriptionBottomSheet(
                 onClick = { offset ->
                     notes.getStringAnnotations(start = offset, end = offset).firstOrNull()?.let {
                         activityHandler.onOpenWebView(it.item)
-                        handler.updateBottomSheetUiState(
-                            BottomSheetContent.HideBottomSheet
-                        )
                     }
                 }
             )
