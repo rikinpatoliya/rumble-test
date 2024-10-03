@@ -97,7 +97,6 @@ fun HomeScreen(
     onFollowingIconGlobalMeasured: (Offset) -> Unit,
     onFollowingClicked: () -> Unit,
     onViewNotifications: () -> Unit,
-    onNavigateToSettings: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
 
@@ -215,7 +214,6 @@ fun HomeScreen(
             onSearchIconGlobalMeasured = onSearchIconGlobalMeasured,
             onFollowingIconGlobalMeasured = onFollowingIconGlobalMeasured,
             onFollowing = onFollowingClicked,
-            onSettings = onNavigateToSettings
         )
 
         SwipeRefresh(

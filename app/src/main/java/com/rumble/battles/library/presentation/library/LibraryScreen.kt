@@ -74,7 +74,6 @@ fun LibraryScreen(
     onViewPlayList: (playListId: String) -> Unit,
     bottomSheetState: ModalBottomSheetState,
     onViewNotifications: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
@@ -154,7 +153,6 @@ fun LibraryScreen(
                     activityHandler.clearNotifications()
                     onViewNotifications()
                 },
-                onSettings = onNavigateToSettings
             )
 
             SwipeRefresh(
