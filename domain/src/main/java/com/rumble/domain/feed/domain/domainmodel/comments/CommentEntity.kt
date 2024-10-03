@@ -20,4 +20,5 @@ data class CommentEntity(
     val repliedByCurrentUser: Boolean = false,
     val displayReplies: Boolean = false,
     val verifiedBadge: Boolean,
-): Parcelable
+    val replyAllowed: Boolean = true
+) : Parcelable

@@ -179,6 +179,13 @@ class RumbleMainActivity : FragmentActivity() {
                             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                         }
                     }
+                    is RumbleEvent.OpenWebView -> {
+                        navController.navigate(
+                            LandingScreens.RumbleWebViewScreen.getPath(
+                                it.url
+                            )
+                        )
+                    }
 
                     else -> {}
                 }

@@ -70,7 +70,6 @@ import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsVie
 import com.rumble.battles.commonViews.BottomNavigationBar
 import com.rumble.battles.commonViews.DefaultSystemBarIconsColor
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
-import com.rumble.battles.commonViews.RumbleWebView
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.DeletePlayListConfirmationAlertDialog
 import com.rumble.battles.commonViews.dialogs.DeleteWatchHistoryConfirmationAlertDialog
@@ -254,12 +253,6 @@ fun ContentScreen(
                 snackBarHostState.showRumbleSnackbar(
                     context.getString(R.string.generic_error_message_try_later)
                 )
-            } else if (it is RumbleEvent.OpenWebView) {
-                homeNavController.navigate(
-                    RumbleScreens.RumbleWebViewScreen.getPath(
-                        it.url
-                    )
-                )
             }
         }
     }
@@ -336,7 +329,7 @@ fun ContentScreen(
                 }
 
                 is ContentScreenVmEvent.NavigateToChannelDetails -> {
-                    activityHandler.onDeepLinkNavigated()
+                    activityHandler.onPauseVideo()
                     navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(event.channelId))
                     contentHandler.onDeepLinkNavigated()
                 }
@@ -726,11 +719,9 @@ private fun createNavigationGraph(
                 onVideoClick = {
                     if (it is VideoEntity) {
                         contentHandler.onOpenVideoDetails(it.id)
-                    } else if (it is AdEntity) currentNavController.navigate(
-                        RumbleScreens.RumbleWebViewScreen.getPath(
-                            it.adUrl
-                        )
-                    )
+                    } else if (it is AdEntity) {
+                        activityHandler.onOpenWebView(it.adUrl)
+                    }
                 },
                 onViewAllRecommendedChannelsClick = {
                     currentNavController.navigate(RumbleScreens.RecommendedChannelsScreen.rootName)
@@ -1027,13 +1018,13 @@ private fun createNavigationGraph(
             val profileViewModel: ProfileViewModel = hiltViewModel()
             val authViewModel: AuthViewModel = hiltViewModel()
             ProfileScreen(
+                activityHandler = activityHandler,
                 profileHandler = profileViewModel,
                 authHandler = authViewModel,
                 onProfileItemClicked = { navigationId ->
                     currentNavController.navigate(navigationId)
                 },
                 contentHandler = contentHandler,
-                bottomSheetState = bottomSheetState,
                 onNavigateToRegistration = { loginType, userId, token, email ->
                     parentController.navigate(
                         LandingScreens.RegisterScreen.getPath(
@@ -1050,13 +1041,10 @@ private fun createNavigationGraph(
                 onNavigateToSettings = {
                     currentNavController.navigate(RumbleScreens.Settings.getPath())
                 },
+                onViewNotifications = {
+                    currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
+                }
             )
-        }
-        composable(
-            RumbleScreens.RumbleWebViewScreen.rootName,
-            arguments = listOf(navArgument(RumblePath.URL.path) { type = NavType.StringType })
-        ) { backStackEntry ->
-            RumbleWebView(url = backStackEntry.arguments?.getString(RumblePath.URL.path) ?: "")
         }
         composable(
             RumbleScreens.Search.rootName,

@@ -157,12 +157,14 @@ private fun MainCommentView(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RepliesView(
-                    modifier = Modifier.wrapContentSize(),
-                    replaysNumber = commentEntity.replayList?.size ?: 0,
-                    replied = commentEntity.repliedByCurrentUser,
-                    onClick = { onReplies(commentEntity) },
-                )
+                if (commentEntity.replyAllowed) {
+                    RepliesView(
+                        modifier = Modifier.wrapContentSize(),
+                        replaysNumber = commentEntity.replayList?.size ?: 0,
+                        replied = commentEntity.repliedByCurrentUser,
+                        onClick = { onReplies(commentEntity) },
+                    )
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -192,13 +194,13 @@ private fun MainCommentView(
                             .clickable { onReport(commentEntity) },
                     ) {
                         Icon(
-                        modifier = Modifier
-                            .padding(
-                                start = paddingXSmall,
-                                top = paddingXXXSmall,
-                                end = paddingXSmall,
-                                bottom = paddingXXXSmall
-                            ),
+                            modifier = Modifier
+                                .padding(
+                                    start = paddingXSmall,
+                                    top = paddingXXXSmall,
+                                    end = paddingXSmall,
+                                    bottom = paddingXXXSmall
+                                ),
                             painter = painterResource(id = R.drawable.ic_flag),
                             contentDescription = stringResource(id = R.string.report),
                             tint = MaterialTheme.colors.secondary
@@ -213,7 +215,7 @@ private fun MainCommentView(
                     onClick = { onLike(commentEntity) }
                 )
 
-                if (hasPremiumRestriction.not()) {
+                if (hasPremiumRestriction.not() && commentEntity.replyAllowed) {
                     RumbleTextActionButton(
                         text = stringResource(id = R.string.reply),
                         textStyle = h6,

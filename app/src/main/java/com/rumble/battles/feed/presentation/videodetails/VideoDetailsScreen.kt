@@ -269,7 +269,7 @@ fun VideoDetailsScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         activityHandler.dynamicOrientationChangeDisabled = false
         onDispose {
-            handler.onClearVideo()
+            activityHandler.onPauseVideo()
             lifecycleOwner.lifecycle.removeObserver(observer)
             activityHandler.dynamicOrientationChangeDisabled = true
             activityHandler.disableDynamicOrientationChangeBasedOnDeviceType()
@@ -453,7 +453,7 @@ fun VideoDetailsScreen(
                 MiniPlayerView(
                     modifier = Modifier.fillMaxWidth(),
                     rumblePlayer = rumblePlayer,
-                    onClose = { handler.onBack() },
+                    onClose = { handler.onClearVideo() },
                     onClick = {
                         collapsePaddingVisible = false
                         handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
