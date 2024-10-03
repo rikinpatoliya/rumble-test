@@ -215,7 +215,6 @@ data class VideoDetailsState(
     val userProfile: UserProfileEntity? = null,
     val selectedLiveChatAuthor: CommentAuthorEntity? = null,
     val hasPremiumRestriction: Boolean = false,
-    val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
 )
@@ -316,7 +315,7 @@ class VideoDetailsViewModel @Inject constructor(
     private var playListId: String = ""
     private var shouldShufflePlayList = false
 
-    private val orientationEventListener: RumbleOrientationChangeHandler?
+    private val orientationEventListener: RumbleOrientationChangeHandler
 
     private var lockPortraitVertical = false
     private var playerImpressionLogged = false
@@ -339,13 +338,12 @@ class VideoDetailsViewModel @Inject constructor(
     override val autoplayFlow: Flow<Boolean> = userPreferenceManager.autoplayFlow
 
     init {
-        orientationEventListener = if (getSensorBasedOrientationChangeEnabledUseCase()) {
-            RumbleOrientationChangeHandler(application) {
-                if (state.value.screenOrientationLocked) {
-                    onScreenOrientationChanged(it)
-                }
+        orientationEventListener = RumbleOrientationChangeHandler(application) {
+            if (getSensorBasedOrientationChangeEnabledUseCase()) {
+                onScreenOrientationChanged(it)
             }
-        } else null
+        }
+
         observeLoginState()
     }
 
@@ -419,10 +417,6 @@ class VideoDetailsViewModel @Inject constructor(
             if (fullScreen && isLandscape(state.value.screenOrientation)) return
 
             if (fullScreen && state.value.videoEntity?.portraitMode == false) {
-                state.value =
-                    state.value.copy(
-                        screenOrientationLocked = true
-                    )
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE))
             } else if (fullScreen && state.value.videoEntity?.portraitMode == true) {
                 lockPortraitVertical = true
@@ -439,10 +433,6 @@ class VideoDetailsViewModel @Inject constructor(
                         uiType = UiType.EMBEDDED
                     )
             } else {
-                state.value =
-                    state.value.copy(
-                        screenOrientationLocked = true
-                    )
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
             }
         }
@@ -950,11 +940,11 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onEnableOrientationChangeListener() {
-        orientationEventListener?.enable()
+        orientationEventListener.enable()
     }
 
     override fun onDisableOrientationChangeListener() {
-        orientationEventListener?.disable()
+        orientationEventListener.disable()
     }
 
     override fun onVerifyEmailForLiveChat() {
@@ -1198,7 +1188,7 @@ class VideoDetailsViewModel @Inject constructor(
             isLoggedIn = state.value.isLoggedIn,
             userProfile = state.value.userProfile
         )
-        orientationEventListener?.disable()
+        orientationEventListener.disable()
     }
 
     private fun emitVmEvent(event: VideoDetailsEvent) =
@@ -1431,14 +1421,11 @@ class VideoDetailsViewModel @Inject constructor(
 
     private fun onScreenOrientationChanged(orientation: Int) {
         if (orientation < 0) return
-        state.value = state.value.copy(screenOrientationLocked = false)
-        emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
+        emitVmEvent(VideoDetailsEvent.SetOrientation(orientation))
     }
 
     private fun isLandscape(orientation: Int) =
-        orientation == Configuration.ORIENTATION_LANDSCAPE ||
-            orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
-            orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+        orientation == Configuration.ORIENTATION_LANDSCAPE
 
     private fun showVerificationEmailSent() {
         alertDialogState.value = AlertDialogState(

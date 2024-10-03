@@ -264,9 +264,8 @@ fun VideoDetailsScreen(
     var collapsed by remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
-        if (state.screenOrientationLocked.not()) {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        }
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
         lifecycleOwner.lifecycle.addObserver(observer)
         activityHandler.dynamicOrientationChangeDisabled = false
         onDispose {
