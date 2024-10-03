@@ -255,7 +255,7 @@ fun ContentScreen(
                     context.getString(R.string.generic_error_message_try_later)
                 )
             } else if (it is RumbleEvent.OpenWebView) {
-                homeNavController.navigate(
+                navControllers[selectedTabIndex].navigate(
                     RumbleScreens.RumbleWebViewScreen.getPath(
                         it.url
                     )
@@ -1027,13 +1027,13 @@ private fun createNavigationGraph(
             val profileViewModel: ProfileViewModel = hiltViewModel()
             val authViewModel: AuthViewModel = hiltViewModel()
             ProfileScreen(
+                activityHandler = activityHandler,
                 profileHandler = profileViewModel,
                 authHandler = authViewModel,
                 onProfileItemClicked = { navigationId ->
                     currentNavController.navigate(navigationId)
                 },
                 contentHandler = contentHandler,
-                bottomSheetState = bottomSheetState,
                 onNavigateToRegistration = { loginType, userId, token, email ->
                     parentController.navigate(
                         LandingScreens.RegisterScreen.getPath(
@@ -1050,6 +1050,9 @@ private fun createNavigationGraph(
                 onNavigateToSettings = {
                     currentNavController.navigate(RumbleScreens.Settings.getPath())
                 },
+                onViewNotifications = {
+                    currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
+                }
             )
         }
         composable(
