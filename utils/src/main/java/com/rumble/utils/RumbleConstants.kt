@@ -107,6 +107,8 @@ object RumbleConstants {
     const val ORGANIC_CONVERSION = "Organic"
     const val NON_ORGANIC_CONVERSION = "Non-organic"
     const val MAX_COMMENT_LEVEL = 4
+    const val HTTP_PREFIX = "http://"
+    const val HTTPS_PREFIX = "https://"
 
     @Language("JSON")
     val countriesList = """

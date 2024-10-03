@@ -43,6 +43,7 @@ import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.RoundTextButton
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
 import com.rumble.battles.feed.presentation.views.GoPremiumToCharOrCommentView
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.theme.RumbleTypography.h4Underlined
 import com.rumble.theme.darkGreen
 import com.rumble.theme.enforcedDarkmo
@@ -60,7 +61,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun LiveChatViewContent(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
-    liveChatHandler: LiveChatHandler
+    liveChatHandler: LiveChatHandler,
+    activityHandler: RumbleActivityHandler
 ) {
     val state by remember { handler.state }
     val liveChatState by liveChatHandler.state
@@ -239,9 +241,8 @@ fun LiveChatViewContent(
                                     messageEntity = message,
                                     badges = liveChatState.badges,
                                     liveChatConfig = liveChatState.liveChatConfig,
-                                    links = liveChatHandler::getLinks,
                                     onClick = liveChatHandler::onDisplayModerationMenu,
-                                    onLinkClick = liveChatHandler::onLinkClick
+                                    onLinkClick = activityHandler::onOpenWebView
                                 )
                             }
                         }

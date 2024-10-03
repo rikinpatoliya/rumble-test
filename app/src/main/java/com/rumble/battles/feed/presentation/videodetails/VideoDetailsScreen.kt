@@ -665,6 +665,7 @@ fun VideoDetailsView(
                                 .fillMaxHeight(),
                             handler = handler,
                             liveChatHandler = liveChatHandler,
+                            activityHandler = activityHandler
                         )
                     }
                 }
@@ -685,6 +686,7 @@ fun VideoDetailsView(
                                     modifier = sheetContentModifier,
                                     handler = handler,
                                     liveChatHandler = liveChatHandler,
+                                    activityHandler = activityHandler
                                 )
                             } else {
                                 CommentsView(
