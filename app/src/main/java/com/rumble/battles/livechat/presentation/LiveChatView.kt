@@ -10,6 +10,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.theme.commentActionButtonWidth
 import kotlinx.coroutines.flow.collectLatest
 
@@ -18,6 +19,7 @@ fun LiveChatView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
     liveChatHandler: LiveChatHandler,
+    activityHandler: RumbleActivityHandler
 ) {
     LaunchedEffect(Unit) {
         liveChatHandler.eventFlow.collectLatest {
@@ -47,7 +49,8 @@ fun LiveChatView(
     LiveChatViewContent(
         modifier = modifier,
         handler = handler,
-        liveChatHandler = liveChatHandler
+        liveChatHandler = liveChatHandler,
+        activityHandler = activityHandler
     )
 
     LiveChatDialog(handler = handler, liveChatHandler = liveChatHandler)
@@ -56,7 +59,7 @@ fun LiveChatView(
 @Composable
 private fun LiveChatDialog(
     handler: VideoDetailsHandler,
-    liveChatHandler: LiveChatHandler
+    liveChatHandler: LiveChatHandler,
 ) {
     val state by handler.state
     val alertDialogState by liveChatHandler.alertDialogState
