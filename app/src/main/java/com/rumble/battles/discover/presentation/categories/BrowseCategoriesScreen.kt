@@ -11,18 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -68,6 +67,7 @@ import com.rumble.theme.paddingNone
 import com.rumble.theme.paddingSmall
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
+import com.rumble.utils.extension.rememberLazyListState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -85,10 +85,10 @@ fun BrowseCategoriesScreen(
     val alertDialogState by categoryHandler.alertDialogState
     val videoListItems: LazyPagingItems<Feed> = state.liveVideoList.collectAsLazyPagingItems()
     val configuration = LocalConfiguration.current
-    var isCollapsed by remember { mutableStateOf(false) }
+    var isCollapsed by rememberSaveable { mutableStateOf(false) }
     val soundOn by categoryHandler.soundState.collectAsStateWithLifecycle(initialValue = false)
-    val gridState: LazyGridState = rememberSaveable(saver = LazyGridState.Saver) { LazyGridState() }
-    val listState: LazyListState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
+    val gridState: LazyGridState = rememberLazyGridState()
+    val listState = videoListItems.rememberLazyListState()
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             categoryHandler.onCreatePlayerForVisibleFeed()
@@ -211,7 +211,9 @@ fun BrowseCategoriesScreen(
             if (state.displayType == CategoryDisplayType.CATEGORIES) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(RumbleConstants.SUBCATEGORY_ROWS_QUANTITY),
-                    contentPadding = if (state.categoryList.isNotEmpty()) PaddingValues(paddingSmall) else PaddingValues(paddingNone),
+                    contentPadding = if (state.categoryList.isNotEmpty()) PaddingValues(paddingSmall) else PaddingValues(
+                        paddingNone
+                    ),
                     verticalArrangement = Arrangement.spacedBy(paddingSmall),
                     horizontalArrangement = Arrangement.spacedBy(paddingSmall),
                     state = gridState
@@ -318,6 +320,7 @@ fun BrowseCategoriesScreen(
                         onRetry = videoListItems::retry,
                     )
                 }
+
                 loadState.append is LoadState.Loading -> {
                     PageLoadingView(
                         modifier = Modifier
