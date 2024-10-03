@@ -106,6 +106,7 @@ object RumbleConstants {
     const val CONVERSION_TYPE_KEY = "af_status"
     const val ORGANIC_CONVERSION = "Organic"
     const val NON_ORGANIC_CONVERSION = "Non-organic"
+    const val MAX_COMMENT_LEVEL = 4
 
     @Language("JSON")
     val countriesList = """
