@@ -28,7 +28,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -36,6 +35,7 @@ import coil.request.ImageRequest
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.theme.RumbleTypography
+import com.rumble.theme.blueLinkColor
 import com.rumble.theme.liveChatBadgePadding
 import com.rumble.theme.liveChatBadgeSize
 import com.rumble.theme.paddingXXXXSmall
@@ -43,7 +43,6 @@ import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
 import com.rumble.theme.wokeGreen
 import com.rumble.utils.RumbleConstants
-import com.rumble.utils.RumbleUrlAnnotation
 import com.rumble.utils.extension.getBoundingBoxes
 import com.rumble.utils.extension.getEmoteName
 import com.rumble.utils.getRumbleUrlAnnotations
@@ -130,7 +129,7 @@ fun LiveChatContentView(
         append(preAnnotatedText)
         rumbleUrlAnnotations.forEach {
             addStyle(
-                style = SpanStyle(textDecoration = TextDecoration.Underline),
+                style = SpanStyle(color = blueLinkColor),
                 start = it.start,
                 end = it.end
             )
