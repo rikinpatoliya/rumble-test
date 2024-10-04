@@ -267,7 +267,6 @@ fun VideoDetailsScreen(
         if (state.screenOrientationLocked.not()) {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
-
         lifecycleOwner.lifecycle.addObserver(observer)
         activityHandler.dynamicOrientationChangeDisabled = false
         onDispose {
