@@ -148,7 +148,8 @@ private fun MainCommentView(
                 .fillMaxWidth()
                 .padding(top = paddingXSmall, start = paddingXSmall, end = paddingXSmall),
             text = commentEntity.commentText,
-            style = body1
+            style = body1,
+            color = MaterialTheme.colors.primary
         )
 
         if (showReplies) {
