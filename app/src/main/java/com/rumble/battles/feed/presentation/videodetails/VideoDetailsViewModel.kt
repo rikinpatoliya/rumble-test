@@ -315,7 +315,7 @@ class VideoDetailsViewModel @Inject constructor(
     private var playListId: String = ""
     private var shouldShufflePlayList = false
 
-    private val orientationEventListener: RumbleOrientationChangeHandler?
+    private val orientationEventListener: RumbleOrientationChangeHandler
 
     private var lockPortraitVertical = false
     private var playerImpressionLogged = false
@@ -338,13 +338,12 @@ class VideoDetailsViewModel @Inject constructor(
     override val autoplayFlow: Flow<Boolean> = userPreferenceManager.autoplayFlow
 
     init {
-        orientationEventListener = if (getSensorBasedOrientationChangeEnabledUseCase()) {
-            RumbleOrientationChangeHandler(application) {
-                if (state.value.screenOrientationLocked) {
-                    onScreenOrientationChanged(it)
-                }
+        orientationEventListener = RumbleOrientationChangeHandler(application) {
+            if (state.value.screenOrientationLocked && getSensorBasedOrientationChangeEnabledUseCase()) {
+                onScreenOrientationChanged(it)
             }
-        } else null
+        }
+
         observeLoginState()
     }
 
@@ -944,11 +943,11 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onEnableOrientationChangeListener() {
-        orientationEventListener?.enable()
+        orientationEventListener.enable()
     }
 
     override fun onDisableOrientationChangeListener() {
-        orientationEventListener?.disable()
+        orientationEventListener.disable()
     }
 
     override fun onVerifyEmailForLiveChat() {
@@ -1192,7 +1191,7 @@ class VideoDetailsViewModel @Inject constructor(
             isLoggedIn = state.value.isLoggedIn,
             userProfile = state.value.userProfile
         )
-        orientationEventListener?.disable()
+        orientationEventListener.disable()
     }
 
     private fun emitVmEvent(event: VideoDetailsEvent) =
@@ -1424,15 +1423,20 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private fun onScreenOrientationChanged(orientation: Int) {
-        if (orientation < 0) return
+        val currentScreenOrientation = state.value.screenOrientation
+        if (orientation < 0 ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(currentScreenOrientation)) ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isPortrait(currentScreenOrientation))
+        ) {
+            return
+        }
         state.value = state.value.copy(screenOrientationLocked = false)
         emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
     }
 
-    private fun isLandscape(orientation: Int) =
-        orientation == Configuration.ORIENTATION_LANDSCAPE ||
-            orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
-            orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+    private fun isLandscape(orientation: Int) = orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    private fun isPortrait(orientation: Int) = orientation == Configuration.ORIENTATION_PORTRAIT
 
     private fun showVerificationEmailSent() {
         alertDialogState.value = AlertDialogState(
