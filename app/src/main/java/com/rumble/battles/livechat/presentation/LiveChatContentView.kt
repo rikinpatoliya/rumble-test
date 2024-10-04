@@ -189,7 +189,7 @@ fun LiveChatContentView(
         inlineContent = inlineContent + inlineEmotesContent,
         text = annotatedText,
         style = RumbleTypography.h6Light,
-        color = Color.Unspecified,
+        color = MaterialTheme.colors.primary,
         onTextLayout = {
             layoutResult = it
             if (shouldHighlight) {
