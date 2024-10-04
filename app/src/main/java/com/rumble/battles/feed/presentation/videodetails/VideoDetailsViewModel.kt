@@ -214,6 +214,7 @@ data class VideoDetailsState(
     val userProfile: UserProfileEntity? = null,
     val selectedLiveChatAuthor: CommentAuthorEntity? = null,
     val hasPremiumRestriction: Boolean = false,
+    val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
 )
@@ -338,7 +339,7 @@ class VideoDetailsViewModel @Inject constructor(
 
     init {
         orientationEventListener = RumbleOrientationChangeHandler(application) {
-            if (getSensorBasedOrientationChangeEnabledUseCase()) {
+            if (state.value.screenOrientationLocked && getSensorBasedOrientationChangeEnabledUseCase()) {
                 onScreenOrientationChanged(it)
             }
         }
@@ -416,6 +417,10 @@ class VideoDetailsViewModel @Inject constructor(
             if (fullScreen && isLandscape(state.value.screenOrientation)) return
 
             if (fullScreen && state.value.videoEntity?.portraitMode == false) {
+                state.value =
+                    state.value.copy(
+                        screenOrientationLocked = true
+                    )
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE))
             } else if (fullScreen && state.value.videoEntity?.portraitMode == true) {
                 lockPortraitVertical = true
@@ -432,6 +437,10 @@ class VideoDetailsViewModel @Inject constructor(
                         uiType = UiType.EMBEDDED
                     )
             } else {
+                state.value =
+                    state.value.copy(
+                        screenOrientationLocked = true
+                    )
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
             }
         }
@@ -1414,8 +1423,11 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private fun onScreenOrientationChanged(orientation: Int) {
-        if (orientation < 0) return
-        emitVmEvent(VideoDetailsEvent.SetOrientation(orientation))
+        if (orientation < 0 || (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(state.value.screenOrientation))) {
+            return
+        }
+        state.value = state.value.copy(screenOrientationLocked = false)
+        emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
     }
 
     private fun isLandscape(orientation: Int) =

@@ -185,8 +185,10 @@ import com.rumble.videoplayer.presentation.views.MiniPlayerInfoView
 import com.rumble.videoplayer.presentation.views.MiniPlayerView
 import com.rumble.videoplayer.presentation.views.VideoSettingsBottomSheet
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDateTime
 
 private const val TAG = "VideoDetailsScreen"
@@ -264,7 +266,9 @@ fun VideoDetailsScreen(
     var collapsed by remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        if (state.screenOrientationLocked.not()) {
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
 
         lifecycleOwner.lifecycle.addObserver(observer)
         activityHandler.dynamicOrientationChangeDisabled = false
