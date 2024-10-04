@@ -1423,15 +1423,20 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private fun onScreenOrientationChanged(orientation: Int) {
-        if (orientation < 0 || (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(state.value.screenOrientation))) {
+        val currentScreenOrientation = state.value.screenOrientation
+        if (orientation < 0 ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(currentScreenOrientation)) ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isPortrait(currentScreenOrientation))
+        ) {
             return
         }
         state.value = state.value.copy(screenOrientationLocked = false)
         emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
     }
 
-    private fun isLandscape(orientation: Int) =
-        orientation == Configuration.ORIENTATION_LANDSCAPE
+    private fun isLandscape(orientation: Int) = orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    private fun isPortrait(orientation: Int) = orientation == Configuration.ORIENTATION_PORTRAIT
 
     private fun showVerificationEmailSent() {
         alertDialogState.value = AlertDialogState(
