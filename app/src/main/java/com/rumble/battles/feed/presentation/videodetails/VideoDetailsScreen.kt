@@ -185,10 +185,8 @@ import com.rumble.videoplayer.presentation.views.MiniPlayerInfoView
 import com.rumble.videoplayer.presentation.views.MiniPlayerView
 import com.rumble.videoplayer.presentation.views.VideoSettingsBottomSheet
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDateTime
 
 private const val TAG = "VideoDetailsScreen"
