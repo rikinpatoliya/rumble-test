@@ -308,7 +308,8 @@ fun LiveChatViewContent(
                     badges = liveChatState.badges,
                     canModerate = liveChatState.canModerate,
                     onUnpin = liveChatHandler::onUnpinMessage,
-                    onHide = liveChatHandler::onHidePinnedMessage
+                    onHide = liveChatHandler::onHidePinnedMessage,
+                    onLinkClick = activityHandler::onOpenWebView
                 )
             }
         }

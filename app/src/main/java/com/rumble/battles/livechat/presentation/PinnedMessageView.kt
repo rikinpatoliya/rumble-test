@@ -2,6 +2,7 @@ package com.rumble.battles.livechat.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,8 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,12 +41,15 @@ import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography.h5
 import com.rumble.theme.RumbleTypography.h6
+import com.rumble.theme.blueLinkColor
 import com.rumble.theme.borderXXSmall
 import com.rumble.theme.imageXSmall
 import com.rumble.theme.imageXXSmall
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusSmall
+import com.rumble.utils.RumbleConstants
+import com.rumble.utils.getUrlAnnotatedString
 import com.rumble.utils.extension.consumeClick
 import java.time.LocalDateTime
 
@@ -53,7 +60,8 @@ fun PinnedMessageView(
     badges: Map<String, BadgeEntity> = emptyMap(),
     canModerate: Boolean,
     onUnpin: () -> Unit,
-    onHide: () -> Unit
+    onHide: () -> Unit,
+    onLinkClick: (String) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -61,7 +69,11 @@ fun PinnedMessageView(
         modifier = modifier
             .consumeClick()
             .clip(RoundedCornerShape(radiusSmall))
-            .border(borderXXSmall, MaterialTheme.colors.onSecondary, RoundedCornerShape(radiusSmall))
+            .border(
+                borderXXSmall,
+                MaterialTheme.colors.onSecondary,
+                RoundedCornerShape(radiusSmall)
+            )
             .background(MaterialTheme.colors.surface)
             .padding(paddingSmall)
 
@@ -75,18 +87,34 @@ fun PinnedMessageView(
                 onUnpin = onUnpin,
                 onHide = onHide
             )
-
+            var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+            val annotatedText = getUrlAnnotatedString(AnnotatedString(message.message), blueLinkColor)
             Text(
-                text = message.message,
+                text = annotatedText,
                 style = h5,
                 maxLines = if (isExpanded) Int.MAX_VALUE else 1,
                 overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colors.primary
+                color = MaterialTheme.colors.primary,
+                onTextLayout = { layoutResult = it },
+                modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        layoutResult?.let {
+                            val position = it.getOffsetForPosition(offset)
+                            val result = annotatedText
+                                .getStringAnnotations(RumbleConstants.TAG_URL, position, position)
+                                .firstOrNull()
+                            if (result != null) {
+                                onLinkClick(result.item)
+                            }
+                        }
+                    }
+                }
             )
 
             PinnedMessageFooter(
                 message = message,
-                badges = badges
+                badges = badges,
+                onLinkClick = onLinkClick
             )
         }
     }
@@ -177,7 +205,8 @@ private fun PinnedMessageHeader(
 @Composable
 private fun PinnedMessageFooter(
     message: LiveChatMessageEntity,
-    badges: Map<String, BadgeEntity>
+    badges: Map<String, BadgeEntity>,
+    onLinkClick: (String) -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -219,7 +248,8 @@ private fun Preview() {
             message = message,
             canModerate = false,
             onUnpin = {},
-            onHide = {}
+            onHide = {},
+            onLinkClick = {}
         )
     }
 }
