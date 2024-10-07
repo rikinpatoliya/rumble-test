@@ -256,7 +256,8 @@ fun CategoryScreen(
                                 is CategoryListEntity -> {
                                     LiveCategoriesView(
                                         title = stringResource(id = R.string.recommended_categories).uppercase(),
-                                        titlePadding = paddingMedium,
+                                        titleHorizontalPadding = paddingMedium,
+                                        titleBottomPadding = paddingSmall,
                                         error = it.categoryList.isEmpty(),
                                         categoryList = it.categoryList,
                                         onViewCategory = { categoryEntity, index ->

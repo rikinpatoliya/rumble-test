@@ -49,7 +49,8 @@ import com.rumble.utils.extension.shortString
 fun LiveCategoriesView(
     modifier: Modifier = Modifier,
     title: String,
-    titlePadding: Dp,
+    titleHorizontalPadding: Dp,
+    titleBottomPadding: Dp,
     isLoading: Boolean = false,
     error: Boolean = false,
     viewAll: Boolean = false,
@@ -61,7 +62,11 @@ fun LiveCategoriesView(
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
-                .padding(horizontal = titlePadding)
+                .padding(
+                    start = titleHorizontalPadding,
+                    end = titleHorizontalPadding,
+                    bottom = titleBottomPadding
+                )
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -82,14 +87,14 @@ fun LiveCategoriesView(
         if (isLoading) {
             LoadingView(
                 modifier = Modifier
-                    .padding(horizontal = titlePadding)
+                    .padding(horizontal = titleHorizontalPadding)
                     .height(defaultDiscoverContentLoadingHeight)
                     .fillMaxWidth()
             )
         } else if (error) {
             ErrorView(
                 modifier = Modifier
-                    .padding(horizontal = titlePadding)
+                    .padding(horizontal = titleHorizontalPadding)
                     .height(defaultDiscoverContentLoadingHeight)
                     .fillMaxWidth(),
                 onRetry = onRefresh
@@ -97,7 +102,7 @@ fun LiveCategoriesView(
         } else {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(paddingSmall),
-                contentPadding = PaddingValues(horizontal = titlePadding)
+                contentPadding = PaddingValues(horizontal = titleHorizontalPadding)
             ) {
                 itemsIndexed(categoryList) { index, item ->
                     LiveCategoryView(
