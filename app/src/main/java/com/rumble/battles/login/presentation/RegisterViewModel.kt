@@ -7,8 +7,6 @@ import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.LandingPath
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
-import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.SendEmailUseCase
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.login.domain.domainmodel.RegisterResult
@@ -54,7 +52,6 @@ interface RegisterHandler {
     fun onWhyWeAskBirthdayClicked()
     fun onDismissDialog()
     fun onSendEmail(email: String)
-    fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int)
     fun onOpenUri(tag: String, uri: String)
     fun onJoin()
     fun onGenderSelected(gender: Gender)
@@ -116,7 +113,6 @@ class RegisterViewModel @Inject constructor(
     private val passwordValidationUseCase: PasswordValidationUseCase,
     private val birthdayValidationUseCase: BirthdayValidationUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
-    private val annotatedStringUseCase: AnnotatedStringUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     stateHandle: SavedStateHandle
 ) : ViewModel(), RegisterHandler {
@@ -217,10 +213,6 @@ class RegisterViewModel @Inject constructor(
 
     override fun onDismissDialog() {
         alertDialogState.value = AlertDialogState()
-    }
-
-    override fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int) {
-        annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
     }
 
     override fun onOpenUri(tag: String, uri: String) {

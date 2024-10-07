@@ -269,6 +269,7 @@ class RumbleMainActivity : FragmentActivity() {
             composable(LandingScreens.RegisterScreen.screenName) {
                 val registerViewModel: RegisterViewModel = hiltViewModel()
                 RegisterScreen(
+                    activityHandler = viewModel,
                     registerHandler = registerViewModel,
                     onNavigateToHomeScreen = {
                         navController.navigate(LandingScreens.ContentScreen.screenName) {
@@ -296,6 +297,7 @@ class RumbleMainActivity : FragmentActivity() {
             ) {
                 val registerViewModel: RegisterViewModel = hiltViewModel()
                 RegisterScreen(
+                    activityHandler = viewModel,
                     registerHandler = registerViewModel,
                     onNavigateToHomeScreen = {
                         navController.navigate(LandingScreens.ContentScreen.screenName) {

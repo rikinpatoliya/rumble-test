@@ -27,8 +27,6 @@ import com.rumble.domain.camera.domain.usecases.UploadVideoUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserUploadChannelsUseCase
-import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
-import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.CheckCurrentDateAndAdjustUseCase
 import com.rumble.domain.common.domain.usecase.CombineTimeWithDateUseCase
 import com.rumble.domain.common.domain.usecase.OpenPhoneSettingUseCase
@@ -104,11 +102,6 @@ interface CameraHandler {
 interface CameraUploadHandler {
     val uiState: StateFlow<UserUploadUIState>
     val eventFlow: Flow<CameraUploadVmEvent>
-    fun onAnnotatedTextClicked(
-        annotatedTextWithActions: AnnotatedStringWithActionsList,
-        offset: Int
-    )
-
     fun onUploadChannelSelected(channelId: String)
     fun onTitleChanged(value: String)
     fun onDescriptionChanged(value: String)
@@ -209,7 +202,6 @@ class CameraViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val getUserUploadChannelsUseCase: GetUserUploadChannelsUseCase,
-    private val annotatedStringUseCase: AnnotatedStringUseCase,
     private val openPhoneSettingUseCase: OpenPhoneSettingUseCase,
     private val getTrimBitmapDataUseCase: GetTrimBitmapDataUseCase,
     private val generateThumbnailUseCase: GenerateThumbnailUseCase,
@@ -673,11 +665,6 @@ class CameraViewModel @Inject constructor(
             saveThumbnailToFileUseCase(tempThumbUrl, bitmap)
         }
     }
-
-    override fun onAnnotatedTextClicked(
-        annotatedTextWithActions: AnnotatedStringWithActionsList,
-        offset: Int
-    ) = annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
 
     override fun onUploadChannelSelected(channelId: String) {
         uiState.update { state ->

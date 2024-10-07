@@ -38,8 +38,6 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserCommentAu
 import com.rumble.domain.common.domain.domainmodel.DeviceType
 import com.rumble.domain.common.domain.domainmodel.EmptyResult
 import com.rumble.domain.common.domain.domainmodel.PlayListResult
-import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
-import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
@@ -119,11 +117,6 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     val alertDialogState: State<AlertDialogState>
 
     fun onFullScreen(fullScreen: Boolean)
-    fun onAnnotatedTextClicked(
-        annotatedTextWithActions: AnnotatedStringWithActionsList,
-        offset: Int,
-    )
-
     fun onCollapsing(percentage: Float)
     fun onLike()
     fun onDislike()
@@ -275,7 +268,6 @@ class VideoDetailsViewModel @Inject constructor(
     private val getVideoDetailsUseCase: GetVideoDetailsUseCase,
     private val initVideoPlayerSourceUseCase: InitVideoPlayerSourceUseCase,
     private val getChannelDataUseCase: GetChannelDataUseCase,
-    private val annotatedStringUseCase: AnnotatedStringUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val shareUseCase: ShareUseCase,
     private val getVideoCommentsUseCase: GetVideoCommentsUseCase,
@@ -448,13 +440,6 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onOrientationChanged(orientation: Int) {
         updateUid(orientation)
-    }
-
-    override fun onAnnotatedTextClicked(
-        annotatedTextWithActions: AnnotatedStringWithActionsList,
-        offset: Int
-    ) {
-        annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
     }
 
     override fun onCollapsing(percentage: Float) {
@@ -643,6 +628,7 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onClearVideo() {
         dismissResources()
+        emitVmEvent(VideoDetailsEvent.NavigateBack)
     }
 
     override fun onDelete(commentEntity: CommentEntity) {

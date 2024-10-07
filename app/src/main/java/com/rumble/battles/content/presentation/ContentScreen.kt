@@ -1251,6 +1251,7 @@ private fun createNavigationGraph(
             val discoverPlayerViewModel: DiscoverPlayerViewModel = hiltViewModel()
             DiscoverPlayerScreen(
                 discoverPlayerHandler = discoverPlayerViewModel,
+                activityHandler = activityHandler,
                 onBackClick = { currentNavController.navigateUp() },
                 onVideoClick = {
                     contentHandler.onOpenVideoDetails(videoId = it.id)
