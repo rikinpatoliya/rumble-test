@@ -46,7 +46,6 @@ import com.rumble.battles.DebugSectionTag
 import com.rumble.battles.PlaybackInFeedsTag
 import com.rumble.battles.R
 import com.rumble.battles.UserDetailsSectionTag
-import com.rumble.battles.commonViews.BottomNavigationBar
 import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.CheckMarkItem

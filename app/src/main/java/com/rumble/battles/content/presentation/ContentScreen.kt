@@ -67,7 +67,7 @@ import com.rumble.battles.camera.presentation.UploadChannelSelectionScreen
 import com.rumble.battles.camera.presentation.VideoPreviewScreen
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsScreen
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsViewModel
-import com.rumble.battles.commonViews.BottomNavigationBar
+import com.rumble.battles.navigation.BottomNavigationBar
 import com.rumble.battles.commonViews.DefaultSystemBarIconsColor
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
