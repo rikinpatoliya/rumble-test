@@ -20,6 +20,7 @@ class PipIsAvailableUseCase @Inject constructor(
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE) &&
             userPreferenceManager.backgroundPlayFlow.first() == BackgroundPlay.PICTURE_IN_PICTURE &&
-            sessionManager.videDetailsOpenedFlow.first().not()
+            sessionManager.videDetailsOpenedFlow.first() &&
+            sessionManager.videoDetailsCollapsedFlow.first().not()
     }
 }
