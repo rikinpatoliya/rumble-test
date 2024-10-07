@@ -255,6 +255,10 @@ fun ContentScreen(
                     context.getString(R.string.generic_error_message_try_later)
                 )
             } else if (it is RumbleEvent.NavigateToMyVideos) {
+                navControllers[selectedTabIndex].popBackStack(
+                    navControllers[selectedTabIndex].graph.startDestinationId,
+                    inclusive = false
+                )
                 selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
                 navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
                     popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
