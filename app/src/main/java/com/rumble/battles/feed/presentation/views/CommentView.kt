@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -29,10 +30,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rumble.battles.R
+import com.rumble.battles.common.parseTextWithUrls
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.RumbleTextActionButton
 import com.rumble.battles.commonViews.UserNameViewSingleLine
+import com.rumble.battles.landing.RumbleActivityHandler
+import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.feed.domain.domainmodel.comments.CommentEntity
 import com.rumble.theme.RumbleTypography.body1
 import com.rumble.theme.RumbleTypography.h6
@@ -52,6 +56,7 @@ import com.rumble.utils.extension.agoString
 fun CommentView(
     modifier: Modifier = Modifier,
     commentEntity: CommentEntity,
+    activityHandler: RumbleActivityHandler,
     showReplies: Boolean = true,
     hasPremiumRestriction: Boolean,
     onReplies: (CommentEntity) -> Unit,
@@ -64,6 +69,7 @@ fun CommentView(
         MainCommentView(
             modifier = Modifier.padding(bottom = paddingXSmall),
             commentEntity = commentEntity,
+            activityHandler = activityHandler,
             showReplies = showReplies,
             hasPremiumRestriction = hasPremiumRestriction,
             onReplies = onReplies,
@@ -76,6 +82,7 @@ fun CommentView(
             commentEntity.replayList?.forEach {
                 ReplyView(
                     commentEntity = it,
+                    activityHandler = activityHandler,
                     hasPremiumRestriction = hasPremiumRestriction,
                     onReplies = onReplies,
                     onDelete = onDelete,
@@ -92,6 +99,7 @@ fun CommentView(
 private fun MainCommentView(
     modifier: Modifier = Modifier,
     commentEntity: CommentEntity,
+    activityHandler: RumbleActivityHandler,
     showReplies: Boolean = true,
     hasPremiumRestriction: Boolean,
     onReplies: (CommentEntity) -> Unit,
@@ -143,13 +151,23 @@ private fun MainCommentView(
             )
         }
 
-        Text(
+        val annotatedTextWithActions: AnnotatedStringWithActionsList =
+            parseTextWithUrls(
+                text = commentEntity.commentText,
+                color = MaterialTheme.colors.primary,
+                onClick = { activityHandler.onOpenWebView(it) }
+            )
+
+
+        ClickableText(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = paddingXSmall, start = paddingXSmall, end = paddingXSmall),
-            text = commentEntity.commentText,
+            text = annotatedTextWithActions.annotatedString,
             style = body1,
-            color = MaterialTheme.colors.primary
+            onClick = { offset ->
+                activityHandler.onAnnotatedTextClicked(annotatedTextWithActions, offset)
+            },
         )
 
         if (showReplies) {
@@ -234,6 +252,7 @@ private fun MainCommentView(
 private fun ReplyView(
     modifier: Modifier = Modifier,
     commentEntity: CommentEntity,
+    activityHandler: RumbleActivityHandler,
     hasPremiumRestriction: Boolean,
     onReplies: (CommentEntity) -> Unit,
     onDelete: (CommentEntity) -> Unit,
@@ -262,6 +281,7 @@ private fun ReplyView(
                         bottom = paddingSmall
                     ),
                     commentEntity = commentEntity,
+                    activityHandler = activityHandler,
                     hasPremiumRestriction = hasPremiumRestriction,
                     onReplies = onReplies,
                     onDelete = onDelete,
@@ -274,6 +294,7 @@ private fun ReplyView(
                         ReplyView(
                             modifier = Modifier.padding(start = paddingMedium),
                             commentEntity = it,
+                            activityHandler = activityHandler,
                             hasPremiumRestriction = hasPremiumRestriction,
                             onReplies = onReplies,
                             onDelete = onDelete,

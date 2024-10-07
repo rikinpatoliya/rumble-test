@@ -686,6 +686,7 @@ fun VideoDetailsView(
                                 CommentsView(
                                     modifier = sheetContentModifier,
                                     handler = handler,
+                                    activityHandler = activityHandler
                                 )
                             }
                         }) {
@@ -1019,8 +1020,8 @@ fun DescriptionView(
         ExpandableText(
             modifier = modifier,
             text = description,
-            onUriClick = { activityHandler.onOpenWebView(it) },
-            onAnnotatedTextClicked = handler::onAnnotatedTextClicked
+            onUriClick = activityHandler::onOpenWebView,
+            onAnnotatedTextClicked = activityHandler::onAnnotatedTextClicked
         )
     }
 }

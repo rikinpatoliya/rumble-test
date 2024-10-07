@@ -17,7 +17,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +55,6 @@ import com.rumble.utils.RumbleConstants.UPLOAD_DATE_PATTERN
 import com.rumble.utils.RumbleConstants.UPLOAD_TIME_PATTERN
 import com.rumble.utils.extension.conditional
 import com.rumble.utils.extension.convertToDate
-import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "CameraUploadStepTwoScreen"
 
@@ -123,7 +121,7 @@ fun CameraUploadStepTwoScreen(
             hasError = uiState.termsOfServiceError,
             errorMessage = stringResource(id = R.string.you_must_agree_to_our_terms_of_services),
             annotatedTextWithActions = buildTermsAndConditionsStringWithActions(activityHandler),
-            onAnnotatedTextClicked = cameraUploadHandler::onAnnotatedTextClicked
+            onAnnotatedTextClicked = activityHandler::onAnnotatedTextClicked
         )
         Text(
             text = stringResource(id = R.string.select_license).uppercase(),

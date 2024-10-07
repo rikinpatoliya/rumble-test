@@ -74,7 +74,8 @@ internal fun EmbeddedControlsView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),
-                rumblePlayer
+                displayThumb = isVisible  && rumblePlayer.isLiveVideo.not(),
+                rumblePlayer = rumblePlayer
             ) {
                 onSeekInProgress(it)
                 if (it) seekInProgress = true

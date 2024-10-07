@@ -14,6 +14,8 @@ import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
+import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.GetSensorBasedOrientationChangeEnabledUseCase
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
@@ -87,6 +89,7 @@ interface RumbleActivityHandler {
     fun enableContentLoad()
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
+    fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int)
 }
 
 
@@ -130,6 +133,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val getSensorBasedOrientationChangeEnabledUseCase: GetSensorBasedOrientationChangeEnabledUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
     private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
+    private val annotatedStringUseCase: AnnotatedStringUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
@@ -332,5 +336,9 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onOpenWebView(url: String) {
         emitVmEvent(RumbleEvent.OpenWebView(url))
+    }
+
+    override fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int) {
+        annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
     }
 }

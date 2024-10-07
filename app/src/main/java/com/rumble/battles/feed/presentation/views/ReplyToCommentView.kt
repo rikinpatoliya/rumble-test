@@ -13,6 +13,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.feed.domain.domainmodel.comments.CommentEntity
 import com.rumble.theme.paddingMedium
 
@@ -20,6 +21,7 @@ import com.rumble.theme.paddingMedium
 fun ReplyToCommentView(
     modifier: Modifier = Modifier,
     commentEntity: CommentEntity?,
+    activityHandler: RumbleActivityHandler,
     hasPremiumRestriction: Boolean,
     comment: String,
     userName: String = "",
@@ -53,6 +55,7 @@ fun ReplyToCommentView(
                     .padding(paddingMedium)
                     .weight(1f),
                 commentEntity = commentEntity,
+                activityHandler = activityHandler,
                 hasPremiumRestriction = hasPremiumRestriction,
                 showReplies = false,
                 onReplies = {}

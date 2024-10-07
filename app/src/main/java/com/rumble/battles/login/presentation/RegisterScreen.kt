@@ -70,6 +70,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.AnnotatedTextAction
 import com.rumble.domain.profile.domainmodel.Gender
@@ -102,6 +103,7 @@ private const val TAG = "RegisterScreen"
 fun RegisterScreen(
     darkMode: Boolean = true,
     registerHandler: RegisterHandler,
+    activityHandler: RumbleActivityHandler,
     onNavigateToHomeScreen: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToWebView: (String) -> Unit,
@@ -328,7 +330,7 @@ fun RegisterScreen(
                     annotatedTextWithActions = buildTermsAndConditionsStringWithActions(
                         registerHandler
                     ),
-                    onAnnotatedTextClicked = registerHandler::onAnnotatedTextClicked,
+                    onAnnotatedTextClicked = activityHandler::onAnnotatedTextClicked,
                 )
                 Spacer(
                     Modifier
@@ -373,7 +375,7 @@ fun RegisterScreen(
                     )
                 ),
                 annotatedTextWithActions = buildWhyWeAskStringWithActions(registerHandler),
-                onAnnotatedTextClicked = registerHandler::onAnnotatedTextClicked,
+                onAnnotatedTextClicked = activityHandler::onAnnotatedTextClicked,
             )
         }
     }
