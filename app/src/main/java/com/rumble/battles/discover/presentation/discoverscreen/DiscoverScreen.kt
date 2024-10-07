@@ -210,7 +210,8 @@ fun DiscoverScreen(
                                 LiveCategoriesView(
                                     modifier = Modifier.padding(bottom = paddingXLarge),
                                     title = stringResource(id = R.string.live_categories).uppercase(),
-                                    titlePadding = paddingSmall,
+                                    titleHorizontalPadding = paddingSmall,
+                                    titleBottomPadding = paddingSmall,
                                     isLoading = state.categoryListLoading,
                                     error = state.categoryListError,
                                     viewAll = true,
