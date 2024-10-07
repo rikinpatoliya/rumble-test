@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,7 +47,7 @@ private const val autoScrollUpPercentage = 0.9f
 fun CollapsableLayout(
     modifier: Modifier = Modifier,
     collapseAvailable: Boolean = true,
-    enforcedState: CollapsableLayoutState = CollapsableLayoutState.NONE,
+    enforcedState: CollapsableLayoutState = CollapsableLayoutState.EXPENDED,
     shadowElevation: Dp = elevation,
     bottomThreshold: Dp = 0.dp,
     cornerRadius: Dp = radiusNone,
@@ -61,9 +62,16 @@ fun CollapsableLayout(
     val sheetOffset = remember { Animatable(0f) }
     var collapseDirection by remember { mutableStateOf(CollapseDirection.DOWN) }
     val bottomPaddingPx: Float = with(LocalDensity.current) { bottomThreshold.toPx() }
-    var currentSate by remember { mutableStateOf(CollapsableLayoutState.EXPENDED) }
+    var currentSate by rememberSaveable { mutableStateOf(enforcedState) }
     val currentEnforcedState by rememberUpdatedState(enforcedState)
     val collapseAvailableCurrent by rememberUpdatedState(collapseAvailable)
+
+    LaunchedEffect(maxOffset) {
+        if (maxOffset > 0 && enforcedState == CollapsableLayoutState.COLLAPSED) {
+            sheetOffset.snapTo(maxOffset)
+            currentSate = CollapsableLayoutState.COLLAPSED
+        }
+    }
 
     LaunchedEffect(currentEnforcedState) {
         if (currentEnforcedState != CollapsableLayoutState.NONE) {
@@ -78,8 +86,8 @@ fun CollapsableLayout(
                     targetValue = maxOffset,
                     animationSpec = tween(COLLAPSE_ANIMATION_DURATION),
                     block = {
-                        if (sheetOffset.value == maxOffset) currentSate =
-                            CollapsableLayoutState.COLLAPSED
+                        if (sheetOffset.value == maxOffset)
+                            currentSate = CollapsableLayoutState.COLLAPSED
                     }
                 )
             } else {

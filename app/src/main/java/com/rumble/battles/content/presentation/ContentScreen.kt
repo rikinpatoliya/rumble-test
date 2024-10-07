@@ -505,7 +505,7 @@ fun ContentScreen(
         }
     }
 
-    if (videoDetailsState.visible) {
+    if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA) {
         VideoDetailsScreen(
             activityHandler = activityHandler,
             handler = videoDetailsViewModel,
