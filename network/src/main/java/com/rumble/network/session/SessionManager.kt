@@ -56,6 +56,7 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     private val allowContentLoadKey = booleanPreferencesKey("allowContentLoadKey")
     private val lastLoginPromptKey = longPreferencesKey("lastLoginPrompt")
     private val videoDetailsStateKey = booleanPreferencesKey("videoDetailsStateKey")
+    private val conversionLoggedKey = booleanPreferencesKey("conversionLoggedKey")
 
     val cookiesFlow: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[cookiesKey] ?: ""
@@ -197,6 +198,13 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     }
     val videDetailsOpenedFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[videoDetailsStateKey] ?: false
+    }.catch {
+        Timber.tag(TAG).e(it)
+        emit(value = false)
+    }
+
+    val conversionLoggedKeyFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[conversionLoggedKey] ?: false
     }.catch {
         Timber.tag(TAG).e(it)
         emit(value = false)
@@ -511,6 +519,16 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         try {
             context.dataStore.edit { prefs ->
                 prefs[videoDetailsStateKey] = opened
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveConversionLoggedState(isLogged: Boolean) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[conversionLoggedKey] = isLogged
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)

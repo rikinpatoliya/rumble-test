@@ -25,7 +25,7 @@ import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE
 import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE_KEY
 import com.rumble.battles.deeplinks.RumbleDeepLinkListener
 import com.rumble.battles.notifications.pushnotifications.RumbleNotificationOpenedHandler
-import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
+import com.rumble.domain.analytics.domain.usecases.LogConversionUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.logging.domain.FileLoggingTree
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_PROD
@@ -55,7 +55,7 @@ class RumbleApplication : Application(), Configuration.Provider {
     lateinit var isDevelopModeUseCase: IsDevelopModeUseCase
 
     @Inject
-    lateinit var analyticsEventUseCase: AnalyticsEventUseCase
+    lateinit var logConversionUseCase: LogConversionUseCase
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -81,17 +81,11 @@ class RumbleApplication : Application(), Configuration.Provider {
                 data?.get(RumbleConstants.CONVERSION_TYPE_KEY)?.let {
                     when (it) {
                         RumbleConstants.ORGANIC_CONVERSION -> {
-                            analyticsEventUseCase.invoke(
-                                ConversionOrganicEvent,
-                                true
-                            )
+                            logConversionUseCase.invoke(ConversionOrganicEvent)
                         }
 
                         RumbleConstants.NON_ORGANIC_CONVERSION -> {
-                            analyticsEventUseCase.invoke(
-                                ConversionNonOrganicEvent,
-                                true
-                            )
+                            logConversionUseCase.invoke(ConversionNonOrganicEvent)
                         }
                     }
                 }
@@ -99,7 +93,7 @@ class RumbleApplication : Application(), Configuration.Provider {
 
             override fun onConversionDataFail(error: String?) {
                 // log failed conversion event
-                analyticsEventUseCase.invoke(ConversionFailedEvent, true)
+                logConversionUseCase.invoke(ConversionFailedEvent)
             }
 
             override fun onAppOpenAttribution(data: MutableMap<String, String>?) {
