@@ -28,7 +28,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -44,9 +43,9 @@ import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
 import com.rumble.theme.wokeGreen
 import com.rumble.utils.RumbleConstants
+import com.rumble.utils.getUrlAnnotatedString
 import com.rumble.utils.extension.getBoundingBoxes
 import com.rumble.utils.extension.getEmoteName
-import com.rumble.utils.getRumbleUrlAnnotations
 
 
 @Composable
@@ -124,24 +123,7 @@ fun LiveChatContentView(
         }
     }
 
-    val rumbleUrlAnnotations = getRumbleUrlAnnotations(preAnnotatedText.text)
-
-    val annotatedText = buildAnnotatedString {
-        append(preAnnotatedText)
-        rumbleUrlAnnotations.forEach {
-            addStyle(
-                style = SpanStyle(color = blueLinkColor, textDecoration = TextDecoration.Underline),
-                start = it.start,
-                end = it.end
-            )
-            addStringAnnotation(
-                tag = RumbleConstants.TAG_URL,
-                annotation = it.url,
-                start = it.start,
-                end = it.end
-            )
-        }
-    }
+    val annotatedText = getUrlAnnotatedString(preAnnotatedText, blueLinkColor)
 
     val inlineContent = userBadges?.associateWith { badgeId ->
         InlineTextContent(

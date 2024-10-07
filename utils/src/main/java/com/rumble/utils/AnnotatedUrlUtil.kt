@@ -1,6 +1,10 @@
 package com.rumble.utils
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import java.util.regex.Pattern
 
 data class RumbleUrlAnnotation(
@@ -29,4 +33,24 @@ fun getRumbleUrlAnnotations(text: String, spanStyle: SpanStyle? = null): List<Ru
         annotations.add(RumbleUrlAnnotation(url, matchStart, matchEnd, spanStyle))
     }
     return annotations
+}
+
+fun getUrlAnnotatedString(annotatedString: AnnotatedString, linkColor: Color): AnnotatedString {
+    val rumbleUrlAnnotations = getRumbleUrlAnnotations(annotatedString.text)
+    return buildAnnotatedString {
+        append(annotatedString)
+        rumbleUrlAnnotations.forEach {
+            addStyle(
+                style = SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline),
+                start = it.start,
+                end = it.end
+            )
+            addStringAnnotation(
+                tag = RumbleConstants.TAG_URL,
+                annotation = it.url,
+                start = it.start,
+                end = it.end
+            )
+        }
+    }
 }
