@@ -2,7 +2,6 @@ package com.rumble.battles.livechat.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Icon
@@ -25,11 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,8 +47,8 @@ import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusSmall
 import com.rumble.utils.RumbleConstants
-import com.rumble.utils.getUrlAnnotatedString
 import com.rumble.utils.extension.consumeClick
+import com.rumble.utils.getUrlAnnotatedString
 import java.time.LocalDateTime
 
 @Composable
@@ -87,26 +85,19 @@ fun PinnedMessageView(
                 onUnpin = onUnpin,
                 onHide = onHide
             )
-            var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
-            val annotatedText = getUrlAnnotatedString(AnnotatedString(message.message), blueLinkColor)
-            Text(
+            val annotatedText =
+                getUrlAnnotatedString(AnnotatedString(message.message), blueLinkColor)
+            ClickableText(
                 text = annotatedText,
-                style = h5,
+                style = h5.copy(color = MaterialTheme.colors.primary),
                 maxLines = if (isExpanded) Int.MAX_VALUE else 1,
                 overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colors.primary,
-                onTextLayout = { layoutResult = it },
-                modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures { offset ->
-                        layoutResult?.let {
-                            val position = it.getOffsetForPosition(offset)
-                            val result = annotatedText
-                                .getStringAnnotations(RumbleConstants.TAG_URL, position, position)
-                                .firstOrNull()
-                            if (result != null) {
-                                onLinkClick(result.item)
-                            }
-                        }
+                onClick = { offset ->
+                    val result = annotatedText
+                        .getStringAnnotations(RumbleConstants.TAG_URL, offset, offset)
+                        .firstOrNull()
+                    if (result != null) {
+                        onLinkClick(result.item)
                     }
                 }
             )
