@@ -62,7 +62,6 @@ private const val TAG = "CameraUploadStepTwoScreen"
 fun CameraUploadStepTwoScreen(
     cameraUploadHandler: CameraUploadHandler,
     activityHandler: RumbleActivityHandler,
-    onPublishClick: () -> Unit,
     onSelectLicense: () -> Unit,
     onSelectVisibility: () -> Unit,
     onSelectSchedule: () -> Unit,
@@ -94,7 +93,7 @@ fun CameraUploadStepTwoScreen(
                     ),
                     textColor = enforcedDarkmo
                 ) {
-                    cameraUploadHandler.onPublishClicked(onPublishClick)
+                    cameraUploadHandler.onPublishClicked(activityHandler::onNavigateToMyVideos)
                 }
             }
         )

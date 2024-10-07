@@ -90,11 +90,13 @@ interface RumbleActivityHandler {
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
     fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int)
+    fun onNavigateToMyVideos()
 }
 
 
 sealed class RumbleEvent {
     data class NavigateToVideoDetailsFromNotification(val videoEntity: VideoEntity) : RumbleEvent()
+    object NavigateToMyVideos : RumbleEvent()
     object UnexpectedError : RumbleEvent()
     object PipModeEntered : RumbleEvent()
     object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
@@ -340,5 +342,9 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int) {
         annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
+    }
+
+    override fun onNavigateToMyVideos() {
+        emitVmEvent(RumbleEvent.NavigateToMyVideos)
     }
 }

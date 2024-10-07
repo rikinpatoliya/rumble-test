@@ -254,6 +254,11 @@ fun ContentScreen(
                 snackBarHostState.showRumbleSnackbar(
                     context.getString(R.string.generic_error_message_try_later)
                 )
+            } else if (it is RumbleEvent.NavigateToMyVideos) {
+                selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
+                navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
+                    popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
+                }
             }
         }
     }
@@ -788,13 +793,6 @@ private fun createNavigationGraph(
             CameraUploadStepTwoScreen(
                 cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
                 activityHandler = activityHandler,
-                onPublishClick = {
-                    currentNavController.navigate(
-                        route = RumbleScreens.Library.rootName,
-                        navOptions = NavOptions.Builder()
-                            .setPopUpTo(currentNavController.graph.findStartDestination().id, true).build()
-                    )
-                },
                 onSelectLicense = { currentNavController.navigate(RumbleScreens.UploadLicenseSelection.rootName) },
                 onSelectVisibility = { currentNavController.navigate(RumbleScreens.UploadVisibilitySelection.rootName) },
                 onSelectSchedule = { currentNavController.navigate(RumbleScreens.UploadScheduleSelection.rootName) },
