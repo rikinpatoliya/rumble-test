@@ -30,6 +30,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -115,7 +116,7 @@ fun CameraUploadStepOneScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .systemBarsPadding(),
-            onBackClick = onBackClick,
+            onBackClick = { cameraUploadHandler.onBackClicked(onBackClick) },
             extraContent = {
                 ActionButton(
                     modifier = Modifier
@@ -171,8 +172,15 @@ fun CameraUploadStepOneScreen(
             maxLines = 1,
             maxCharacters = MAX_CHARACTERS_UPLOAD_TITLE,
             onValueChange = { cameraUploadHandler.onTitleChanged(it) },
-            hasError = uiState.titleError,
-            errorMessage = stringResource(id = R.string.error_message_video_title_too_long)
+            hasError = uiState.titleError || uiState.titleEmptyError,
+            errorMessage = stringResource(
+                id = if (uiState.titleEmptyError) {
+                    R.string.error_message_video_title_empty
+                } else {
+                    R.string.error_message_video_title_too_long
+                }
+            ),
+            optional = false
         )
         UploadTextInputField(
             initialValue = uiState.description,
@@ -181,7 +189,8 @@ fun CameraUploadStepOneScreen(
             maxCharacters = MAX_CHARACTERS_UPLOAD_DESCRIPTION,
             onValueChange = { cameraUploadHandler.onDescriptionChanged(it) },
             hasError = uiState.descriptionError,
-            errorMessage = stringResource(id = R.string.error_message_description_too_long)
+            errorMessage = stringResource(id = R.string.error_message_description_too_long),
+            optional = true
         )
         Text(
             text = stringResource(id = R.string.select_a_channel).uppercase(),
@@ -259,12 +268,23 @@ fun UploadTextInputField(
     hasError: Boolean = false,
     errorMessage: String = "",
     errorMessageColor: Color = MaterialTheme.colors.secondary,
+    optional: Boolean = false
 ) {
     var text by remember { mutableStateOf(initialValue) }
-    val defaultCharactersCountText = stringResource(id = R.string.optional)
+    val optionalText = stringResource(id = R.string.optional)
     val defaultCharactersCountTextColor = MaterialTheme.colors.primaryVariant
-    var characters by remember { mutableStateOf(defaultCharactersCountText) }
-    var charactersColor by remember { mutableStateOf(defaultCharactersCountTextColor) }
+    val characters by remember(text, maxCharacters, optional, optionalText) {
+        derivedStateOf { getCharactersText(text, maxCharacters, optional, optionalText) }
+    }
+    val charactersColor by remember(text, maxCharacters) {
+        derivedStateOf {
+            getCharactersTextColor(
+                text,
+                maxCharacters,
+                defaultCharactersCountTextColor
+            )
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -301,9 +321,6 @@ fun UploadTextInputField(
             onValueChange = {
                 onValueChange(it)
                 text = it
-                characters = getCharactersText(it, maxCharacters, defaultCharactersCountText)
-                charactersColor =
-                    getCharactersTextColor(it, maxCharacters, defaultCharactersCountTextColor)
             },
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = MaterialTheme.colors.onSecondary,
@@ -320,14 +337,6 @@ fun UploadTextInputField(
                         onClick = {
                             onValueChange("")
                             text = ""
-                            characters =
-                                getCharactersText("", maxCharacters, defaultCharactersCountText)
-                            charactersColor =
-                                getCharactersTextColor(
-                                    "",
-                                    maxCharacters,
-                                    defaultCharactersCountTextColor
-                                )
                         },
                         modifier = Modifier.size(imageMedium)
                     ) {
@@ -368,7 +377,11 @@ fun SelectUploadThumbnailView(
         .clip(RoundedCornerShape(radiusMedium))
         .background(color = if (uri == null) MaterialTheme.colors.onSecondary else enforcedDarkmo)
         .conditional(uri != null) {
-            this.border(borderSmall, color = borderColor, shape = RoundedCornerShape(radiusMedium))
+            this.border(
+                borderSmall,
+                color = borderColor,
+                shape = RoundedCornerShape(radiusMedium)
+            )
         }
         .conditional(uri == null) {
             this.dashedBorder(
@@ -410,7 +423,11 @@ fun UploadThumbnailView(
         .height(if (selected) uploadSelectedThumbnailHeight else uploadThumbnailHeight)
         .clip(RoundedCornerShape(radiusMedium))
         .conditional(selected) {
-            this.border(borderSmall, color = rumbleGreen, shape = RoundedCornerShape(radiusMedium))
+            this.border(
+                borderSmall,
+                color = rumbleGreen,
+                shape = RoundedCornerShape(radiusMedium)
+            )
         }
         .background(color = enforcedDarkmo)
         .clickable { onClick() }
@@ -424,9 +441,14 @@ fun UploadThumbnailView(
     }
 }
 
-private fun getCharactersText(text: String, maxCharacters: Int, default: String): String {
+private fun getCharactersText(
+    text: String,
+    maxCharacters: Int,
+    optional: Boolean,
+    optionalText: String
+): String {
     return when {
-        text.isEmpty() -> default
+        optional && text.isEmpty() -> optionalText
         else -> "${text.count()}/${maxCharacters}"
     }
 }
