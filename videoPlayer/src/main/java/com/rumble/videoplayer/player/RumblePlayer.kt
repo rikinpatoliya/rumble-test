@@ -322,6 +322,11 @@ class RumblePlayer(
             override fun onServiceConnected(className: ComponentName, service: IBinder) {
                 binder = (service as? RumblePlayerService.PlayerBinder)
                 setupService()
+                /*binder might be null for initial playback and playVideo might be called before
+                binder connects, so try to gain audio focus after binder is connected*/
+                if (!_isMuted.value && (isPlaying() || isFetching())) {
+                    binder?.requestAudioFocus()
+                }
             }
 
             override fun onServiceDisconnected(arg0: ComponentName) {
