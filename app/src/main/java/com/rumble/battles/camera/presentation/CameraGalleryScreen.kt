@@ -61,8 +61,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -374,24 +372,14 @@ fun CameraGalleryScreen(
             }
         }
     } else {
-        ConstraintLayout(
+        AuthPlaceholderScreen(
             modifier = Modifier
                 .fillMaxSize()
-                .systemBarsPadding()
-        ) {
-            val (placeholder, navigation) = createRefs()
-            AuthPlaceholderScreen(
-                modifier = Modifier
-                    .constrainAs(placeholder) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(navigation.top)
-                        height = Dimension.fillToConstraints
-                    },
-                authHandler = authHandler,
-                onNavigateToRegistration = onNavigateToRegistration,
-                onEmailLogin = onNavigateToLogin
-            )
-        }
+                .systemBarsPadding(),
+            authHandler = authHandler,
+            onNavigateToRegistration = onNavigateToRegistration,
+            onEmailLogin = onNavigateToLogin
+        )
     }
 
     if (alertDialogState.show) {
