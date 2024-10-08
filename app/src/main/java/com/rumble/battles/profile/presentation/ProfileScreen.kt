@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -41,7 +40,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.ContentDescriptionProfileMenuTag
 import com.rumble.battles.ProfileMenuTag
@@ -91,7 +89,6 @@ import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.conditional
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
     activityHandler: RumbleActivityHandler,
@@ -142,274 +139,260 @@ fun ProfileScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ConstraintLayout(
-            modifier = Modifier
-                .testTag(ProfileMenuTag)
-                .semantics { contentDescription = ContentDescriptionProfileMenuTag }
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background)
-                .systemBarsPadding()
-        ) {
-            val (content, navigation) = createRefs()
+    Box(
+        modifier = Modifier
+            .testTag(ProfileMenuTag)
+            .semantics { contentDescription = ContentDescriptionProfileMenuTag }
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
+            .systemBarsPadding())
+    {
+        if (uiState.isLoggedIn) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
 
-            if (uiState.isLoggedIn) {
-                Column(
+                val tablet = IsTablet()
+                ConstraintLayout(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .constrainAs(content) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(navigation.top)
-                            height = Dimension.fillToConstraints
-                        }
+                        .background(MaterialTheme.colors.onPrimary)
+                        .height(if (tablet) logoHeaderHeightTablets else logoHeaderHeight)
                 ) {
+                    val (version, logo, notifications, settings, line) = createRefs()
 
-                    val tablet = IsTablet()
-                    ConstraintLayout(
+                    RumbleLogoView(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colors.onPrimary)
-                            .height(if (tablet) logoHeaderHeightTablets else logoHeaderHeight)
-                    ) {
-                        val (version, logo, notifications, settings, line) = createRefs()
-
-                        RumbleLogoView(
-                            modifier = Modifier
-                                .constrainAs(logo) {
-                                    start.linkTo(parent.start, margin = paddingMedium)
-                                    top.linkTo(parent.top)
-                                    bottom.linkTo(parent.bottom)
-                                }
-                                .size(
-                                    width = if (tablet) logoWidthTablet else logoWidth,
-                                    height = if (tablet) logoHeightTablet else logoHeight
-                                ),
-                        )
-
-                        if (appVersion.visibility == AppVersionVisibility.Visible) {
-                            Text(
-                                modifier = Modifier
-                                    .constrainAs(version) {
-                                        top.linkTo(parent.top, margin = paddingMedium)
-                                        bottom.linkTo(parent.bottom, margin = paddingMedium)
-                                        start.linkTo(logo.end, margin = paddingMedium)
-                                    }
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onDoubleTap = { profileHandler.onVersionClick() },
-                                        )
-                                    },
-                                text = appVersion.versionString,
-                                style = h6Light
-                            )
-                        }
-
-                        NotificationIconView(
-                            modifier = Modifier
-                                .constrainAs(notifications) {
-                                    end.linkTo(settings.start)
-                                    top.linkTo(logo.top)
-                                    bottom.linkTo(logo.bottom)
-                                },
-                            showDot = activityHandlerState.hasUnreadNotifications,
-                            onClick = {
-                                activityHandler.clearNotifications()
-                                onViewNotifications()
+                            .constrainAs(logo) {
+                                start.linkTo(parent.start, margin = paddingMedium)
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
                             }
-                        )
+                            .size(
+                                width = if (tablet) logoWidthTablet else logoWidth,
+                                height = if (tablet) logoHeightTablet else logoHeight
+                            ),
+                    )
 
-                        IconButton(
+                    if (appVersion.visibility == AppVersionVisibility.Visible) {
+                        Text(
                             modifier = Modifier
-                                .constrainAs(settings) {
-                                    end.linkTo(parent.end)
-                                    top.linkTo(logo.top)
-                                    bottom.linkTo(logo.bottom)
+                                .constrainAs(version) {
+                                    top.linkTo(parent.top, margin = paddingMedium)
+                                    bottom.linkTo(parent.bottom, margin = paddingMedium)
+                                    start.linkTo(logo.end, margin = paddingMedium)
+                                }
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onDoubleTap = { profileHandler.onVersionClick() },
+                                    )
                                 },
-                            onClick = onNavigateToSettings
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(followingHeaderIconSize),
-                                painter = painterResource(id = R.drawable.ic_settings),
-                                contentDescription = stringResource(id = R.string.settings),
-                                tint = MaterialTheme.colors.primary
-                            )
-                        }
-
-                        if (tablet) {
-                            Divider(
-                                Modifier
-                                    .height(borderXXSmall)
-                                    .fillMaxWidth()
-                                    .constrainAs(line) { bottom.linkTo(parent.bottom) },
-                                color = MaterialTheme.colors.secondaryVariant
-                            )
-                        }
+                            text = appVersion.versionString,
+                            style = h6Light
+                        )
                     }
-                    BoxWithConstraints {
-                        val horizontalPadding = CalculatePaddingForTabletWidth(maxWidth = maxWidth)
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
-                                .conditional(IsTablet()) {
-                                    padding(horizontal = horizontalPadding)
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Spacer(modifier = Modifier.height(paddingXLarge))
-                            ProfileImageComponent(
-                                modifier = Modifier.clickableNoRipple { profileHandler.onProfileImageClick() },
-                                profileImageComponentStyle = ProfileImageComponentStyle.CircleImageXLargeStyle(),
-                                userName = uiState.userName,
-                                userPicture = uiState.userPicture
-                            )
 
-                            Text(
-                                modifier = Modifier.padding(
-                                    top = paddingMedium,
-                                    bottom = paddingMedium
-                                ),
-                                text = uiState.userName,
-                                style = RumbleTypography.h1
-                            )
-
-                            ProfileFollowingView(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(IntrinsicSize.Min)
-                                    .padding(
-                                        start = paddingLarge,
-                                        end = paddingLarge,
-                                    ),
-                                rumbles = channelDetailsEntity?.rumbles ?: 0,
-                                followers = channelDetailsEntity?.followers ?: 0,
-                                following = channelDetailsEntity?.following ?: 0
-                            )
-
-                            Spacer(modifier = Modifier.height(paddingSmall))
-
-                            if (uiState.isPremiumUser) {
-                                ProfileItemView(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            vertical = paddingSmall,
-                                            horizontal = paddingLarge
-                                        ),
-                                    iconId = R.drawable.ic_discover,
-                                    labelId = R.string.rumble_premium_plan,
-                                    onClick = {
-                                        contentHandler.updateBottomSheetUiState(
-                                            BottomSheetContent.PremiumOptions
-                                        )
-                                    },
-                                    tint = rumbleGreen
-                                )
-                            } else {
-                                ProfileItemView(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            vertical = paddingSmall,
-                                            horizontal = paddingLarge
-                                        ),
-                                    iconId = R.drawable.ic_discover,
-                                    labelId = R.string.get_rumble_premium_plan,
-                                    onClick = contentHandler::onShowSubscriptionOptions
-                                )
-                            }
-
-                            ProfileItemView(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        vertical = paddingSmall,
-                                        horizontal = paddingLarge
-                                    ),
-                                iconId = R.drawable.ic_nav_content,
-                                labelId = R.string.your_videos,
-                                onClick = { onProfileItemClicked(RumbleScreens.Videos.rootName) },
-                                trailingIcon = {
-                                    if (uiState.userActiveUploadsIndicatorStatus != VideoUploadsIndicatorStatus.None)
-                                        VideoUploadingIndicatorView(
-                                            uiState.userActiveUploadsIndicatorStatus,
-                                            uiState.userActiveUploadsProgress
-                                        )
-                                }
-                            )
-
-                            ProfileItemView(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        vertical = paddingSmall,
-                                        horizontal = paddingLarge
-                                    ),
-                                iconId = R.drawable.ic_subscriptions,
-                                labelId = R.string.following,
-                                onClick = { onProfileItemClicked(RumbleScreens.Subscriptions.rootName) }
-                            )
-
-                            ProfileItemView(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        vertical = paddingSmall,
-                                        horizontal = paddingLarge
-                                    ),
-                                iconId = R.drawable.ic_referrals,
-                                labelId = R.string.referrals,
-                                onClick = { onProfileItemClicked(RumbleScreens.Referrals.rootName) }
-                            )
-
-                            ProfileItemView(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        vertical = paddingSmall,
-                                        horizontal = paddingLarge
-                                    ),
-                                iconId = R.drawable.ic_dollar,
-                                labelId = R.string.earnings,
-                                onClick = { onProfileItemClicked(RumbleScreens.EarningsScreen.rootName) }
-                            )
-
-                            Divider(
-                                modifier = Modifier.padding(end = paddingLarge, top = paddingSmall),
-                                startIndent = paddingLarge,
-                                thickness = 1.dp,
-                                color = MaterialTheme.colors.secondaryVariant
-                            )
-
-                            ProfileItemView(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        vertical = paddingLarge,
-                                        horizontal = paddingLarge
-                                    ),
-                                iconId = R.drawable.ic_sign_out,
-                                labelId = R.string.sign_out,
-                                onClick = profileHandler::onSignOut
-                            )
-                            BottomNavigationBarScreenSpacer()
+                    NotificationIconView(
+                        modifier = Modifier
+                            .constrainAs(notifications) {
+                                end.linkTo(settings.start)
+                                top.linkTo(logo.top)
+                                bottom.linkTo(logo.bottom)
+                            },
+                        showDot = activityHandlerState.hasUnreadNotifications,
+                        onClick = {
+                            activityHandler.clearNotifications()
+                            onViewNotifications()
                         }
+                    )
+
+                    IconButton(
+                        modifier = Modifier
+                            .constrainAs(settings) {
+                                end.linkTo(parent.end)
+                                top.linkTo(logo.top)
+                                bottom.linkTo(logo.bottom)
+                            },
+                        onClick = onNavigateToSettings
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(followingHeaderIconSize),
+                            painter = painterResource(id = R.drawable.ic_settings),
+                            contentDescription = stringResource(id = R.string.settings),
+                            tint = MaterialTheme.colors.primary
+                        )
+                    }
+
+                    if (tablet) {
+                        Divider(
+                            Modifier
+                                .height(borderXXSmall)
+                                .fillMaxWidth()
+                                .constrainAs(line) { bottom.linkTo(parent.bottom) },
+                            color = MaterialTheme.colors.secondaryVariant
+                        )
                     }
                 }
-            } else {
-                AuthPlaceholderScreen(
-                    modifier = Modifier
-                        .constrainAs(content) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(navigation.top)
-                            height = Dimension.fillToConstraints
-                        },
-                    authHandler = authHandler,
-                    onNavigateToRegistration = onNavigateToRegistration,
-                    onEmailLogin = onNavigateToLogin,
-                    onSettings = onNavigateToSettings
-                )
+                BoxWithConstraints {
+                    val horizontalPadding = CalculatePaddingForTabletWidth(maxWidth = maxWidth)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .conditional(IsTablet()) {
+                                padding(horizontal = horizontalPadding)
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(paddingXLarge))
+                        ProfileImageComponent(
+                            modifier = Modifier.clickableNoRipple { profileHandler.onProfileImageClick() },
+                            profileImageComponentStyle = ProfileImageComponentStyle.CircleImageXLargeStyle(),
+                            userName = uiState.userName,
+                            userPicture = uiState.userPicture
+                        )
+
+                        Text(
+                            modifier = Modifier.padding(
+                                top = paddingMedium,
+                                bottom = paddingMedium
+                            ),
+                            text = uiState.userName,
+                            style = RumbleTypography.h1
+                        )
+
+                        ProfileFollowingView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(IntrinsicSize.Min)
+                                .padding(
+                                    start = paddingLarge,
+                                    end = paddingLarge,
+                                ),
+                            rumbles = channelDetailsEntity?.rumbles ?: 0,
+                            followers = channelDetailsEntity?.followers ?: 0,
+                            following = channelDetailsEntity?.following ?: 0
+                        )
+
+                        Spacer(modifier = Modifier.height(paddingSmall))
+
+                        if (uiState.isPremiumUser) {
+                            ProfileItemView(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        vertical = paddingSmall,
+                                        horizontal = paddingLarge
+                                    ),
+                                iconId = R.drawable.ic_discover,
+                                labelId = R.string.rumble_premium_plan,
+                                onClick = {
+                                    contentHandler.updateBottomSheetUiState(
+                                        BottomSheetContent.PremiumOptions
+                                    )
+                                },
+                                tint = rumbleGreen
+                            )
+                        } else {
+                            ProfileItemView(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        vertical = paddingSmall,
+                                        horizontal = paddingLarge
+                                    ),
+                                iconId = R.drawable.ic_discover,
+                                labelId = R.string.get_rumble_premium_plan,
+                                onClick = contentHandler::onShowSubscriptionOptions
+                            )
+                        }
+
+                        ProfileItemView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = paddingSmall,
+                                    horizontal = paddingLarge
+                                ),
+                            iconId = R.drawable.ic_nav_content,
+                            labelId = R.string.your_videos,
+                            onClick = { onProfileItemClicked(RumbleScreens.Videos.rootName) },
+                            trailingIcon = {
+                                if (uiState.userActiveUploadsIndicatorStatus != VideoUploadsIndicatorStatus.None)
+                                    VideoUploadingIndicatorView(
+                                        uiState.userActiveUploadsIndicatorStatus,
+                                        uiState.userActiveUploadsProgress
+                                    )
+                            }
+                        )
+
+                        ProfileItemView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = paddingSmall,
+                                    horizontal = paddingLarge
+                                ),
+                            iconId = R.drawable.ic_subscriptions,
+                            labelId = R.string.following,
+                            onClick = { onProfileItemClicked(RumbleScreens.Subscriptions.rootName) }
+                        )
+
+                        ProfileItemView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = paddingSmall,
+                                    horizontal = paddingLarge
+                                ),
+                            iconId = R.drawable.ic_referrals,
+                            labelId = R.string.referrals,
+                            onClick = { onProfileItemClicked(RumbleScreens.Referrals.rootName) }
+                        )
+
+                        ProfileItemView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = paddingSmall,
+                                    horizontal = paddingLarge
+                                ),
+                            iconId = R.drawable.ic_dollar,
+                            labelId = R.string.earnings,
+                            onClick = { onProfileItemClicked(RumbleScreens.EarningsScreen.rootName) }
+                        )
+
+                        Divider(
+                            modifier = Modifier.padding(end = paddingLarge, top = paddingSmall),
+                            startIndent = paddingLarge,
+                            thickness = 1.dp,
+                            color = MaterialTheme.colors.secondaryVariant
+                        )
+
+                        ProfileItemView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = paddingLarge,
+                                    horizontal = paddingLarge
+                                ),
+                            iconId = R.drawable.ic_sign_out,
+                            labelId = R.string.sign_out,
+                            onClick = profileHandler::onSignOut
+                        )
+                        BottomNavigationBarScreenSpacer()
+                    }
+                }
             }
+        } else {
+            AuthPlaceholderScreen(
+                modifier = Modifier.fillMaxSize(),
+                authHandler = authHandler,
+                onNavigateToRegistration = onNavigateToRegistration,
+                onEmailLogin = onNavigateToLogin,
+                onSettings = onNavigateToSettings
+            )
         }
     }
 
