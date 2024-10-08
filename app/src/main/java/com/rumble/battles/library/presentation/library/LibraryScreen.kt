@@ -3,6 +3,7 @@ package com.rumble.battles.library.presentation.library
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,8 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -95,6 +94,7 @@ fun LibraryScreen(
             PlayListTypeRefresh.PlayList -> {
                 playListEntityRefresh?.let { libraryHandler.onPlayListUpdated(it) }
             }
+
             null -> {}
         }
     }
@@ -102,8 +102,7 @@ fun LibraryScreen(
     BackHandler {
         if (bottomSheetState.isVisible) {
             coroutineScope.launch { bottomSheetState.hide() }
-        }
-        else {
+        } else {
             contentHandler.onNavigateHome()
         }
     }
@@ -111,7 +110,8 @@ fun LibraryScreen(
     LaunchedEffect(Unit) {
         contentHandler.eventFlow.collectLatest {
             if (it is ContentScreenVmEvent.PlayListDeleted ||
-                it is ContentScreenVmEvent.PlayListCreated) {
+                it is ContentScreenVmEvent.PlayListCreated
+            ) {
                 libraryHandler.refreshPlayListsVideos()
             } else if (it is ContentScreenVmEvent.WatchHistoryCleared) {
                 libraryHandler.refreshWatchHistory()
@@ -120,7 +120,7 @@ fun LibraryScreen(
             }
         }
     }
-    
+
     LaunchedEffect(Unit) {
         libraryHandler.eventFlow.collectLatest {
             when (it) {
@@ -136,17 +136,14 @@ fun LibraryScreen(
         }
     }
 
-    ConstraintLayout(
+    Column(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
             .systemBarsPadding()
     ) {
-        val (header, list, navigation) = createRefs()
-
         if (userUIState.isLoggedIn) {
             RumbleLogoSearchHeaderView(
-                modifier = Modifier.constrainAs(header) { top.linkTo(parent.top) },
                 hasUnreadNotifications = activityHandlerState.hasUnreadNotifications,
                 onSearch = onSearch,
                 onNotifications = {
@@ -158,11 +155,7 @@ fun LibraryScreen(
             SwipeRefresh(
                 modifier = Modifier
                     .testTag(SwipeRefreshTag)
-                    .constrainAs(list) {
-                        top.linkTo(header.bottom)
-                        bottom.linkTo(navigation.top)
-                        height = Dimension.fillToConstraints
-                    },
+                    .fillMaxSize(),
                 state = rememberSwipeRefreshState(
                     state.watchHistoryLoading ||
                         state.purchasesLoading ||
@@ -214,7 +207,11 @@ fun LibraryScreen(
                                             loading = state.purchasesLoading,
                                             error = state.purchasesError,
                                             onVideoClick = libraryHandler::onVideoItemClick,
-                                            onMoreClick = { contentHandler.onMoreVideoOptionsClicked(it) },
+                                            onMoreClick = {
+                                                contentHandler.onMoreVideoOptionsClicked(
+                                                    it
+                                                )
+                                            },
                                             onRefresh = libraryHandler::refreshPurchasesVideos,
                                             onViewAll = { onViewAll(VideoList.LibraryPurchases) },
                                             onImpression = { libraryHandler.onVideoCardImpression(it) }
@@ -283,12 +280,7 @@ fun LibraryScreen(
             }
         } else {
             AuthPlaceholderScreen(
-                modifier = Modifier
-                    .constrainAs(list) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(navigation.top)
-                        height = Dimension.fillToConstraints
-                    },
+                modifier = Modifier.fillMaxSize(),
                 authHandler = authHandler,
                 onNavigateToRegistration = onNavigateToRegistration,
                 onEmailLogin = onNavigateToLogin
