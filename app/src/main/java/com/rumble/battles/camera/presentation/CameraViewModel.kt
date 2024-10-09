@@ -112,6 +112,7 @@ interface CameraUploadHandler {
     fun onScheduleSelected(uploadScheduleOption: UploadScheduleOption)
     fun onPublishClicked(onPublish: () -> Unit)
     fun onNextClicked(onNext: () -> Unit)
+    fun onBackClicked(onBack: () -> Unit)
     fun onSelectPublishDate()
     fun onSelectPublishTime()
     fun onDateChanged(newUtcMillis: Long)
@@ -173,6 +174,7 @@ data class UserUploadUIState(
     val title: String = "",
     val description: String = "",
     val titleError: Boolean = false,
+    val titleEmptyError: Boolean = false,
     val descriptionError: Boolean = false,
     val exclusiveAgreementChecked: Boolean = false,
     val termsOfServiceChecked: Boolean = false,
@@ -616,7 +618,7 @@ class CameraViewModel @Inject constructor(
 
     private fun observeUserProfile() {
         viewModelScope.launch {
-            sessionManager.userIdFlow.distinctUntilChanged().collectLatest  { userId ->
+            sessionManager.userIdFlow.distinctUntilChanged().collectLatest { userId ->
                 uiState.update {
                     it.copy(
                         userUploadProfile = it.userUploadProfile.copy(id = userId),
@@ -687,10 +689,13 @@ class CameraViewModel @Inject constructor(
     }
 
     override fun onTitleChanged(value: String) {
+        val existingTitleEmptyError = uiState.value.titleEmptyError
+        val existingTitleError = uiState.value.titleError
         uiState.update {
             it.copy(
                 title = value,
-                titleError = value.count() > MAX_CHARACTERS_UPLOAD_TITLE
+                titleEmptyError = if (existingTitleEmptyError) value.isBlank() else false,
+                titleError = if (existingTitleError) value.count() > MAX_CHARACTERS_UPLOAD_TITLE else false
             )
         }
         uploadVideoData = uploadVideoData.copy(
@@ -700,10 +705,11 @@ class CameraViewModel @Inject constructor(
     }
 
     override fun onDescriptionChanged(value: String) {
+        val existingDescriptionError = uiState.value.descriptionError
         uiState.update {
             it.copy(
                 description = value,
-                descriptionError = value.count() > MAX_CHARACTERS_UPLOAD_DESCRIPTION
+                descriptionError = if (existingDescriptionError) value.count() > MAX_CHARACTERS_UPLOAD_DESCRIPTION else false
             )
         }
         uploadVideoData = uploadVideoData.copy(
@@ -853,9 +859,33 @@ class CameraViewModel @Inject constructor(
     }
 
     override fun onNextClicked(onNext: () -> Unit) {
-        if (uiState.value.titleError.not() && uiState.value.descriptionError.not()) {
+        val title = uiState.value.title
+        val description = uiState.value.description
+        val titleEmptyError = title.isBlank()
+        val titleError = title.count() > MAX_CHARACTERS_UPLOAD_TITLE
+        val descriptionError = description.count() > MAX_CHARACTERS_UPLOAD_DESCRIPTION
+        uiState.update {
+            it.copy(
+                titleEmptyError = titleEmptyError,
+                titleError = titleError,
+                descriptionError = descriptionError
+            )
+        }
+
+        if (titleEmptyError.not() && titleError.not() && descriptionError.not()) {
             onNext()
         }
+    }
+
+    override fun onBackClicked(onBack: () -> Unit) {
+        uiState.update {
+            it.copy(
+                titleEmptyError = false,
+                titleError = false,
+                descriptionError = false
+            )
+        }
+        onBack()
     }
 
     private suspend fun fetchUserProfile() {
@@ -884,6 +914,7 @@ class CameraViewModel @Inject constructor(
                         )
                     }
                 }
+
                 else -> {}
             }
         }
