@@ -213,15 +213,15 @@ data class VideoDetailsState(
 )
 
 sealed class BottomSheetReason {
-    object JoinOnLocals : BottomSheetReason()
+    data object JoinOnLocals : BottomSheetReason()
     data class VideoSettingsDialog(val rumblePlayer: RumblePlayer) : BottomSheetReason()
     data class ReportComment(val commentEntity: CommentEntity) : BottomSheetReason()
     data class ReportVideo(val videoEntity: VideoEntity) : BottomSheetReason()
-    object EmailVerificationComment : BottomSheetReason()
-    object EmailVerificationLiveChat : BottomSheetReason()
+    data object EmailVerificationComment : BottomSheetReason()
+    data object EmailVerificationLiveChat : BottomSheetReason()
     data class CommentAuthorSwitcher(val channels: List<CommentAuthorEntity>) : BottomSheetReason()
-    object BuyRant : BottomSheetReason()
-    object ModerationMenu : BottomSheetReason()
+    data object BuyRant : BottomSheetReason()
+    data object ModerationMenu : BottomSheetReason()
 }
 
 sealed class VideoDetailsAlertReason : AlertDialogReason {
@@ -229,35 +229,34 @@ sealed class VideoDetailsAlertReason : AlertDialogReason {
     data class DeleteReason(val commentEntity: CommentEntity) : VideoDetailsAlertReason()
     data class ErrorReason(val errorMessage: String?, val messageToShort: Boolean = false) :
         VideoDetailsAlertReason()
-
     data class ShowEmailVerificationSent(val email: String) : VideoDetailsAlertReason()
-    object ShowYourEmailNotVerifiedYet : VideoDetailsAlertReason()
+    data object ShowYourEmailNotVerifiedYet : VideoDetailsAlertReason()
     data class RestrictedContentReason(val videoEntity: VideoEntity) : VideoDetailsAlertReason()
 }
 
 sealed class VideoDetailsEvent {
     data class VideoDetailsError(val errorMessage: String? = null) : VideoDetailsEvent()
-    object HideKeyboard : VideoDetailsEvent()
-    object ShowKeyboard : VideoDetailsEvent()
-    object NavigateBack : VideoDetailsEvent()
-    object ShowBottomSheet : VideoDetailsEvent()
-    object HideBottomSheet : VideoDetailsEvent()
-    object ShowCommentReportedMessage : VideoDetailsEvent()
-    object ShowVideoReportedMessage : VideoDetailsEvent()
-    object ShowEmailVerificationSuccess : VideoDetailsEvent()
-    object OpenLiveChat : VideoDetailsEvent()
-    object CloseLiveChat : VideoDetailsEvent()
-    object OpenComments : VideoDetailsEvent()
-    object CloseComments : VideoDetailsEvent()
+    data object HideKeyboard : VideoDetailsEvent()
+    data object ShowKeyboard : VideoDetailsEvent()
+    data object NavigateBack : VideoDetailsEvent()
+    data object ShowBottomSheet : VideoDetailsEvent()
+    data object HideBottomSheet : VideoDetailsEvent()
+    data object ShowCommentReportedMessage : VideoDetailsEvent()
+    data object ShowVideoReportedMessage : VideoDetailsEvent()
+    data object ShowEmailVerificationSuccess : VideoDetailsEvent()
+    data object OpenLiveChat : VideoDetailsEvent()
+    data object CloseLiveChat : VideoDetailsEvent()
+    data object OpenComments : VideoDetailsEvent()
+    data object CloseComments : VideoDetailsEvent()
     data class InitLiveChat(val videoId: Long) : VideoDetailsEvent()
     data class StartBuyRantFlow(val pendingMessageInfo: PendingMessageInfo) : VideoDetailsEvent()
-    object ScrollToTop : VideoDetailsEvent()
-    object ShowPremiumPromo : VideoDetailsEvent()
-    object OpenMuteMenu : VideoDetailsEvent()
-    object CloseMuteMenu : VideoDetailsEvent()
-    object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
+    data object ScrollToTop : VideoDetailsEvent()
+    data object ShowPremiumPromo : VideoDetailsEvent()
+    data object OpenMuteMenu : VideoDetailsEvent()
+    data object CloseMuteMenu : VideoDetailsEvent()
+    data object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
-    object OpenAuthMenu : VideoDetailsEvent()
+    data object OpenAuthMenu : VideoDetailsEvent()
 }
 
 private const val TAG = "VideoDetailsViewModel"
@@ -447,8 +446,10 @@ class VideoDetailsViewModel @Inject constructor(
         if (percentage > 0) {
             state.value = state.value.copy(uiType = UiType.IN_LIST)
             emitVmEvent(VideoDetailsEvent.HideKeyboard)
+            viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(true) }
         } else {
             state.value = state.value.copy(uiType = UiType.EMBEDDED)
+            viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(false) }
         }
     }
 
