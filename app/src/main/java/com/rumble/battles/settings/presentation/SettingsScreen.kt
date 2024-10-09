@@ -46,6 +46,7 @@ import com.rumble.battles.DebugSectionTag
 import com.rumble.battles.PlaybackInFeedsTag
 import com.rumble.battles.R
 import com.rumble.battles.UserDetailsSectionTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.CheckMarkItem
 import com.rumble.battles.commonViews.RowItemWithArrowView
@@ -258,10 +259,9 @@ fun SettingsScreen(
                         onSendFeedback = settingsHandler::onSendFeedback,
                         onVersionClick = settingsHandler::onVersionClick
                     )
-                    Spacer(
-                        Modifier
-                            .height(paddingLarge)
-                    )
+                }
+                item {
+                    BottomNavigationBarScreenSpacer()
                 }
             }
         }
@@ -475,6 +475,35 @@ private fun DebugSection(
             )
         }
     }
+
+    if (debugState.canUseAdsDebugMode) {
+        ToggleRowView(
+            text = stringResource(id = R.string.disable_ads),
+            textStyle = RumbleTypography.body1,
+            checked = disableAds,
+            addSeparator = true,
+            onCheckedChange = settingsHandler::onDisableAds
+        )
+
+        ToggleRowView(
+            text = stringResource(id = R.string.force_ads),
+            textStyle = RumbleTypography.body1,
+            checked = forceAds,
+            addSeparator = true,
+            onCheckedChange = settingsHandler::onForceAds,
+            enabled = disableAds.not(),
+        )
+
+        ToggleRowView(
+            text = stringResource(id = R.string.always_play_debug_ad),
+            textStyle = RumbleTypography.body1,
+            checked = playDebugAd,
+            addSeparator = true,
+            onCheckedChange = settingsHandler::onPlayDebugAd,
+            enabled = disableAds.not(),
+        )
+    }
+
     if (debugState.canSubmitLogs) {
         Column {
             val shareTitle = stringResource(id = R.string.share_logs)
@@ -511,33 +540,6 @@ private fun DebugSection(
                 color = MaterialTheme.colors.secondaryVariant
             )
         }
-    }
-    if (debugState.canUseAdsDebugMode) {
-        ToggleRowView(
-            text = stringResource(id = R.string.disable_ads),
-            textStyle = RumbleTypography.body1,
-            checked = disableAds,
-            addSeparator = true,
-            onCheckedChange = settingsHandler::onDisableAds
-        )
-
-        ToggleRowView(
-            text = stringResource(id = R.string.force_ads),
-            textStyle = RumbleTypography.body1,
-            checked = forceAds,
-            addSeparator = true,
-            onCheckedChange = settingsHandler::onForceAds,
-            enabled = disableAds.not(),
-        )
-
-        ToggleRowView(
-            text = stringResource(id = R.string.always_play_debug_ad),
-            textStyle = RumbleTypography.body1,
-            checked = playDebugAd,
-            addSeparator = true,
-            onCheckedChange = settingsHandler::onPlayDebugAd,
-            enabled = disableAds.not(),
-        )
     }
 }
 

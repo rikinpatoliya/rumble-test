@@ -70,20 +70,21 @@ import com.rumble.battles.MyVideosTag
 import com.rumble.battles.MyVideosTopBarTag
 import com.rumble.battles.R
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsVmEvent
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.BottomSheetItem
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.ChannelDetailsBaskSplash
 import com.rumble.battles.commonViews.ChannelDetailsCollapsingImage
 import com.rumble.battles.commonViews.ChannelDetailsHeader
-import com.rumble.battles.commonViews.dialogs.DialogActionItem
-import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
-import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.RumbleTextActionButton
 import com.rumble.battles.commonViews.TransparentStatusBar
 import com.rumble.battles.commonViews.VideosCountView
+import com.rumble.battles.commonViews.dialogs.DialogActionItem
+import com.rumble.battles.commonViews.dialogs.DialogActionType
+import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.BottomSheetContent
@@ -191,8 +192,14 @@ fun MyVideosScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    val videoDetailsState by contentHandler.videoDetailsState
+
     BackHandler(bottomSheetState.isVisible) {
         coroutineScope.launch { bottomSheetState.hide() }
+    }
+
+    LaunchedEffect(videoDetailsState) {
+        if (videoDetailsState.visible.not()) myVideosHandler.onCreatePlayerForVisibleFeed()
     }
 
     LaunchedEffect(scrollState) {
@@ -422,7 +429,9 @@ fun MyVideosScreen(
                                     }
                                 }
                             }
-
+                            item {
+                                BottomNavigationBarScreenSpacer()
+                            }
                         }
                     }
                 } else {
@@ -459,6 +468,7 @@ fun MyVideosScreen(
                                 title = stringResource(id = R.string.my_videos_have_not_uploaded_title),
                                 text = stringResource(id = R.string.my_videos_have_not_uploaded_description)
                             )
+                            BottomNavigationBarScreenSpacer()
                         }
                     }
                 }

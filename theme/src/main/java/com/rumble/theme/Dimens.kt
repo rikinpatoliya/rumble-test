@@ -36,6 +36,7 @@ val rantStartPadding = 10.dp
 val buttonHeight = 56.dp
 
 // Radius values
+val radiusNone = 0.dp
 val radiusXXXXSmall = 2.dp
 val radiusXXXSmall = 3.dp
 val radiusXXSmall = 4.dp
@@ -45,6 +46,7 @@ val radiusMedium = 12.dp
 val radiusXMedium = 16.dp
 val radiusXXMedium = 18.dp
 val radiusXXXMedium = 24.dp
+val radiusXXXXMedium = 28.dp
 val radiusLarge = 50.dp
 val radiusXLarge = 100.dp
 val radiusRant = 3.dp
@@ -67,8 +69,10 @@ val elevation = 8.dp
 val elevationMedium = 12.dp
 
 // Sizes
-val bottomBarHeight = 60.dp
-val bottomBarTabletWidth = 320.dp
+val bottomBarHeight = 65.dp
+val bottomBarTabletHeight = 60.dp
+val bottomBarSpacerBehind = bottomBarHeight + paddingLarge
+val bottomBarMinimalSpacerBehind = bottomBarHeight + paddingXSmall
 val recordTimerTimeBoxSize = 100.dp
 val minDefaultEmptyViewHeight = 200.dp
 val barCompactHeight = 4.dp
@@ -93,6 +97,11 @@ val discoverPlayerSwipeVelocityThreshold = 250.dp
 val seekbarFocusHeight = 16.dp
 val authContentWidthTablet = 340.dp
 val loginContentWidthTablet = 380.dp
+val miniPlayerHeight = 48.dp
+val miniPlayerWidth = 86.dp
+val miniPlayerBottomPadding = paddingXXSmall + bottomBarHeight + paddingXXXSmall
+val miniPlayerBottomThreshold = miniPlayerBottomPadding + miniPlayerHeight
+val commentViewHeight = 48.dp
 
 val imageXXMini = 2.dp
 val imageMini = 4.dp

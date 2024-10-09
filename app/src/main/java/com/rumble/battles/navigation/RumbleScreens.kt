@@ -1,10 +1,7 @@
 package com.rumble.battles.navigation
 
 import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
-import com.rumble.utils.RumbleConstants.DEFAULT_VIDEO_DETAILS_NAV_PATH_NON_PLAYLIST
 import com.rumble.utils.extension.navigationSafeEncode
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 sealed class RumbleScreens(val rootName: String) {
     object Feeds : RumbleScreens("feeds")
@@ -33,13 +30,6 @@ sealed class RumbleScreens(val rootName: String) {
     object TopChannelsScreen : RumbleScreens("topChannelsScreen")
     object Channel : RumbleScreens("channel/{${RumblePath.CHANNEL.path}}") {
         fun getPath(channelId: String): String = "channel/$channelId"
-    }
-
-    object RumbleWebViewScreen : RumbleScreens("webView/{${RumblePath.URL.path}}") {
-        fun getPath(url: String): String {
-            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-            return "webView/$encodedUrl"
-        }
     }
 
     object Search :
@@ -91,15 +81,6 @@ sealed class RumbleScreens(val rootName: String) {
         RumbleScreens("discoverPlayer/${RumblePath.VIDEO_CATEGORY.path}={${RumblePath.VIDEO_CATEGORY.path}}&${RumblePath.CHANNEL.path}={${RumblePath.CHANNEL.path}}") {
         fun getPath(category: String = "", channelId: String = "0"): String =
             "discoverPlayer/${RumblePath.VIDEO_CATEGORY.path}=${category}&${RumblePath.CHANNEL.path}=$channelId"
-    }
-    object VideoDetailsScreen :
-        RumbleScreens("videoDetails/{${RumblePath.VIDEO.path}}/{${RumblePath.ORIENTATION.path}}/{${RumblePath.PLAYLIST.path}}/{${RumblePath.PLAYLIST_SHUFFLE.path}}") {
-        fun getPath(
-            videoId: Long,
-            orientation: Int,
-            playListId: String = "$DEFAULT_VIDEO_DETAILS_NAV_PATH_NON_PLAYLIST",
-            shufflePlayList: Boolean = false
-        ): String = "videoDetails/$videoId/$orientation/$playListId/$shufflePlayList"
     }
     object EarningsScreen : RumbleScreens("earningsScreen")
     object ProfileNotifications : RumbleScreens("profileNotifications")

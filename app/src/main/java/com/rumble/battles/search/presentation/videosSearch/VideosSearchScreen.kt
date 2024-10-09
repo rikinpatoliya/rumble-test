@@ -2,9 +2,25 @@ package com.rumble.battles.search.presentation.videosSearch
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,7 +38,12 @@ import androidx.paging.compose.itemKey
 import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SearchVideosTag
-import com.rumble.battles.commonViews.*
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
+import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
+import com.rumble.battles.commonViews.EmptyView
+import com.rumble.battles.commonViews.PageLoadingView
+import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
+import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
@@ -176,6 +197,7 @@ fun VideosSearchScreen(
                                         text = stringResource(id = R.string.try_different_keywords_filters)
                                     )
                                 }
+
                                 loadState.refresh is LoadState.Loading -> {
                                     Box(
                                         modifier = Modifier
@@ -206,6 +228,7 @@ fun VideosSearchScreen(
                             }
                         }
                     }
+                    item { BottomNavigationBarScreenSpacer() }
                 }
             }
         }

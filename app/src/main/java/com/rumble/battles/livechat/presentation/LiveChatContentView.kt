@@ -35,6 +35,7 @@ import coil.request.ImageRequest
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.theme.RumbleTypography
+import com.rumble.theme.blueLinkColor
 import com.rumble.theme.liveChatBadgePadding
 import com.rumble.theme.liveChatBadgeSize
 import com.rumble.theme.paddingXXXXSmall
@@ -42,8 +43,10 @@ import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
 import com.rumble.theme.wokeGreen
 import com.rumble.utils.RumbleConstants
+import com.rumble.utils.getUrlAnnotatedString
 import com.rumble.utils.extension.getBoundingBoxes
 import com.rumble.utils.extension.getEmoteName
+
 
 @Composable
 fun LiveChatContentView(
@@ -56,6 +59,7 @@ fun LiveChatContentView(
     atMentionRange: IntRange? = null,
     userNameColor: Color = MaterialTheme.colors.primary,
     onClick: () -> Unit = {},
+    onLinkClick: (String) -> Unit = {},
 ) {
     val mentioned = atMentionRange?.let { message?.substring(it) }
     val pattern = remember { Regex(RumbleConstants.EMOTE_PATTERN) }
@@ -67,7 +71,7 @@ fun LiveChatContentView(
     var shouldHighlight = false
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val annotatedText = buildAnnotatedString {
+    val preAnnotatedText = buildAnnotatedString {
         userName?.let {
             withStyle(SpanStyle().copy(color = userNameColor, fontWeight = FontWeight.Bold)) {
                 append(it)
@@ -103,7 +107,12 @@ fun LiveChatContentView(
             } else {
                 if (word == mentioned && shouldHighlight.not()) {
                     shouldHighlight = true
-                    withStyle(SpanStyle().copy(color = atTextColor, fontWeight = FontWeight.SemiBold)) {
+                    withStyle(
+                        SpanStyle().copy(
+                            color = atTextColor,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    ) {
                         append(word)
                     }
                 } else {
@@ -113,6 +122,8 @@ fun LiveChatContentView(
             append(" ")
         }
     }
+
+    val annotatedText = getUrlAnnotatedString(preAnnotatedText, blueLinkColor)
 
     val inlineContent = userBadges?.associateWith { badgeId ->
         InlineTextContent(
@@ -144,15 +155,23 @@ fun LiveChatContentView(
             .drawBehind { onDraw() }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    layoutResult?.getOffsetForPosition(offset)?.let { position ->
-                        if (position <= (userName?.length ?: 0)) onClick()
+                    layoutResult?.let {
+                        val position = it.getOffsetForPosition(offset)
+                        val result = annotatedText
+                            .getStringAnnotations(RumbleConstants.TAG_URL, position, position)
+                            .firstOrNull()
+                        if (result != null) {
+                            onLinkClick(result.item)
+                        } else {
+                            if (position <= (userName?.length ?: 0)) onClick()
+                        }
                     }
                 }
             },
         inlineContent = inlineContent + inlineEmotesContent,
         text = annotatedText,
         style = RumbleTypography.h6Light,
-        color = Color.Unspecified,
+        color = MaterialTheme.colors.primary,
         onTextLayout = {
             layoutResult = it
             if (shouldHighlight) {
@@ -166,7 +185,10 @@ fun LiveChatContentView(
                                     val paddingPx = paddingXXXXSmall.toPx()
                                     drawRoundRect(
                                         color = atHighlightColor,
-                                        cornerRadius = CornerRadius(x = radiusXSmall.toPx(), y = radiusXSmall.toPx()),
+                                        cornerRadius = CornerRadius(
+                                            x = radiusXSmall.toPx(),
+                                            y = radiusXSmall.toPx()
+                                        ),
                                         topLeft = bound.topLeft.copy(
                                             x = bound.topLeft.x - paddingPx,
                                             y = bound.topLeft.y - paddingPx

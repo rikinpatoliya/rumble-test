@@ -42,16 +42,17 @@ import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
 import com.rumble.battles.VideosListTag
-import com.rumble.battles.commonViews.dialogs.AlertDialogReason
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
-import com.rumble.battles.commonViews.dialogs.DialogActionItem
-import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.ListToggleView
 import com.rumble.battles.commonViews.PageLoadingView
-import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
+import com.rumble.battles.commonViews.dialogs.AlertDialogReason
+import com.rumble.battles.commonViews.dialogs.DialogActionItem
+import com.rumble.battles.commonViews.dialogs.DialogActionType
+import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.discover.presentation.views.ErrorView
@@ -102,6 +103,13 @@ fun VideoListScreen(
             videoListHandler.onViewResumed()
         }
     }
+
+    val videoDetailsState by contentHandler.videoDetailsState
+
+    LaunchedEffect(videoDetailsState) {
+        if (videoDetailsState.visible.not()) videoListHandler.onCreatePlayerForVisibleFeed()
+    }
+
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect {
@@ -249,6 +257,10 @@ fun VideoListScreen(
                                 )
                             }
                         }
+                    }
+
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
 
                     videoPagingItems.apply {

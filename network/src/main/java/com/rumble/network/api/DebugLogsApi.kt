@@ -9,9 +9,9 @@ import retrofit2.http.Query
 import retrofit2.http.QueryMap
 
 interface DebugLogsApi {
-    @POST("debug/log")
+    @POST("debug/log2")
     suspend fun postEvent(@Query("uid") userId: String, @Body eventBody: EventBody): Response<ResponseBody>
 
-    @POST("debug/log")
+    @POST("debug/log2")
     suspend fun postAnalyticsEvent(@Query("uid") userId: String, @Query("event") eventName: String, @QueryMap params: Map<String, String>): Response<ResponseBody>
 }

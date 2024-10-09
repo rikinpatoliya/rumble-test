@@ -66,6 +66,7 @@ import com.rumble.videoplayer.player.config.PlaybackSpeed
 import com.rumble.videoplayer.player.config.PlayerPlaybackState
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.PlayerVideoSource
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.player.config.StreamStatus
 import com.rumble.videoplayer.player.internal.notification.PlayListType
 import com.rumble.videoplayer.player.internal.notification.RumblePlayList
@@ -241,10 +242,13 @@ class RumblePlayer(
 
     var targetChangeListener: PlayerTargetChangeListener? = null
 
-    var pipModeOn: Boolean = false
+    var rumbleVideoMode: RumbleVideoMode = RumbleVideoMode.Normal
 
     val videoTitle: String
         get() = rumbleVideo?.title ?: ""
+
+    val channelName: String
+        get() = rumbleVideo?.channelName ?: ""
 
     val videoDescription: String
         get() = rumbleVideo?.description ?: ""
@@ -318,6 +322,11 @@ class RumblePlayer(
             override fun onServiceConnected(className: ComponentName, service: IBinder) {
                 binder = (service as? RumblePlayerService.PlayerBinder)
                 setupService()
+                /*binder might be null for initial playback and playVideo might be called before
+                binder connects, so try to gain audio focus after binder is connected*/
+                if (!_isMuted.value && (isPlaying() || isFetching())) {
+                    binder?.requestAudioFocus()
+                }
             }
 
             override fun onServiceDisconnected(arg0: ComponentName) {
@@ -524,6 +533,11 @@ class RumblePlayer(
         timeRangeJob.cancel()
         saveLastPosition()
         stopTrackingWatchedTime()
+    }
+
+    fun pauseAndResetState() {
+        pauseVideo()
+        _playbackSate.value = PlayerPlaybackState.Idle()
     }
 
     fun seekBack(duration: Int = seekDuration) {
@@ -929,7 +943,7 @@ class RumblePlayer(
 
                     Player.STATE_READY -> {
                         val currentState = this@RumblePlayer.playbackState.value
-                        if (currentState is PlayerPlaybackState.Fetching){
+                        if (currentState is PlayerPlaybackState.Fetching) {
                             sendInitialPlaybackEvent?.invoke()
                         }
                         when (currentState) {
@@ -1025,9 +1039,11 @@ class RumblePlayer(
             .build()
     }
 
-    private fun buildMediaData(rumbleVideo: RumbleVideo?) =
-        MediaMetadata.Builder()
-            .setArtworkUri(Uri.parse(rumbleVideo?.videoThumbnailUri))
+    private fun buildMediaData(rumbleVideo: RumbleVideo?): MediaMetadata {
+        val videoThumbnailUri = rumbleVideo?.videoThumbnailUri
+        val uri = if (videoThumbnailUri == null) null else Uri.parse(videoThumbnailUri)
+        return MediaMetadata.Builder()
+            .setArtworkUri(uri)
             .setTitle(rumbleVideo?.title)
             .setDisplayTitle(rumbleVideo?.title)
             .setDescription(rumbleVideo?.description)
@@ -1036,6 +1052,7 @@ class RumblePlayer(
             .setAlbumArtist(rumbleVideo?.title)
             .setArtist(rumbleVideo?.description)
             .build()
+    }
 
     private fun listenToProgress(exoPlayer: ExoPlayer) {
         progressJob = backgroundScope.launch {
@@ -1097,7 +1114,7 @@ class RumblePlayer(
     private fun loadAd(isMidRoll: Boolean = false) {
         if (_adPlaybackState.value !is AdPlaybackState.Buffering
             && viewResumed
-            && pipModeOn.not()
+            && rumbleVideoMode == RumbleVideoMode.Normal
         ) {
             _adPlaybackState.value = AdPlaybackState.Buffering
             adsPlayer?.stop()

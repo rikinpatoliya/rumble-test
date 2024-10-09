@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -33,6 +34,7 @@ import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h5
 import com.rumble.theme.borderXXSmall
+import com.rumble.theme.commentViewHeight
 import com.rumble.theme.elevationMedium
 import com.rumble.theme.enforcedDarkmo
 import com.rumble.theme.imageMedium
@@ -66,8 +68,14 @@ fun AddMessageView(
         modifier = modifier,
         elevation = elevationMedium
     ) {
-        Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.surface)) {
-            ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.surface)
+        ) {
+            ConstraintLayout(modifier = Modifier
+                .height(commentViewHeight)
+                .fillMaxWidth()
+            ) {
                 val (user, addComment) = createRefs()
 
                 ProfileImageComponent(
@@ -134,7 +142,9 @@ fun AddMessageView(
                 }
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .height(commentViewHeight)
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 

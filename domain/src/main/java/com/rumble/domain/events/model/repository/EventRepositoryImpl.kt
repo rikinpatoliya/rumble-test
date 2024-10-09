@@ -87,7 +87,7 @@ class EventRepositoryImpl(
     }
 
     private suspend fun sendDebugEvent(eventBody: EventBody, subdomain: String, userId: String) {
-        if (subdomain.isNotEmpty()) {
+        if (subdomain.isNotBlank()) {
             eventRemoteDataSource.sendAnalyticsEvent(userId, eventBody)
         }
     }

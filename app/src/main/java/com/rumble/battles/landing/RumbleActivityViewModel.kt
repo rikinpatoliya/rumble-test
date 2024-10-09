@@ -14,6 +14,8 @@ import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
+import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.GetSensorBasedOrientationChangeEnabledUseCase
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
@@ -38,6 +40,7 @@ import com.rumble.utils.extension.isScreenOn
 import com.rumble.videoplayer.player.PlayerTargetChangeListener
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerTarget
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
@@ -82,15 +85,18 @@ interface RumbleActivityHandler {
     fun disableDynamicOrientationChangeBasedOnDeviceType()
     fun onShowAlertDialog(reason: RumbleActivityAlertReason)
     fun onDismissDialog()
-    fun onDeepLinkNavigated()
+    fun onPauseVideo()
     fun enableContentLoad()
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
+    fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int)
+    fun onNavigateToMyVideos()
 }
 
 
 sealed class RumbleEvent {
     data class NavigateToVideoDetailsFromNotification(val videoEntity: VideoEntity) : RumbleEvent()
+    object NavigateToMyVideos : RumbleEvent()
     object UnexpectedError : RumbleEvent()
     object PipModeEntered : RumbleEvent()
     object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
@@ -129,6 +135,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val getSensorBasedOrientationChangeEnabledUseCase: GetSensorBasedOrientationChangeEnabledUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
     private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
+    private val annotatedStringUseCase: AnnotatedStringUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
@@ -276,12 +283,12 @@ class RumbleActivityViewModel @Inject constructor(
             updateMediaSessionUseCase(it, currentPlayer, currentPlayer?.playerTarget?.value != PlayerTarget.AD)
         }
         currentPlayer?.hideControls()
-        currentPlayer?.pipModeOn = true
+        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Pip
         emitVmEvent(RumbleEvent.PipModeEntered)
     }
 
     override fun onExitPipMode() {
-        currentPlayer?.pipModeOn = false
+        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Normal
     }
 
     private fun emitVmEvent(event: RumbleEvent) =
@@ -317,7 +324,7 @@ class RumbleActivityViewModel @Inject constructor(
         alertDialogState.value = AlertDialogState()
     }
 
-    override fun onDeepLinkNavigated() {
+    override fun onPauseVideo() {
         currentPlayer?.pauseVideo()
     }
 
@@ -331,5 +338,13 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onOpenWebView(url: String) {
         emitVmEvent(RumbleEvent.OpenWebView(url))
+    }
+
+    override fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int) {
+        annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
+    }
+
+    override fun onNavigateToMyVideos() {
+        emitVmEvent(RumbleEvent.NavigateToMyVideos)
     }
 }

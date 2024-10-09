@@ -1,6 +1,7 @@
 package com.rumble.battles.referrals.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -88,7 +89,6 @@ fun ReferralsScreen(
                 LazyColumn(
                     modifier = Modifier,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    //verticalArrangement = Arrangement.spacedBy(paddingMedium),
                     contentPadding = PaddingValues(
                         vertical = paddingMedium,
                         horizontal = CalculatePaddingForTabletWidth(
@@ -142,18 +142,14 @@ fun ReferralsScreen(
             snackBarHostState = snackBarHostState
         )
 
-        BoxWithConstraints(modifier = Modifier
+        Box(modifier = Modifier
+            .systemBarsPadding()
             .constrainAs(shareGroup) {
                 bottom.linkTo(parent.bottom)
-            }) {
+            }
+        ) {
 
             ReferralShareView(
-                modifier = Modifier.padding(
-                    horizontal = CalculatePaddingForTabletWidth(
-                        maxWidth = maxWidth,
-                        defaultPadding = paddingMedium
-                    )
-                ),
                 referralUrl = state.referralUrl,
                 onShare = (handler::share),
                 onCopy = {

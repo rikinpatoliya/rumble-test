@@ -55,6 +55,9 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     private val userAgeKey = intPreferencesKey("userAgeKey")
     private val allowContentLoadKey = booleanPreferencesKey("allowContentLoadKey")
     private val lastLoginPromptKey = longPreferencesKey("lastLoginPrompt")
+    private val videoDetailsStateKey = booleanPreferencesKey("videoDetailsStateKey")
+    private val videoDetailsCollapsedKey = booleanPreferencesKey("videoDetailsCollapsedKey")
+    private val conversionLoggedKey = booleanPreferencesKey("conversionLoggedKey")
 
     val cookiesFlow: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[cookiesKey] ?: ""
@@ -193,6 +196,24 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     }.catch {
         Timber.tag(TAG).e(it)
         emit(value = 0)
+    }
+    val videDetailsOpenedFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[videoDetailsStateKey] ?: false
+    }.catch {
+        Timber.tag(TAG).e(it)
+        emit(value = false)
+    }
+    val videoDetailsCollapsedFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[videoDetailsCollapsedKey] ?: false
+    }.catch {
+        Timber.tag(TAG).e(it)
+        emit(value = false)
+    }
+    val conversionLoggedKeyFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[conversionLoggedKey] ?: false
+    }.catch {
+        Timber.tag(TAG).e(it)
+        emit(value = false)
     }
 
     suspend fun saveWatchedTimeSinceLastAd(value: Float) {
@@ -494,6 +515,36 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         try {
             context.dataStore.edit { prefs ->
                 prefs[lastLoginPromptKey] = time
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveVideoDetailsState(opened: Boolean) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[videoDetailsStateKey] = opened
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveVideoDetailsCollapsed(collapsed: Boolean) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[videoDetailsCollapsedKey] = collapsed
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveConversionLoggedState(isLogged: Boolean) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[conversionLoggedKey] = isLogged
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)

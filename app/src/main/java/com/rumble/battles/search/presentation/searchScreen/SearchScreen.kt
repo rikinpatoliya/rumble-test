@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.SearchQueryTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.RumbleTextActionButton
 import com.rumble.battles.search.presentation.views.AutoCompleteSearchCategoryView
@@ -154,6 +155,9 @@ fun SearchScreen(
                             onBrowseCategory = onBrowseCategory
                         )
                     }
+                }
+                item {
+                    BottomNavigationBarScreenSpacer()
                 }
             }
         }

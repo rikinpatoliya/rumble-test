@@ -22,6 +22,7 @@ val brandedBufferLight = Color(0xFFE5E5E5).copy(alpha = 0.5f)
 val brandedBufferDark = Color(0xFF303030).copy(alpha = 0.5f)
 val highlightRed = Color(0xFFE32B3D)
 val darkGreen = Color(0xFF486E21)
+val blueLinkColor = Color.Blue
 
 //Intentionally made private in order to enforce usage of MaterialTheme.colors.....
 //In case design requires theme-independent greyscale colors, then use colors from Enforced colors

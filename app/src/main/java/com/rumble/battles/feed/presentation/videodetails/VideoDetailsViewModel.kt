@@ -7,7 +7,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -23,7 +22,6 @@ import com.rumble.battles.comments.CommentsHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.landing.RumbleOrientationChangeHandler
-import com.rumble.battles.navigation.RumblePath
 import com.rumble.domain.analytics.domain.domainmodel.videoDetailsScreen
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogRumbleVideoUseCase
@@ -37,10 +35,9 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAutho
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserCommentAuthorsUseCase
+import com.rumble.domain.common.domain.domainmodel.DeviceType
 import com.rumble.domain.common.domain.domainmodel.EmptyResult
 import com.rumble.domain.common.domain.domainmodel.PlayListResult
-import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
-import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
@@ -86,12 +83,12 @@ import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.network.dto.channel.ReportContentType
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
-import com.rumble.utils.RumbleConstants.DEFAULT_VIDEO_DETAILS_NAV_PATH_NON_PLAYLIST
 import com.rumble.utils.RumbleConstants.PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS
 import com.rumble.utils.extension.getChannelId
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.ReportType
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.views.SettingsBottomSheetHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -119,11 +116,8 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     val userPictureFlow: Flow<String>
     val alertDialogState: State<AlertDialogState>
 
-    fun onFullScreen(fullScreen: Boolean, isTablet: Boolean)
-    fun onAnnotatedTextClicked(
-        annotatedTextWithActions: AnnotatedStringWithActionsList,
-        offset: Int,
-    )
+    fun onFullScreen(fullScreen: Boolean)
+    fun onCollapsing(percentage: Float)
     fun onLike()
     fun onDislike()
     fun onLikeRelated(videoEntity: VideoEntity)
@@ -146,7 +140,6 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onRumbleAdImpression(rumbleAd: RumbleAdEntity)
     fun onVideoPlayerImpression()
     fun onVideoCardImpression(videoEntity: VideoEntity)
-    fun onNavigated()
     fun onVerifyEmailForLiveChat()
     fun onCloseBuyRant(message: String)
     fun onPipModeEntered()
@@ -169,6 +162,14 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onSubscribeToPremium()
     fun onReloadContent()
     fun onSignIn()
+    fun onLoadContent(
+        videoId: Long,
+        playListId: String? = null,
+        shufflePlayList: Boolean? = null
+    )
+
+    fun onUpdateLayoutState(layoutState: CollapsableLayoutState)
+    fun onClearVideo()
 }
 
 data class PlayListState(
@@ -208,6 +209,7 @@ data class VideoDetailsState(
     val hasPremiumRestriction: Boolean = false,
     val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
+    val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
 )
 
 sealed class BottomSheetReason {
@@ -262,12 +264,10 @@ private const val TAG = "VideoDetailsViewModel"
 
 @HiltViewModel
 class VideoDetailsViewModel @Inject constructor(
-    savedState: SavedStateHandle,
     private val updateVideoPlayerSourceUseCase: UpdateVideoPlayerSourceUseCase,
     private val getVideoDetailsUseCase: GetVideoDetailsUseCase,
     private val initVideoPlayerSourceUseCase: InitVideoPlayerSourceUseCase,
     private val getChannelDataUseCase: GetChannelDataUseCase,
-    private val annotatedStringUseCase: AnnotatedStringUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val shareUseCase: ShareUseCase,
     private val getVideoCommentsUseCase: GetVideoCommentsUseCase,
@@ -302,14 +302,12 @@ class VideoDetailsViewModel @Inject constructor(
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase,
     private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
+    private val deviceType: DeviceType,
 ) : ViewModel(), VideoDetailsHandler, DefaultLifecycleObserver {
-    private val videoId = savedState.get<Long>(RumblePath.VIDEO.path)
-    private val playListId = savedState.get<String>(RumblePath.PLAYLIST.path) ?: ""
-    private val isPlayListPlayBackMode =
-        playListId != "$DEFAULT_VIDEO_DETAILS_NAV_PATH_NON_PLAYLIST"
-    private val shouldShufflePlayList =
-        savedState.get<Boolean>(RumblePath.PLAYLIST_SHUFFLE.path) ?: false
-    private val orientationEventListener: RumbleOrientationChangeHandler?
+    private var playListId: String = ""
+    private var shouldShufflePlayList = false
+
+    private val orientationEventListener: RumbleOrientationChangeHandler
 
     private var lockPortraitVertical = false
     private var playerImpressionLogged = false
@@ -320,11 +318,7 @@ class VideoDetailsViewModel @Inject constructor(
         handleError()
     }
 
-    override val state: MutableState<VideoDetailsState> = mutableStateOf(
-        VideoDetailsState(
-            isPlayListPlayBackMode = isPlayListPlayBackMode
-        )
-    )
+    override val state: MutableState<VideoDetailsState> = mutableStateOf(VideoDetailsState())
     override val playListState = MutableStateFlow<PlayListState?>(null)
     private val userIdFlow: Flow<String> = sessionManager.userIdFlow
     private val isPremiumUserFlow: Flow<Boolean> = sessionManager.isPremiumUserFlow
@@ -336,20 +330,41 @@ class VideoDetailsViewModel @Inject constructor(
     override val autoplayFlow: Flow<Boolean> = userPreferenceManager.autoplayFlow
 
     init {
-        videoId?.let {
-            videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(it.toString())
-        }
-        viewModelScope.launch(errorHandler) {
-            loadContent()
-        }
-        orientationEventListener = if (getSensorBasedOrientationChangeEnabledUseCase()) {
-            RumbleOrientationChangeHandler(application) {
-                if (state.value.screenOrientationLocked) {
-                    onScreenOrientationChanged(it)
-                }
+        orientationEventListener = RumbleOrientationChangeHandler(application) {
+            if (state.value.screenOrientationLocked && getSensorBasedOrientationChangeEnabledUseCase()) {
+                onScreenOrientationChanged(it)
             }
-        } else null
+        }
+
         observeLoginState()
+    }
+
+    override fun onLoadContent(videoId: Long, playListId: String?, shufflePlayList: Boolean?) {
+        if (state.value.videoEntity?.id != videoId) {
+            dismissResources()
+            this.playListId = playListId ?: ""
+            this.shouldShufflePlayList = shufflePlayList ?: false
+            state.value = state.value.copy(
+                isPlayListPlayBackMode = playListId != null,
+                isLoading = true,
+            )
+            viewModelScope.launch(errorHandler) {
+                loadContent(videoId)
+            }
+        }
+        onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
+    }
+
+    override fun onUpdateLayoutState(layoutState: CollapsableLayoutState) {
+        state.value = state.value.copy(layoutState = layoutState)
+        if (layoutState == CollapsableLayoutState.EXPENDED) {
+            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Normal
+            emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
+        } else {
+            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
+            emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+        }
+        viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(layoutState != CollapsableLayoutState.EXPENDED) }
     }
 
     override fun onCleared() {
@@ -376,8 +391,8 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onFullScreen(fullScreen: Boolean, isTablet: Boolean) {
-        if (isTablet) {
+    override fun onFullScreen(fullScreen: Boolean) {
+        if (deviceType == DeviceType.Tablet) {
             val uiType = if (fullScreen) {
                 if (state.value.videoEntity?.portraitMode == true) {
                     UiType.FULL_SCREEN_PORTRAIT
@@ -428,11 +443,13 @@ class VideoDetailsViewModel @Inject constructor(
         updateUid(orientation)
     }
 
-    override fun onAnnotatedTextClicked(
-        annotatedTextWithActions: AnnotatedStringWithActionsList,
-        offset: Int
-    ) {
-        annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
+    override fun onCollapsing(percentage: Float) {
+        if (percentage > 0) {
+            state.value = state.value.copy(uiType = UiType.IN_LIST)
+            emitVmEvent(VideoDetailsEvent.HideKeyboard)
+        } else {
+            state.value = state.value.copy(uiType = UiType.EMBEDDED)
+        }
     }
 
     override fun onLike() {
@@ -608,6 +625,11 @@ class VideoDetailsViewModel @Inject constructor(
             dismissResources()
             emitVmEvent(VideoDetailsEvent.NavigateBack)
         }
+    }
+
+    override fun onClearVideo() {
+        dismissResources()
+        emitVmEvent(VideoDetailsEvent.NavigateBack)
     }
 
     override fun onDelete(commentEntity: CommentEntity) {
@@ -861,11 +883,6 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onNavigated() {
-        state.value.rumblePlayer?.pauseVideo()
-        playerImpressionLogged = false
-    }
-
     override fun onCloseBuyRant(message: String) {
         analyticsEventUseCase(RantCloseButtonTapEvent)
         state.value = state.value.copy(currentComment = message)
@@ -891,7 +908,7 @@ class VideoDetailsViewModel @Inject constructor(
                 if (state.value.rumblePlayer?.playerTarget?.value == PlayerTarget.AD) {
                     analyticsEventUseCase(ImaDestroyedEvent, true)
                 }
-                state.value.rumblePlayer?.pauseVideo()
+                state.value.rumblePlayer?.pauseAndResetState()
                 onWatchVideo(videoEntity)
                 state.value = state.value.copy(
                     isPlayListPlayBackMode = false
@@ -913,11 +930,11 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onEnableOrientationChangeListener() {
-        orientationEventListener?.enable()
+        orientationEventListener.enable()
     }
 
     override fun onDisableOrientationChangeListener() {
-        orientationEventListener?.disable()
+        orientationEventListener.disable()
     }
 
     override fun onVerifyEmailForLiveChat() {
@@ -1009,8 +1026,8 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onPlayListVideoListUpdated(videoList: List<Feed>) {
         viewModelScope.launch(errorHandler) {
-            if (isPlayListPlayBackMode && ((playListState.value?.playListVideoList?.size
-                    ?: 0) < videoList.size)
+            if (state.value.isPlayListPlayBackMode &&
+                ((playListState.value?.playListVideoList?.size ?: 0) < videoList.size)
             ) {
                 playListState.value = playListState.value?.copy(playListVideoList = videoList)
                 val playList = createRumblePlayListUseCase(
@@ -1113,7 +1130,9 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onReloadContent() {
         viewModelScope.launch(errorHandler) {
-            loadContent()
+            state.value.videoEntity?.id?.let {
+                loadContent(it)
+            }
         }
     }
 
@@ -1130,20 +1149,17 @@ class VideoDetailsViewModel @Inject constructor(
         )
     }
 
-    private suspend fun loadContent() {
-        if (isPlayListPlayBackMode)
+    private suspend fun loadContent(videoId: Long) {
+        videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(videoId.toString())
+        if (state.value.isPlayListPlayBackMode)
             fetchPlayListWithVideos(playListId, shouldShufflePlayList, userIdFlow.first())
-        videoId?.let {
-            fetchDetails(it)
-            state.value.videoEntity?.let { videoEntity ->
-                if (isPlayListPlayBackMode.not()) {
-                    initVideoState(videoEntity)
-                }
+        fetchDetails(videoId)
+        state.value.videoEntity?.let { videoEntity ->
+            if (state.value.isPlayListPlayBackMode.not()) {
+                initVideoState(videoEntity)
             }
-            fetchChannelDetails(state.value.videoEntity?.channelId)
-        } ?: run {
-            state.value = state.value.copy(isLoading = false)
         }
+        fetchChannelDetails(state.value.videoEntity?.channelId)
         getRumbleAd()
         showPremiumPromo()
     }
@@ -1155,7 +1171,15 @@ class VideoDetailsViewModel @Inject constructor(
 
     private fun dismissResources() {
         state.value.rumblePlayer?.stopPlayer()
-        orientationEventListener?.disable()
+        state.value = VideoDetailsState(
+            rumblePlayer = null,
+            videoEntity = null,
+            layoutState = CollapsableLayoutState.NONE,
+            isLoggedIn = state.value.isLoggedIn,
+            userProfile = state.value.userProfile
+        )
+        orientationEventListener.disable()
+        viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(true) }
     }
 
     private fun emitVmEvent(event: VideoDetailsEvent) =
@@ -1203,6 +1227,7 @@ class VideoDetailsViewModel @Inject constructor(
         autoplay: Boolean
     ) {
         viewModelScope.launch(errorHandler) {
+            state.value = state.value.copy(isLoading = true)
             videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(videoId.toString())
             state.value.rumblePlayer?.pauseVideo()
             fetchDetails(videoId)
@@ -1298,7 +1323,6 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private suspend fun fetchDetails(videoId: Long) {
-        state.value = state.value.copy(isLoading = true)
         playerImpressionLogged = false
         getVideoDetailsUseCase(videoId)?.let {
             state.value = state.value.copy(
@@ -1340,13 +1364,16 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private suspend fun fetchUserProfile() {
-        val result = getUserProfileUseCase()
-        if (result.success) {
-            state.value = state.value.copy(
-                userProfile = result.userProfileEntity
-            )
-        } else {
-            handleError()
+        // fetch user profile only when user is logged in
+        if (state.value.isLoggedIn) {
+            val result = getUserProfileUseCase()
+            if (result.success) {
+                state.value = state.value.copy(
+                    userProfile = result.userProfileEntity
+                )
+            } else {
+                handleError()
+            }
         }
     }
 
@@ -1384,15 +1411,20 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private fun onScreenOrientationChanged(orientation: Int) {
-        if (orientation < 0) return
+        val currentScreenOrientation = state.value.screenOrientation
+        if (orientation < 0 ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(currentScreenOrientation)) ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isPortrait(currentScreenOrientation))
+        ) {
+            return
+        }
         state.value = state.value.copy(screenOrientationLocked = false)
         emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
     }
 
-    private fun isLandscape(orientation: Int) =
-        orientation == Configuration.ORIENTATION_LANDSCAPE ||
-            orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
-            orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+    private fun isLandscape(orientation: Int) = orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    private fun isPortrait(orientation: Int) = orientation == Configuration.ORIENTATION_PORTRAIT
 
     private fun showVerificationEmailSent() {
         alertDialogState.value = AlertDialogState(

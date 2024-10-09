@@ -2,6 +2,12 @@ package com.rumble.battles.navigation
 
 import com.rumble.battles.R
 
+const val NAV_ITEM_INDEX_HOME = 0
+const val NAV_ITEM_INDEX_DISCOVER = 1
+const val NAV_ITEM_INDEX_CAMERA = 2
+const val NAV_ITEM_INDEX_LIBRARY = 3
+const val NAV_ITEM_INDEX_ACCOUNT = 4
+
 data class NavItem(
     val iconId: Int,
     val iconIdSelected: Int,

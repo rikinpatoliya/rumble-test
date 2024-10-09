@@ -37,6 +37,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.rumble.battles.R
 import com.rumble.battles.SubscriptionsTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
@@ -101,6 +102,7 @@ fun SubscriptionsScreen(
         modifier = Modifier
             .testTag(SubscriptionsTag)
             .fillMaxSize()
+            .systemBarsPadding()
             .background(MaterialTheme.colors.onPrimary)
     ) {
         RumbleBasicTopAppBar(
@@ -196,10 +198,9 @@ fun SubscriptionsScreen(
                             text = stringResource(id = R.string.try_different_keywords_filters)
                         )
                     }
-                } else {
-                    item {
-                        Spacer(modifier = Modifier.height(paddingLarge))
-                    }
+                }
+                item {
+                    BottomNavigationBarScreenSpacer()
                 }
             }
             if (state.followedChannels.isEmpty() && state.query.isEmpty()) {

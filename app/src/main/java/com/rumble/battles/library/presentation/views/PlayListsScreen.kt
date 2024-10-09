@@ -28,6 +28,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
@@ -158,6 +159,10 @@ fun PlayListsScreen(
                                 },
                             )
                         }
+                    }
+
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
 
                     playLists.apply {
