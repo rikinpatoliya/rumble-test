@@ -1034,10 +1034,11 @@ class ContentViewModel @Inject constructor(
                     currentSubscriptionData = null
                     currentSubscriptionVideoId = null
                 }
-            } else {
+            } else if (result is PurchaseResult.Failure) {
                 emitVmEvent(ContentScreenVmEvent.Error())
                 currentSubscriptionData = null
                 currentSubscriptionVideoId = null
+                unhandledErrorUseCase(TAG, Error(result.errorMessage))
             }
         }
     }

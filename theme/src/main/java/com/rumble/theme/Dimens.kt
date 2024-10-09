@@ -81,6 +81,7 @@ val barDelimiterWidth = 2.dp
 val settingItemRowHeight = 40.dp
 val roundControlSize = 25.dp
 val rantCloseButtonSize = 12.dp
+val rantViewHeight = 28.dp
 val likeDislikeWidth = 72.dp
 val videoPreviewWidth = 204.dp
 val videoPreviewHeight = 363.dp
