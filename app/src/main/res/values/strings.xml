@@ -600,8 +600,9 @@
     <string name="you_have_not_signed_exclusive_agreement">You have not signed an exclusive agreement with any other parties.</string>
     <string name="you_must_agree_you_own_content">You must agree that you own this content</string>
     <string name="you_must_agree_to_our_terms_of_services">You must agree to our terms of services</string>
-    <string name="error_message_video_title_too_long">The video title is too long</string>
-    <string name="error_message_description_too_long">The video description is too long</string>
+    <string name="error_message_video_title_empty">Title is required</string>
+    <string name="error_message_video_title_too_long">Title is too long</string>
+    <string name="error_message_description_too_long">Description is too long</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
     <string name="time_zone_your_local_time">Time zone: your local time</string>
