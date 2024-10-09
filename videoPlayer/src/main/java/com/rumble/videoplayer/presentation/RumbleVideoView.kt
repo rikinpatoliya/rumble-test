@@ -207,6 +207,12 @@ fun RumbleVideoView(
                             onChangeFullscreenMode(it)
                         }
                     }
+                },
+                update = { playerView ->
+                    if (isFullScreen)
+                        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    else
+                        playerView.resizeMode = aspectRatioMode
                 }
             )
 

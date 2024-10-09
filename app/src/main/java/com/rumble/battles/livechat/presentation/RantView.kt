@@ -9,6 +9,7 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,7 @@ import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.progressBarHeight
 import com.rumble.theme.radiusXSmall
+import com.rumble.theme.rantViewHeight
 import com.rumble.utils.extension.toCurrencyString
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -37,10 +39,12 @@ fun RantView(
 ) {
     Box(
         modifier = modifier
+            .height(rantViewHeight)
             .clip(RoundedCornerShape(radiusXSmall))
-            .background(MaterialTheme.colors.onSecondary)
+            .background(MaterialTheme.colors.onSecondary),
+        contentAlignment = Alignment.CenterStart,
     ) {
-        ConstraintLayout{
+        ConstraintLayout {
             val (image, price, progress, dimView) = createRefs()
             ProfileImageComponent(
                 modifier
