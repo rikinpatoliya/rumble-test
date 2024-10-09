@@ -5,7 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -39,6 +39,7 @@ import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.conditional
 
 @Composable
@@ -53,7 +54,7 @@ fun AddCommentView(
     onProfileImageClick: (() -> Unit)? = null,
 ) {
     Surface(
-        modifier = modifier.height(commentViewHeight),
+        modifier = modifier.heightIn(min = commentViewHeight),
         elevation = elevation
     ) {
         ConstraintLayout {
@@ -103,6 +104,8 @@ fun AddCommentView(
                         .fillMaxWidth()
                         .align(Alignment.CenterStart),
                     value = comment,
+                    singleLine = false,
+                    maxLines = RumbleConstants.MAX_COMMENT_FIELD_LINES,
                     textStyle = body1.copy(color = MaterialTheme.colors.primary),
                     cursorBrush = SolidColor(MaterialTheme.colors.primary),
                     onValueChange = {
