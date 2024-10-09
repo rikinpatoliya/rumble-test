@@ -35,6 +35,7 @@ import com.rumble.battles.feed.presentation.views.AddCommentView
 import com.rumble.battles.feed.presentation.views.CloseAddCommentView
 import com.rumble.battles.feed.presentation.views.CommentView
 import com.rumble.battles.feed.presentation.views.ReplyToCommentView
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.minDefaultEmptyViewHeight
 import com.rumble.theme.paddingMedium
@@ -50,6 +51,7 @@ private const val TAG = "CommentsPopupBottomSheet"
 internal fun CommentsPopupBottomSheet(
     modifier: Modifier = Modifier,
     handler: CommentsHandler,
+    activityHandler: RumbleActivityHandler,
     listState: LazyListState,
     userName: String,
     userPicture: String,
@@ -118,6 +120,7 @@ internal fun CommentsPopupBottomSheet(
                         .imePadding()
                         .fillMaxWidth(),
                     commentEntity = it,
+                    activityHandler = activityHandler,
                     hasPremiumRestriction = state.hasPremiumRestriction,
                     comment = state.currentComment,
                     userName = userName,
@@ -148,6 +151,7 @@ internal fun CommentsPopupBottomSheet(
                                         top = paddingSmall
                                     ),
                                     commentEntity = it,
+                                    activityHandler = activityHandler,
                                     hasPremiumRestriction = state.hasPremiumRestriction,
                                     onReplies = handler::onReplies,
                                     onDelete = handler::onDelete,

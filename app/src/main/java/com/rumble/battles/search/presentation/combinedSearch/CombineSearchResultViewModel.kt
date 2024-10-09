@@ -232,6 +232,9 @@ class CombineSearchResultViewModel @Inject constructor(
                 CombinedSearchAlertReason.RestrictedContentReason(videoEntity)
             )
         } else {
+            state.value.rumblePlayer?.stopPlayer()
+            state.value = state.value.copy(rumblePlayer = null)
+            lastDisplayedFeed = null
             emitVmEvent(CombinedSearchEvent.PlayVideo(videoEntity))
         }
     }

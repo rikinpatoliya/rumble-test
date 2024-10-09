@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -132,16 +133,16 @@ fun AuthPlaceholderScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
         Column(
             modifier = Modifier
+                .fillMaxHeight()
                 .conditional(IsTablet()) {
                     width(loginContentWidthTablet)
                 }
-                .align(Alignment.CenterHorizontally)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = paddingLarge),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = stringResource(id = R.string.sign_in_to_rumble),
@@ -199,7 +200,7 @@ fun AuthPlaceholderScreen(
                 },
             )
         }
-        Spacer(modifier = Modifier.weight(1f))
+
     }
 
     if (state.loading) {

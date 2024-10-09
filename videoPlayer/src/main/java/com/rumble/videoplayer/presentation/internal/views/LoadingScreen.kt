@@ -64,7 +64,7 @@ private fun InListLoadingScreen(
                     .fillMaxSize(),
                 model = thumbnail,
                 contentDescription = "",
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.FillWidth
             )
         }
 

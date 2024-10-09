@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.WindowInsetsController
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -47,9 +48,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -71,11 +74,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.max
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -130,6 +136,7 @@ import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
+import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h4
 import com.rumble.theme.RumbleTypography.h6
@@ -144,8 +151,13 @@ import com.rumble.theme.imageXMedium
 import com.rumble.theme.imageXXMini
 import com.rumble.theme.imageXXSmall
 import com.rumble.theme.minDefaultEmptyViewHeight
+import com.rumble.theme.miniPlayerBottomPadding
+import com.rumble.theme.miniPlayerBottomThreshold
+import com.rumble.theme.miniPlayerHeight
+import com.rumble.theme.miniPlayerWidth
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
+import com.rumble.theme.paddingNone
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXGiant
 import com.rumble.theme.paddingXSmall
@@ -155,8 +167,11 @@ import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.playListVideoDetailsMaxHeight
 import com.rumble.theme.radiusLarge
 import com.rumble.theme.radiusMedium
+import com.rumble.theme.radiusNone
+import com.rumble.theme.radiusXXXXMedium
 import com.rumble.theme.videoHeightReduced
 import com.rumble.utils.RumbleConstants
+import com.rumble.utils.RumbleConstants.COLLAPSE_ANIMATION_DURATION
 import com.rumble.utils.RumbleConstants.LIVE_CHAT_ANIMATION_DURATION
 import com.rumble.utils.extension.capitalizeWords
 import com.rumble.utils.extension.conditional
@@ -165,6 +180,9 @@ import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.presentation.RumbleVideoView
 import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.views.MiniControllerView
+import com.rumble.videoplayer.presentation.views.MiniPlayerControlsView
+import com.rumble.videoplayer.presentation.views.MiniPlayerInfoView
+import com.rumble.videoplayer.presentation.views.MiniPlayerView
 import com.rumble.videoplayer.presentation.views.VideoSettingsBottomSheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
@@ -182,7 +200,6 @@ fun VideoDetailsScreen(
     contentHandler: ContentHandler,
     liveChatHandler: LiveChatHandler,
     contentBottomSheetState: ModalBottomSheetState,
-    onBackClick: () -> Unit,
     onChannelClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
     onTagClick: (String) -> Unit,
@@ -226,6 +243,25 @@ fun VideoDetailsScreen(
         }
     }
     val contentListState = rememberLazyListState()
+    var collapsePercentage by remember { mutableFloatStateOf(0f) }
+    var collapseDirection by remember { mutableStateOf(CollapseDirection.DOWN) }
+    var collapsePaddingVisible by remember { mutableStateOf(false) }
+    val collapseHorizontalPadding: Dp by animateDpAsState(
+        if (collapsePaddingVisible) paddingXXSmall else paddingNone,
+        tween(COLLAPSE_ANIMATION_DURATION),
+        label = "padding"
+    )
+    val collapseBottomPaddingDp: Dp by animateDpAsState(
+        if (collapsePaddingVisible) miniPlayerBottomPadding else paddingNone,
+        tween(COLLAPSE_ANIMATION_DURATION),
+        label = "bottomPadding"
+    )
+    val collapsingRadius: Dp by animateDpAsState(
+        if (collapsePaddingVisible) radiusXXXXMedium else radiusNone,
+        tween(COLLAPSE_ANIMATION_DURATION),
+        label = "radius"
+    )
+    var collapsed by remember { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
         if (state.screenOrientationLocked.not()) {
@@ -234,6 +270,7 @@ fun VideoDetailsScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         activityHandler.dynamicOrientationChangeDisabled = false
         onDispose {
+            activityHandler.onPauseVideo()
             lifecycleOwner.lifecycle.removeObserver(observer)
             activityHandler.dynamicOrientationChangeDisabled = true
             activityHandler.disableDynamicOrientationChangeBasedOnDeviceType()
@@ -277,8 +314,9 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.NavigateBack -> {
-                    onBackClick()
                     activityHandler.dynamicOrientationChangeDisabled = true
+                    contentHandler.onCloseVideoDetails()
+                    collapsed = false
                 }
 
                 is VideoDetailsEvent.ShowCommentReportedMessage -> {
@@ -335,12 +373,15 @@ fun VideoDetailsScreen(
                 is VideoDetailsEvent.CloseMuteMenu -> {
                     muteBottomSheetState.hide()
                 }
+
                 is VideoDetailsEvent.OpenPremiumSubscriptionOptions -> {
                     contentHandler.onShowSubscriptionOptions(state.videoEntity?.id)
                 }
+
                 is VideoDetailsEvent.SetOrientation -> {
                     activity.requestedOrientation = it.orientation
                 }
+
                 is VideoDetailsEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
                 }
@@ -373,72 +414,117 @@ fun VideoDetailsScreen(
             coroutineScope.launch { contentBottomSheetState.hide() }
         } else {
             activityHandler.currentPlayer = null
-            handler.onBack()
+            handler.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
         }
     }
 
-    RumbleModalBottomSheetLayout(
-        sheetState = muteBottomSheetState,
-        sheetContent = {
-            MuteUserBottomSheet(
-                userName = liveChatState.selectedMessage?.userName ?: "",
-                onMute = { period ->
-                    state.videoEntity?.let {
-                        liveChatHandler.onMuteUserConfirmed(it.id, period)
-                    }
-                },
-                onCancel = handler::onDismissMuteMenu
-            )
+    CollapsableLayout(
+        modifier = Modifier
+            .padding(horizontal = collapseHorizontalPadding)
+            .padding(bottom = collapseBottomPaddingDp)
+            .wrapContentHeight()
+            .conditional(state.isFullScreen.not()) {
+                systemBarsPadding()
+            },
+        collapseAvailable = state.isFullScreen.not(),
+        enforcedState = state.layoutState,
+        bottomThreshold = miniPlayerBottomThreshold,
+        cornerRadius = collapsingRadius,
+        delayBeforeExpend = COLLAPSE_ANIMATION_DURATION.toLong(),
+        onStateChanged = {
+            collapsed = it == CollapsableLayoutState.COLLAPSED
+            collapsePaddingVisible = collapsed
+            handler.onUpdateLayoutState(it)
+        },
+        onCollapseProgress = { percentage, direction ->
+            collapseDirection = direction
+            collapsePercentage = percentage
+            if (direction == CollapseDirection.UP && collapsed) {
+                collapsed = false
+                collapsePaddingVisible = false
+            } else if (direction == CollapseDirection.DOWN && state.isFullScreen) {
+                handler.onFullScreen(false)
+            }
+            if (percentage >= 0.5f && collapseHorizontalPadding == paddingNone && direction == CollapseDirection.DOWN) collapsePaddingVisible = true
+            handler.onCollapsing(percentage)
         }
     ) {
-        RumbleModalBottomSheetLayout(
-            sheetState = bottomSheetState,
-            sheetContent = {
-                BottomSheetDialog(
-                    handler = handler,
-                    liveChatHandler = liveChatHandler,
-                    activityHandler = activityHandler,
-                    coroutineScope = coroutineScope,
-                    bottomSheetState = bottomSheetState
+        if (collapsed) {
+            state.rumblePlayer?.let { rumblePlayer ->
+                MiniPlayerView(
+                    modifier = Modifier.fillMaxWidth(),
+                    rumblePlayer = rumblePlayer,
+                    onClose = { handler.onClearVideo() },
+                    onClick = {
+                        collapsePaddingVisible = false
+                        handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
+                    }
                 )
-            }) {
-
-            Box(
-                modifier = Modifier
-                    .background(MaterialTheme.colors.background)
-                    .fillMaxSize()
-                    .testTag(VideoDetails)
-            ) {
-                VideoDetailsView(
-                    handler = handler,
-                    contentHandler = contentHandler,
-                    activityHandler = activityHandler,
-                    liveChatHandler = liveChatHandler,
-                    onChannelClick = onChannelClick,
-                    onCategoryClick = {
-                        handler.onNavigated()
-                        onCategoryClick(it)
-                    },
-                    onTagClick = {
-                        handler.onNavigated()
-                        onTagClick(it)
-                    },
-                    liveChatBottomSheetState = liveChatBottomSheetState,
-                    contentListState = contentListState
-                )
-
-                if (playerTarget?.value == PlayerTarget.REMOTE) {
-                    MiniControllerView(
-                        modifier = Modifier
-                            .imePadding()
-                            .fillMaxWidth()
-                            .align(BottomCenter)
+            }
+        } else {
+            RumbleModalBottomSheetLayout(
+                sheetState = muteBottomSheetState,
+                sheetContent = {
+                    MuteUserBottomSheet(
+                        userName = liveChatState.selectedMessage?.userName ?: "",
+                        onMute = { period ->
+                            state.videoEntity?.let {
+                                liveChatHandler.onMuteUserConfirmed(it.id, period)
+                            }
+                        },
+                        onCancel = handler::onDismissMuteMenu
                     )
+                }
+            ) {
+                RumbleModalBottomSheetLayout(
+                    sheetState = bottomSheetState,
+                    sheetContent = {
+                        BottomSheetDialog(
+                            handler = handler,
+                            liveChatHandler = liveChatHandler,
+                            activityHandler = activityHandler,
+                            coroutineScope = coroutineScope,
+                            bottomSheetState = bottomSheetState
+                        )
+                    }) {
+
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colors.background)
+                            .fillMaxSize()
+                            .testTag(VideoDetails)
+                    ) {
+                        VideoDetailsView(
+                            modifier = Modifier.conditional(playerTarget?.value == PlayerTarget.REMOTE) {
+                                padding(bottom = paddingXGiant)
+                            },
+                            handler = handler,
+                            contentHandler = contentHandler,
+                            activityHandler = activityHandler,
+                            liveChatHandler = liveChatHandler,
+                            collapsePercentage = collapsePercentage,
+                            collapseDirection = collapseDirection,
+                            onChannelClick = onChannelClick,
+                            onCategoryClick = onCategoryClick,
+                            onTagClick = onTagClick,
+                            liveChatBottomSheetState = liveChatBottomSheetState,
+                            contentListState = contentListState,
+                            onEnforceCollapse = { handler.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED) }
+                        )
+
+                        if (playerTarget?.value == PlayerTarget.REMOTE) {
+                            MiniControllerView(
+                                modifier = Modifier
+                                    .imePadding()
+                                    .fillMaxWidth()
+                                    .align(BottomCenter)
+                            )
+                        }
+                    }
                 }
             }
         }
     }
-
     RumbleSnackbarHost(snackBarHostState = snackbarHostState)
 }
 
@@ -452,13 +538,17 @@ fun VideoDetailsView(
     liveChatHandler: LiveChatHandler,
     liveChatBottomSheetState: ModalBottomSheetState,
     contentListState: LazyListState,
+    collapsePercentage: Float,
+    collapseDirection: CollapseDirection,
     onChannelClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
     onTagClick: (String) -> Unit,
+    onEnforceCollapse: () -> Unit,
 ) {
     val state by handler.state
     val alertDialogState by handler.alertDialogState
     val coroutineScope = rememberCoroutineScope()
+    var minimalHeightReached by rememberSaveable { mutableStateOf(collapsePercentage > 0f) }
 
     LaunchedEffect(Unit) {
         snapshotFlow { liveChatBottomSheetState.currentValue }
@@ -477,10 +567,16 @@ fun VideoDetailsView(
         val contentPadding = CalculatePaddingForTabletWidth(maxWidth = maxWidth)
         val boxMaxWidth = maxWidth
         val boxMxHeight = maxHeight
+        val actualWidth: Dp by animateDpAsState(
+            if (minimalHeightReached) miniPlayerWidth else maxWidth,
+            tween(COLLAPSE_ANIMATION_DURATION),
+            label = "width"
+        )
+
         Column(
-            modifier = if (state.isFullScreen.not()) modifier.systemBarsPadding() else modifier
+            modifier = modifier
         ) {
-            Row {
+            Row(verticalAlignment = CenterVertically) {
                 val isTablet = IsTablet()
                 val isKeyboardVisible by keyboardAsState()
                 val width =
@@ -489,13 +585,29 @@ fun VideoDetailsView(
                     if (state.isFullScreen) boxMxHeight
                     else width / 16 * 9
                 }
+
+                if (miniPlayerHeight >= height * (1 - collapsePercentage) && collapseDirection == CollapseDirection.DOWN) {
+                    minimalHeightReached = true
+                } else if (collapseDirection == CollapseDirection.UP) {
+                    minimalHeightReached = false
+                }
+
+                val actualHeight = max(height * (1 - collapsePercentage), miniPlayerHeight)
+
                 val sizeModifier =
                     Modifier
                         .conditional(state.isFullScreen.not()) { this.padding(horizontal = contentPadding) }
-                        .width(width)
-                        .height(height)
+                        .conditional(state.isFullScreen) {
+                            width(width)
+                        }
+                        .conditional(state.isFullScreen.not()) {
+                            width(actualWidth)
+                        }
+                        .height(actualHeight)
 
-                if (state.videoEntity?.isPremiumExclusiveContent == true && contentHandler.isPremiumUser().not()) {
+                if (state.videoEntity?.isPremiumExclusiveContent == true
+                    && contentHandler.isPremiumUser().not()
+                ) {
                     PremiumOnlyThumbnailView(
                         modifier = sizeModifier
                             .aspectRatio(
@@ -516,12 +628,30 @@ fun VideoDetailsView(
                             }
                             .background(MaterialTheme.colors.primaryVariant),
                         rumblePlayer = state.rumblePlayer,
-                        activityHandler = activityHandler,
                         handler = handler,
                         fullScreen = state.isFullScreen,
                         uiType = state.uiType,
-                        liveChatDisabled = state.videoEntity?.liveChatDisabled ?: true
+                        liveChatDisabled = state.videoEntity?.liveChatDisabled ?: true,
+                        onCollapse = onEnforceCollapse,
                     )
+
+                    if (state.isFullScreen.not()) {
+                        state.rumblePlayer?.let {
+                            MiniPlayerInfoView(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = paddingMedium),
+                                rumblePlayer = it
+                            )
+                        }
+
+                        MiniPlayerControlsView(
+                            modifier = Modifier.padding(end = paddingMedium),
+                            playerTarget = state.rumblePlayer?.playerTarget?.value,
+                            isPlaying = state.rumblePlayer?.isPlaying() ?: true,
+                        )
+                    }
+
                     if (state.inLiveChat and state.isFullScreen) {
                         LiveChatView(
                             modifier = Modifier
@@ -536,58 +666,66 @@ fun VideoDetailsView(
             }
 
             if (state.isFullScreen.not()) {
-                RumbleModalBottomSheetLayout(
-                    sheetState = liveChatBottomSheetState,
-                    sheetContent = {
-                        val sheetContentModifier = Modifier
-                            .fillMaxSize()
-                            .conditional(IsTablet()) {
-                                padding(horizontal = paddingXXMedium)
+                Box {
+                    RumbleModalBottomSheetLayout(
+                        sheetState = liveChatBottomSheetState,
+                        sheetContent = {
+                            val sheetContentModifier = Modifier
+                                .fillMaxSize()
+                                .conditional(IsTablet()) {
+                                    padding(horizontal = paddingXXMedium)
+                                }
+                            if (state.lastBottomSheet == LastBottomSheet.LIVECHAT) {
+                                LiveChatView(
+                                    modifier = sheetContentModifier,
+                                    handler = handler,
+                                    liveChatHandler = liveChatHandler,
+                                    activityHandler = activityHandler
+                                )
+                            } else {
+                                CommentsView(
+                                    modifier = sheetContentModifier,
+                                    handler = handler,
+                                    activityHandler = activityHandler
+                                )
                             }
-                        if (state.lastBottomSheet == LastBottomSheet.LIVECHAT) {
-                            LiveChatView(
-                                modifier = sheetContentModifier,
-                                handler = handler,
-                                liveChatHandler = liveChatHandler,
-                                activityHandler = activityHandler
-                            )
+                        }) {
+                        if (state.isLoading) {
+                            Box(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                RumbleProgressIndicator(modifier = Modifier.align(Center))
+                            }
                         } else {
-                            CommentsView(
-                                modifier = sheetContentModifier,
+                            ChannelContentView(
+                                modifier = Modifier.fillMaxSize(),
                                 handler = handler,
+                                contentHandler = contentHandler,
+                                onChannelClick = onChannelClick,
+                                onCategoryClick = onCategoryClick,
+                                onTagClick = onTagClick,
+                                coroutineScope = coroutineScope,
+                                contentPadding = contentPadding,
+                                activityHandler = activityHandler,
+                                contentListState = contentListState
                             )
                         }
-                    }) {
-                    if (state.isLoading) {
                         Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            RumbleProgressIndicator(modifier = Modifier.align(Center))
-                        }
-                    } else {
-                        ChannelContentView(
-                            modifier = Modifier.fillMaxSize(),
-                            handler = handler,
-                            contentHandler = contentHandler,
-                            onChannelClick = onChannelClick,
-                            onCategoryClick = onCategoryClick,
-                            onTagClick = onTagClick,
-                            coroutineScope = coroutineScope,
-                            contentPadding = contentPadding,
-                            activityHandler = activityHandler,
-                            contentListState = contentListState
+                            modifier
+                                .fillMaxSize()
+                                .background(RumbleCustomTheme.colors.background.copy(alpha = if (collapsePercentage in 0.0..1.0) collapsePercentage else 0f))
                         )
                     }
                 }
             }
         }
-    }
 
-    if (alertDialogState.show) {
-        VideoDetailsDialog(
-            reason = alertDialogState.alertDialogReason,
-            handler = handler
-        )
+        if (alertDialogState.show) {
+            VideoDetailsDialog(
+                reason = alertDialogState.alertDialogReason,
+                handler = handler
+            )
+        }
     }
 }
 
@@ -614,6 +752,7 @@ private fun ChannelContentView(
         horizontalAlignment = Alignment.CenterHorizontally,
         state = contentListState
     ) {
+
         if (state.isPlayListPlayBackMode && playListState != null) {
             playListState?.let {
                 item {
@@ -881,24 +1020,23 @@ fun DescriptionView(
         ExpandableText(
             modifier = modifier,
             text = description,
-            onUriClick = { activityHandler.onOpenWebView(it) },
-            onAnnotatedTextClicked = handler::onAnnotatedTextClicked
+            onUriClick = activityHandler::onOpenWebView,
+            onAnnotatedTextClicked = activityHandler::onAnnotatedTextClicked
         )
     }
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 private fun VideoPlayerView(
     modifier: Modifier = Modifier,
     rumblePlayer: RumblePlayer?,
-    activityHandler: RumbleActivityHandler,
     handler: VideoDetailsHandler,
     fullScreen: Boolean,
     uiType: UiType,
     liveChatDisabled: Boolean,
+    onCollapse: () -> Unit,
 ) {
-    val isTablet = IsTablet()
-
     Box(
         modifier = modifier
     ) {
@@ -906,18 +1044,13 @@ private fun VideoPlayerView(
             RumbleVideoView(
                 modifier = Modifier.fillMaxSize(),
                 rumblePlayer = rumblePlayer,
+                aspectRatioMode = AspectRatioFrameLayout.RESIZE_MODE_FILL,
                 uiType = uiType,
                 isFullScreen = fullScreen,
                 onChangeFullscreenMode = {
-                    handler.onFullScreen(
-                        fullScreen = it,
-                        isTablet = isTablet
-                    )
+                    handler.onFullScreen(fullScreen = it)
                 },
-                onBack = {
-                    activityHandler.currentPlayer = null
-                    handler.onBack()
-                },
+                onBack = onCollapse,
                 onLiveChatClicked = handler::onOpenLiveChat,
                 liveChatDisabled = liveChatDisabled,
                 onSettings = handler::onVideoSettings
@@ -1103,10 +1236,7 @@ private fun VideoDetailsHeaderView(
                             action
                         )
                     },
-                    onChannelClick = { channelId ->
-                        handler.onNavigated()
-                        onChannelClick(channelId)
-                    }
+                    onChannelClick = onChannelClick
                 )
             }
 
@@ -1268,7 +1398,8 @@ private fun BottomSheetDialog(
     LaunchedEffect(Unit) {
         snapshotFlow { bottomSheetState.currentValue }
             .collectLatest {
-                buyRantBottomSheetExpanded = it == ModalBottomSheetValue.Expanded && state.isFullScreen.not()
+                buyRantBottomSheetExpanded =
+                    it == ModalBottomSheetValue.Expanded && state.isFullScreen.not()
             }
     }
 

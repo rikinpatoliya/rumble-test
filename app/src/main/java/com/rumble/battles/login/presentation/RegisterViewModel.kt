@@ -123,9 +123,9 @@ class RegisterViewModel @Inject constructor(
     private val passwordValidationUseCase: PasswordValidationUseCase,
     private val birthdayValidationUseCase: BirthdayValidationUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
-    private val annotatedStringUseCase: AnnotatedStringUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val annotatedStringUseCase: AnnotatedStringUseCase,
     stateHandle: SavedStateHandle
 ) : ViewModel(), RegisterHandler {
 

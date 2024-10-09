@@ -30,14 +30,15 @@ import com.rumble.battles.CloseAccountActionButtonTag
 import com.rumble.battles.CloseAccountTag
 import com.rumble.battles.CloseAccountTextTag
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.RumbleBasicTopAppBar
+import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.RumbleBasicTopAppBar
-import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.theme.RumbleTypography
+import com.rumble.theme.bottomBarHeight
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.fierceRed
 import com.rumble.theme.paddingMedium
@@ -71,6 +72,7 @@ fun CloseAccountScreen(
         modifier = Modifier
             .testTag(CloseAccountTag)
             .fillMaxSize()
+            .padding(bottom = bottomBarHeight)
             .background(MaterialTheme.colors.background)
     ) {
         RumbleBasicTopAppBar(

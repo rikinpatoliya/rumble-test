@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -25,8 +26,19 @@ import com.rumble.battles.R
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.RoundIconButton
-import com.rumble.theme.*
+import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography.body1
+import com.rumble.theme.borderXXSmall
+import com.rumble.theme.commentViewHeight
+import com.rumble.theme.elevation
+import com.rumble.theme.enforcedDarkmo
+import com.rumble.theme.imageMedium
+import com.rumble.theme.paddingMedium
+import com.rumble.theme.paddingSmall
+import com.rumble.theme.paddingXSmall
+import com.rumble.theme.paddingXXXSmall
+import com.rumble.theme.radiusXSmall
+import com.rumble.theme.rumbleGreen
 import com.rumble.utils.extension.conditional
 
 @Composable
@@ -41,7 +53,7 @@ fun AddCommentView(
     onProfileImageClick: (() -> Unit)? = null,
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.height(commentViewHeight),
         elevation = elevation
     ) {
         ConstraintLayout {

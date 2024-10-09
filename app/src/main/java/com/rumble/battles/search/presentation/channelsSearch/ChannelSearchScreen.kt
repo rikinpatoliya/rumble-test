@@ -1,7 +1,15 @@
 package com.rumble.battles.search.presentation.channelsSearch
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -15,6 +23,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.rumble.battles.R
 import com.rumble.battles.SearchChannelsTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
@@ -106,6 +115,7 @@ fun ChannelSearchScreen(
                                     text = stringResource(id = R.string.try_different_keywords_filters)
                                 )
                             }
+
                             loadState.refresh is LoadState.Loading -> {
                                 Box(
                                     modifier = Modifier
@@ -136,7 +146,8 @@ fun ChannelSearchScreen(
                         }
                     }
                 }
-            }
+                item { BottomNavigationBarScreenSpacer() }
             }
         }
     }
+}

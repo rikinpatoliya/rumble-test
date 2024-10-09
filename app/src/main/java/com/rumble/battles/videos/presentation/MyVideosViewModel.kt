@@ -410,6 +410,9 @@ class MyVideosViewModel @Inject constructor(
                 }
             }
         }
+        currentPlayerState.value?.stopPlayer()
+        currentPlayerState.value = null
+        lastDisplayedFeed = null
         emitVmEvent(ChannelDetailsVmEvent.PlayVideo(videoEntity))
     }
 

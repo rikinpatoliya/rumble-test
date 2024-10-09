@@ -49,7 +49,8 @@ fun LiveChatView(
     LiveChatViewContent(
         modifier = modifier,
         handler = handler,
-        liveChatHandler = liveChatHandler
+        liveChatHandler = liveChatHandler,
+        activityHandler = activityHandler
     )
 
     LiveChatDialog(handler = handler, liveChatHandler = liveChatHandler)
@@ -58,7 +59,7 @@ fun LiveChatView(
 @Composable
 private fun LiveChatDialog(
     handler: VideoDetailsHandler,
-    liveChatHandler: LiveChatHandler
+    liveChatHandler: LiveChatHandler,
 ) {
     val state by handler.state
     val alertDialogState by liveChatHandler.alertDialogState

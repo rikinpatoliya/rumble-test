@@ -26,6 +26,7 @@ import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusMedium
 import com.rumble.utils.RumbleConstants.BADGE_RECURRING_SUBSCRIPTION
+import com.rumble.utils.RumbleUrlAnnotation
 import com.rumble.utils.extension.conditional
 import java.time.LocalDateTime
 
@@ -36,6 +37,7 @@ fun LiveChatMessageView(
     badges: Map<String, BadgeEntity>,
     liveChatConfig: LiveChatConfig?,
     onClick: (LiveChatMessageEntity) -> Unit,
+    onLinkClick: (String) -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -85,6 +87,7 @@ fun LiveChatMessageView(
                 badges = badges,
                 atMentionRange = messageEntity.atMentionRange,
                 userNameColor = messageEntity.userNameColor ?: MaterialTheme.colors.primary,
+                onLinkClick = onLinkClick,
                 onClick = {
                     onClick(messageEntity)
                 }
@@ -112,7 +115,8 @@ private fun Preview() {
             ),
             badges = emptyMap(),
             liveChatConfig = null,
-            onClick = {}
+            onClick = {},
+            onLinkClick = {}
         )
     }
 }

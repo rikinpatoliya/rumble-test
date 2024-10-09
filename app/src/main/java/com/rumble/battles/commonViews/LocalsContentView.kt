@@ -36,12 +36,14 @@ private val BottomOffset = 200.dp
 internal fun LocalsPopupBottomSheet(
     modifier: Modifier = Modifier,
     localsCommunityEntity: LocalsCommunityEntity,
+    withNavigationBar: Boolean = true,
     onSupport: () -> Unit,
     onCancel: () -> Unit,
 ) {
     LocalsContent(
         modifier = modifier.testTag(LocalsPopupTag),
         localsCommunityEntity = localsCommunityEntity,
+        withNavigationBar = withNavigationBar,
         onSupport = onSupport,
         onCancel = onCancel,
     )
@@ -51,6 +53,7 @@ internal fun LocalsPopupBottomSheet(
 private fun LocalsContent(
     modifier: Modifier = Modifier,
     localsCommunityEntity: LocalsCommunityEntity,
+    withNavigationBar: Boolean,
     onSupport: () -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -197,6 +200,9 @@ private fun LocalsContent(
                 color = MaterialTheme.colors.primaryVariant,
                 textAlign = TextAlign.Center
             )
+            if (withNavigationBar) {
+                BottomNavigationBarScreenSpacer()
+            }
         }
     }
 }
@@ -303,6 +309,7 @@ fun PreviewLocalsPopupBottomSheet() {
             videoUrl = "",
             channelUrl = "",
         ),
+        withNavigationBar = true,
         onSupport = {},
         onCancel = {},
     )

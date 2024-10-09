@@ -20,20 +20,10 @@ import com.rumble.theme.wokeGreen
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.agoString
 import com.rumble.utils.extension.getTimeString
+import com.rumble.utils.getRumbleUrlAnnotations
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.regex.Pattern
-
-data class RumbleUrlAnnotation(
-    val url: String,
-    val start: Int,
-    val end: Int,
-    val spanStyle: SpanStyle = SpanStyle(
-        color = wokeGreen,
-        fontWeight = FontWeight.W700
-    )
-)
 
 fun parseTextWithUrls(
     text: String,
@@ -41,34 +31,18 @@ fun parseTextWithUrls(
     onClick: (String) -> Unit,
 ): AnnotatedStringWithActionsList {
     val actionList = mutableListOf<AnnotatedTextAction>()
-    val annotationsList = mutableListOf<RumbleUrlAnnotation>()
-    val urlPattern: Pattern =
-        Pattern.compile(RumbleConstants.URL_PATTERN_REGEX, Pattern.MULTILINE)
+    val annotationsList = getRumbleUrlAnnotations(
+        text,
+        SpanStyle(
+            color = wokeGreen,
+            fontWeight = FontWeight.W700
+        )
+    )
 
     return try {
-        val matcher = urlPattern.matcher(text)
-        var matchStart: Int
-        var matchEnd: Int
-
-        while (matcher.find()) {
-            matchStart = matcher.start(1)
-            matchEnd = matcher.end()
-
-            var url = text.substring(matchStart, matchEnd)
-            if (!url.startsWith("http://") && !url.startsWith("https://"))
-                url = "https://$url"
-
-            actionList.add(AnnotatedTextAction(RumbleConstants.TAG_URL) { uri ->
-                onClick(uri)
-            })
-            annotationsList.add(
-                RumbleUrlAnnotation(
-                    url = url,
-                    start = matchStart,
-                    end = matchEnd
-                )
-            )
-        }
+        actionList.add(AnnotatedTextAction(RumbleConstants.TAG_URL) { uri ->
+            onClick(uri)
+        })
 
         val annotatedString = buildAnnotatedString {
             append(text)
@@ -80,7 +54,7 @@ fun parseTextWithUrls(
                     start = it.start,
                     end = it.end
                 )
-                addStyle(it.spanStyle, it.start, it.end)
+                it.spanStyle?.let { style -> addStyle(style, it.start, it.end) }
             }
         }
         AnnotatedStringWithActionsList(annotatedString, actionList)

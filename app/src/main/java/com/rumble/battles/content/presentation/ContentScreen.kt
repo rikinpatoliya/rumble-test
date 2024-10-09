@@ -1,12 +1,17 @@
 package com.rumble.battles.content.presentation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -18,6 +23,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,7 +31,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -62,9 +67,9 @@ import com.rumble.battles.camera.presentation.UploadChannelSelectionScreen
 import com.rumble.battles.camera.presentation.VideoPreviewScreen
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsScreen
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsViewModel
+import com.rumble.battles.navigation.BottomNavigationBar
 import com.rumble.battles.commonViews.DefaultSystemBarIconsColor
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
-import com.rumble.battles.commonViews.RumbleWebView
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.DeletePlayListConfirmationAlertDialog
 import com.rumble.battles.commonViews.dialogs.DeleteWatchHistoryConfirmationAlertDialog
@@ -88,6 +93,7 @@ import com.rumble.battles.feed.presentation.feedlist.HomeScreen
 import com.rumble.battles.feed.presentation.feedlist.HomeViewModel
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelScreen
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelsViewModel
+import com.rumble.battles.feed.presentation.videodetails.CollapsableLayoutState
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsScreen
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsViewModel
 import com.rumble.battles.landing.AppUpdateAvailableAlertDialog
@@ -109,6 +115,12 @@ import com.rumble.battles.livechat.presentation.LiveChatViewModel
 import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.login.presentation.AuthViewModel
 import com.rumble.battles.navigation.LandingScreens
+import com.rumble.battles.navigation.NAV_ITEM_INDEX_ACCOUNT
+import com.rumble.battles.navigation.NAV_ITEM_INDEX_CAMERA
+import com.rumble.battles.navigation.NAV_ITEM_INDEX_DISCOVER
+import com.rumble.battles.navigation.NAV_ITEM_INDEX_HOME
+import com.rumble.battles.navigation.NAV_ITEM_INDEX_LIBRARY
+import com.rumble.battles.navigation.NavItems
 import com.rumble.battles.navigation.RumblePath
 import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.battles.notifications.presentation.NotificationSettingsScreen
@@ -157,13 +169,15 @@ import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.onboarding.domain.domainmodel.ShowLibraryOnboarding
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.theme.paddingGiant
+import com.rumble.theme.paddingNone
+import com.rumble.utils.RumbleConstants.NAV_BAR_ANIMATION_DURATION
 import com.rumble.utils.extension.navigationSafeEncode
 import com.rumble.utils.replaceUrlParameter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ContentScreen(
@@ -172,9 +186,11 @@ fun ContentScreen(
     authHandler: AuthHandler,
     parentController: NavController
 ) {
-    val navController = rememberNavController()
-    val displaySearch = rememberSaveable { mutableStateOf(true) }
-    val displayModeSwitch = rememberSaveable { mutableStateOf(false) }
+    val homeNavController = rememberNavController()
+    val discoverNavController = rememberNavController()
+    val cameraNavController = rememberNavController()
+    val libraryNavController = rememberNavController()
+    val profileNavController = rememberNavController()
     val bottomSheetUiState by contentHandler.bottomSheetUiState.collectAsStateWithLifecycle()
     val bottomSheetState =
         rememberModalBottomSheetState(
@@ -191,6 +207,26 @@ fun ContentScreen(
     var snackBarHostPadding by remember { mutableStateOf(paddingGiant) }
     val context = LocalContext.current
     val alertDialogState by activityHandler.alertDialogState
+    val videoDetailsState by contentHandler.videoDetailsState
+    val videoDetailsViewModel: VideoDetailsViewModel = hiltViewModel()
+    val liveChatViewModel: LiveChatViewModel = hiltViewModel()
+
+    val tabScreens = NavItems.items.map {
+        it.root.rootName
+    }
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    val navControllers = remember {
+        tabScreens.map {
+            when (it) {
+                RumbleScreens.Feeds.rootName -> homeNavController
+                RumbleScreens.Discover.rootName -> discoverNavController
+                RumbleScreens.CameraGalleryScreen.rootName -> cameraNavController
+                RumbleScreens.Library.rootName -> libraryNavController
+                RumbleScreens.Profile.rootName -> profileNavController
+                else -> homeNavController
+            }
+        }
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val observer = LifecycleEventObserver { _, event ->
@@ -213,22 +249,20 @@ fun ContentScreen(
     LaunchedEffect(activityHandler.eventFlow) {
         activityHandler.eventFlow.collectLatest {
             if (it is RumbleEvent.NavigateToVideoDetailsFromNotification) {
-                navController.navigate(
-                    RumbleScreens.VideoDetailsScreen.getPath(
-                        it.videoEntity.id,
-                        (context as Activity).requestedOrientation
-                    )
-                )
+                contentHandler.onOpenVideoDetails(it.videoEntity.id)
             } else if (it is RumbleEvent.UnexpectedError) {
                 snackBarHostState.showRumbleSnackbar(
                     context.getString(R.string.generic_error_message_try_later)
                 )
-            } else if (it is RumbleEvent.OpenWebView) {
-                navController.navigate(
-                    RumbleScreens.RumbleWebViewScreen.getPath(
-                        it.url
-                    )
+            } else if (it is RumbleEvent.NavigateToMyVideos) {
+                navControllers[selectedTabIndex].popBackStack(
+                    navControllers[selectedTabIndex].graph.startDestinationId,
+                    inclusive = false
                 )
+                selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
+                navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
+                    popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
+                }
             }
         }
     }
@@ -274,10 +308,10 @@ fun ContentScreen(
                 }
 
                 ContentScreenVmEvent.NavigateToLibrary -> {
-                    navController.navigate(
+                    navControllers[selectedTabIndex].navigate(
                         route = RumbleScreens.Library.rootName,
                         navOptions = NavOptions.Builder()
-                            .setPopUpTo(navController.graph.findStartDestination().id, true)
+                            .setPopUpTo(navControllers[selectedTabIndex].graph.findStartDestination().id, true)
                             .build()
                     )
                 }
@@ -300,9 +334,13 @@ fun ContentScreen(
                     )
                 }
 
+                is ContentScreenVmEvent.NavigateHome -> {
+                    selectedTabIndex = NAV_ITEM_INDEX_HOME
+                }
+
                 is ContentScreenVmEvent.NavigateToChannelDetails -> {
-                    activityHandler.onDeepLinkNavigated()
-                    navController.navigate(RumbleScreens.Channel.getPath(event.channelId))
+                    activityHandler.onPauseVideo()
+                    navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(event.channelId))
                     contentHandler.onDeepLinkNavigated()
                 }
 
@@ -355,6 +393,10 @@ fun ContentScreen(
                     bottomSheetState.hide()
                 }
 
+                is ContentScreenVmEvent.ExpendVideoDetails -> {
+                    videoDetailsViewModel.onLoadContent(event.videoId, event.playListId, event.shuffle)
+                }
+
                 is ContentScreenVmEvent.PlayListUpdated -> {}
                 is ContentScreenVmEvent.PlayListCreated -> {}
                 is ContentScreenVmEvent.ChannelNotificationsUpdated -> {}
@@ -373,8 +415,8 @@ fun ContentScreen(
                 bottomSheetData = bottomSheetUiState.data,
                 contentHandler = contentHandler,
                 authHandler = authHandler,
+                navController = navControllers[selectedTabIndex],
                 activityHandler = activityHandler,
-                navController = navController,
                 onHideBottomSheet = {
                     hideBottomSheet(
                         coroutineScope = coroutineScope,
@@ -385,7 +427,7 @@ fun ContentScreen(
                 onNavigateToLogin = {
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
                 },
-                onNavigateToRegistration =  { loginType, userId, token, email ->
+                onNavigateToRegistration = { loginType, userId, token, email ->
                     parentController.navigate(
                         LandingScreens.RegisterScreen.getPath(
                             loginType,
@@ -399,37 +441,104 @@ fun ContentScreen(
         }) {
         Scaffold(
             modifier = Modifier
-                .navigationBarsPadding()
-                .semantics { testTagsAsResourceId = true }
+                .semantics { testTagsAsResourceId = true },
+            bottomBar = {
+                AnimatedVisibility(
+                    modifier = Modifier.systemBarsPadding(),
+                    visible = selectedTabIndex != NAV_ITEM_INDEX_CAMERA,
+                    enter = slideInVertically(initialOffsetY = { it / 2 }),
+                    exit = slideOutVertically(
+                        targetOffsetY = { it },
+                        animationSpec = tween(NAV_BAR_ANIMATION_DURATION)
+                    )
+                ) {
+                    BottomNavigationBar(
+                        contentHandler = contentHandler,
+                        selectedTabIndex = selectedTabIndex,
+                        onNavigationItemClicked = { _, index ->
+                            if (selectedTabIndex == index) {
+                                navControllers[index].popBackStack(tabScreens[index], false)
+                            }
+                            selectedTabIndex = index
+                        },
+                    )
+                }
+            }
         ) {
-            NavHost(
-                modifier = Modifier.padding(it),
-                navController = navController,
-                graph = createNavigationGraph(
+            when (selectedTabIndex) {
+                NAV_ITEM_INDEX_HOME -> TabNavHost(
+                    tabScreens[NAV_ITEM_INDEX_HOME],
                     parentController,
-                    navController,
-                    bottomSheetState,
-                    contentHandler,
+                    navControllers[NAV_ITEM_INDEX_HOME],
                     activityHandler,
-                    contentHandler::onDiscoverIconMeasured,
-                    contentHandler::onLibraryIconMeasured,
-                ) { screen ->
-                    displayModeSwitch.value = screen == RumbleScreens.Profile.rootName
-                    displaySearch.value = screen == RumbleScreens.Feeds.rootName
-                    navController.navigate(screen) {
-                        if (screen == RumbleScreens.Feeds.rootName)
-                            navController.popBackStack()
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                exitTransition = { ExitTransition.None },
-                enterTransition = { EnterTransition.None }
-            )
+                    contentHandler,
+                    bottomSheetState,
+                )
+
+                NAV_ITEM_INDEX_DISCOVER -> TabNavHost(
+                    tabScreens[NAV_ITEM_INDEX_DISCOVER],
+                    parentController,
+                    navControllers[NAV_ITEM_INDEX_DISCOVER],
+                    activityHandler,
+                    contentHandler,
+                    bottomSheetState,
+                )
+
+                NAV_ITEM_INDEX_CAMERA -> TabNavHost(
+                    tabScreens[NAV_ITEM_INDEX_CAMERA],
+                    parentController,
+                    navControllers[NAV_ITEM_INDEX_CAMERA],
+                    activityHandler,
+                    contentHandler,
+                    bottomSheetState,
+                )
+
+                NAV_ITEM_INDEX_LIBRARY -> TabNavHost(
+                    tabScreens[NAV_ITEM_INDEX_LIBRARY],
+                    parentController,
+                    navControllers[NAV_ITEM_INDEX_LIBRARY],
+                    activityHandler,
+                    contentHandler,
+                    bottomSheetState,
+                )
+
+                NAV_ITEM_INDEX_ACCOUNT -> TabNavHost(
+                    tabScreens[NAV_ITEM_INDEX_ACCOUNT],
+                    parentController,
+                    navControllers[NAV_ITEM_INDEX_ACCOUNT],
+                    activityHandler,
+                    contentHandler,
+                    bottomSheetState,
+                )
+            }
         }
+    }
+
+    if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA) {
+        VideoDetailsScreen(
+            activityHandler = activityHandler,
+            handler = videoDetailsViewModel,
+            contentHandler = contentHandler,
+            liveChatHandler = liveChatViewModel,
+            contentBottomSheetState = bottomSheetState,
+            onChannelClick = {
+                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(it))
+            },
+            onCategoryClick = {
+                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                navControllers[selectedTabIndex].navigate(
+                    RumbleScreens.CategoryScreen.getPath(
+                        it,
+                        false
+                    )
+                )
+            },
+            onTagClick = {
+                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
+            },
+        )
     }
 
     if (activityHandler.isLaunchedFromNotification.not()) {
@@ -450,7 +559,10 @@ fun ContentScreen(
     }
 
     RumbleSnackbarHost(snackBarHostState)
-    RumbleSnackbarHost(snackBarHostStateWithPadding, modifier = Modifier.padding(bottom = snackBarHostPadding))
+    RumbleSnackbarHost(
+        snackBarHostStateWithPadding,
+        modifier = Modifier.padding(bottom = snackBarHostPadding)
+    )
 
     if (alertDialogState.show) {
         ContentScreenDialog(
@@ -470,6 +582,32 @@ fun ContentScreen(
             onGoToStore = contentHandler::onGoToStore,
         )
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TabNavHost(
+    startDestination: String,
+    parentController: NavController,
+    navController: NavHostController,
+    activityHandler: RumbleActivityHandler,
+    contentHandler: ContentHandler,
+    bottomSheetState: ModalBottomSheetState,
+) {
+    NavHost(
+        modifier = Modifier.padding(bottom = paddingNone),
+        navController = navController,
+        graph = createNavigationGraph(
+            startDestination,
+            parentController,
+            navController,
+            bottomSheetState,
+            contentHandler,
+            activityHandler,
+        ),
+        exitTransition = { ExitTransition.None },
+        enterTransition = { EnterTransition.None }
+    )
 }
 
 @Composable
@@ -551,28 +689,21 @@ private fun hideBottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class)
 private fun createNavigationGraph(
+    startDestination: String,
     parentController: NavController,
-    navController: NavHostController,
+    currentNavController: NavHostController,
     bottomSheetState: ModalBottomSheetState,
     contentHandler: ContentHandler,
     activityHandler: RumbleActivityHandler,
-    onDiscoverIconCenter: ((Offset) -> Unit),
-    onLibraryIconCenter: ((Offset) -> Unit),
-    onNavigationItemClicked: (String) -> Unit,
 ) =
-    navController.createGraph(startDestination = RumbleScreens.Feeds.rootName) {
+    currentNavController.createGraph(startDestination = startDestination) {
         composable(
             route = RumbleScreens.Feeds.rootName,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
-        ) { navBackStackEntry ->
-            val orientation = (LocalContext.current as Activity).requestedOrientation
+        ) {
             val feedListViewModel: HomeViewModel = hiltViewModel()
-            val parentEntry = remember(navBackStackEntry) {
-                navController.getBackStackEntry(RumbleScreens.Feeds.rootName)
-            }
-            val recommendedChannelsHandler =
-                hiltViewModel<RecommendedChannelsViewModel>(parentEntry)
+            val recommendedChannelsHandler: RecommendedChannelsViewModel = hiltViewModel()
 
             HomeScreen(
                 activityHandler = activityHandler,
@@ -580,15 +711,15 @@ private fun createNavigationGraph(
                 contentHandler = contentHandler,
                 recommendedChannelsHandler = recommendedChannelsHandler,
                 onSearch = {
-                    navController.navigate(RumbleScreens.Search.getPath())
+                    currentNavController.navigate(RumbleScreens.Search.getPath())
                 },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
                 onFreshContentChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                     //Temp rollback to old navigation
-//                    navController.navigate(
+//                    currentNavController.navigate(
 //                        RumbleScreens.DiscoverPlayer.getPath(
 //                            category = DiscoverPlayerVideoListSource.FreshContent.name,
 //                            channelId = channelId
@@ -597,28 +728,19 @@ private fun createNavigationGraph(
                 },
                 onVideoClick = {
                     if (it is VideoEntity) {
-                        navController.navigate(
-                            RumbleScreens.VideoDetailsScreen.getPath(
-                                it.id,
-                                orientation
-                            )
-                        )
-                    } else if (it is AdEntity) navController.navigate(
-                        RumbleScreens.RumbleWebViewScreen.getPath(
-                            it.adUrl
-                        )
-                    )
+                        contentHandler.onOpenVideoDetails(it.id)
+                    } else if (it is AdEntity) {
+                        activityHandler.onOpenWebView(it.adUrl)
+                    }
                 },
                 onViewAllRecommendedChannelsClick = {
-                    navController.navigate(RumbleScreens.RecommendedChannelsScreen.rootName)
+                    currentNavController.navigate(RumbleScreens.RecommendedChannelsScreen.rootName)
                 },
                 onSearchIconGlobalMeasured = contentHandler::onSearchIconMeasured,
                 onFollowingIconGlobalMeasured = contentHandler::onFollowingIconMeasured,
-                onNavigationItemClicked = onNavigationItemClicked,
-                onDiscoverIconCenter = onDiscoverIconCenter,
-                onLibraryIconCenter = onLibraryIconCenter,
+                onFollowingClicked = { currentNavController.navigate(RumbleScreens.Subscriptions.rootName) },
                 onViewNotifications = {
-                    navController.navigate(RumbleScreens.ProfileNotifications.rootName)
+                    currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
                 },
             )
         }
@@ -627,116 +749,96 @@ private fun createNavigationGraph(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val discoverViewModel: DiscoverViewModel = hiltViewModel()
             DiscoverScreen(
                 activityHandler = activityHandler,
                 discoverHandler = discoverViewModel,
                 contentHandler = contentHandler,
                 onSearch = {
-                    navController.navigate(RumbleScreens.Search.getPath())
+                    currentNavController.navigate(RumbleScreens.Search.getPath())
                 },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
                 onVideoClick = {
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            it.id,
-                            orientation
-                        )
-                    )
+                    contentHandler.onOpenVideoDetails(it.id)
                 },
                 onViewCategory = {
-                    navController.navigate(RumbleScreens.VideoListScreen.getPath(it.name))
+                    currentNavController.navigate(RumbleScreens.VideoListScreen.getPath(it.name))
                 },
                 onViewTopChannels = {
-                    navController.navigate(RumbleScreens.TopChannelsScreen.rootName)
+                    currentNavController.navigate(RumbleScreens.TopChannelsScreen.rootName)
                 },
                 onBrowseCategory = {
-                    navController.navigate(RumbleScreens.CategoryScreen.getPath(it, true))
+                    currentNavController.navigate(RumbleScreens.CategoryScreen.getPath(it, true))
                 },
                 onBrowseAllCategories = {
-                    navController.navigate(
+                    currentNavController.navigate(
                         RumbleScreens.BrowseAllCategories.getPath(CategoryDisplayType.CATEGORIES)
                     )
                 },
-                onNavigationItemClicked = onNavigationItemClicked,
                 onViewNotifications = {
-                    navController.navigate(RumbleScreens.ProfileNotifications.rootName)
+                    currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
                 },
                 onNavigateToSettings = {
-                    navController.navigate(RumbleScreens.Settings.getPath())
+                    currentNavController.navigate(RumbleScreens.Settings.getPath())
                 },
             )
         }
         composable(RumbleScreens.CameraUploadStepOne.rootName) { navBackStackEntry ->
             CameraUploadStepOneScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, navController),
-                onSelectChannel = { navController.navigate(RumbleScreens.UploadChannelSelection.rootName) },
-                onNextStep = { navController.navigate(RumbleScreens.CameraUploadStepTwo.rootName) },
-                onBackClick = { navController.navigateUp() },
+                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                onSelectChannel = { currentNavController.navigate(RumbleScreens.UploadChannelSelection.rootName) },
+                onNextStep = { currentNavController.navigate(RumbleScreens.CameraUploadStepTwo.rootName) },
+                onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.CameraUploadStepTwo.rootName) { navBackStackEntry ->
             CameraUploadStepTwoScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, navController),
+                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
                 activityHandler = activityHandler,
-                onPublishClick = {
-                    navController.navigate(
-                        route = RumbleScreens.Library.rootName,
-                        navOptions = NavOptions.Builder()
-                            .setPopUpTo(navController.graph.findStartDestination().id, true).build()
-                    )
-                },
-                onSelectLicense = { navController.navigate(RumbleScreens.UploadLicenseSelection.rootName) },
-                onSelectVisibility = { navController.navigate(RumbleScreens.UploadVisibilitySelection.rootName) },
-                onSelectSchedule = { navController.navigate(RumbleScreens.UploadScheduleSelection.rootName) },
-                onBackClick = { navController.navigateUp() },
+                onSelectLicense = { currentNavController.navigate(RumbleScreens.UploadLicenseSelection.rootName) },
+                onSelectVisibility = { currentNavController.navigate(RumbleScreens.UploadVisibilitySelection.rootName) },
+                onSelectSchedule = { currentNavController.navigate(RumbleScreens.UploadScheduleSelection.rootName) },
+                onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.UploadChannelSelection.rootName) { navBackStackEntry ->
             UploadChannelSelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, navController),
-                onBackClick = { navController.navigateUp() },
+                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.UploadLicenseSelection.rootName) { navBackStackEntry ->
             CameraUploadLicenceSelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, navController),
-                onBackClick = { navController.navigateUp() },
+                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.UploadScheduleSelection.rootName) { navBackStackEntry ->
             CameraUploadScheduleSelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, navController),
-                onBackClick = { navController.navigateUp() },
+                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.UploadVisibilitySelection.rootName) { navBackStackEntry ->
             CameraUploadVisibilitySelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, navController),
-                onBackClick = { navController.navigateUp() },
+                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.Videos.rootName) { backStackEntry ->
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val myVideosViewModel: MyVideosViewModel = hiltViewModel()
             val newImageUri: Uri? by backStackEntry
                 .savedStateHandle
                 .getLiveData<Uri?>(NEW_IMAGE_URI_KEY)
                 .observeAsState()
             MyVideosScreen(
-                currentDestinationRoute = navController.currentDestination?.route,
+                currentDestinationRoute = currentNavController.currentDestination?.route,
                 myVideosHandler = myVideosViewModel,
                 onVideoClick = {
                     if (it is VideoEntity)
-                        navController.navigate(
-                            RumbleScreens.VideoDetailsScreen.getPath(
-                                it.id,
-                                orientation
-                            )
-                        )
+                        contentHandler.onOpenVideoDetails(it.id)
                 },
                 newImageUri = newImageUri,
                 contentHandler = contentHandler,
@@ -744,7 +846,6 @@ private fun createNavigationGraph(
             )
         }
         composable(RumbleScreens.Library.rootName) { backStackEntry ->
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val libraryViewModel: LibraryViewModel = hiltViewModel()
             val authViewModel: AuthViewModel = hiltViewModel()
             val playListTypeRefresh: PlayListTypeRefresh? by backStackEntry
@@ -763,38 +864,29 @@ private fun createNavigationGraph(
                 playListTypeRefresh = playListTypeRefresh,
                 playListEntityRefresh = playListEntityRefresh,
                 onSearch = {
-                    navController.navigate(RumbleScreens.Search.getPath())
+                    currentNavController.navigate(RumbleScreens.Search.getPath())
                 },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
                 onVideoClick = {
                     if (it is VideoEntity)
-                        navController.navigate(
-                            RumbleScreens.VideoDetailsScreen.getPath(
-                                it.id,
-                                orientation
-                            )
-                        )
+                        contentHandler.onOpenVideoDetails(it.id)
                 },
                 onViewAll = {
-                    navController.navigate(RumbleScreens.VideoListScreen.getPath(it.name))
+                    currentNavController.navigate(RumbleScreens.VideoListScreen.getPath(it.name))
                 },
                 onViewPlayLists = {
-                    navController.navigate(RumbleScreens.PlayListsScreen.rootName)
+                    currentNavController.navigate(RumbleScreens.PlayListsScreen.rootName)
                 },
                 onViewPlayList = {
-                    navController.navigate(RumbleScreens.PlayListScreen.getPath(it))
+                    currentNavController.navigate(RumbleScreens.PlayListScreen.getPath(it))
                 },
                 bottomSheetState = bottomSheetState,
-                onNavigationItemClicked = onNavigationItemClicked,
                 onViewNotifications = {
-                    navController.navigate(RumbleScreens.ProfileNotifications.rootName)
+                    currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
                 },
-                onNavigateToSettings = {
-                    navController.navigate(RumbleScreens.Settings.getPath())
-                },
-                onNavigateToRegistration =  { loginType, userId, token, email ->
+                onNavigateToRegistration = { loginType, userId, token, email ->
                     parentController.navigate(
                         LandingScreens.RegisterScreen.getPath(
                             loginType,
@@ -820,58 +912,43 @@ private fun createNavigationGraph(
                 .getLiveData<PlayListEntity?>(PLAY_LIST_ENTITY)
                 .observeAsState()
             PlayListsScreen(
-                navController = navController,
+                navController = currentNavController,
                 playListsHandler = playListsViewModel,
                 contentHandler = contentHandler,
                 playListTypeRefresh = playListTypeRefresh,
                 playListEntityRefresh = playListEntityRefresh,
-                onViewChannel = { navController.navigate(RumbleScreens.Channel.getPath(it)) },
+                onViewChannel = { currentNavController.navigate(RumbleScreens.Channel.getPath(it)) },
                 onViewPlayList = {
-                    navController.navigate(RumbleScreens.PlayListScreen.getPath(it))
+                    currentNavController.navigate(RumbleScreens.PlayListScreen.getPath(it))
                 },
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(
             RumbleScreens.PlayListScreen.rootName,
             arguments = listOf(navArgument(RumblePath.PLAYLIST.path) { type = NavType.StringType })
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val playListViewModel: PlayListViewModel = hiltViewModel()
             PlayListScreen(
-                navController = navController,
+                navController = currentNavController,
                 playListHandler = playListViewModel,
                 contentHandler = contentHandler,
                 onVideoClick = {
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            it.id,
-                            orientation
-                        )
-                    )
+                    contentHandler.onOpenVideoDetails(it.id)
                 },
-                onChannelClick = { navController.navigate(RumbleScreens.Channel.getPath(it)) },
+                onChannelClick = { currentNavController.navigate(RumbleScreens.Channel.getPath(it)) },
                 onPlayAllClick = { entity, playListId ->
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            videoId = entity.id,
-                            orientation = orientation,
-                            playListId = playListId
-                        )
-                    )
+                    contentHandler.onOpenVideoDetails(videoId = entity.id, playListId = playListId)
                 },
                 onShuffleClick = { entity, playListId ->
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            videoId = entity.id,
-                            orientation = orientation,
-                            playListId = playListId,
-                            shufflePlayList = true
-                        )
+                    contentHandler.onOpenVideoDetails(
+                        videoId = entity.id,
+                        playListId = playListId,
+                        shuffle = true
                     )
                 },
                 onBackClick = {
-                    navController.navigateUp()
+                    currentNavController.navigateUp()
                 }
             )
         }
@@ -880,10 +957,10 @@ private fun createNavigationGraph(
             EditProfileScreen(
                 editProfileHandler = editProfileViewModel,
                 onBackClick = {
-                    navController.previousBackStackEntry
+                    currentNavController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set(NEW_IMAGE_URI_KEY, it)
-                    navController.navigateUp()
+                    currentNavController.navigateUp()
                 },
             )
         }
@@ -893,20 +970,20 @@ private fun createNavigationGraph(
                 subscriptionsScreenHandler = subscriptionsViewModel,
                 contentHandler = contentHandler,
                 bottomSheetState = bottomSheetState,
-                onBackClick = { navController.navigateUp() },
+                onBackClick = { currentNavController.navigateUp() },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
-                onSearch = { navController.navigate(RumbleScreens.Search.getPath()) }
+                onSearch = { currentNavController.navigate(RumbleScreens.Search.getPath()) }
             )
         }
         composable(RumbleScreens.Referrals.rootName) {
             val referralsViewModel: ReferralsViewModel = hiltViewModel()
             ReferralsScreen(
                 handler = referralsViewModel,
-                onBackClick = { navController.navigateUp() },
+                onBackClick = { currentNavController.navigateUp() },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 }
             )
         }
@@ -919,30 +996,24 @@ private fun createNavigationGraph(
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             SettingsScreen(
                 settingsHandler = settingsViewModel,
-                onBackClick = { navController.navigateUp() },
-                onNavigate = { navController.navigate(it) },
+                onBackClick = { currentNavController.navigateUp() },
+                onNavigate = { currentNavController.navigate(it) },
             )
         }
         composable(
             RumbleScreens.Channel.rootName,
             arguments = listOf(navArgument(RumblePath.CHANNEL.path) { type = NavType.StringType })
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val channelDetailsViewModel: ChannelDetailsViewModel = hiltViewModel()
             ChannelDetailsScreen(
-                currentDestinationRoute = navController.currentDestination?.route,
+                currentDestinationRoute = currentNavController.currentDestination?.route,
                 channelDetailsHandler = channelDetailsViewModel,
                 contentHandler = contentHandler,
+                onBackClick = { currentNavController.navigateUp() },
                 activityHandler = activityHandler,
-                onBackClick = { navController.navigateUp() },
                 onVideoClick = {
                     if (it is VideoEntity)
-                        navController.navigate(
-                            RumbleScreens.VideoDetailsScreen.getPath(
-                                it.id,
-                                orientation
-                            )
-                        )
+                        contentHandler.onOpenVideoDetails(videoId = it.id)
                 }
             )
         }
@@ -954,10 +1025,9 @@ private fun createNavigationGraph(
                 profileHandler = profileViewModel,
                 authHandler = authViewModel,
                 onProfileItemClicked = { navigationId ->
-                    navController.navigate(navigationId)
+                    currentNavController.navigate(navigationId)
                 },
                 contentHandler = contentHandler,
-                onNavigationItemClicked = onNavigationItemClicked,
                 onNavigateToRegistration = { loginType, userId, token, email ->
                     parentController.navigate(
                         LandingScreens.RegisterScreen.getPath(
@@ -972,18 +1042,12 @@ private fun createNavigationGraph(
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
                 },
                 onNavigateToSettings = {
-                    navController.navigate(RumbleScreens.Settings.getPath())
+                    currentNavController.navigate(RumbleScreens.Settings.getPath())
                 },
                 onViewNotifications = {
-                    navController.navigate(RumbleScreens.ProfileNotifications.rootName)
+                    currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
                 }
             )
-        }
-        composable(
-            RumbleScreens.RumbleWebViewScreen.rootName,
-            arguments = listOf(navArgument(RumblePath.URL.path) { type = NavType.StringType })
-        ) { backStackEntry ->
-            RumbleWebView(url = backStackEntry.arguments?.getString(RumblePath.URL.path) ?: "")
         }
         composable(
             RumbleScreens.Search.rootName,
@@ -1003,11 +1067,11 @@ private fun createNavigationGraph(
             SearchScreen(
                 searchHandler = searchViewModel,
                 onSearch = { query, navDest, parent ->
-                    navController.popBackStack(parent, false)
-                    if (navDest.isBlank()) navController.navigate(
+                    currentNavController.popBackStack(parent, false)
+                    if (navDest.isBlank()) currentNavController.navigate(
                         RumbleScreens.CombinedSearchResult.getPath(query)
                     )
-                    else navController.navigate(
+                    else currentNavController.navigate(
                         replaceUrlParameter(
                             navDest,
                             RumblePath.QUERY.path,
@@ -1016,42 +1080,36 @@ private fun createNavigationGraph(
                     )
                 },
                 onViewChannel = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
                 onBrowseCategory = {
-                    navController.navigate(RumbleScreens.CategoryScreen.getPath(it, true))
+                    currentNavController.navigate(RumbleScreens.CategoryScreen.getPath(it, true))
                 }
             ) {
-                navController.navigateUp()
+                currentNavController.navigateUp()
             }
         }
         composable(
             RumbleScreens.CombinedSearchResult.rootName,
             arguments = listOf(navArgument(RumblePath.QUERY.path) { type = NavType.StringType })
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val combineSearchResultViewModel: CombineSearchResultViewModel = hiltViewModel()
             CombineSearchResultScreen(
                 handler = combineSearchResultViewModel,
                 contentHandler = contentHandler,
                 onSearch = {
-                    navController.navigate(RumbleScreens.Search.getPath(it))
+                    currentNavController.navigate(RumbleScreens.Search.getPath(it))
                 },
                 onVideoClick = {
                     if (it is VideoEntity) {
-                        navController.navigate(
-                            RumbleScreens.VideoDetailsScreen.getPath(
-                                it.id,
-                                orientation
-                            )
-                        )
+                        contentHandler.onOpenVideoDetails(videoId = it.id)
                     }
                 },
                 onViewChannels = {
-                    navController.navigate(RumbleScreens.ChannelSearchScreen.getPath(it))
+                    currentNavController.navigate(RumbleScreens.ChannelSearchScreen.getPath(it))
                 },
                 onViewVideos = { path, filters ->
-                    navController.navigate(
+                    currentNavController.navigate(
                         RumbleScreens.VideoSearchScreen.getPath(
                             path,
                             filters.sortSelection.name,
@@ -1061,9 +1119,9 @@ private fun createNavigationGraph(
                     )
                 },
                 onViewChannel = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 }) {
-                navController.navigateUp()
+                currentNavController.navigateUp()
             }
         }
         composable(
@@ -1074,16 +1132,16 @@ private fun createNavigationGraph(
             ChannelSearchScreen(
                 handler = channelSearchViewModel,
                 onSearch = { query ->
-                    navController.navigate(
+                    currentNavController.navigate(
                         RumbleScreens.Search.getPath(
                             query.navigationSafeEncode(),
                             RumbleScreens.ChannelSearchScreen.getPath(RumblePath.QUERY.path)
                         )
                     )
                 }, onViewChannel = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 }) {
-                navController.navigateUp()
+                currentNavController.navigateUp()
             }
         }
         composable(
@@ -1093,13 +1151,12 @@ private fun createNavigationGraph(
                 navArgument(RumblePath.UPLOAD_DATE.path) { type = NavType.StringType },
                 navArgument(RumblePath.DURATION.path) { type = NavType.StringType })
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val videoSearchViewModel: VideosSearchViewModel = hiltViewModel()
             VideosSearchScreen(
                 handler = videoSearchViewModel,
                 contentHandler = contentHandler,
                 onSearch = { query ->
-                    navController.navigate(
+                    currentNavController.navigate(
                         RumbleScreens.Search.getPath(
                             query.navigationSafeEncode(),
                             RumbleScreens.VideoSearchScreen.getPath("", "", "", "")
@@ -1107,14 +1164,9 @@ private fun createNavigationGraph(
                     )
                 },
                 onViewVideo = {
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            it.id,
-                            orientation
-                        )
-                    )
+                    contentHandler.onOpenVideoDetails(videoId = it.id)
                 },
-                onBack = { navController.navigateUp() },
+                onBack = { currentNavController.navigateUp() },
                 onImpression = videoSearchViewModel::onVideoCardImpression
             )
         }
@@ -1122,77 +1174,69 @@ private fun createNavigationGraph(
             val creditsScreenViewModel: CreditsScreenViewModel = hiltViewModel()
             CreditsScreen(
                 creditsScreenHandler = creditsScreenViewModel,
+                onBackClick = { currentNavController.navigateUp() },
                 activityHandler = activityHandler,
-                onBackClick = { navController.navigateUp() }
             )
         }
         composable(RumbleScreens.ChangeEmail.rootName) {
             val changeEmailHandler: ChangeEmailViewModel = hiltViewModel()
             ChangeEmailScreen(
                 changeEmailHandler = changeEmailHandler,
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(RumbleScreens.ChangePassword.rootName) {
             val changePasswordHandler: ChangePasswordViewModel = hiltViewModel()
             ChangePasswordScreen(
                 changePasswordHandler = changePasswordHandler,
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(RumbleScreens.ChangeSubdomain.rootName) {
             val changeSubdomainViewModel: ChangeSubdomainViewModel = hiltViewModel()
             ChangeSubdomainScreen(
                 changeSubdomainHandler = changeSubdomainViewModel,
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(RumbleScreens.CloseAccount.rootName) {
             val closeAccountViewModel: CloseAccountViewModel = hiltViewModel()
             CloseAccountScreen(
                 closeAccountHandler = closeAccountViewModel,
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(RumbleScreens.UploadQuality.rootName) { navBackStackEntry ->
             val viewModel: SettingsViewModel = navBackStackEntry.getSharedViewModel(
-                navController = navController,
+                navController = currentNavController,
                 parentRoute = RumbleScreens.Settings.getPath()
             )
             UploadQualityScreen(
                 settingsHandler = viewModel,
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
-        composable(RumbleScreens.RecommendedChannelsScreen.rootName) { navBackStackEntry ->
-            val parentEntry = remember(navBackStackEntry) {
-                navController.getBackStackEntry(RumbleScreens.Feeds.rootName)
-            }
-            val viewModel =
-                hiltViewModel<RecommendedChannelsViewModel>(parentEntry)
+        composable(RumbleScreens.RecommendedChannelsScreen.rootName) {
+            val viewModel: RecommendedChannelsViewModel = hiltViewModel()
             RecommendedChannelScreen(
                 contentHandler = contentHandler,
                 recommendedChannelsHandler = viewModel,
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
-        composable(RumbleScreens.TopChannelsScreen.rootName) { navBackStackEntry ->
-            val parentEntry = remember(navBackStackEntry) {
-                navController.getBackStackEntry(RumbleScreens.Feeds.rootName)
-            }
-            val viewModel =
-                hiltViewModel<RecommendedChannelsViewModel>(parentEntry)
+        composable(RumbleScreens.TopChannelsScreen.rootName) {
+            val viewModel: RecommendedChannelsViewModel = hiltViewModel()
             RecommendedChannelScreen(
                 contentHandler = contentHandler,
                 recommendedChannelsHandler = viewModel,
                 title = stringResource(id = R.string.top_channels),
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(
@@ -1206,70 +1250,29 @@ private fun createNavigationGraph(
                 })
 
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val discoverPlayerViewModel: DiscoverPlayerViewModel = hiltViewModel()
             DiscoverPlayerScreen(
                 discoverPlayerHandler = discoverPlayerViewModel,
-                onBackClick = { navController.navigateUp() },
+                activityHandler = activityHandler,
+                onBackClick = { currentNavController.navigateUp() },
                 onVideoClick = {
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            it.id,
-                            orientation
-                        )
-                    )
+                    contentHandler.onOpenVideoDetails(videoId = it.id)
                 },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 }
             )
         }
         composable(RumbleScreens.VideoListScreen.rootName) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val viewModel: VideoListViewModel = hiltViewModel()
             VideoListScreen(
                 videoListHandler = viewModel,
                 contentHandler = contentHandler,
-                onBackClick = { navController.navigateUp() },
+                onBackClick = { currentNavController.navigateUp() },
                 onVideoClick = {
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            it.id,
-                            orientation
-                        )
-                    )
+                    contentHandler.onOpenVideoDetails(videoId = it.id)
                 },
-                onChannelClick = { navController.navigate(RumbleScreens.Channel.getPath(it)) }
-            )
-        }
-        composable(
-            RumbleScreens.VideoDetailsScreen.rootName,
-            arguments = listOf(
-                navArgument(RumblePath.VIDEO.path) { type = NavType.LongType },
-                navArgument(RumblePath.ORIENTATION.path) { type = NavType.IntType },
-                navArgument(RumblePath.PLAYLIST.path) { type = NavType.StringType },
-                navArgument(RumblePath.PLAYLIST_SHUFFLE.path) { type = NavType.BoolType }
-            )
-        ) {
-            val videoDetailsViewModel: VideoDetailsViewModel = hiltViewModel()
-            val liveChatViewModel: LiveChatViewModel = hiltViewModel()
-            VideoDetailsScreen(
-                activityHandler = activityHandler,
-                handler = videoDetailsViewModel,
-                contentHandler = contentHandler,
-                liveChatHandler = liveChatViewModel,
-                contentBottomSheetState = bottomSheetState,
-                onBackClick = { navController.navigateUp() },
-                onChannelClick = { navController.navigate(RumbleScreens.Channel.getPath(it)) },
-                onCategoryClick = {
-                    navController.navigate(
-                        RumbleScreens.CategoryScreen.getPath(
-                            it,
-                            false
-                        )
-                    )
-                },
-                onTagClick = { navController.navigate(RumbleScreens.Search.getPath(it)) },
+                onChannelClick = { currentNavController.navigate(RumbleScreens.Channel.getPath(it)) }
             )
         }
         composable(
@@ -1278,26 +1281,20 @@ private fun createNavigationGraph(
             val viewModel: EarningsViewModel = hiltViewModel()
             EarningsScreen(
                 earningsHandler = viewModel,
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(
             RumbleScreens.ProfileNotifications.rootName
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val profileNotificationsViewModel: ProfileNotificationsViewModel = hiltViewModel()
             ProfileNotificationsScreen(
                 profileNotificationsHandler = profileNotificationsViewModel,
-                onChannelClick = { navController.navigate(RumbleScreens.Channel.getPath(it)) },
+                onChannelClick = { currentNavController.navigate(RumbleScreens.Channel.getPath(it)) },
                 onVideoClick = {
-                    navController.navigate(
-                        RumbleScreens.VideoDetailsScreen.getPath(
-                            it.id,
-                            orientation
-                        )
-                    )
+                    contentHandler.onOpenVideoDetails(videoId = it.id)
                 },
-                onBackClick = { navController.navigateUp() }
+                onBackClick = { currentNavController.navigateUp() }
             )
         }
         composable(
@@ -1307,14 +1304,13 @@ private fun createNavigationGraph(
             val authViewModel: AuthViewModel = hiltViewModel()
             CameraGalleryScreen(
                 cameraHandler = cameraViewModel,
+                contentHandler = contentHandler,
                 authHandler = authViewModel,
-                onClose = { navController.navigateUp() },
-                onOpenCameraMode = { navController.navigate(RumbleScreens.CameraMode.rootName) },
+                onOpenCameraMode = { currentNavController.navigate(RumbleScreens.CameraMode.rootName) },
                 onPreviewRecording = { uri ->
-                    navController.navigate(RumbleScreens.VideoUploadPreview.getPath(uri))
+                    currentNavController.navigate(RumbleScreens.VideoUploadPreview.getPath(uri))
                 },
-                onNavigationItemClicked = onNavigationItemClicked,
-                onNavigateToRegistration =  { loginType, userId, token, email ->
+                onNavigateToRegistration = { loginType, userId, token, email ->
                     parentController.navigate(
                         LandingScreens.RegisterScreen.getPath(
                             loginType,
@@ -1333,12 +1329,12 @@ private fun createNavigationGraph(
             RumbleScreens.CameraMode.rootName
         ) { navBackStackEntry ->
             CameraModeScreen(
-                cameraHandler = getCameraUploadViewModel(navBackStackEntry, navController),
+                cameraHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
                 onPreviewRecording = { uri ->
-                    navController.navigate(RumbleScreens.VideoUploadPreview.getPath(uri))
+                    currentNavController.navigate(RumbleScreens.VideoUploadPreview.getPath(uri))
                 },
             ) {
-                navController.navigateUp()
+                currentNavController.navigateUp()
             }
         }
         composable(
@@ -1346,11 +1342,11 @@ private fun createNavigationGraph(
             arguments = listOf(navArgument(RumblePath.VIDEO_URL.path) { type = NavType.StringType })
         ) { navBackStackEntry ->
             VideoPreviewScreen(
-                cameraHandler = getCameraUploadViewModel(navBackStackEntry, navController),
+                cameraHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
                 uri = navBackStackEntry.arguments?.getString(RumblePath.VIDEO_URL.path) ?: "",
-                onNextStep = { navController.navigate(RumbleScreens.CameraUploadStepOne.rootName) },
+                onNextStep = { currentNavController.navigate(RumbleScreens.CameraUploadStepOne.rootName) },
             ) {
-                navController.navigateUp()
+                currentNavController.navigateUp()
             }
         }
         composable(
@@ -1360,28 +1356,22 @@ private fun createNavigationGraph(
                 navArgument(RumblePath.PARAMETER.path) { type = NavType.BoolType }
             )
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val categoryViewModel: CategoryViewModel = hiltViewModel()
             CategoryScreen(
                 categoryHandler = categoryViewModel,
                 contentHandler = contentHandler,
-                onSearch = { navController.navigate(RumbleScreens.Search.getPath(parent = RumbleScreens.CategoryScreen.rootName)) },
-                onBackClick = { navController.navigateUp() },
+                onSearch = { currentNavController.navigate(RumbleScreens.Search.getPath(parent = RumbleScreens.CategoryScreen.rootName)) },
+                onBackClick = { currentNavController.navigateUp() },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
                 onVideoClick = {
                     if (it is VideoEntity) {
-                        navController.navigate(
-                            RumbleScreens.VideoDetailsScreen.getPath(
-                                it.id,
-                                orientation
-                            )
-                        )
+                        contentHandler.onOpenVideoDetails(videoId = it.id)
                     }
                 },
                 onViewCategory = {
-                    navController.navigate(RumbleScreens.CategoryScreen.getPath(it, false))
+                    currentNavController.navigate(RumbleScreens.CategoryScreen.getPath(it, false))
                 }
             )
         }
@@ -1391,28 +1381,22 @@ private fun createNavigationGraph(
                 navArgument(RumblePath.TYPE.path) { type = NavType.StringType }
             )
         ) {
-            val orientation = (LocalContext.current as Activity).requestedOrientation
             val categoryViewModel: CategoryViewModel = hiltViewModel()
             BrowseCategoriesScreen(
                 categoryHandler = categoryViewModel,
                 contentHandler = contentHandler,
-                onBackClick = { navController.navigateUp() },
-                onSearch = { navController.navigate(RumbleScreens.Search.getPath(parent = RumbleScreens.BrowseAllCategories.rootName)) },
+                onBackClick = { currentNavController.navigateUp() },
+                onSearch = { currentNavController.navigate(RumbleScreens.Search.getPath(parent = RumbleScreens.BrowseAllCategories.rootName)) },
                 onChannelClick = { channelId ->
-                    navController.navigate(RumbleScreens.Channel.getPath(channelId))
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
                 },
                 onVideoClick = {
                     if (it is VideoEntity) {
-                        navController.navigate(
-                            RumbleScreens.VideoDetailsScreen.getPath(
-                                it.id,
-                                orientation
-                            )
-                        )
+                        contentHandler.onOpenVideoDetails(videoId = it.id)
                     }
                 },
                 onViewCategory = {
-                    navController.navigate(RumbleScreens.CategoryScreen.getPath(it, true))
+                    currentNavController.navigate(RumbleScreens.CategoryScreen.getPath(it, true))
                 }
             )
         }
@@ -1422,7 +1406,7 @@ private fun createNavigationGraph(
             val notificationSettingsViewModel: NotificationSettingsViewModel = hiltViewModel()
             NotificationSettingsScreen(
                 handler = notificationSettingsViewModel,
-                onBackClick = { navController.navigateUp() },
+                onBackClick = { currentNavController.navigateUp() },
             )
         }
     }

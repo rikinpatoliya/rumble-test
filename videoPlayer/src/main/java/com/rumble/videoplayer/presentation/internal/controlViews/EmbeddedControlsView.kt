@@ -74,7 +74,8 @@ internal fun EmbeddedControlsView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),
-                rumblePlayer
+                displayThumb = isVisible  && rumblePlayer.isLiveVideo.not(),
+                rumblePlayer = rumblePlayer
             ) {
                 onSeekInProgress(it)
                 if (it) seekInProgress = true
@@ -189,8 +190,8 @@ private fun EmbeddedControls(
                 onClick = onBack
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = stringResource(id = R.string.back),
+                    painter = painterResource(id = R.drawable.ic_caret_down),
+                    contentDescription = stringResource(id = R.string.collapse),
                     tint = enforcedWhite
                 )
             }

@@ -39,6 +39,7 @@ import com.rumble.battles.feed.presentation.views.CloseAddCommentView
 import com.rumble.battles.feed.presentation.views.CommentView
 import com.rumble.battles.feed.presentation.views.GoPremiumToCharOrCommentView
 import com.rumble.battles.feed.presentation.views.ReplyToCommentView
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.sort.CommentSortOrder
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography
@@ -59,6 +60,7 @@ import com.rumble.utils.extension.shortString
 fun CommentsView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
+    activityHandler: RumbleActivityHandler,
 ) {
     val state by handler.state
     val commentsList = handler.getSortedCommentsList(handler.state.value.videoEntity?.commentList)
@@ -139,6 +141,7 @@ fun CommentsView(
                                         top = paddingSmall
                                     ),
                                     commentEntity = it,
+                                    activityHandler = activityHandler,
                                     hasPremiumRestriction = state.hasPremiumRestriction,
                                     onReplies = handler::onReplies,
                                     onDelete = handler::onDelete,
@@ -159,6 +162,7 @@ fun CommentsView(
                     .imePadding()
                     .fillMaxWidth(),
                 commentEntity = state.commentToReply,
+                activityHandler = activityHandler,
                 hasPremiumRestriction = state.hasPremiumRestriction,
                 comment = state.currentComment,
                 userName = userName,

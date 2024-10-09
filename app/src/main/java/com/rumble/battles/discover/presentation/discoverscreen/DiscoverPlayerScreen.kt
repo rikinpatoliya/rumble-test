@@ -89,6 +89,7 @@ import com.rumble.battles.commonViews.UserNameViewSingleLine
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.feed.presentation.views.VerifyEmailBottomSheet
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -138,6 +139,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DiscoverPlayerScreen(
     discoverPlayerHandler: DiscoverPlayerHandler,
+    activityHandler: RumbleActivityHandler,
     onBackClick: () -> Unit,
     onVideoClick: (VideoEntity) -> Unit,
     onChannelClick: (id: String) -> Unit = {},
@@ -303,6 +305,7 @@ fun DiscoverPlayerScreen(
                 bottomSheetState,
                 popupState,
                 discoverPlayerHandler,
+                activityHandler,
                 listState,
                 userName,
                 userPicture
@@ -361,6 +364,7 @@ private fun DiscoverPlayerScreenDialog(
     bottomSheetState: ModalBottomSheetState,
     dialogState: DiscoverPlayerDialog,
     handler: DiscoverPlayerHandler,
+    activityHandler: RumbleActivityHandler,
     listState: LazyListState,
     userName: String,
     userPicture: String
@@ -382,6 +386,7 @@ private fun DiscoverPlayerScreenDialog(
                 modifier = Modifier
                     .fillMaxWidth(),
                 handler = handler,
+                activityHandler = activityHandler,
                 listState = listState,
                 userName = userName,
                 userPicture = userPicture

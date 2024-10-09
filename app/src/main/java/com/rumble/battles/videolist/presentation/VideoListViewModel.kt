@@ -235,6 +235,9 @@ class VideoListViewModel @Inject constructor(
             )
         } else {
             savePosition(videoEntity)
+            state.value.rumblePlayer?.stopPlayer()
+            state.value = state.value.copy(rumblePlayer = null)
+            lastDisplayedFeed = null
             emitVmEvent(VideoListVmEvent.PlayVideo(videoEntity))
         }
     }

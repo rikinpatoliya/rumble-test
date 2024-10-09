@@ -64,6 +64,7 @@ import com.rumble.analytics.CardSize
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
 import com.rumble.battles.commonViews.ActionButton
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.IsTablet
@@ -370,6 +371,10 @@ fun PlayListScreen(
                             )
                             Spacer(modifier = Modifier.height(paddingMedium))
                         }
+                    }
+
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
 
                     playListVideos.apply {

@@ -2,7 +2,6 @@ package com.rumble.battles.videodetails
 
 import android.app.Application
 import android.content.pm.ActivityInfo
-import androidx.lifecycle.SavedStateHandle
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsViewModel
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogRumbleVideoUseCase
@@ -13,7 +12,7 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserCommentAuthorsUseCase
-import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
+import com.rumble.domain.common.domain.domainmodel.DeviceType
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -63,11 +62,9 @@ class VideoDetailsViewModelTests {
 
     private val testVideoId: Long = 100
     private val testChannelId: String = "101"
-    private val savedState: SavedStateHandle = mockk(relaxed = true)
     private val getVideoDetailsUseCase: GetVideoDetailsUseCase = mockk(relaxed = true)
     private val initVideoPlayerSourceUseCase: InitVideoPlayerSourceUseCase = mockk(relaxed = true)
     private val getChannelDataUseCase: GetChannelDataUseCase = mockk(relaxed = true)
-    private val annotatedStringUseCase: AnnotatedStringUseCase = mockk(relaxed = true)
     private val voteVideoUseCase: VoteVideoUseCase = mockk(relaxed = true)
     private val shareUseCase: ShareUseCase = mockk(relaxed = true)
     private val getSensorBasedOrientationChangeEnabledUseCase: GetSensorBasedOrientationChangeEnabledUseCase =
@@ -98,7 +95,8 @@ class VideoDetailsViewModelTests {
     private val logVideoDetailsUseCase: LogVideoDetailsUseCase = mockk(relaxed = true)
     private val analyticsEventUseCase: AnalyticsEventUseCase = mockk(relaxed = true)
     private val getUserCommentAuthorsUseCase: GetUserCommentAuthorsUseCase = mockk(relaxed = true)
-    private val updateVideoPlayerSourceUseCase: UpdateVideoPlayerSourceUseCase = mockk(relaxed = true)
+    private val updateVideoPlayerSourceUseCase: UpdateVideoPlayerSourceUseCase =
+        mockk(relaxed = true)
     private val userPreferenceManager: UserPreferenceManager = mockk(relaxed = true)
     private val createRumblePlayListUseCase: CreateRumblePlayListUseCase = mockk(relaxed = true)
     private val getPlayListUseCase: GetPlayListUseCase = mockk(relaxed = true)
@@ -106,7 +104,8 @@ class VideoDetailsViewModelTests {
     private val hasPremiumRestrictionUseCase: HasPremiumRestrictionUseCase = mockk(relaxed = true)
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase = mockk(relaxed = true)
     private val shouldShowPremiumPromoUseCase: ShouldShowPremiumPromoUseCase = mockk(relaxed = true)
-    private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase = mockk(relaxed = true)
+    private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase =
+        mockk(relaxed = true)
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase = mockk(relaxed = true)
 
     private lateinit var videoDetailsViewModel: VideoDetailsViewModel
@@ -124,11 +123,9 @@ class VideoDetailsViewModelTests {
         } returns channelDetailsEntity
 
         videoDetailsViewModel = VideoDetailsViewModel(
-            savedState = savedState,
             getVideoDetailsUseCase = getVideoDetailsUseCase,
             initVideoPlayerSourceUseCase = initVideoPlayerSourceUseCase,
             getChannelDataUseCase = getChannelDataUseCase,
-            annotatedStringUseCase = annotatedStringUseCase,
             voteVideoUseCase = voteVideoUseCase,
             shareUseCase = shareUseCase,
             getVideoCommentsUseCase = getVideoCommentsUseCase,
@@ -163,7 +160,8 @@ class VideoDetailsViewModelTests {
             sendRantPurchasedEventUseCase = sendRantPurchasedEventUseCase,
             shouldShowPremiumPromoUseCase = shouldShowPremiumPromoUseCase,
             videoLoadTimeTraceStartUseCase = videoLoadTimeTraceStartUseCase,
-            videoLoadTimeTraceStopUseCase = videoLoadTimeTraceStopUseCase
+            videoLoadTimeTraceStopUseCase = videoLoadTimeTraceStopUseCase,
+            deviceType = DeviceType.Phone
         )
     }
 
@@ -175,12 +173,12 @@ class VideoDetailsViewModelTests {
 
     @Test
     fun testOnFullScreen() {
-        videoDetailsViewModel.onFullScreen(true, isTablet = false)
+        videoDetailsViewModel.onFullScreen(true)
         assert(videoDetailsViewModel.state.value.screenOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
         assert(videoDetailsViewModel.state.value.isFullScreen)
         assert(videoDetailsViewModel.state.value.uiType == UiType.FULL_SCREEN_LANDSCAPE)
 
-        videoDetailsViewModel.onFullScreen(false, isTablet = false)
+        videoDetailsViewModel.onFullScreen(false)
         assert(videoDetailsViewModel.state.value.screenOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         assert(videoDetailsViewModel.state.value.isFullScreen.not())
         assert(videoDetailsViewModel.state.value.uiType == UiType.EMBEDDED)

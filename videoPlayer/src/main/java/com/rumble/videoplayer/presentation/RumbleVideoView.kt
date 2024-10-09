@@ -1,6 +1,7 @@
 package com.rumble.videoplayer.presentation
 
 import android.view.KeyEvent.ACTION_UP
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.rumble.theme.brandedPlayerBackground
 import com.rumble.theme.paddingMedium
@@ -65,6 +67,7 @@ import kotlinx.coroutines.delay
 fun RumbleVideoView(
     modifier: Modifier = Modifier,
     rumblePlayer: RumblePlayer,
+    aspectRatioMode: Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
     playerBackgroundColor: Color = brandedPlayerBackground,
     uiType: UiType = UiType.DISCOVER,
     dismissControlsDelay: Long = controlsInactiveDelay,
@@ -163,10 +166,16 @@ fun RumbleVideoView(
                         .fillMaxSize(),
                     factory = {
                         rumblePlayer.adPlayerView
+                            .apply { resizeMode = aspectRatioMode }
+                            .also {
+                                if (it.parent != null) {
+                                    (it.parent as? ViewGroup)?.removeView(it)
+                                }
+                            }
                     }
                 )
             }
-        } else {
+        } else if (playbackState !is PlayerPlaybackState.Idle) {
             AndroidView(
                 modifier = Modifier
                     .focusable(enabled = true)
@@ -192,11 +201,18 @@ fun RumbleVideoView(
                     PlayerView(context).apply {
                         player = exoPlayer
                         useController = false
+                        resizeMode = aspectRatioMode
                         hideController()
                         setFullscreenButtonClickListener {
                             onChangeFullscreenMode(it)
                         }
                     }
+                },
+                update = { playerView ->
+                    if (isFullScreen)
+                        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    else
+                        playerView.resizeMode = aspectRatioMode
                 }
             )
 
@@ -278,7 +294,10 @@ fun RumbleVideoView(
                             AdCountDownView(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .padding(horizontal = paddingMedium, vertical = paddingXXXXLarge),
+                                    .padding(
+                                        horizontal = paddingMedium,
+                                        vertical = paddingXXXXLarge
+                                    ),
                                 countDownValue = currentCountDownValue,
                                 uiType = uiType
                             )

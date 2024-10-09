@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SearchCombinedTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.ProfileImageComponent
@@ -130,6 +131,11 @@ fun CombineSearchResultScreen(
         } else if (event == Lifecycle.Event.ON_RESUME) {
             handler.onViewResumed()
         }
+    }
+    val videoDetailsState by contentHandler.videoDetailsState
+
+    LaunchedEffect(videoDetailsState) {
+        if (videoDetailsState.visible.not()) handler.onCreatePlayerForVisibleFeed()
     }
 
     LaunchedEffect(Unit) {
@@ -254,13 +260,11 @@ fun CombineSearchResultScreen(
                                     onViewVideos(handler.query, handler.selection)
                                 }
                             }
+                            item { BottomNavigationBarScreenSpacer() }
                         }
                     }
 
                     SearchState.EMPTY_VIDEOS -> {
-                        Column {
-
-                        }
                         LazyColumn(
                             modifier = Modifier
                                 .wrapContentHeight()
@@ -323,6 +327,7 @@ fun CombineSearchResultScreen(
                                     onViewVideos(handler.query, handler.selection)
                                 }
                             }
+                            item { BottomNavigationBarScreenSpacer() }
                         }
                     }
                 }

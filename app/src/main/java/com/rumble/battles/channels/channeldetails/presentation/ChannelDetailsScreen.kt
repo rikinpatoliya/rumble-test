@@ -59,6 +59,7 @@ import com.rumble.battles.ChannelTopBarTag
 import com.rumble.battles.CollapsingChannelImageTag
 import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.BottomSheetItem
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.ChannelDetailsBaskSplash
@@ -131,9 +132,6 @@ fun ChannelDetailsScreen(
             skipHalfExpanded = true
         )
     val coroutineScope = rememberCoroutineScope()
-    BackHandler(bottomSheetState.isVisible) {
-        coroutineScope.launch { bottomSheetState.hide() }
-    }
     val videoListItems: LazyPagingItems<Feed> =
         channelDetailsHandler.videoList.collectAsLazyPagingItems()
     val updatedEntity by channelDetailsHandler.updatedEntity.collectAsStateWithLifecycle()
@@ -160,6 +158,15 @@ fun ChannelDetailsScreen(
             channelDetailsHandler.onCreatePlayerForVisibleFeed()
             return super.onPostFling(consumed, available)
         }
+    }
+    val videoDetailsState by contentHandler.videoDetailsState
+
+    BackHandler(bottomSheetState.isVisible) {
+        coroutineScope.launch { bottomSheetState.hide() }
+    }
+
+    LaunchedEffect(videoDetailsState) {
+        if (videoDetailsState.visible.not()) channelDetailsHandler.onCreatePlayerForVisibleFeed()
     }
 
     LaunchedEffect(scrollState) {
@@ -385,6 +392,10 @@ fun ChannelDetailsScreen(
                                 }
                             }
 
+                            item {
+                                BottomNavigationBarScreenSpacer()
+                            }
+
                             videoListItems.apply {
                                 if (loadState.append is LoadState.Loading) {
                                     item {
@@ -440,6 +451,7 @@ fun ChannelDetailsScreen(
                                 title = stringResource(id = R.string.no_videos_yet),
                                 text = stringResource(id = R.string.this_channel_doesnt_have_videos_yet)
                             )
+                            BottomNavigationBarScreenSpacer()
                         }
                     }
                 }

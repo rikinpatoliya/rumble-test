@@ -41,7 +41,7 @@ import com.rumble.battles.FeedTag
 import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
-import com.rumble.battles.commonViews.BottomNavigationBar
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
@@ -60,7 +60,6 @@ import com.rumble.battles.feed.presentation.views.PremiumBannerView
 import com.rumble.battles.feed.presentation.views.VideoCollectionSelectorView
 import com.rumble.battles.feed.presentation.views.VideoView
 import com.rumble.battles.landing.RumbleActivityHandler
-import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
@@ -96,9 +95,7 @@ fun HomeScreen(
     onViewAllRecommendedChannelsClick: () -> Unit,
     onSearchIconGlobalMeasured: (Offset) -> Unit,
     onFollowingIconGlobalMeasured: (Offset) -> Unit,
-    onNavigationItemClicked: (String) -> Unit,
-    onDiscoverIconCenter: ((Offset) -> Unit),
-    onLibraryIconCenter: ((Offset) -> Unit),
+    onFollowingClicked: () -> Unit,
     onViewNotifications: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
@@ -118,6 +115,8 @@ fun HomeScreen(
     val soundOn by homeHandler.soundState.collectAsStateWithLifecycle(initialValue = false)
 
     val alertDialogState by homeHandler.alertDialogState
+
+    val videoDetailsState by contentHandler.videoDetailsState
 
     updatedEntity?.let { updated ->
         videoListItems.itemSnapshotList.find { it is VideoEntity && it.id == updated.id }?.let {
@@ -145,6 +144,10 @@ fun HomeScreen(
         } else if (event == Lifecycle.Event.ON_RESUME) {
             homeHandler.onViewResumed()
         }
+    }
+
+    LaunchedEffect(videoDetailsState) {
+        if (videoDetailsState.visible.not()) homeHandler.onCreatePlayerForVisibleFeed()
     }
 
     LaunchedEffect(Unit) {
@@ -210,7 +213,7 @@ fun HomeScreen(
             },
             onSearchIconGlobalMeasured = onSearchIconGlobalMeasured,
             onFollowingIconGlobalMeasured = onFollowingIconGlobalMeasured,
-            onFollowing = { onNavigationItemClicked(RumbleScreens.Subscriptions.rootName) },
+            onFollowing = onFollowingClicked,
         )
 
         SwipeRefresh(
@@ -348,6 +351,9 @@ fun HomeScreen(
                         }
                     }
                 }
+                item {
+                    BottomNavigationBarScreenSpacer()
+                }
                 videoListItems.apply {
                     when {
                         loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
@@ -401,18 +407,6 @@ fun HomeScreen(
             }
 //            }
         }
-
-        BottomNavigationBar(
-            modifier = Modifier.constrainAs(navigation) {
-                bottom.linkTo(parent.bottom)
-            },
-            userName = userUIState.userName,
-            userPicture = userUIState.userPicture,
-            currentRoute = RumbleScreens.Feeds.rootName,
-            onNavigationItemClicked = onNavigationItemClicked,
-            onDiscoverIconCenter = onDiscoverIconCenter,
-            onLibraryIconCenter = onLibraryIconCenter,
-        )
     }
 
     if (alertDialogState.show) {

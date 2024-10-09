@@ -181,6 +181,13 @@ class RumbleMainActivity : FragmentActivity() {
                             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                         }
                     }
+                    is RumbleEvent.OpenWebView -> {
+                        navController.navigate(
+                            LandingScreens.RumbleWebViewScreen.getPath(
+                                it.url
+                            )
+                        )
+                    }
 
                     is RumbleEvent.CloseApp -> {
                         finish()
@@ -268,6 +275,7 @@ class RumbleMainActivity : FragmentActivity() {
             composable(LandingScreens.RegisterScreen.screenName) {
                 val registerViewModel: RegisterViewModel = hiltViewModel()
                 RegisterScreen(
+                    activityHandler = viewModel,
                     registerHandler = registerViewModel,
                     onNavigateToHomeScreen = {
                         navController.navigate(LandingScreens.ContentScreen.screenName) {
@@ -298,6 +306,7 @@ class RumbleMainActivity : FragmentActivity() {
             ) {
                 val registerViewModel: RegisterViewModel = hiltViewModel()
                 RegisterScreen(
+                    activityHandler = viewModel,
                     registerHandler = registerViewModel,
                     onNavigateToHomeScreen = {
                         navController.navigate(LandingScreens.ContentScreen.screenName) {
