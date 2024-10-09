@@ -17,6 +17,7 @@ import com.rumble.domain.login.domain.usecases.RumbleFormBodyBuilderUseCase
 import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
 import com.rumble.domain.login.domain.usecases.SSOFormBodyBuilderUseCase
 import com.rumble.domain.login.domain.usecases.SSOLoginUseCase
+import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -28,6 +29,7 @@ import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.API_FORMAT_DATE_PATTERN
 import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.convertToDate
+import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
@@ -54,7 +56,11 @@ interface RegisterHandler {
     fun onWhyWeAskBirthdayClicked()
     fun onDismissDialog()
     fun onSendEmail(email: String)
-    fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int)
+    fun onAnnotatedTextClicked(
+        annotatedTextWithActions: AnnotatedStringWithActionsList,
+        offset: Int
+    )
+
     fun onOpenUri(tag: String, uri: String)
     fun onJoin()
     fun onGenderSelected(gender: Gender)
@@ -63,11 +69,12 @@ interface RegisterHandler {
 sealed class RegistrationScreenVmEvent {
     data class Error(val errorMessage: String? = null) : RegistrationScreenVmEvent()
     object NavigateToHomeScreen : RegistrationScreenVmEvent()
+    object NavigateToAgeVerification : RegistrationScreenVmEvent()
     data class NavigateToWebView(val url: String) : RegistrationScreenVmEvent()
 }
 
 sealed class RegistrationScreenAlertDialogReason : AlertDialogReason {
-    object WhyWeAskBirthdayDialogReason: RegistrationScreenAlertDialogReason()
+    object WhyWeAskBirthdayDialogReason : RegistrationScreenAlertDialogReason()
 }
 
 data class RegistrationScreenUIState(
@@ -118,6 +125,7 @@ class RegisterViewModel @Inject constructor(
     private val sendEmailUseCase: SendEmailUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
+    private val getUserProfileUseCase: GetUserProfileUseCase,
     stateHandle: SavedStateHandle
 ) : ViewModel(), RegisterHandler {
 
@@ -219,7 +227,10 @@ class RegisterViewModel @Inject constructor(
         alertDialogState.value = AlertDialogState()
     }
 
-    override fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int) {
+    override fun onAnnotatedTextClicked(
+        annotatedTextWithActions: AnnotatedStringWithActionsList,
+        offset: Int
+    ) {
         annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
     }
 
@@ -270,11 +281,26 @@ class RegisterViewModel @Inject constructor(
                                     loading = false
                                 )
                             }
-                            emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
+                            if (userRegistrationEntity.loginType == LoginType.RUMBLE) {
+                                emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
+                            } else {
+                                // for sso login, verify age restrictions
+                                val profileResult = getUserProfileUseCase()
+                                if (profileResult.success) {
+                                    val birthday =
+                                        profileResult.userProfileEntity?.birthday?.toUtcLong()
+                                    if (birthday == null || birthdayValidationUseCase(birthday).first) {
+                                        emitVmEvent(RegistrationScreenVmEvent.NavigateToAgeVerification)
+                                        return@launch
+                                    }
+                                }
+                                emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
+                            }
                         } else {
                             emitVmEvent(RegistrationScreenVmEvent.Error(errorMessage = loginResult.error))
                         }
                     }
+
                     is RegisterResult.Failure -> {
                         uiState.update {
                             it.copy(
@@ -283,6 +309,7 @@ class RegisterViewModel @Inject constructor(
                         }
                         emitVmEvent(RegistrationScreenVmEvent.Error(errorMessage = registerResult.errorMessage))
                     }
+
                     is RegisterResult.DuplicatedRequest -> {
                         uiState.update {
                             it.copy(
@@ -319,8 +346,8 @@ class RegisterViewModel @Inject constructor(
         val token = stateHandle.get<String>(LandingPath.TOKEN.path) ?: ""
         val email = stateHandle.get<String>(LandingPath.EMAIL.path) ?: ""
         val ssoRegistration = loginType == LoginType.GOOGLE
-                || loginType == LoginType.FACEBOOK
-                || loginType == LoginType.APPLE
+            || loginType == LoginType.FACEBOOK
+            || loginType == LoginType.APPLE
         if (ssoRegistration) {
             userRegistrationEntity = userRegistrationEntity.copy(
                 email = email,

@@ -34,6 +34,8 @@ import com.google.android.gms.common.util.DeviceProperties
 import com.rumble.battles.commonViews.RumbleWebView
 import com.rumble.battles.content.presentation.ContentScreen
 import com.rumble.battles.content.presentation.ContentViewModel
+import com.rumble.battles.login.presentation.AgeVerificationScreen
+import com.rumble.battles.login.presentation.AgeVerificationViewModel
 import com.rumble.battles.login.presentation.AuthLandingScreen
 import com.rumble.battles.login.presentation.AuthViewModel
 import com.rumble.battles.login.presentation.LoginScreen
@@ -273,6 +275,9 @@ class RumbleMainActivity : FragmentActivity() {
                     onNavigateBack = {
                         navController.navigateUp()
                     },
+                    onNavigateToAgeVerification = {
+                        navController.navigate(LandingScreens.AgeVerificationScreen.getPath())
+                    },
                     onNavigateToWebView = {
                         navController.navigate(
                             LandingScreens.RumbleWebViewScreen.getPath(
@@ -300,6 +305,9 @@ class RumbleMainActivity : FragmentActivity() {
                     onNavigateBack = {
                         navController.navigateUp()
                     },
+                    onNavigateToAgeVerification = {
+                        navController.navigate(LandingScreens.AgeVerificationScreen.getPath())
+                    },
                     onNavigateToWebView = {
                         navController.navigate(
                             LandingScreens.RumbleWebViewScreen.getPath(
@@ -314,6 +322,35 @@ class RumbleMainActivity : FragmentActivity() {
                 PasswordResetScreen(
                     passwordResetHandler = viewModel,
                     onBack = navController::navigateUp,
+                )
+            }
+            composable(
+                LandingScreens.AgeVerificationScreen.screenName,
+                arguments = listOf(navArgument(LandingPath.ON_START.path) { defaultValue = false })
+            ) {
+                val ageVerificationViewModel: AgeVerificationViewModel = hiltViewModel()
+                AgeVerificationScreen(
+                    ageVerificationHandler = ageVerificationViewModel,
+                    onNavigateToHomeScreen = {
+                        navController.navigate(LandingScreens.ContentScreen.screenName) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onNavigateBack = {
+                        navController.popBackStack(
+                            LandingScreens.LoginScreen.getPath(false),
+                            inclusive = true
+                        )
+                    },
+                    onNavigateToWebView = {
+                        navController.navigate(
+                            LandingScreens.RumbleWebViewScreen.getPath(
+                                it
+                            )
+                        )
+                    }
                 )
             }
         }

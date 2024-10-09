@@ -9,6 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.rumble.battles.navigation.LandingPath
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
+import com.rumble.domain.profile.domain.GetUserProfileUseCase
+import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
+import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
@@ -26,6 +29,7 @@ sealed class LoginScreenVmEvent {
     data class Error(val errorMessage: String? = null) : LoginScreenVmEvent()
     object UserNamePasswordError : LoginScreenVmEvent()
     object NavigateToHomeScreen : LoginScreenVmEvent()
+    data class NavigateToAgeVerification(val onStartLogin: Boolean) : LoginScreenVmEvent()
     object NavigateBack : LoginScreenVmEvent()
 }
 
@@ -50,6 +54,8 @@ private const val TAG = "LoginViewModel"
 class LoginViewModel @Inject constructor(
     savedState: SavedStateHandle,
     private val rumbleLoginUseCase: RumbleLoginUseCase,
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val birthdayValidationUseCase: BirthdayValidationUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
 ) : ViewModel(), LoginHandler {
 
@@ -98,15 +104,31 @@ class LoginViewModel @Inject constructor(
                         password = password
                     ).success
                 ) {
-                    if (onStartLogin)
-                        emitVmEvent(LoginScreenVmEvent.NavigateToHomeScreen)
-                    else
-                        emitVmEvent(LoginScreenVmEvent.NavigateBack)
+                    // verify age restrictions
+                    val profileResult = getUserProfileUseCase()
+                    if (profileResult.success) {
+                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
+                        if (birthday == null || birthdayValidationUseCase(birthday).first) {
+                            emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
+                            return@launch
+                        }
+                        emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
+                        return@launch
+                    }
+                    handleNavigation()
                 } else {
                     state.value = currentState.copy(loading = false)
                     emitVmEvent(LoginScreenVmEvent.UserNamePasswordError)
                 }
             }
+        }
+    }
+
+    private fun handleNavigation() {
+        if (onStartLogin) {
+            emitVmEvent(LoginScreenVmEvent.NavigateToHomeScreen)
+        } else {
+            emitVmEvent(LoginScreenVmEvent.NavigateBack)
         }
     }
 
