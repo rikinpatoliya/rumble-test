@@ -205,8 +205,6 @@ class AgeVerificationViewModel @Inject constructor(
         if (validInput(userProfileEntity)) {
             viewModelScope.launch(errorHandler) {
                 uiState.update { it.copy(loading = true) }
-                delay(2000)
-                uiState.update { it.copy(loading = false) }
                 when (val updateUserProfileResult = updateUserProfileUseCase(userProfileEntity)) {
                     is UpdateUserProfileResult.Success -> {
                         uiState.update { it.copy(loading = false) }

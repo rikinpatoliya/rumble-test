@@ -112,8 +112,6 @@ class LoginViewModel @Inject constructor(
                             emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
                             return@launch
                         }
-                        emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
-                        return@launch
                     }
                     handleNavigation()
                 } else {
