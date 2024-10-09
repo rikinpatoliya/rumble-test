@@ -54,6 +54,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.AnnotatedTextAction
 import com.rumble.theme.RumbleTheme
@@ -85,6 +86,7 @@ private const val TAG = "AgeVerificationScreen"
 fun AgeVerificationScreen(
     darkMode: Boolean = true,
     ageVerificationHandler: AgeVerificationHandler,
+    activityHandler: RumbleActivityHandler,
     onNavigateToHomeScreen: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToWebView: (String) -> Unit
@@ -98,12 +100,13 @@ fun AgeVerificationScreen(
 
     BackHandler {
         if (showDatePicker) showDatePicker = false
+        else activityHandler.closeApp()
     }
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val observer = LifecycleEventObserver { _, event ->
-        if (event == Lifecycle.Event.ON_STOP) {
-            ageVerificationHandler.onSignOut()
+        if (event == Lifecycle.Event.ON_PAUSE) {
+            ageVerificationHandler.saveAgeNotVerifiedState()
         }
     }
     LaunchedEffect(key1 = context) {

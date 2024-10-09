@@ -182,6 +182,10 @@ class RumbleMainActivity : FragmentActivity() {
                         }
                     }
 
+                    is RumbleEvent.CloseApp -> {
+                        finish()
+                    }
+
                     else -> {}
                 }
 
@@ -331,6 +335,7 @@ class RumbleMainActivity : FragmentActivity() {
                 val ageVerificationViewModel: AgeVerificationViewModel = hiltViewModel()
                 AgeVerificationScreen(
                     ageVerificationHandler = ageVerificationViewModel,
+                    activityHandler = viewModel,
                     onNavigateToHomeScreen = {
                         navController.navigate(LandingScreens.ContentScreen.screenName) {
                             popUpTo(navController.graph.id) {

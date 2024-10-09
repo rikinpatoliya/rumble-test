@@ -22,6 +22,7 @@ import com.rumble.domain.landing.usecases.SilentLoginUseCase
 import com.rumble.domain.landing.usecases.TransferUserDataUseCase
 import com.rumble.domain.landing.usecases.UpdateMediaSessionUseCase
 import com.rumble.domain.logging.domain.usecase.InitProductionLoggingUseCase
+import com.rumble.domain.login.domain.usecases.GetAgeVerifiedStatusUseCase
 import com.rumble.domain.notifications.domain.domainmodel.NotificationHandlerResult
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.notifications.domain.usecases.RumbleNotificationHandlerUseCase
@@ -86,6 +87,7 @@ interface RumbleActivityHandler {
     fun enableContentLoad()
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
+    fun closeApp()
 }
 
 
@@ -94,6 +96,7 @@ sealed class RumbleEvent {
     object UnexpectedError : RumbleEvent()
     object PipModeEntered : RumbleEvent()
     object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
+    object CloseApp : RumbleEvent()
     object PremiumPurchased : RumbleEvent()
     data class OpenWebView(val url: String) : RumbleEvent()
 }
@@ -129,6 +132,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val getSensorBasedOrientationChangeEnabledUseCase: GetSensorBasedOrientationChangeEnabledUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
     private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
+    private val getAgeVerifiedStatusUseCase: GetAgeVerifiedStatusUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
@@ -155,6 +159,12 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
+        viewModelScope.launch {
+            val ageVerified = getAgeVerifiedStatusUseCase()
+            if (ageVerified != null && !ageVerified){
+                signOutUseCase()
+            }
+        }
         viewModelScope.launch(errorHandler) {
             generateViewerIdUseCase()
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())
@@ -331,5 +341,9 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onOpenWebView(url: String) {
         emitVmEvent(RumbleEvent.OpenWebView(url))
+    }
+
+    override fun closeApp() {
+        emitVmEvent(RumbleEvent.CloseApp)
     }
 }

@@ -11,6 +11,7 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.SendEmailUseCase
+import com.rumble.domain.login.domain.usecases.SaveAgeVerifiedStatusUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domain.SignOutUseCase
 import com.rumble.domain.profile.domain.UpdateUserProfileUseCase
@@ -21,6 +22,7 @@ import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.UpdateUserProfileResult
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
+import com.rumble.network.session.SessionManager
 import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,7 +54,7 @@ interface AgeVerificationHandler {
 
     fun onOpenUri(tag: String, uri: String)
     fun onUpdateBirthday()
-    fun onSignOut()
+    fun saveAgeNotVerifiedState()
 }
 
 sealed class AgeVerificationScreenVmEvent {
@@ -87,8 +89,7 @@ class AgeVerificationViewModel @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val updateUserProfileUseCase: UpdateUserProfileUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
-    private val signOutUseCase: SignOutUseCase,
-    private val googleSignInClient: GoogleSignInClient,
+    private val saveAgeVerifiedStatusUseCase: SaveAgeVerifiedStatusUseCase,
     stateHandle: SavedStateHandle
 ) : ViewModel(), AgeVerificationHandler {
 
@@ -237,11 +238,9 @@ class AgeVerificationViewModel @Inject constructor(
         }
     }
 
-    override fun onSignOut() {
-        viewModelScope.launch(errorHandler) {
-            signOutUseCase {
-                googleSignInClient.signOut()
-            }
+    override fun saveAgeNotVerifiedState() {
+        viewModelScope.launch {
+            saveAgeVerifiedStatusUseCase(false)
         }
     }
 
