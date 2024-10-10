@@ -1,5 +1,6 @@
 package com.rumble.battles.livechat.presentation
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -229,14 +230,16 @@ private fun HeaderView(
         ) {
             Text(
                 text = stringResource(id = R.string.send_rant),
-                style = h3
+                style = h3,
+                color = MaterialTheme.colors.primary
             )
             Spacer(modifier = Modifier.weight(1f))
 
             IconButton(onClick = onClose) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_close),
-                    contentDescription = stringResource(id = R.string.info)
+                    contentDescription = stringResource(id = R.string.info),
+                    tint =  MaterialTheme.colors.primary
                 )
             }
         }
@@ -371,7 +374,8 @@ private fun RantDescriptionView(
     ) {
         Text(
             text = rantText,
-            style = h4
+            style = h4,
+            color = MaterialTheme.colors.primary
         )
 
         Spacer(modifier = Modifier.weight(1f))
