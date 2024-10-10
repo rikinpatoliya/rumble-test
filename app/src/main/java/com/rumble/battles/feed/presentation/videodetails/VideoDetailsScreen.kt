@@ -1099,7 +1099,8 @@ private fun JoinOnLocalsView(
                 .weight(1F)
                 .padding(end = paddingMedium),
             text = stringResource(id = R.string.join_on_locals),
-            style = tinyBody
+            style = tinyBody,
+            color = MaterialTheme.colors.secondary
         )
         ActionButton(
             text = stringResource(id = R.string.join),
@@ -1226,7 +1227,8 @@ private fun VideoDetailsHeaderView(
                     .fillMaxWidth()
                     .padding(horizontal = paddingMedium),
                 text = state.videoEntity?.title ?: "",
-                style = RumbleTypography.h3
+                style = RumbleTypography.h3,
+                color = MaterialTheme.colors.primary
             )
             if (videoEntity.isPremiumExclusiveContent) {
                 VideoCardPremiumTagView(
