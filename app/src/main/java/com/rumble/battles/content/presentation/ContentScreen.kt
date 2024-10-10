@@ -260,15 +260,8 @@ fun ContentScreen(
                     navControllers[selectedTabIndex].graph.startDestinationId,
                     inclusive = false
                 )
-                if (navControllers[NAV_ITEM_INDEX_ACCOUNT].currentDestination == null){
-                    navigateToMyVideos = true
-                }
+                navigateToMyVideos = true
                 selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
-                if (!navigateToMyVideos){
-                    navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
-                        popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
-                    }
-                }
             }
         }
     }
@@ -526,6 +519,8 @@ fun ContentScreen(
                     )
                     LaunchedEffect(navigateToMyVideos) {
                         if (navigateToMyVideos) {
+                            // navigation performed here as initially profile navcontroller have
+                            // a empty graph.
                             navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
                                 popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
                             }
