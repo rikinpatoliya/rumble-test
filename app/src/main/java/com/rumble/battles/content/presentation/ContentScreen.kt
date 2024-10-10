@@ -67,7 +67,6 @@ import com.rumble.battles.camera.presentation.UploadChannelSelectionScreen
 import com.rumble.battles.camera.presentation.VideoPreviewScreen
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsScreen
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsViewModel
-import com.rumble.battles.navigation.BottomNavigationBar
 import com.rumble.battles.commonViews.DefaultSystemBarIconsColor
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
@@ -114,6 +113,7 @@ import com.rumble.battles.library.presentation.views.PlayListsScreen
 import com.rumble.battles.livechat.presentation.LiveChatViewModel
 import com.rumble.battles.login.presentation.AuthHandler
 import com.rumble.battles.login.presentation.AuthViewModel
+import com.rumble.battles.navigation.BottomNavigationBar
 import com.rumble.battles.navigation.LandingScreens
 import com.rumble.battles.navigation.NAV_ITEM_INDEX_ACCOUNT
 import com.rumble.battles.navigation.NAV_ITEM_INDEX_CAMERA
@@ -215,6 +215,7 @@ fun ContentScreen(
         it.root.rootName
     }
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    var navigateToMyVideos by remember { mutableStateOf(false) }
     val navControllers = remember {
         tabScreens.map {
             when (it) {
@@ -259,9 +260,14 @@ fun ContentScreen(
                     navControllers[selectedTabIndex].graph.startDestinationId,
                     inclusive = false
                 )
+                if (navControllers[NAV_ITEM_INDEX_ACCOUNT].currentDestination == null){
+                    navigateToMyVideos = true
+                }
                 selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
-                navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
-                    popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
+                if (!navigateToMyVideos){
+                    navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
+                        popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
+                    }
                 }
             }
         }
@@ -311,7 +317,10 @@ fun ContentScreen(
                     navControllers[selectedTabIndex].navigate(
                         route = RumbleScreens.Library.rootName,
                         navOptions = NavOptions.Builder()
-                            .setPopUpTo(navControllers[selectedTabIndex].graph.findStartDestination().id, true)
+                            .setPopUpTo(
+                                navControllers[selectedTabIndex].graph.findStartDestination().id,
+                                true
+                            )
                             .build()
                     )
                 }
@@ -394,7 +403,11 @@ fun ContentScreen(
                 }
 
                 is ContentScreenVmEvent.ExpendVideoDetails -> {
-                    videoDetailsViewModel.onLoadContent(event.videoId, event.playListId, event.shuffle)
+                    videoDetailsViewModel.onLoadContent(
+                        event.videoId,
+                        event.playListId,
+                        event.shuffle
+                    )
                 }
 
                 is ContentScreenVmEvent.PlayListUpdated -> {}
@@ -502,14 +515,24 @@ fun ContentScreen(
                     bottomSheetState,
                 )
 
-                NAV_ITEM_INDEX_ACCOUNT -> TabNavHost(
-                    tabScreens[NAV_ITEM_INDEX_ACCOUNT],
-                    parentController,
-                    navControllers[NAV_ITEM_INDEX_ACCOUNT],
-                    activityHandler,
-                    contentHandler,
-                    bottomSheetState,
-                )
+                NAV_ITEM_INDEX_ACCOUNT -> {
+                    TabNavHost(
+                        tabScreens[NAV_ITEM_INDEX_ACCOUNT],
+                        parentController,
+                        navControllers[NAV_ITEM_INDEX_ACCOUNT],
+                        activityHandler,
+                        contentHandler,
+                        bottomSheetState,
+                    )
+                    LaunchedEffect(navigateToMyVideos) {
+                        if (navigateToMyVideos) {
+                            navControllers[selectedTabIndex].navigate(RumbleScreens.Videos.rootName) {
+                                popUpTo(navControllers[selectedTabIndex].graph.startDestinationId)
+                            }
+                            navigateToMyVideos = false
+                        }
+                    }
+                }
             }
         }
     }
@@ -787,7 +810,10 @@ private fun createNavigationGraph(
         }
         composable(RumbleScreens.CameraUploadStepOne.rootName) { navBackStackEntry ->
             CameraUploadStepOneScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                cameraUploadHandler = getCameraUploadViewModel(
+                    navBackStackEntry,
+                    currentNavController
+                ),
                 onSelectChannel = { currentNavController.navigate(RumbleScreens.UploadChannelSelection.rootName) },
                 onNextStep = { currentNavController.navigate(RumbleScreens.CameraUploadStepTwo.rootName) },
                 onBackClick = { currentNavController.navigateUp() },
@@ -795,7 +821,10 @@ private fun createNavigationGraph(
         }
         composable(RumbleScreens.CameraUploadStepTwo.rootName) { navBackStackEntry ->
             CameraUploadStepTwoScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                cameraUploadHandler = getCameraUploadViewModel(
+                    navBackStackEntry,
+                    currentNavController
+                ),
                 activityHandler = activityHandler,
                 onSelectLicense = { currentNavController.navigate(RumbleScreens.UploadLicenseSelection.rootName) },
                 onSelectVisibility = { currentNavController.navigate(RumbleScreens.UploadVisibilitySelection.rootName) },
@@ -805,25 +834,37 @@ private fun createNavigationGraph(
         }
         composable(RumbleScreens.UploadChannelSelection.rootName) { navBackStackEntry ->
             UploadChannelSelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                cameraUploadHandler = getCameraUploadViewModel(
+                    navBackStackEntry,
+                    currentNavController
+                ),
                 onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.UploadLicenseSelection.rootName) { navBackStackEntry ->
             CameraUploadLicenceSelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                cameraUploadHandler = getCameraUploadViewModel(
+                    navBackStackEntry,
+                    currentNavController
+                ),
                 onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.UploadScheduleSelection.rootName) { navBackStackEntry ->
             CameraUploadScheduleSelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                cameraUploadHandler = getCameraUploadViewModel(
+                    navBackStackEntry,
+                    currentNavController
+                ),
                 onBackClick = { currentNavController.navigateUp() },
             )
         }
         composable(RumbleScreens.UploadVisibilitySelection.rootName) { navBackStackEntry ->
             CameraUploadVisibilitySelectionScreen(
-                cameraUploadHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                cameraUploadHandler = getCameraUploadViewModel(
+                    navBackStackEntry,
+                    currentNavController
+                ),
                 onBackClick = { currentNavController.navigateUp() },
             )
         }
