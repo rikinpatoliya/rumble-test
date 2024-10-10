@@ -364,7 +364,6 @@ class VideoDetailsViewModel @Inject constructor(
             state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
         }
-        viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(layoutState != CollapsableLayoutState.EXPENDED) }
     }
 
     override fun onCleared() {

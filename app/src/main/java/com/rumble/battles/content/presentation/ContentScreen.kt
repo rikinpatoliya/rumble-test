@@ -3,6 +3,7 @@ package com.rumble.battles.content.presentation
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -451,7 +452,8 @@ fun ContentScreen(
             bottomBar = {
                 AnimatedVisibility(
                     modifier = Modifier.systemBarsPadding(),
-                    visible = selectedTabIndex != NAV_ITEM_INDEX_CAMERA,
+                    visible = selectedTabIndex != NAV_ITEM_INDEX_CAMERA
+                        && (videoDetailsState.visible.not() || videoDetailsState.collapsed),
                     enter = slideInVertically(initialOffsetY = { it / 2 }),
                     exit = slideOutVertically(
                         targetOffsetY = { it },
@@ -529,34 +531,33 @@ fun ContentScreen(
                     }
                 }
             }
-        }
-    }
-
-    if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA) {
-        VideoDetailsScreen(
-            activityHandler = activityHandler,
-            handler = videoDetailsViewModel,
-            contentHandler = contentHandler,
-            liveChatHandler = liveChatViewModel,
-            contentBottomSheetState = bottomSheetState,
-            onChannelClick = {
-                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(it))
-            },
-            onCategoryClick = {
-                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                navControllers[selectedTabIndex].navigate(
-                    RumbleScreens.CategoryScreen.getPath(
-                        it,
-                        false
-                    )
+            if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA) {
+                VideoDetailsScreen(
+                    activityHandler = activityHandler,
+                    handler = videoDetailsViewModel,
+                    contentHandler = contentHandler,
+                    liveChatHandler = liveChatViewModel,
+                    contentBottomSheetState = bottomSheetState,
+                    onChannelClick = {
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(it))
+                    },
+                    onCategoryClick = {
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        navControllers[selectedTabIndex].navigate(
+                            RumbleScreens.CategoryScreen.getPath(
+                                it,
+                                false
+                            )
+                        )
+                    },
+                    onTagClick = {
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
+                    },
                 )
-            },
-            onTagClick = {
-                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
-            },
-        )
+            }
+        }
     }
 
     if (activityHandler.isLaunchedFromNotification.not()) {

@@ -189,8 +189,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-private const val TAG = "VideoDetailsScreen"
-
 @SuppressLint("SourceLockedOrientationActivity", "InlinedApi")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -350,7 +348,7 @@ fun VideoDetailsScreen(
 
                 is VideoDetailsEvent.InitLiveChat -> {
                     liveChatHandler.onInitLiveChat(it.videoId)
-                    if (state.hasPremiumRestriction.not() && state.inComments.not())
+                    if (state.hasPremiumRestriction.not() && state.inComments.not() && state.inLiveChat)
                         liveChatBottomSheetState.show()
                 }
 
@@ -512,9 +510,6 @@ fun VideoDetailsScreen(
                                 .testTag(VideoDetails)
                         ) {
                             VideoDetailsView(
-                                modifier = Modifier.conditional(playerTarget?.value == PlayerTarget.REMOTE) {
-                                    padding(bottom = paddingXGiant)
-                                },
                                 contentPadding = contentPadding,
                                 boxMaxWidth = boxMaxWidth,
                                 boxMxHeight = boxMaxHeight,
