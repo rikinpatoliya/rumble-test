@@ -465,7 +465,13 @@ fun VideoDetailsScreen(
                     MiniPlayerView(
                         modifier = Modifier.fillMaxWidth(),
                         rumblePlayer = rumblePlayer,
-                        onClose = { handler.onClearVideo() },
+                        onClose = {
+                            if (state.currentComment.isNotEmpty()) {
+                                collapsePaddingVisible = false
+                                handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
+                            }
+                            handler.onClearVideo()
+                        },
                         onClick = {
                             collapsePaddingVisible = false
                             handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)

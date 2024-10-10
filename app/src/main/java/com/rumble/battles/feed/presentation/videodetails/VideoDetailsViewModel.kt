@@ -229,6 +229,7 @@ sealed class VideoDetailsAlertReason : AlertDialogReason {
     data class DeleteReason(val commentEntity: CommentEntity) : VideoDetailsAlertReason()
     data class ErrorReason(val errorMessage: String?, val messageToShort: Boolean = false) :
         VideoDetailsAlertReason()
+
     data class ShowEmailVerificationSent(val email: String) : VideoDetailsAlertReason()
     data object ShowYourEmailNotVerifiedYet : VideoDetailsAlertReason()
     data class RestrictedContentReason(val videoEntity: VideoEntity) : VideoDetailsAlertReason()
@@ -629,8 +630,12 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onClearVideo() {
-        dismissResources()
-        emitVmEvent(VideoDetailsEvent.NavigateBack)
+        if (state.value.currentComment.isNotEmpty()) {
+            showDiscardDialog(true)
+        } else {
+            dismissResources()
+            emitVmEvent(VideoDetailsEvent.NavigateBack)
+        }
     }
 
     override fun onDelete(commentEntity: CommentEntity) {
@@ -1414,8 +1419,12 @@ class VideoDetailsViewModel @Inject constructor(
     private fun onScreenOrientationChanged(orientation: Int) {
         val currentScreenOrientation = state.value.screenOrientation
         if (orientation < 0 ||
-            (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(currentScreenOrientation)) ||
-            (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isPortrait(currentScreenOrientation))
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(
+                currentScreenOrientation
+            )) ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isPortrait(
+                currentScreenOrientation
+            ))
         ) {
             return
         }
