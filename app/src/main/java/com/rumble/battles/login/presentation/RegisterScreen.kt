@@ -284,8 +284,10 @@ fun RegisterScreen(
                         else -> ""
                     }
                 ) {
-                    showDatePicker = showDatePicker.not()
-                    if (showDatePicker) focusManager.clearFocus()
+                    if (!showDatePicker){
+                        showDatePicker = true
+                        focusManager.clearFocus()
+                    }
                 }
 
                 Spacer(
