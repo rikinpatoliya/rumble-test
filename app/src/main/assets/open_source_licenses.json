@@ -458,7 +458,7 @@
         },
         {
             "moduleName": "androidx.databinding:viewbinding",
-            "moduleVersion": "8.2.2",
+            "moduleVersion": "8.7.0",
             "moduleLicense": "The Apache Software License, Version 2.0",
             "moduleLicenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
         },
