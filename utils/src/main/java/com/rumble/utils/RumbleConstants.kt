@@ -109,6 +109,7 @@ object RumbleConstants {
     const val MAX_COMMENT_LEVEL = 4
     const val HTTP_PREFIX = "http://"
     const val HTTPS_PREFIX = "https://"
+    const val MAX_COMMENT_FIELD_LINES = 3
 
     @Language("JSON")
     val countriesList = """

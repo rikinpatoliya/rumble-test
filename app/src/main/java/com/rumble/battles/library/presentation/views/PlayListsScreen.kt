@@ -69,7 +69,8 @@ fun PlayListsScreen(
     LaunchedEffect(Unit) {
         contentHandler.eventFlow.collectLatest {
             if (it is ContentScreenVmEvent.PlayListDeleted ||
-                it is ContentScreenVmEvent.PlayListUpdated) {
+                it is ContentScreenVmEvent.PlayListUpdated
+            ) {
                 playLists.refresh()
                 navController.previousBackStackEntry
                     ?.savedStateHandle
@@ -100,19 +101,18 @@ fun PlayListsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .systemBarsPadding()
             .background(MaterialTheme.colors.background)
     ) {
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.playlists),
             modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+                .fillMaxWidth(),
             onBackClick = onBackClick,
         )
         SwipeRefresh(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = paddingLarge)
                 .testTag(SwipeRefreshTag),
             state = rememberSwipeRefreshState(
                 playLists.loadState.refresh == LoadState.Loading
