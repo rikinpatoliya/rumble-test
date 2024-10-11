@@ -7,10 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -47,7 +45,6 @@ import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.search.presentation.views.SearchFollowingView
 import com.rumble.theme.minEmptyViewHeight
-import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
@@ -79,7 +76,7 @@ fun SubscriptionsScreen(
         contentHandler.eventFlow.collectLatest {
             if (it is ContentScreenVmEvent.ChannelSubscriptionUpdated) {
                 subscriptionsScreenHandler.updateChannelDetailsEntity(it.channelDetailsEntity)
-                bottomSheetState.hide()
+                contentHandler.updateBottomSheetUiState(BottomSheetContent.HideBottomSheet)
             } else if (it is ContentScreenVmEvent.ChannelNotificationsUpdated) {
                 subscriptionsScreenHandler.updateChannelDetailsEntity(it.channelDetailsEntity)
             } else if (it is ContentScreenVmEvent.SortFollowingTypeUpdated) {

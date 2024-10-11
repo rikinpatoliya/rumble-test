@@ -55,6 +55,7 @@ import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusLarge
 import com.rumble.theme.wokeGreen
 import com.rumble.utils.extension.shortString
+import com.rumble.videoplayer.presentation.UiType
 
 @Composable
 fun CommentsView(
@@ -193,17 +194,19 @@ fun CommentsView(
                 onClick = { handler.onSubscribeToPremium() }
             )
         } else if (state.userProfile?.validated == true) {
-            AddCommentView(
-                modifier = Modifier
-                    .imePadding()
-                    .fillMaxWidth(),
-                comment = state.currentComment,
-                placeHolder = stringResource(id = R.string.add_comment),
-                userName = userName,
-                userPicture = userPicture,
-                onChange = handler::onCommentChanged,
-                onSubmit = handler::onSubmitComment
-            )
+            if (state.uiType == UiType.EMBEDDED) {
+                AddCommentView(
+                    modifier = Modifier
+                        .imePadding()
+                        .fillMaxWidth(),
+                    comment = state.currentComment,
+                    placeHolder = stringResource(id = R.string.add_comment),
+                    userName = userName,
+                    userPicture = userPicture,
+                    onChange = handler::onCommentChanged,
+                    onSubmit = handler::onSubmitComment
+                )
+            }
         } else {
             Text(
                 modifier = Modifier
