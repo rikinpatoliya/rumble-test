@@ -592,7 +592,6 @@ fun VideoDetailsView(
         tween(COLLAPSE_ANIMATION_DURATION),
         label = "width"
     )
-
     Column(
         modifier = modifier
     ) {
@@ -603,6 +602,7 @@ fun VideoDetailsView(
                 if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
             val height = if (isKeyboardVisible) videoHeightReduced else {
                 if (state.isFullScreen) boxMxHeight
+                else if (state.videoEntity?.portraitMode == true) boxMaxWidth
                 else width / 16 * 9
             }
 
