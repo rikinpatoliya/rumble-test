@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -45,6 +46,7 @@ import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.LIVE_MESSAGE_MAX_CHARACTERS
 import com.rumble.utils.extension.conditional
 
@@ -73,7 +75,7 @@ fun AddMessageView(
             .background(MaterialTheme.colors.surface)
         ) {
             ConstraintLayout(modifier = Modifier
-                .height(commentViewHeight)
+                .heightIn(min = commentViewHeight)
                 .fillMaxWidth()
             ) {
                 val (user, addComment) = createRefs()
@@ -121,6 +123,8 @@ fun AddMessageView(
                             .fillMaxWidth()
                             .align(Alignment.CenterStart),
                         value = message,
+                        singleLine = false,
+                        maxLines = RumbleConstants.MAX_COMMENT_FIELD_LINES,
                         textStyle = RumbleTypography.body1.copy(color = MaterialTheme.colors.primary),
                         cursorBrush = SolidColor(MaterialTheme.colors.primary),
                         onValueChange = {

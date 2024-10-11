@@ -144,7 +144,8 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
 }
 
 data class VideoDetailsState(
-    val visible: Boolean = false
+    val visible: Boolean = false,
+    val collapsed: Boolean = false,
 )
 
 data class BottomSheetUIState(val data: BottomSheetContent)
@@ -157,8 +158,8 @@ data class UserUIState(
 )
 
 sealed class BottomSheetContent {
-    object HideBottomSheet : BottomSheetContent()
-    object ChangeAppearance : BottomSheetContent()
+    data object HideBottomSheet : BottomSheetContent()
+    data object ChangeAppearance : BottomSheetContent()
     data class UserUploadChannelSwitcher(val channels: List<UserUploadChannelEntity>) :
         BottomSheetContent()
 
@@ -183,31 +184,31 @@ sealed class BottomSheetContent {
         val playListEntityWithOptions: PlayListEntityWithOptions,
     ) : BottomSheetContent()
 
-    object PlayListSettingsSheet : BottomSheetContent()
+    data object PlayListSettingsSheet : BottomSheetContent()
 
-    object PremiumPromo : BottomSheetContent()
-    object PremiumOptions : BottomSheetContent()
-    object PremiumSubscription : BottomSheetContent()
+    data object PremiumPromo : BottomSheetContent()
+    data object PremiumOptions : BottomSheetContent()
+    data object PremiumSubscription : BottomSheetContent()
     data class SortFollowingSheet(val sortFollowingType: SortFollowingType) : BottomSheetContent()
-    object AuthMenu : BottomSheetContent()
+    data object AuthMenu : BottomSheetContent()
 }
 
 sealed class ContentScreenVmEvent {
-    object HideBottomSheetEvent : ContentScreenVmEvent()
-    object ShowBottomSheetEvent : ContentScreenVmEvent()
-    object HideAlertDialogEvent : ContentScreenVmEvent()
+    data object HideBottomSheetEvent : ContentScreenVmEvent()
+    data object ShowBottomSheetEvent : ContentScreenVmEvent()
+    data object HideAlertDialogEvent : ContentScreenVmEvent()
     data class ShowAlertDialogEvent(
         val reason: RumbleActivityAlertReason
     ) : ContentScreenVmEvent()
 
-    object NavigateToLibrary : ContentScreenVmEvent()
+    data object NavigateToLibrary : ContentScreenVmEvent()
     data class UserUploadNotification(
         val uploadTitle: String,
         val success: Boolean = false,
         val message: String? = null
     ) : ContentScreenVmEvent()
 
-    object NavigateHome : ContentScreenVmEvent()
+    data object NavigateHome : ContentScreenVmEvent()
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
     data class Error(val errorMessage: String? = null) : ContentScreenVmEvent()
     data class ShowSnackBarMessage(val messageId: Int) : ContentScreenVmEvent()
@@ -217,13 +218,13 @@ sealed class ContentScreenVmEvent {
     data class ChannelNotificationsUpdated(val channelDetailsEntity: ChannelDetailsEntity) :
         ContentScreenVmEvent()
 
-    object VideoAlreadyInPlayList : ContentScreenVmEvent()
+    data object VideoAlreadyInPlayList : ContentScreenVmEvent()
     data class VideoAddedToPlayList(val withPadding: Boolean) : ContentScreenVmEvent()
     data class VideoRemovedFromPlayList(val withPadding: Boolean) : ContentScreenVmEvent()
-    object PlayListDeleted : ContentScreenVmEvent()
+    data object PlayListDeleted : ContentScreenVmEvent()
     data class PlayListUpdated(val playListEntity: PlayListEntity) : ContentScreenVmEvent()
     data class PlayListCreated(val playListEntity: PlayListEntity) : ContentScreenVmEvent()
-    object WatchHistoryCleared : ContentScreenVmEvent()
+    data object WatchHistoryCleared : ContentScreenVmEvent()
     data class StartPremiumPurchase(
         val billingClient: BillingClient,
         val billingParams: BillingFlowParams
@@ -312,6 +313,13 @@ class ContentViewModel @Inject constructor(
         purchaseUpdateListener.subscribeToPurchaseUpdate(this)
         viewModelScope.launch(errorHandler) {
             subscriptionList = fetchPremiumSubscriptionListUseCase() ?: emptyList()
+        }
+        viewModelScope.launch {
+            sessionManager.videoDetailsCollapsedFlow.distinctUntilChanged().collectLatest {
+                videoDetailsState.value = videoDetailsState.value.copy(
+                    collapsed = it
+                )
+            }
         }
     }
 

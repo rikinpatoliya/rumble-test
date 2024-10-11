@@ -120,6 +120,7 @@ internal fun EmbeddedSeekBar(
             ) {
                 Slider(
                     modifier = Modifier
+                        .height(seekBarHeight * 3)
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .offset(y = embeddedThumbOffset),
