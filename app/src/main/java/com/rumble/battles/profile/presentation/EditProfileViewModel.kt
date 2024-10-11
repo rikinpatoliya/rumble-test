@@ -275,7 +275,11 @@ class EditProfileViewModel @Inject constructor(
                                 cityErrorMessage = result.cityErrorMessage,
                                 stateErrorMessage = result.stateErrorMessage,
                                 postalCodeErrorMessage = result.postalCodeErrorMessage,
-                                //map birthday error message from api here
+                                birthdayError = if (result.birthdayErrorMessage.isBlank()){
+                                    Pair(false, InputValidationError.None)
+                                } else {
+                                    Pair(true, InputValidationError.Custom(result.birthdayErrorMessage))
+                                }
                             )
                         }
                     }
@@ -316,6 +320,7 @@ class EditProfileViewModel @Inject constructor(
             cityErrorMessage = "",
             stateErrorMessage = "",
             postalCodeErrorMessage = "",
+            birthdayError = Pair(false, InputValidationError.None)
         )
 
     private fun validInput(userProfileEntity: UserProfileEntity): Boolean {

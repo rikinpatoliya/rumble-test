@@ -448,10 +448,7 @@ private fun EditProfileContent(
 
         RumbleInputSelectorFieldView(
             label = stringResource(id = R.string.birthday).uppercase(),
-            labelColor = enforcedWhite,
-            backgroundColor = enforcedGray900,
-            textColor = enforcedWhite,
-            errorMessageColor = enforcedBone,
+            labelColor = MaterialTheme.colors.primary,
             value = if (state.userProfileEntity.birthday == null) "" else state.userProfileEntity.birthday?.toUtcLong()
                 ?.convertToDate(
                     pattern = BIRTHDAY_DATE_PATTERN, useUtc = true
@@ -462,6 +459,7 @@ private fun EditProfileContent(
                 InputValidationError.MinCharacters -> stringResource(
                     id = R.string.birthday_at_least_17_error_message
                 )
+                is InputValidationError.Custom -> (state.birthdayError.second as InputValidationError.Custom).message
 
                 else -> ""
             }
@@ -478,10 +476,8 @@ private fun EditProfileContent(
             modifier = Modifier.fillMaxWidth(),
             placeHolder = stringResource(id = R.string.select_gender),
             label = stringResource(id = R.string.gender),
-            backgroundColor = enforcedGray900,
-            textColor = enforcedWhite,
-            iconTint = enforcedWhite,
-            labelColor = enforcedWhite,
+            labelColor = MaterialTheme.colors.primary,
+            backgroundColor = MaterialTheme.colors.onSurface,
             initialValue = buildGenderInitialSelection(gender = state.gender),
             items = listOf(
                 MenuSelectionItem(
