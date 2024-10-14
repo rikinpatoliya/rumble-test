@@ -73,8 +73,7 @@ data class UserProfileUIState(
     val birthdayError: Pair<Boolean, InputValidationError> = Pair(
         false,
         InputValidationError.None
-    ),
-    val gender: Gender = Gender.Unspecified
+    )
 )
 
 sealed class EditProfileVmEvent {
@@ -306,7 +305,7 @@ class EditProfileViewModel @Inject constructor(
             gender = gender
         )
         uiState.update {
-            it.copy(gender = gender)
+            it.copy(userProfileEntity = userProfileEntity)
         }
     }
 

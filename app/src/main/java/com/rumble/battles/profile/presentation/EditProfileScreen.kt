@@ -79,10 +79,9 @@ import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.theme.RumbleTypography
-import com.rumble.theme.enforcedBone
-import com.rumble.theme.enforcedGray900
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageXXLarge
+import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXSmall
@@ -102,6 +101,7 @@ import kotlinx.coroutines.launch
 
 const val NEW_IMAGE_URI_KEY = "newImageUri"
 private const val TAG = "EditProfileScreen"
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EditProfileScreen(
@@ -222,7 +222,10 @@ fun EditProfileScreen(
             RumbleProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
-    RumbleSnackbarHost(snackBarHostState = snackBarHostState)
+    RumbleSnackbarHost(
+        snackBarHostState = snackBarHostState,
+        modifier = Modifier.padding(bottom = paddingGiant)
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -459,6 +462,7 @@ private fun EditProfileContent(
                 InputValidationError.MinCharacters -> stringResource(
                     id = R.string.birthday_at_least_17_error_message
                 )
+
                 is InputValidationError.Custom -> (state.birthdayError.second as InputValidationError.Custom).message
 
                 else -> ""
@@ -478,7 +482,7 @@ private fun EditProfileContent(
             label = stringResource(id = R.string.gender),
             labelColor = MaterialTheme.colors.primary,
             backgroundColor = MaterialTheme.colors.onSurface,
-            initialValue = buildGenderInitialSelection(gender = state.gender),
+            initialValue = buildGenderInitialSelection(gender = state.userProfileEntity.gender),
             items = listOf(
                 MenuSelectionItem(
                     text = stringResource(id = R.string.gender_male),
