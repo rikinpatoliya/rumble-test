@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -62,6 +63,7 @@ import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
+import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.domain.domainmodel.PlaybackInFeedsMode
 import com.rumble.domain.settings.domain.domainmodel.UploadQuality
 import com.rumble.theme.RumbleTypography
@@ -398,7 +400,7 @@ private fun DebugSection(
 ) {
     val disableAds by settingsHandler.disableAdsFlow.collectAsStateWithLifecycle(initialValue = false)
     val forceAds by settingsHandler.forceAdsFlow.collectAsStateWithLifecycle(initialValue = false)
-    val playDebugAd by settingsHandler.playDebugAdFlow.collectAsStateWithLifecycle(initialValue = false)
+    val debugAdType by settingsHandler.debugAdTypeFlow.collectAsStateWithLifecycle(initialValue = DebugAdType.REAL_AD)
 
     Text(
         modifier = modifier
@@ -494,13 +496,23 @@ private fun DebugSection(
             enabled = disableAds.not(),
         )
 
-        ToggleRowView(
-            text = stringResource(id = R.string.always_play_debug_ad),
-            textStyle = RumbleTypography.body1,
-            checked = playDebugAd,
+        RowItemWithArrowView(
+            modifier = Modifier
+                .run {
+                    if (disableAds.not()) {
+                        clickable { onNavigate(RumbleScreens.DebugAdSettings.rootName) }
+                    } else {
+                        this
+                    }
+                }
+                .alpha(if (disableAds.not()) 1F else 0.5F),
+            text = stringResource(id = R.string.ad_settings_title),
+            label = when (debugAdType) {
+                DebugAdType.REAL_AD -> stringResource(id = R.string.play_real_ads)
+                DebugAdType.DEBUG_AD -> stringResource(id = R.string.play_debug_ad)
+                DebugAdType.CUSTOM_AD_TAG -> stringResource(id = R.string.play_custom_ad_tag)
+            },
             addSeparator = true,
-            onCheckedChange = settingsHandler::onPlayDebugAd,
-            enabled = disableAds.not(),
         )
     }
 

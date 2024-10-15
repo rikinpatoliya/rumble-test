@@ -24,6 +24,7 @@ sealed class RumbleScreens(val rootName: String) {
     object ChangeEmail : RumbleScreens("changeEmail")
     object ChangePassword : RumbleScreens("changePassword")
     object ChangeSubdomain : RumbleScreens("changeSubdomain")
+    object DebugAdSettings : RumbleScreens("debugAdSettings")
     object CloseAccount : RumbleScreens("closeAccount")
     object UploadQuality : RumbleScreens("uploadQuality")
     object RecommendedChannelsScreen : RumbleScreens("recommendedChannelsScreen")

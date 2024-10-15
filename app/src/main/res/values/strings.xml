@@ -192,6 +192,15 @@
     <string name="app_appearance">App appearance</string>
     <string name="autoplay">Autoplay</string>
 
+    <!-- Ad Settings -->
+    <string name="ad_settings_title">Ads</string>
+    <string name="ad_tag">Ad tag</string>
+    <string name="play_real_ads">Play real ads</string>
+    <string name="play_debug_ad">Play debug ad</string>
+    <string name="play_custom_ad_tag">Play custom ad tag</string>
+    <string name="ad_settings_updated">Ad settings updated</string>
+    <string name="ad_tag_required">Ad tag required</string>
+
     <!-- Edit Profile -->
     <string name="edit_profile">Edit Profile</string>
     <string name="name">Name</string>

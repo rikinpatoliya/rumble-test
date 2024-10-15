@@ -7,7 +7,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
@@ -47,7 +49,8 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
     private val lastNewVersionDisplayTimeStampKey = longPreferencesKey("lastNewVersionDisplayTimeStampKey")
     private val disableAdsKey = booleanPreferencesKey("disableAdsKey")
     private val forceAdsKey = booleanPreferencesKey("forceAdsKey")
-    private val playDebugAdKey = booleanPreferencesKey("playDebugAdKey")
+    private val debugAdTypeKey = intPreferencesKey("debugAdTypeKey")
+    private val customAdTagKey = stringPreferencesKey("customAdTagKey")
 
     val backgroundPlayFlow: Flow<BackgroundPlay> = context.dataStore.data
         .map { prefs ->
@@ -187,12 +190,22 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
         Timber.tag(TAG).e(it)
         emit(value = false)
     }
-    val playDebugAdFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[playDebugAdKey] ?: false
-    }.catch {
-        Timber.tag(TAG).e(it)
-        emit(value = false)
-    }
+    val debugAdTypeFlow: Flow<DebugAdType> = context.dataStore.data
+        .map { prefs ->
+            val intValue: Int = prefs[debugAdTypeKey] ?: DebugAdType.REAL_AD.value
+            DebugAdType.getByValue(intValue)
+        }
+        .catch {
+            Timber.tag(TAG).e(it)
+            emit(DebugAdType.getByValue(DebugAdType.REAL_AD.value))
+        }
+    val customAdTagFlow: Flow<String> = context.dataStore.data.map { prefs ->
+            prefs[customAdTagKey] ?: ""
+        }
+        .catch {
+            Timber.tag(TAG).e(it)
+            emit("")
+        }
 
     suspend fun saveBackgroundPlay(backgroundPlay: BackgroundPlay) {
         try {
@@ -370,7 +383,7 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
                 prefs[disableAdsKey] = useDebugMode
                 if (useDebugMode) {
                     prefs[forceAdsKey] = false
-                    prefs[playDebugAdKey] = false
+                    prefs[debugAdTypeKey] = DebugAdType.REAL_AD.value
                 }
             }
         } catch (e: Exception) {
@@ -388,10 +401,20 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
         }
     }
 
-    suspend fun savePlayDebugAd(playDebugAd: Boolean) {
+    suspend fun saveAdType(debugAdType: DebugAdType) {
         try {
             context.dataStore.edit { prefs ->
-                prefs[playDebugAdKey] = playDebugAd
+                prefs[debugAdTypeKey] = debugAdType.value
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveCustomAdTag(customAdTag: String) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[customAdTagKey] = customAdTag
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)
