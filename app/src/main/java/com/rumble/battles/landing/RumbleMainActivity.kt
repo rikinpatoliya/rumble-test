@@ -13,6 +13,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,9 +32,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.navArgument
 import com.google.android.gms.common.util.DeviceProperties
+import com.rumble.battles.R
 import com.rumble.battles.commonViews.RumbleWebView
+import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
+import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.ContentScreen
 import com.rumble.battles.content.presentation.ContentViewModel
+import com.rumble.battles.login.presentation.AgeVerificationScreen
+import com.rumble.battles.login.presentation.AgeVerificationViewModel
 import com.rumble.battles.login.presentation.AuthLandingScreen
 import com.rumble.battles.login.presentation.AuthViewModel
 import com.rumble.battles.login.presentation.LoginScreen
@@ -44,25 +50,19 @@ import com.rumble.battles.login.presentation.RegisterScreen
 import com.rumble.battles.login.presentation.RegisterViewModel
 import com.rumble.battles.navigation.LandingPath
 import com.rumble.battles.navigation.LandingScreens
-import com.rumble.battles.network.BuildConfig
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.notifications.domain.domainmodel.KEY_NOTIFICATION_VIDEO_DETAILS
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
 import com.rumble.domain.timerange.model.TimeRangeService
-import com.rumble.network.Environment
 import com.rumble.network.connection.ConnectivityError
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.videoplayer.player.RumblePlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -79,22 +79,18 @@ class RumbleMainActivity : FragmentActivity() {
 
     private val viewModel: RumbleActivityViewModel by viewModels()
     private lateinit var session: MediaSessionCompat
-    private lateinit var orientationChangeHandler: RumbleOrientationChangeHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (DeviceProperties.isTablet(resources)) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
         initGeneralErrorHandler()
         initializePlayService(savedInstanceState)
         initializeTimeRangeService(savedInstanceState)
         initializeMediaSession()
-        initOrientationChangeHandler()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         handleNotifications(intent.extras)
-        if (BuildConfig.ENVIRONMENT == Environment.QA
-            || BuildConfig.ENVIRONMENT == Environment.DEV
-        ) {
-            handleLaunchAttributesForTesting(intent.extras)
-        }
 
         setContent {
             val colorMode by viewModel.colorMode.collectAsStateWithLifecycle(initialValue = ColorMode.SYSTEM_DEFAULT)
@@ -131,13 +127,11 @@ class RumbleMainActivity : FragmentActivity() {
     override fun onPause() {
         viewModel.onAppPaused()
         viewModel.currentPlayer?.hideControls()
-        orientationChangeHandler.disable()
         super.onPause()
     }
 
     override fun onResume() {
         viewModel.currentPlayer?.enableControls()
-        orientationChangeHandler.enable()
         super.onResume()
     }
 
@@ -152,24 +146,12 @@ class RumbleMainActivity : FragmentActivity() {
         else viewModel.currentPlayer?.hideControls()
     }
 
-    private fun initOrientationChangeHandler() {
-        orientationChangeHandler = RumbleOrientationChangeHandler(this) {
-            if (viewModel.dynamicOrientationChangeDisabled
-                and DeviceProperties.isTablet(resources)
-                and (requestedOrientation != it)
-                and viewModel.sensorBasedOrientationChangeEnabled
-            ) {
-                Timber.d("requestedOrientation:$it")
-                this.requestedOrientation = it
-            }
-        }
-    }
-
     @SuppressLint("SourceLockedOrientationActivity")
     @Composable
     private fun RumbleApp() {
         val navController = rememberNavController()
         val navGraph = remember { createNavigationGraph(navController) }
+        val snackBarHostState = remember { SnackbarHostState() }
 
         LaunchedEffect(viewModel.eventFlow) {
             viewModel.eventFlow.collect {
@@ -187,6 +169,18 @@ class RumbleMainActivity : FragmentActivity() {
                         )
                     }
 
+                    is RumbleEvent.CloseApp -> {
+                        finish()
+                    }
+
+                    is RumbleEvent.ShowSnackbar -> {
+                        snackBarHostState.showRumbleSnackbar(
+                            message = it.message,
+                            title = it.title,
+                            duration = it.duration
+                        )
+                    }
+
                     else -> {}
                 }
 
@@ -196,6 +190,8 @@ class RumbleMainActivity : FragmentActivity() {
         NavHost(navController = navController, graph = navGraph)
         viewModel.startObserveCookies()
         viewModel.initLogging()
+
+        RumbleSnackbarHost(snackBarHostState)
     }
 
     private fun createNavigationGraph(navController: NavController) =
@@ -281,6 +277,9 @@ class RumbleMainActivity : FragmentActivity() {
                     onNavigateBack = {
                         navController.navigateUp()
                     },
+                    onNavigateToAgeVerification = {
+                        navController.navigate(LandingScreens.AgeVerificationScreen.getPath())
+                    },
                     onNavigateToWebView = {
                         navController.navigate(
                             LandingScreens.RumbleWebViewScreen.getPath(
@@ -309,6 +308,9 @@ class RumbleMainActivity : FragmentActivity() {
                     onNavigateBack = {
                         navController.navigateUp()
                     },
+                    onNavigateToAgeVerification = {
+                        navController.navigate(LandingScreens.AgeVerificationScreen.getPath())
+                    },
                     onNavigateToWebView = {
                         navController.navigate(
                             LandingScreens.RumbleWebViewScreen.getPath(
@@ -323,6 +325,36 @@ class RumbleMainActivity : FragmentActivity() {
                 PasswordResetScreen(
                     passwordResetHandler = viewModel,
                     onBack = navController::navigateUp,
+                )
+            }
+            composable(
+                LandingScreens.AgeVerificationScreen.screenName,
+                arguments = listOf(navArgument(LandingPath.ON_START.path) { defaultValue = false })
+            ) {
+                val ageVerificationViewModel: AgeVerificationViewModel = hiltViewModel()
+                AgeVerificationScreen(
+                    ageVerificationHandler = ageVerificationViewModel,
+                    activityHandler = viewModel,
+                    onNavigateToHomeScreen = {
+                        navController.navigate(LandingScreens.ContentScreen.screenName) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onNavigateBack = {
+                        navController.popBackStack(
+                            LandingScreens.LoginScreen.getPath(false),
+                            inclusive = true
+                        )
+                    },
+                    onNavigateToWebView = {
+                        navController.navigate(
+                            LandingScreens.RumbleWebViewScreen.getPath(
+                                it
+                            )
+                        )
+                    }
                 )
             }
         }
@@ -347,16 +379,6 @@ class RumbleMainActivity : FragmentActivity() {
             viewModel.getVideoDetails(notificationData)
         } else {
             viewModel.enableContentLoad()
-        }
-        bundle?.clear()
-    }
-
-    private fun handleLaunchAttributesForTesting(bundle: Bundle?) {
-        val uitFlag: Any? = bundle?.get(TESTING_LAUNCH_UIT_FLAG)
-        if (uitFlag != null) {
-            val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)
-            val uitPassword: String? = bundle.getString(TESTING_LAUNCH_UIT_PASSWORD)
-            viewModel.onPrepareAppForTesting(uitUserName, uitPassword)
         }
         bundle?.clear()
     }

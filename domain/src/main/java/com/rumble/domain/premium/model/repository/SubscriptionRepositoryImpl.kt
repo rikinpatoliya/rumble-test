@@ -5,6 +5,7 @@ import com.rumble.domain.premium.domain.domainmodel.SubscriptionResult
 import com.rumble.domain.premium.model.datasource.SubscriptionRemoteDataSource
 import com.rumble.network.dto.supscription.SubscriptionBody
 import com.rumble.network.dto.supscription.SubscriptionBodyData
+import com.rumble.network.queryHelpers.SubscriptionSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -21,6 +22,7 @@ class SubscriptionRepositoryImpl(
         appId: String,
         appsFlyerId: String,
         videoId: Long?,
+        source: SubscriptionSource?,
     ): SubscriptionResult = withContext(dispatcher) {
         val bodyData = SubscriptionBodyData(
             productId = productId,
@@ -28,6 +30,7 @@ class SubscriptionRepositoryImpl(
             packageName = appId,
             installationId = appsFlyerId,
             videoId = videoId,
+            source = source?.value
         )
         val response = subscriptionRemoteDataSource.purchasePremiumSubscription(SubscriptionBody(data = bodyData))
         if (response.isSuccessful) {

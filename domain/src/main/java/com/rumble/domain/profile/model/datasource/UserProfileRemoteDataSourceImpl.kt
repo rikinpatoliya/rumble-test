@@ -3,8 +3,8 @@ package com.rumble.domain.profile.model.datasource
 import android.net.Uri
 import androidx.paging.Pager
 import androidx.paging.PagingData
-import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.common.model.RumbleError
+import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.feed.model.getUserProfileEntity
 import com.rumble.domain.profile.domainmodel.ProfileNotificationEntity
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
@@ -44,6 +44,10 @@ class UserProfileRemoteDataSourceImpl(
                 .add("city", userProfileEntity.city)
                 .add("stateprov", userProfileEntity.state)
                 .add("postalcode", userProfileEntity.postalCode)
+                .add("birthday_year", userProfileEntity.birthday?.year?.toString() ?: "")
+                .add("birthday_month", userProfileEntity.birthday?.monthValue?.toString() ?: "")
+                .add("birthday_day", userProfileEntity.birthday?.dayOfMonth?.toString() ?: "")
+                .add("gender", userProfileEntity.gender.requestValue)
                 .add("countryID", userProfileEntity.country.countryID.toString())
                 .apply {
                     if (userProfileEntity.paypalEmail.isNotEmpty())
@@ -64,6 +68,7 @@ class UserProfileRemoteDataSourceImpl(
                     fullNameErrorMessage = body.fullNameErrorMessage ?: "",
                     cityErrorMessage = body.cityErrorMessage ?: "",
                     stateErrorMessage = body.stateErrorMessage ?: "",
+                    birthdayErrorMessage = body.birthdayErrorMessage ?: "",
                     postalCodeErrorMessage = body.postalCodeErrorMessage ?: ""
                 )
             }

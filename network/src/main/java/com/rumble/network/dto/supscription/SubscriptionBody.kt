@@ -20,4 +20,6 @@ data class SubscriptionBodyData(
     val installationId: String,
     @SerializedName("video_id")
     val videoId: Long?,
+    @SerializedName("source")
+    val source: String?
 )

@@ -18,6 +18,8 @@ data class UpdateProfileResponse(
     val cityErrorMessage: String?,
     @SerializedName("stateprov")
     val stateErrorMessage: String?,
+    @SerializedName("birthday")
+    val birthdayErrorMessage:String?,
     @SerializedName("postalcode")
     val postalCodeErrorMessage: String?,
 )

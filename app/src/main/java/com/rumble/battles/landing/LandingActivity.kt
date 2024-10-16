@@ -1,6 +1,7 @@
 package com.rumble.battles.landing
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,11 +28,16 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.common.util.DeviceProperties
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.DarkModeBackground
+import com.rumble.battles.network.BuildConfig
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
+import com.rumble.network.Environment
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.RumbleConstants.SPLASH_DELAY
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.utils.extension.conditional
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -43,13 +49,13 @@ class LandingActivity : ComponentActivity() {
 
     private val viewModel: LandingViewModel by viewModels()
 
-    private lateinit var orientationChangeHandler: RumbleOrientationChangeHandler
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        initOrientationChangeHandler()
+        if (DeviceProperties.isTablet(resources)) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
 
         setContent {
             val colorMode by viewModel.colorMode.collectAsStateWithLifecycle(initialValue = ColorMode.SYSTEM_DEFAULT)
@@ -64,26 +70,6 @@ class LandingActivity : ComponentActivity() {
         navigateToMain()
     }
 
-    override fun onPause() {
-        orientationChangeHandler.disable()
-        super.onPause()
-    }
-
-    override fun onResume() {
-        orientationChangeHandler.enable()
-        super.onResume()
-    }
-
-    private fun initOrientationChangeHandler() {
-        orientationChangeHandler = RumbleOrientationChangeHandler(this) {
-            if (DeviceProperties.isTablet(resources)
-                and (requestedOrientation != it)
-                and viewModel.sensorBasedOrientationChangeEnabled
-            ) {
-                this.requestedOrientation = it
-            }
-        }
-    }
 
     @Composable
     @Preview(showSystemUi = true)
@@ -104,6 +90,11 @@ class LandingActivity : ComponentActivity() {
 
     private fun navigateToMain() {
         lifecycleScope.launch {
+            if (BuildConfig.ENVIRONMENT == Environment.QA
+                || BuildConfig.ENVIRONMENT == Environment.DEV
+            ) {
+                handleLaunchAttributesForTesting(intent.extras)
+            }
             val shouldLogin = viewModel.shouldLogin()
             delay(SPLASH_DELAY)
             startActivity(Intent(this@LandingActivity, RumbleMainActivity::class.java).apply {
@@ -114,5 +105,15 @@ class LandingActivity : ComponentActivity() {
             })
             finish()
         }
+    }
+
+    private fun handleLaunchAttributesForTesting(bundle: Bundle?) {
+        val uitFlag: Any? = bundle?.get(TESTING_LAUNCH_UIT_FLAG)
+        if (uitFlag != null) {
+            val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)
+            val uitPassword: String? = bundle.getString(TESTING_LAUNCH_UIT_PASSWORD)
+            viewModel.onPrepareAppForTesting(uitUserName, uitPassword)
+        }
+        bundle?.clear()
     }
 }

@@ -93,7 +93,7 @@ class SettingsViewModel @Inject constructor(
 
     override fun onDisplayDebugAdChanged(displayDebugAd: Boolean) {
         viewModelScope.launch {
-            userPreferenceManager.saveAdType(if (displayDebugAd) DebugAdType.DEBUG_AD else DebugAdType.REAL_AD)
+            userPreferenceManager.saveDebugAdType(if (displayDebugAd) DebugAdType.DEBUG_AD else DebugAdType.REAL_AD)
         }
     }
 }

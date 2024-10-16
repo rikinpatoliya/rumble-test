@@ -118,7 +118,7 @@ class DebugAdSettingsViewModel @Inject constructor(
                 )
             }
             viewModelScope.launch(errorHandler) {
-                userPreferenceManager.saveAdType(debugAdType)
+                userPreferenceManager.saveDebugAdType(debugAdType)
                 if (debugAdType == DebugAdType.CUSTOM_AD_TAG) {
                     userPreferenceManager.saveCustomAdTag(customAdTag)
                 }

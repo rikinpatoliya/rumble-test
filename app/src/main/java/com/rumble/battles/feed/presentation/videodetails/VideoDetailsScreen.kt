@@ -136,6 +136,7 @@ import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
+import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h4
@@ -266,11 +267,11 @@ fun VideoDetailsScreen(
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        activityHandler.dynamicOrientationChangeDisabled = false
         onDispose {
-            activityHandler.onPauseVideo()
+            if (state.layoutState != CollapsableLayoutState.COLLAPSED) {
+                activityHandler.onPauseVideo()
+            }
             lifecycleOwner.lifecycle.removeObserver(observer)
-            activityHandler.dynamicOrientationChangeDisabled = true
             activityHandler.disableDynamicOrientationChangeBasedOnDeviceType()
         }
     }
@@ -312,7 +313,6 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.NavigateBack -> {
-                    activityHandler.dynamicOrientationChangeDisabled = true
                     contentHandler.onCloseVideoDetails()
                     collapsed = false
                 }
@@ -361,7 +361,7 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    contentHandler.onShowPremiumPromo(state.videoEntity?.id)
+                    contentHandler.onShowPremiumPromo(state.videoEntity?.id, SubscriptionSource.Video)
                 }
 
                 is VideoDetailsEvent.OpenMuteMenu -> {
@@ -373,7 +373,7 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.OpenPremiumSubscriptionOptions -> {
-                    contentHandler.onShowSubscriptionOptions(state.videoEntity?.id)
+                    contentHandler.onShowSubscriptionOptions(state.videoEntity?.id, SubscriptionSource.Video)
                 }
 
                 is VideoDetailsEvent.SetOrientation -> {
@@ -636,7 +636,7 @@ fun VideoDetailsView(
                     url = state.videoEntity?.videoThumbnail ?: "",
                     onBack = { handler.onBack() },
                     onSubscribeNow = {
-                        contentHandler.onShowSubscriptionOptions(state.videoEntity?.id)
+                        contentHandler.onShowSubscriptionOptions(state.videoEntity?.id, SubscriptionSource.Video)
                     }
                 )
             } else {
@@ -1062,7 +1062,7 @@ private fun VideoPlayerView(
             RumbleVideoView(
                 modifier = Modifier.fillMaxSize(),
                 rumblePlayer = rumblePlayer,
-                aspectRatioMode = AspectRatioFrameLayout.RESIZE_MODE_FILL,
+                aspectRatioMode = if (rumblePlayer.playerTarget.value == PlayerTarget.AD) AspectRatioFrameLayout.RESIZE_MODE_FIT else AspectRatioFrameLayout.RESIZE_MODE_FILL,
                 uiType = uiType,
                 isFullScreen = fullScreen,
                 onChangeFullscreenMode = {
