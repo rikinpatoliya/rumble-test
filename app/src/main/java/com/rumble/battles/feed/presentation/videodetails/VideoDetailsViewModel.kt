@@ -362,7 +362,10 @@ class VideoDetailsViewModel @Inject constructor(
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
         } else {
             state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
-            emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+            if (deviceType != DeviceType.Tablet) {
+                state.value = state.value.copy(screenOrientationLocked = false)
+                emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+            }
         }
     }
 

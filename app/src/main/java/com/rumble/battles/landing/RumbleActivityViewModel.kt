@@ -17,7 +17,6 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetai
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.domain.usecase.GetSensorBasedOrientationChangeEnabledUseCase
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
 import com.rumble.domain.landing.usecases.PipIsAvailableUseCase
 import com.rumble.domain.landing.usecases.SilentLoginUseCase
@@ -31,7 +30,6 @@ import com.rumble.domain.profile.domain.GetUserHasUnreadNotificationsUseCase
 import com.rumble.domain.profile.domain.SignOutUseCase
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
-import com.rumble.domain.settings.domain.usecase.PrepareAppForTestingUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GenerateViewerIdUseCase
 import com.rumble.network.session.SessionManager
@@ -62,12 +60,9 @@ interface RumbleActivityHandler {
     val alertDialogState: State<AlertDialogState>
     val activityHandlerState: StateFlow<ActivityHandlerState>
     var currentPlayer: RumblePlayer?
-    var dynamicOrientationChangeDisabled: Boolean
-    val sensorBasedOrientationChangeEnabled: Boolean
     val colorMode: Flow<ColorMode>
     val isLaunchedFromNotification: Boolean
 
-    fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
     fun onAppLaunchedFromNotification()
     suspend fun pipIsAvailable(packageManager: PackageManager): Boolean
     suspend fun backgroundSoundIsAvailable(): Boolean
@@ -132,9 +127,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val pipIsAvailableUseCase: PipIsAvailableUseCase,
     private val updateMediaSessionUseCase: UpdateMediaSessionUseCase,
     private val initProductionLoggingUseCase: InitProductionLoggingUseCase,
-    private val getSensorBasedOrientationChangeEnabledUseCase: GetSensorBasedOrientationChangeEnabledUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
-    private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
@@ -151,9 +144,6 @@ class RumbleActivityViewModel @Inject constructor(
             field = value
             field?.targetChangeListener = this
         }
-    override var dynamicOrientationChangeDisabled: Boolean = true
-    override val sensorBasedOrientationChangeEnabled: Boolean
-        get() = getSensorBasedOrientationChangeEnabledUseCase()
 
     private var mediaSession: MediaSessionCompat? = null
     private var notificationGuid: String = ""
@@ -172,15 +162,6 @@ class RumbleActivityViewModel @Inject constructor(
     override fun onPlayerTargetChanged(currentTarget: PlayerTarget) {
         mediaSession?.let {
             updateMediaSessionUseCase(it, currentPlayer, currentTarget != PlayerTarget.AD)
-        }
-    }
-
-    override fun onPrepareAppForTesting(
-        uitUserName: String?,
-        uitPassword: String?
-    ) {
-        viewModelScope.launch(errorHandler) {
-            prepareAppForTestingUseCase(uitUserName, uitPassword)
         }
     }
 

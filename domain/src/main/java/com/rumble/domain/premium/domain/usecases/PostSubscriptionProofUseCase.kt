@@ -8,6 +8,7 @@ import com.rumble.domain.premium.domain.domainmodel.PremiumSubscription
 import com.rumble.domain.premium.domain.domainmodel.SubscriptionResult
 import com.rumble.domain.premium.model.repository.SubscriptionRepository
 import com.rumble.network.di.AppId
+import com.rumble.network.queryHelpers.SubscriptionSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -18,13 +19,18 @@ class PostSubscriptionProofUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : RumbleUseCase {
 
-    suspend operator fun invoke(purchaseToken: String, videoId: Long?): SubscriptionResult {
+    suspend operator fun invoke(
+        purchaseToken: String,
+        videoId: Long?,
+        source: SubscriptionSource?
+    ): SubscriptionResult {
         val result = subscriptionRepository.purchaseSubscription(
             appId = appId,
             productId = PremiumSubscription.SUBSCRIPTION_ID,
             purchaseToken = purchaseToken,
             appsFlyerId = AppsFlyerLib.getInstance().getAppsFlyerUID(context) ?: "",
             videoId = videoId,
+            source = source,
         )
         if (result is SubscriptionResult.Failure) {
             rumbleErrorUseCase(result.rumbleError)

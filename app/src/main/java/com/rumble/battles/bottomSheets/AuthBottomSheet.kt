@@ -84,6 +84,10 @@ fun AuthBottomSheet(
                     )
                 }
 
+                is AuthHandlerEvent.NavigateToHomeScreen -> {
+                    onClose()
+                }
+
                 is AuthHandlerEvent.Error -> {
                     onError(event.errorMessage)
                 }
@@ -152,7 +156,6 @@ fun AuthBottomSheet(
                     textColor = RumbleCustomTheme.colors.primary,
                     borderColor = RumbleCustomTheme.colors.primary,
                     onClick = {
-                        onClose()
                         authHandler.googleSignInClient?.signInIntent?.let {
                             googleResult.launch(it)
                         }
