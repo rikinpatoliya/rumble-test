@@ -75,7 +75,7 @@
     <string name="username_can_only_contain">Username can contain only letters, numbers and underscores</string>
     <string name="username_at_least_3_characters">Username must be at least 3 alphanumeric characters</string>
     <string name="birthday_empty_error_message">Please provide your birthday</string>
-    <string name="birthday_at_least_13_error_message">You must be at least 13 years old to use the Service</string>
+    <string name="birthday_at_least_17_error_message">You must be at least 17 years old to use the Rumble platform</string>
     <string name="why_we_ask_for_birth">Why do we ask for your date of birth?</string>
     <string name="date_of_birth_dialog_text_part_1">Rumble requests your date of birth in order to comply with its</string>
     <string name="date_of_birth_dialog_text_part_2">and applicable privacy laws. If you have any questions, please contact</string>
@@ -95,6 +95,11 @@
     <string name="select_gender">Select Gender</string>
     <string name="sign_in_to_rumble">Sign in to Rumble</string>
     <string name="sign_in_to_access">In order to unlock access to account features you need to sign in to your rumble account.</string>
+
+    <!-- age verification -->
+    <string name="age_verification_title">Verify Age</string>
+    <string name="age_verification_subtitle">In order to continue using Rumble we need to verify your birthday.</string>
+    <string name="age_verification_submit">Submit</string>
 
     <!-- Content -->
     <string name="nav_feeds">Feeds</string>
@@ -201,7 +206,7 @@
     <string name="state">State</string>
     <string name="zip_postal_code">ZIP/POSTAL CODE</string>
     <string name="country">Country</string>
-    <string name="paypal_email_address">Paypal email address</string>
+     <string name="paypal_email_address">Paypal email address</string>
     <string name="your_payouts_sent_here">Your payouts will be sent here.</string>
     <string name="please_select_your_country">Please select your country.</string>
     <string name="please_provide_valid_paypal">Please provide a valid PayPal email address.</string>

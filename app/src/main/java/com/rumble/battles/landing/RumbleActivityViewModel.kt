@@ -3,6 +3,7 @@ package com.rumble.battles.landing
 import android.app.Application
 import android.content.pm.PackageManager
 import android.support.v4.media.session.MediaSessionCompat
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,7 @@ import com.rumble.domain.landing.usecases.SilentLoginUseCase
 import com.rumble.domain.landing.usecases.TransferUserDataUseCase
 import com.rumble.domain.landing.usecases.UpdateMediaSessionUseCase
 import com.rumble.domain.logging.domain.usecase.InitProductionLoggingUseCase
+import com.rumble.domain.login.domain.usecases.GetAgeVerifiedStatusUseCase
 import com.rumble.domain.notifications.domain.domainmodel.NotificationHandlerResult
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.notifications.domain.usecases.RumbleNotificationHandlerUseCase
@@ -84,7 +86,18 @@ interface RumbleActivityHandler {
     fun enableContentLoad()
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
-    fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int)
+    fun closeApp()
+    fun showSnackbar(
+        message: String,
+        title: String? = null,
+        duration: SnackbarDuration = SnackbarDuration.Long
+    )
+
+    fun onAnnotatedTextClicked(
+        annotatedTextWithActions: AnnotatedStringWithActionsList,
+        offset: Int
+    )
+
     fun onNavigateToMyVideos()
 }
 
@@ -95,17 +108,27 @@ sealed class RumbleEvent {
     object UnexpectedError : RumbleEvent()
     object PipModeEntered : RumbleEvent()
     object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
+    object CloseApp : RumbleEvent()
     object PremiumPurchased : RumbleEvent()
     data class OpenWebView(val url: String) : RumbleEvent()
+    data class ShowSnackbar(
+        val message: String,
+        val title: String? = null,
+        val duration: SnackbarDuration = SnackbarDuration.Long
+    ) : RumbleEvent()
 }
 
 sealed class RumbleActivityAlertReason : AlertDialogReason {
     object VideoDetailsFromNotificationFailedReason : RumbleActivityAlertReason()
     object DeleteWatchHistoryConfirmationReason : RumbleActivityAlertReason()
-    data class DeletePlayListConfirmationReason(val playListId: String) : RumbleActivityAlertReason()
-    data class UnfollowConfirmationReason(val channel: ChannelDetailsEntity) : RumbleActivityAlertReason()
-    object PremiumPurchaseMade: RumbleActivityAlertReason()
-    object SubscriptionNotAvailable: RumbleActivityAlertReason()
+    data class DeletePlayListConfirmationReason(val playListId: String) :
+        RumbleActivityAlertReason()
+
+    data class UnfollowConfirmationReason(val channel: ChannelDetailsEntity) :
+        RumbleActivityAlertReason()
+
+    object PremiumPurchaseMade : RumbleActivityAlertReason()
+    object SubscriptionNotAvailable : RumbleActivityAlertReason()
 }
 
 data class ActivityHandlerState(
@@ -128,6 +151,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val updateMediaSessionUseCase: UpdateMediaSessionUseCase,
     private val initProductionLoggingUseCase: InitProductionLoggingUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
+    private val getAgeVerifiedStatusUseCase: GetAgeVerifiedStatusUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
@@ -152,6 +176,12 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
+        viewModelScope.launch {
+            val ageVerified = getAgeVerifiedStatusUseCase()
+            if (ageVerified != null && !ageVerified) {
+                signOutUseCase()
+            }
+        }
         viewModelScope.launch(errorHandler) {
             generateViewerIdUseCase()
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())
@@ -261,7 +291,11 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onEnterPipMode() {
         mediaSession?.let {
-            updateMediaSessionUseCase(it, currentPlayer, currentPlayer?.playerTarget?.value != PlayerTarget.AD)
+            updateMediaSessionUseCase(
+                it,
+                currentPlayer,
+                currentPlayer?.playerTarget?.value != PlayerTarget.AD
+            )
         }
         currentPlayer?.hideControls()
         currentPlayer?.rumbleVideoMode = RumbleVideoMode.Pip
@@ -321,7 +355,18 @@ class RumbleActivityViewModel @Inject constructor(
         emitVmEvent(RumbleEvent.OpenWebView(url))
     }
 
-    override fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int) {
+    override fun closeApp() {
+        emitVmEvent(RumbleEvent.CloseApp)
+    }
+
+    override fun showSnackbar(message: String, title: String?, duration: SnackbarDuration) {
+        emitVmEvent(RumbleEvent.ShowSnackbar(message, title, duration))
+    }
+
+    override fun onAnnotatedTextClicked(
+        annotatedTextWithActions: AnnotatedStringWithActionsList,
+        offset: Int
+    ) {
         annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
     }
 
