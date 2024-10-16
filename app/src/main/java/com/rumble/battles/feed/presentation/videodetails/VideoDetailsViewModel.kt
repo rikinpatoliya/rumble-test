@@ -202,7 +202,7 @@ data class VideoDetailsState(
     val commentsSortOrder: CommentSortOrder = CommentSortOrder.POPULAR,
     val inLiveChat: Boolean = false,
     val inComments: Boolean = false,
-    val lastBottomSheet: LastBottomSheet = LastBottomSheet.LIVECHAT,
+    val lastBottomSheet: LastBottomSheet = LastBottomSheet.NONE,
     val watchingNow: Long = 0,
     val userProfile: UserProfileEntity? = null,
     val selectedLiveChatAuthor: CommentAuthorEntity? = null,
@@ -1184,7 +1184,9 @@ class VideoDetailsViewModel @Inject constructor(
             videoEntity = null,
             layoutState = CollapsableLayoutState.NONE,
             isLoggedIn = state.value.isLoggedIn,
-            userProfile = state.value.userProfile
+            userProfile = state.value.userProfile,
+            inLiveChat = false,
+            inComments = false,
         )
         orientationEventListener.disable()
         viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(true) }
@@ -1197,16 +1199,8 @@ class VideoDetailsViewModel @Inject constructor(
         val player = initVideoPlayerSourceUseCase(
             videoId = videoEntity.id,
             saveLastPosition = saveLastPositionUseCase::invoke,
-            liveVideoReport = { _, watchingNow, status ->
-                if (status != state.value.videoEntity?.livestreamStatus?.value) {
-                    updateVideoSource(
-                        videoId = videoEntity.id,
-                        updatedRelatedVideoList = true,
-                        autoplay = false
-                    )
-                } else {
-                    state.value = state.value.copy(watchingNow = watchingNow)
-                }
+            liveVideoReport = { videoId, watchingNow, status ->
+                onLiveVideoReport(videoId, status, watchingNow)
             },
             screenId = videoDetailsScreen,
             onVideoSizeDefined = ::onVideoSizeDefined,
