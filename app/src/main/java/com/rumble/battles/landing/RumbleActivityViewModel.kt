@@ -176,12 +176,6 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
-            val ageVerified = getAgeVerifiedStatusUseCase()
-            if (ageVerified != null && !ageVerified) {
-                signOutUseCase()
-            }
-        }
         viewModelScope.launch(errorHandler) {
             generateViewerIdUseCase()
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())

@@ -47,10 +47,10 @@ class PlayerAdsHelper {
 
     fun onPreRollPlayed() {
         if (currentPreRollList.isNotEmpty()) {
-            currentPreRollList.removeFirst()
+            currentPreRollList.removeAt(0)
             currentIndex?.let {
                 if (preRollHash[currentIndex]?.isNotEmpty() == true)
-                    preRollHash[currentIndex]?.removeFirst()
+                    preRollHash[currentIndex]?.removeAt(0)
             }
         }
         if (currentPreRollList.isEmpty()) {
@@ -60,6 +60,7 @@ class PlayerAdsHelper {
 
     fun hasPreRollForPosition(position: Long, isLive: Boolean): Boolean {
         if (isLive) {
+            currentIndex = 0
             currentPreRollList = preRollHash.remove(0) ?: mutableListOf()
         } else {
             currentIndex = preRollHash.keys.find { (it - position).absoluteValue <= preRollDelta }

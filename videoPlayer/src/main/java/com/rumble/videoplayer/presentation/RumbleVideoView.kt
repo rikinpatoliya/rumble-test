@@ -172,6 +172,12 @@ fun RumbleVideoView(
                                     (it.parent as? ViewGroup)?.removeView(it)
                                 }
                             }
+                    },
+                    update = { playerView ->
+                        if (isFullScreen)
+                            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                        else
+                            playerView.resizeMode = aspectRatioMode
                     }
                 )
             }
