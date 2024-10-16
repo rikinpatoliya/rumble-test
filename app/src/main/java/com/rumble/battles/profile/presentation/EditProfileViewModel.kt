@@ -73,8 +73,7 @@ data class UserProfileUIState(
     val birthdayError: Pair<Boolean, InputValidationError> = Pair(
         false,
         InputValidationError.None
-    ),
-    val gender: Gender = Gender.Unspecified
+    )
 )
 
 sealed class EditProfileVmEvent {
@@ -275,7 +274,11 @@ class EditProfileViewModel @Inject constructor(
                                 cityErrorMessage = result.cityErrorMessage,
                                 stateErrorMessage = result.stateErrorMessage,
                                 postalCodeErrorMessage = result.postalCodeErrorMessage,
-                                //map birthday error message from api here
+                                birthdayError = if (result.birthdayErrorMessage.isBlank()){
+                                    Pair(false, InputValidationError.None)
+                                } else {
+                                    Pair(true, InputValidationError.Custom(result.birthdayErrorMessage))
+                                }
                             )
                         }
                     }
@@ -302,7 +305,7 @@ class EditProfileViewModel @Inject constructor(
             gender = gender
         )
         uiState.update {
-            it.copy(gender = gender)
+            it.copy(userProfileEntity = userProfileEntity)
         }
     }
 
@@ -316,6 +319,7 @@ class EditProfileViewModel @Inject constructor(
             cityErrorMessage = "",
             stateErrorMessage = "",
             postalCodeErrorMessage = "",
+            birthdayError = Pair(false, InputValidationError.None)
         )
 
     private fun validInput(userProfileEntity: UserProfileEntity): Boolean {
