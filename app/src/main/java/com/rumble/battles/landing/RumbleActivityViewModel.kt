@@ -139,7 +139,6 @@ class RumbleActivityViewModel @Inject constructor(
     private val updateMediaSessionUseCase: UpdateMediaSessionUseCase,
     private val initProductionLoggingUseCase: InitProductionLoggingUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
-    private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
     private val getAgeVerifiedStatusUseCase: GetAgeVerifiedStatusUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     application: Application,
