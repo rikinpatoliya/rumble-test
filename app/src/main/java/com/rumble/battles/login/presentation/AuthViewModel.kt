@@ -27,6 +27,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,6 +46,7 @@ interface AuthHandler : FacebookCallback<LoginResult> {
 
 data class AuthState(
     val loading: Boolean = false,
+    val uitTesting: Boolean = false,
 )
 
 sealed class AuthHandlerEvent {
@@ -73,6 +76,14 @@ class AuthViewModel @Inject constructor(
         unhandledErrorUseCase(TAG, throwable)
         state.value = state.value.copy(loading = false)
         emitEvent(AuthHandlerEvent.Error())
+    }
+
+    init {
+        viewModelScope.launch(errorHandler) {
+            userPreferenceManager.uitTestingModeFlow.distinctUntilChanged().collectLatest {
+                state.value = state.value.copy(uitTesting = it)
+            }
+        }
     }
 
     override fun onGoogleSignIn(task: Task<GoogleSignInAccount>) {

@@ -46,25 +46,19 @@ import com.rumble.battles.login.presentation.RegisterScreen
 import com.rumble.battles.login.presentation.RegisterViewModel
 import com.rumble.battles.navigation.LandingPath
 import com.rumble.battles.navigation.LandingScreens
-import com.rumble.battles.network.BuildConfig
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.notifications.domain.domainmodel.KEY_NOTIFICATION_VIDEO_DETAILS
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
 import com.rumble.domain.timerange.model.TimeRangeService
-import com.rumble.network.Environment
 import com.rumble.network.connection.ConnectivityError
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.videoplayer.player.RumblePlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -81,22 +75,18 @@ class RumbleMainActivity : FragmentActivity() {
 
     private val viewModel: RumbleActivityViewModel by viewModels()
     private lateinit var session: MediaSessionCompat
-    private lateinit var orientationChangeHandler: RumbleOrientationChangeHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (DeviceProperties.isTablet(resources)) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
         initGeneralErrorHandler()
         initializePlayService(savedInstanceState)
         initializeTimeRangeService(savedInstanceState)
         initializeMediaSession()
-        initOrientationChangeHandler()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         handleNotifications(intent.extras)
-        if (BuildConfig.ENVIRONMENT == Environment.QA
-            || BuildConfig.ENVIRONMENT == Environment.DEV
-        ) {
-            handleLaunchAttributesForTesting(intent.extras)
-        }
 
         setContent {
             val colorMode by viewModel.colorMode.collectAsStateWithLifecycle(initialValue = ColorMode.SYSTEM_DEFAULT)
@@ -133,13 +123,11 @@ class RumbleMainActivity : FragmentActivity() {
     override fun onPause() {
         viewModel.onAppPaused()
         viewModel.currentPlayer?.hideControls()
-        orientationChangeHandler.disable()
         super.onPause()
     }
 
     override fun onResume() {
         viewModel.currentPlayer?.enableControls()
-        orientationChangeHandler.enable()
         super.onResume()
     }
 
@@ -152,19 +140,6 @@ class RumbleMainActivity : FragmentActivity() {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) viewModel.currentPlayer?.enableControls()
         else viewModel.currentPlayer?.hideControls()
-    }
-
-    private fun initOrientationChangeHandler() {
-        orientationChangeHandler = RumbleOrientationChangeHandler(this) {
-            if (viewModel.dynamicOrientationChangeDisabled
-                and DeviceProperties.isTablet(resources)
-                and (requestedOrientation != it)
-                and viewModel.sensorBasedOrientationChangeEnabled
-            ) {
-                Timber.d("requestedOrientation:$it")
-                this.requestedOrientation = it
-            }
-        }
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -389,16 +364,6 @@ class RumbleMainActivity : FragmentActivity() {
             viewModel.getVideoDetails(notificationData)
         } else {
             viewModel.enableContentLoad()
-        }
-        bundle?.clear()
-    }
-
-    private fun handleLaunchAttributesForTesting(bundle: Bundle?) {
-        val uitFlag: Any? = bundle?.get(TESTING_LAUNCH_UIT_FLAG)
-        if (uitFlag != null) {
-            val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)
-            val uitPassword: String? = bundle.getString(TESTING_LAUNCH_UIT_PASSWORD)
-            viewModel.onPrepareAppForTesting(uitUserName, uitPassword)
         }
         bundle?.clear()
     }

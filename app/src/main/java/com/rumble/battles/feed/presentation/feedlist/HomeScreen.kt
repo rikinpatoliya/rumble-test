@@ -66,6 +66,7 @@ import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
 import com.rumble.domain.feed.domain.domainmodel.channel.FeaturedChannelsFeedItem
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.premium.domain.domainmodel.PremiumBanner
+import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.theme.commentActionButtonWidth
 import com.rumble.theme.homeWidthRatio
 import com.rumble.theme.paddingLarge
@@ -344,7 +345,9 @@ fun HomeScreen(
                                         horizontal = paddingXMedium,
                                         vertical = paddingXSmall
                                     ),
-                                    onClick = contentHandler::onShowSubscriptionOptions,
+                                    onClick = {
+                                        contentHandler.onShowSubscriptionOptions(null, SubscriptionSource.Home)
+                                    },
                                     onDismiss = homeHandler::onDismissPremiumBanner
                                 )
                             }

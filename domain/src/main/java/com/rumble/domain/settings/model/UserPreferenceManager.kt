@@ -48,6 +48,7 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
     private val disableAdsKey = booleanPreferencesKey("disableAdsKey")
     private val forceAdsKey = booleanPreferencesKey("forceAdsKey")
     private val playDebugAdKey = booleanPreferencesKey("playDebugAdKey")
+    private val uitTestingModeKey = booleanPreferencesKey("uitTestingModeKey")
 
     val backgroundPlayFlow: Flow<BackgroundPlay> = context.dataStore.data
         .map { prefs ->
@@ -193,6 +194,12 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
         Timber.tag(TAG).e(it)
         emit(value = false)
     }
+    val uitTestingModeFlow: Flow<Boolean> = context.dataStore.data
+        .map { prefs -> prefs[uitTestingModeKey] ?: false }
+        .catch {
+            Timber.tag(TAG).e(it)
+            emit(false)
+        }
 
     suspend fun saveBackgroundPlay(backgroundPlay: BackgroundPlay) {
         try {
@@ -392,6 +399,16 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
         try {
             context.dataStore.edit { prefs ->
                 prefs[playDebugAdKey] = playDebugAd
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveUitTestingMode(isUitTestingMode: Boolean) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[uitTestingModeKey] = isUitTestingMode
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)

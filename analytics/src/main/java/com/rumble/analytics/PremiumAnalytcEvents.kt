@@ -2,12 +2,14 @@ package com.rumble.analytics
 
 import android.os.Bundle
 import androidx.core.os.bundleOf
+import com.rumble.network.queryHelpers.SubscriptionSource
 
 data class PremiumIAPSucceededEvent(
     private val price: Double,
     private val priceCents: String,
     private val userId: String,
     private val contentId: String?,
+    private val source: SubscriptionSource?,
 ) : AnalyticEvent {
     override val eventName: String = "Premium_IapSucceeded"
     override val firebaseOps: Bundle = bundleOf(
@@ -16,6 +18,7 @@ data class PremiumIAPSucceededEvent(
         PRICE to priceCents,
         USER_ID to userId,
         CONTENT_ID to contentId,
+        SOURCE to (source?.value ?: ""),
     )
     override val appsFlyOps: Map<String, String> = contentId?.let {
         mapOf(
@@ -24,12 +27,14 @@ data class PremiumIAPSucceededEvent(
             PRICE to priceCents,
             USER_ID to userId,
             CONTENT_ID to it,
+            SOURCE to (source?.value ?: ""),
         )
     } ?: mapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
+        SOURCE to (source?.value ?: ""),
     )
 }
 
@@ -38,6 +43,7 @@ data class PremiumMonthlyIAPSucceededEvent(
     private val priceCents: String,
     private val userId: String,
     private val contentId: String?,
+    private val source: SubscriptionSource?,
 ) : AnalyticEvent {
     override val eventName: String = "PremiumMonthly_IapSucceeded"
     override val firebaseOps: Bundle = bundleOf(
@@ -46,6 +52,7 @@ data class PremiumMonthlyIAPSucceededEvent(
         PRICE to priceCents,
         USER_ID to userId,
         CONTENT_ID to contentId,
+        SOURCE to (source?.value ?: ""),
     )
     override val appsFlyOps: Map<String, String> = contentId?.let {
         mapOf(
@@ -54,12 +61,14 @@ data class PremiumMonthlyIAPSucceededEvent(
             PRICE to priceCents,
             USER_ID to userId,
             CONTENT_ID to it,
+            SOURCE to (source?.value ?: ""),
         )
     } ?: mapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
+        SOURCE to (source?.value ?: ""),
     )
 }
 
@@ -68,6 +77,7 @@ data class PremiumAnnualIAPSucceededEvent(
     private val priceCents: String,
     private val userId: String,
     private val contentId: String?,
+    private val source: SubscriptionSource?,
 ) : AnalyticEvent {
     override val eventName: String = "PremiumAnnual_IapSucceeded"
     override val firebaseOps: Bundle = bundleOf(
@@ -76,6 +86,7 @@ data class PremiumAnnualIAPSucceededEvent(
         PRICE to priceCents,
         USER_ID to userId,
         CONTENT_ID to contentId,
+        SOURCE to (source?.value ?: ""),
     )
     override val appsFlyOps: Map<String, String> = contentId?.let {
         mapOf(
@@ -84,28 +95,30 @@ data class PremiumAnnualIAPSucceededEvent(
             PRICE to priceCents,
             USER_ID to userId,
             CONTENT_ID to it,
+            SOURCE to (source?.value ?: ""),
         )
     } ?: mapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
+        SOURCE to (source?.value ?: ""),
     )
 }
 
-object PremiumPromoViewEvent : AnalyticEvent {
+data object PremiumPromoViewEvent : AnalyticEvent {
     override val eventName: String = "PremiumPromo_View"
     override val firebaseOps: Bundle = bundleOf()
     override val appsFlyOps: Map<String, String> = emptyMap()
 }
 
-object PremiumPromoCloseEvent : AnalyticEvent {
+data object PremiumPromoCloseEvent : AnalyticEvent {
     override val eventName: String = "PremiumPromo_Close"
     override val firebaseOps: Bundle = bundleOf()
     override val appsFlyOps: Map<String, String> = emptyMap()
 }
 
-object PremiumPromoGetButtonTapEvent : AnalyticEvent {
+data object PremiumPromoGetButtonTapEvent : AnalyticEvent {
     override val eventName: String = "PremiumPromo_GetButton_Tap"
     override val firebaseOps: Bundle = bundleOf()
     override val appsFlyOps: Map<String, String> = emptyMap()
