@@ -110,6 +110,7 @@ object RumbleConstants {
     const val HTTP_PREFIX = "http://"
     const val HTTPS_PREFIX = "https://"
     const val MAX_COMMENT_FIELD_LINES = 3
+    const val HIDE_MINIPLAYER_DURATION = 50L
 
     @Language("JSON")
     val countriesList = """

@@ -6,6 +6,7 @@ import com.rumble.analytics.PremiumMonthlyIAPSucceededEvent
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscription
 import com.rumble.domain.premium.domain.domainmodel.SubscriptionType
+import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.network.session.SessionManager
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -14,7 +15,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
     private val analyticsEventUseCase: AnalyticsEventUseCase,
     private val sessionManager: SessionManager
 ) {
-    suspend operator fun invoke(subscriptionType: SubscriptionType, videoId: Long?) {
+    suspend operator fun invoke(subscriptionType: SubscriptionType, videoId: Long?, source: SubscriptionSource?) {
         val userId = sessionManager.userIdFlow.first()
         if (subscriptionType == SubscriptionType.Annually) {
             analyticsEventUseCase(
@@ -23,6 +24,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.ANNUAL_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    source,
                 ), true
             )
             analyticsEventUseCase(
@@ -31,6 +33,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.ANNUAL_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    source,
                 ), true
             )
         } else if (subscriptionType == SubscriptionType.Monthly) {
@@ -40,6 +43,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.MONTHLY_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    source,
                 ), true
             )
             analyticsEventUseCase(
@@ -48,6 +52,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.MONTHLY_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    source,
                 ), true
             )
         }

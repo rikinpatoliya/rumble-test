@@ -23,4 +23,5 @@ const val USER_ID = "user_id"
 const val PRE_ROLL_FAILED = "IMA_Failed"
 const val IAP_FAILED = "IAP_Failed"
 const val WATCHED_TIME = "ad_wt"
+const val SOURCE = "source"
 

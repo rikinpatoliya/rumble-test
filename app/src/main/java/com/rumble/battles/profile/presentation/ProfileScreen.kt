@@ -70,6 +70,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetai
 import com.rumble.domain.profile.domainmodel.AppVersionVisibility
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.uploadmanager.dto.VideoUploadsIndicatorStatus
+import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h6Light
 import com.rumble.theme.borderXXSmall
@@ -304,7 +305,9 @@ fun ProfileScreen(
                                     ),
                                 iconId = R.drawable.ic_discover,
                                 labelId = R.string.get_rumble_premium_plan,
-                                onClick = contentHandler::onShowSubscriptionOptions
+                                onClick = {
+                                    contentHandler.onShowSubscriptionOptions(videoId = null, source = SubscriptionSource.Profile)
+                                }
                             )
                         }
 
