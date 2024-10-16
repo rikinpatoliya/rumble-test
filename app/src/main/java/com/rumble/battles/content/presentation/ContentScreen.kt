@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -170,10 +171,12 @@ import com.rumble.domain.onboarding.domain.domainmodel.ShowLibraryOnboarding
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingNone
+import com.rumble.utils.RumbleConstants.HIDE_MINIPLAYER_DURATION
 import com.rumble.utils.RumbleConstants.NAV_BAR_ANIMATION_DURATION
 import com.rumble.utils.extension.navigationSafeEncode
 import com.rumble.utils.replaceUrlParameter
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -228,13 +231,14 @@ fun ContentScreen(
             }
         }
     }
-
+    val configuration = LocalConfiguration.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val observer = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_RESUME) {
             contentHandler.onContentResumed()
         }
     }
+    var enforceHideVideo by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -245,6 +249,15 @@ fun ContentScreen(
 
     BackHandler(bottomSheetState.isVisible) {
         hideBottomSheet(coroutineScope, bottomSheetState, contentHandler)
+    }
+
+    LaunchedEffect(configuration.orientation) {
+        // Workaround, we need it to update position of mini player after screen rotation on tablets.
+        if (videoDetailsState.isTablet and videoDetailsState.visible and videoDetailsState.collapsed) {
+            enforceHideVideo = true
+            delay(HIDE_MINIPLAYER_DURATION)
+            enforceHideVideo = false
+        }
     }
 
     LaunchedEffect(activityHandler.eventFlow) {
@@ -268,7 +281,7 @@ fun ContentScreen(
 
     LaunchedEffect(contentHandler.userUIState) {
         contentHandler.userUIState.collectLatest {
-            if (it.isLoggedIn) {
+            if (it.isLoggedIn && authHandler.state.value.uitTesting.not()) {
                 val permission = OneSignal.Notifications.requestPermission(false)
                 if (permission) OneSignal.User.pushSubscription.optIn()
             }
@@ -451,7 +464,8 @@ fun ContentScreen(
             bottomBar = {
                 AnimatedVisibility(
                     modifier = Modifier.systemBarsPadding(),
-                    visible = selectedTabIndex != NAV_ITEM_INDEX_CAMERA,
+                    visible = selectedTabIndex != NAV_ITEM_INDEX_CAMERA
+                        && (videoDetailsState.visible.not() || videoDetailsState.collapsed),
                     enter = slideInVertically(initialOffsetY = { it / 2 }),
                     exit = slideOutVertically(
                         targetOffsetY = { it },
@@ -529,34 +543,33 @@ fun ContentScreen(
                     }
                 }
             }
-        }
-    }
-
-    if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA) {
-        VideoDetailsScreen(
-            activityHandler = activityHandler,
-            handler = videoDetailsViewModel,
-            contentHandler = contentHandler,
-            liveChatHandler = liveChatViewModel,
-            contentBottomSheetState = bottomSheetState,
-            onChannelClick = {
-                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(it))
-            },
-            onCategoryClick = {
-                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                navControllers[selectedTabIndex].navigate(
-                    RumbleScreens.CategoryScreen.getPath(
-                        it,
-                        false
-                    )
+            if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA && enforceHideVideo.not()) {
+                VideoDetailsScreen(
+                    activityHandler = activityHandler,
+                    handler = videoDetailsViewModel,
+                    contentHandler = contentHandler,
+                    liveChatHandler = liveChatViewModel,
+                    contentBottomSheetState = bottomSheetState,
+                    onChannelClick = {
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(it))
+                    },
+                    onCategoryClick = {
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        navControllers[selectedTabIndex].navigate(
+                            RumbleScreens.CategoryScreen.getPath(
+                                it,
+                                false
+                            )
+                        )
+                    },
+                    onTagClick = {
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
+                    },
                 )
-            },
-            onTagClick = {
-                videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
-            },
-        )
+            }
+        }
     }
 
     if (activityHandler.isLaunchedFromNotification.not()) {

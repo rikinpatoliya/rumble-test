@@ -136,6 +136,7 @@ import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
+import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h4
@@ -188,8 +189,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-
-private const val TAG = "VideoDetailsScreen"
 
 @SuppressLint("SourceLockedOrientationActivity", "InlinedApi")
 @OptIn(ExperimentalMaterialApi::class)
@@ -268,11 +267,11 @@ fun VideoDetailsScreen(
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        activityHandler.dynamicOrientationChangeDisabled = false
         onDispose {
-            activityHandler.onPauseVideo()
+            if (state.layoutState != CollapsableLayoutState.COLLAPSED) {
+                activityHandler.onPauseVideo()
+            }
             lifecycleOwner.lifecycle.removeObserver(observer)
-            activityHandler.dynamicOrientationChangeDisabled = true
             activityHandler.disableDynamicOrientationChangeBasedOnDeviceType()
         }
     }
@@ -314,7 +313,6 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.NavigateBack -> {
-                    activityHandler.dynamicOrientationChangeDisabled = true
                     contentHandler.onCloseVideoDetails()
                     collapsed = false
                 }
@@ -350,7 +348,7 @@ fun VideoDetailsScreen(
 
                 is VideoDetailsEvent.InitLiveChat -> {
                     liveChatHandler.onInitLiveChat(it.videoId)
-                    if (state.hasPremiumRestriction.not() && state.inComments.not())
+                    if (state.hasPremiumRestriction.not() && state.inComments.not() && state.inLiveChat)
                         liveChatBottomSheetState.show()
                 }
 
@@ -363,7 +361,7 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    contentHandler.onShowPremiumPromo(state.videoEntity?.id)
+                    contentHandler.onShowPremiumPromo(state.videoEntity?.id, SubscriptionSource.Video)
                 }
 
                 is VideoDetailsEvent.OpenMuteMenu -> {
@@ -375,7 +373,7 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.OpenPremiumSubscriptionOptions -> {
-                    contentHandler.onShowSubscriptionOptions(state.videoEntity?.id)
+                    contentHandler.onShowSubscriptionOptions(state.videoEntity?.id, SubscriptionSource.Video)
                 }
 
                 is VideoDetailsEvent.SetOrientation -> {
@@ -465,7 +463,13 @@ fun VideoDetailsScreen(
                     MiniPlayerView(
                         modifier = Modifier.fillMaxWidth(),
                         rumblePlayer = rumblePlayer,
-                        onClose = { handler.onClearVideo() },
+                        onClose = {
+                            if (state.currentComment.isNotEmpty()) {
+                                collapsePaddingVisible = false
+                                handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
+                            }
+                            handler.onClearVideo()
+                        },
                         onClick = {
                             collapsePaddingVisible = false
                             handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
@@ -506,9 +510,6 @@ fun VideoDetailsScreen(
                                 .testTag(VideoDetails)
                         ) {
                             VideoDetailsView(
-                                modifier = Modifier.conditional(playerTarget?.value == PlayerTarget.REMOTE) {
-                                    padding(bottom = paddingXGiant)
-                                },
                                 contentPadding = contentPadding,
                                 boxMaxWidth = boxMaxWidth,
                                 boxMxHeight = boxMaxHeight,
@@ -591,7 +592,6 @@ fun VideoDetailsView(
         tween(COLLAPSE_ANIMATION_DURATION),
         label = "width"
     )
-
     Column(
         modifier = modifier
     ) {
@@ -602,6 +602,7 @@ fun VideoDetailsView(
                 if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
             val height = if (isKeyboardVisible) videoHeightReduced else {
                 if (state.isFullScreen) boxMxHeight
+                else if (state.videoEntity?.portraitMode == true) boxMaxWidth
                 else width / 16 * 9
             }
 
@@ -635,7 +636,7 @@ fun VideoDetailsView(
                     url = state.videoEntity?.videoThumbnail ?: "",
                     onBack = { handler.onBack() },
                     onSubscribeNow = {
-                        contentHandler.onShowSubscriptionOptions(state.videoEntity?.id)
+                        contentHandler.onShowSubscriptionOptions(state.videoEntity?.id, SubscriptionSource.Video)
                     }
                 )
             } else {
@@ -1061,7 +1062,7 @@ private fun VideoPlayerView(
             RumbleVideoView(
                 modifier = Modifier.fillMaxSize(),
                 rumblePlayer = rumblePlayer,
-                aspectRatioMode = AspectRatioFrameLayout.RESIZE_MODE_FILL,
+                aspectRatioMode = if (rumblePlayer.playerTarget.value == PlayerTarget.AD) AspectRatioFrameLayout.RESIZE_MODE_FIT else AspectRatioFrameLayout.RESIZE_MODE_FILL,
                 uiType = uiType,
                 isFullScreen = fullScreen,
                 onChangeFullscreenMode = {

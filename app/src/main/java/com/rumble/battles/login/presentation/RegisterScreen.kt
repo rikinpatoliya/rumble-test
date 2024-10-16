@@ -105,6 +105,7 @@ fun RegisterScreen(
     registerHandler: RegisterHandler,
     activityHandler: RumbleActivityHandler,
     onNavigateToHomeScreen: () -> Unit,
+    onNavigateToAgeVerification: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToWebView: (String) -> Unit,
 ) {
@@ -132,6 +133,9 @@ fun RegisterScreen(
 
                 is RegistrationScreenVmEvent.NavigateToHomeScreen -> {
                     onNavigateToHomeScreen()
+                }
+                is RegistrationScreenVmEvent.NavigateToAgeVerification -> {
+                    onNavigateToAgeVerification()
                 }
                 is RegistrationScreenVmEvent.NavigateToWebView -> {
                     onNavigateToWebView(event.url)
@@ -278,7 +282,7 @@ fun RegisterScreen(
                     errorMessage = when (state.birthdayError.second) {
                         InputValidationError.Empty -> stringResource(id = R.string.birthday_empty_error_message)
                         InputValidationError.MinCharacters -> stringResource(
-                            id = R.string.birthday_at_least_13_error_message
+                            id = R.string.birthday_at_least_17_error_message
                         )
 
                         else -> ""

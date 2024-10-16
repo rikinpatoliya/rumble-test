@@ -57,6 +57,7 @@ import com.rumble.utils.extension.convertUtcToLocal
 import com.rumble.utils.extension.toChannelIdString
 import com.rumble.utils.extension.toDate
 import com.rumble.utils.extension.toUserIdString
+import com.rumble.utils.extension.toUtcLong
 import java.time.LocalDateTime
 import kotlin.math.max
 

@@ -55,6 +55,7 @@ import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.wokeGreen
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.conditional
+import com.rumble.videoplayer.presentation.UiType
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -362,31 +363,33 @@ private fun ContentFooter(
                         onClick = { handler.onSubscribeToPremium() }
                     )
                 } else if (userProfile.validated) {
-                    AddMessageView(
-                        modifier = modifier
-                            .imePadding()
-                            .fillMaxWidth(),
-                        message = currentComment,
-                        placeHolder = stringResource(id = R.string.add_message),
-                        userName = if (state.selectedLiveChatAuthor == null) userName else state.selectedLiveChatAuthor?.title
-                            ?: "",
-                        userPicture = if (state.selectedLiveChatAuthor == null) userPicture else state.selectedLiveChatAuthor?.thumbnail
-                            ?: "",
-                        rantsEnabled = liveChatState.liveChatConfig?.rantConfig?.rantsEnabled
-                            ?: false,
-                        onChange = handler::onCommentChanged,
-                        onBuyRant = handler::onOpenBuyRantSheet,
-                        onProfileImageClick = {
-                            handler.onLiveChatThumbnailTap(
-                                liveChatState.liveChatConfig?.channels ?: emptyList()
-                            )
-                        },
-                        onSubmit = {
-                            liveChatState.liveChatConfig?.chatId?.let {
-                                handler.onPostLiveChatMessage(it)
+                    if (state.uiType == UiType.EMBEDDED) {
+                        AddMessageView(
+                            modifier = modifier
+                                .imePadding()
+                                .fillMaxWidth(),
+                            message = currentComment,
+                            placeHolder = stringResource(id = R.string.add_message),
+                            userName = if (state.selectedLiveChatAuthor == null) userName else state.selectedLiveChatAuthor?.title
+                                ?: "",
+                            userPicture = if (state.selectedLiveChatAuthor == null) userPicture else state.selectedLiveChatAuthor?.thumbnail
+                                ?: "",
+                            rantsEnabled = liveChatState.liveChatConfig?.rantConfig?.rantsEnabled
+                                ?: false,
+                            onChange = handler::onCommentChanged,
+                            onBuyRant = handler::onOpenBuyRantSheet,
+                            onProfileImageClick = {
+                                handler.onLiveChatThumbnailTap(
+                                    liveChatState.liveChatConfig?.channels ?: emptyList()
+                                )
+                            },
+                            onSubmit = {
+                                liveChatState.liveChatConfig?.chatId?.let {
+                                    handler.onPostLiveChatMessage(it)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 } else {
                     Text(
                         modifier = modifier

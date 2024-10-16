@@ -3,6 +3,7 @@ package com.rumble.battles.landing
 import android.app.Application
 import android.content.pm.PackageManager
 import android.support.v4.media.session.MediaSessionCompat
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -17,13 +18,13 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetai
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.domain.usecase.GetSensorBasedOrientationChangeEnabledUseCase
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
 import com.rumble.domain.landing.usecases.PipIsAvailableUseCase
 import com.rumble.domain.landing.usecases.SilentLoginUseCase
 import com.rumble.domain.landing.usecases.TransferUserDataUseCase
 import com.rumble.domain.landing.usecases.UpdateMediaSessionUseCase
 import com.rumble.domain.logging.domain.usecase.InitProductionLoggingUseCase
+import com.rumble.domain.login.domain.usecases.GetAgeVerifiedStatusUseCase
 import com.rumble.domain.notifications.domain.domainmodel.NotificationHandlerResult
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.notifications.domain.usecases.RumbleNotificationHandlerUseCase
@@ -31,7 +32,6 @@ import com.rumble.domain.profile.domain.GetUserHasUnreadNotificationsUseCase
 import com.rumble.domain.profile.domain.SignOutUseCase
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
-import com.rumble.domain.settings.domain.usecase.PrepareAppForTestingUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GenerateViewerIdUseCase
 import com.rumble.network.session.SessionManager
@@ -62,12 +62,9 @@ interface RumbleActivityHandler {
     val alertDialogState: State<AlertDialogState>
     val activityHandlerState: StateFlow<ActivityHandlerState>
     var currentPlayer: RumblePlayer?
-    var dynamicOrientationChangeDisabled: Boolean
-    val sensorBasedOrientationChangeEnabled: Boolean
     val colorMode: Flow<ColorMode>
     val isLaunchedFromNotification: Boolean
 
-    fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
     fun onAppLaunchedFromNotification()
     suspend fun pipIsAvailable(packageManager: PackageManager): Boolean
     suspend fun backgroundSoundIsAvailable(): Boolean
@@ -89,7 +86,18 @@ interface RumbleActivityHandler {
     fun enableContentLoad()
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
-    fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int)
+    fun closeApp()
+    fun showSnackbar(
+        message: String,
+        title: String? = null,
+        duration: SnackbarDuration = SnackbarDuration.Long
+    )
+
+    fun onAnnotatedTextClicked(
+        annotatedTextWithActions: AnnotatedStringWithActionsList,
+        offset: Int
+    )
+
     fun onNavigateToMyVideos()
 }
 
@@ -100,17 +108,27 @@ sealed class RumbleEvent {
     object UnexpectedError : RumbleEvent()
     object PipModeEntered : RumbleEvent()
     object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
+    object CloseApp : RumbleEvent()
     object PremiumPurchased : RumbleEvent()
     data class OpenWebView(val url: String) : RumbleEvent()
+    data class ShowSnackbar(
+        val message: String,
+        val title: String? = null,
+        val duration: SnackbarDuration = SnackbarDuration.Long
+    ) : RumbleEvent()
 }
 
 sealed class RumbleActivityAlertReason : AlertDialogReason {
     object VideoDetailsFromNotificationFailedReason : RumbleActivityAlertReason()
     object DeleteWatchHistoryConfirmationReason : RumbleActivityAlertReason()
-    data class DeletePlayListConfirmationReason(val playListId: String) : RumbleActivityAlertReason()
-    data class UnfollowConfirmationReason(val channel: ChannelDetailsEntity) : RumbleActivityAlertReason()
-    object PremiumPurchaseMade: RumbleActivityAlertReason()
-    object SubscriptionNotAvailable: RumbleActivityAlertReason()
+    data class DeletePlayListConfirmationReason(val playListId: String) :
+        RumbleActivityAlertReason()
+
+    data class UnfollowConfirmationReason(val channel: ChannelDetailsEntity) :
+        RumbleActivityAlertReason()
+
+    object PremiumPurchaseMade : RumbleActivityAlertReason()
+    object SubscriptionNotAvailable : RumbleActivityAlertReason()
 }
 
 data class ActivityHandlerState(
@@ -132,9 +150,8 @@ class RumbleActivityViewModel @Inject constructor(
     private val pipIsAvailableUseCase: PipIsAvailableUseCase,
     private val updateMediaSessionUseCase: UpdateMediaSessionUseCase,
     private val initProductionLoggingUseCase: InitProductionLoggingUseCase,
-    private val getSensorBasedOrientationChangeEnabledUseCase: GetSensorBasedOrientationChangeEnabledUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
-    private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
+    private val getAgeVerifiedStatusUseCase: GetAgeVerifiedStatusUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
@@ -151,9 +168,6 @@ class RumbleActivityViewModel @Inject constructor(
             field = value
             field?.targetChangeListener = this
         }
-    override var dynamicOrientationChangeDisabled: Boolean = true
-    override val sensorBasedOrientationChangeEnabled: Boolean
-        get() = getSensorBasedOrientationChangeEnabledUseCase()
 
     private var mediaSession: MediaSessionCompat? = null
     private var notificationGuid: String = ""
@@ -162,6 +176,12 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
+        viewModelScope.launch {
+            val ageVerified = getAgeVerifiedStatusUseCase()
+            if (ageVerified != null && !ageVerified) {
+                signOutUseCase()
+            }
+        }
         viewModelScope.launch(errorHandler) {
             generateViewerIdUseCase()
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())
@@ -172,15 +192,6 @@ class RumbleActivityViewModel @Inject constructor(
     override fun onPlayerTargetChanged(currentTarget: PlayerTarget) {
         mediaSession?.let {
             updateMediaSessionUseCase(it, currentPlayer, currentTarget != PlayerTarget.AD)
-        }
-    }
-
-    override fun onPrepareAppForTesting(
-        uitUserName: String?,
-        uitPassword: String?
-    ) {
-        viewModelScope.launch(errorHandler) {
-            prepareAppForTestingUseCase(uitUserName, uitPassword)
         }
     }
 
@@ -280,7 +291,11 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onEnterPipMode() {
         mediaSession?.let {
-            updateMediaSessionUseCase(it, currentPlayer, currentPlayer?.playerTarget?.value != PlayerTarget.AD)
+            updateMediaSessionUseCase(
+                it,
+                currentPlayer,
+                currentPlayer?.playerTarget?.value != PlayerTarget.AD
+            )
         }
         currentPlayer?.hideControls()
         currentPlayer?.rumbleVideoMode = RumbleVideoMode.Pip
@@ -340,7 +355,18 @@ class RumbleActivityViewModel @Inject constructor(
         emitVmEvent(RumbleEvent.OpenWebView(url))
     }
 
-    override fun onAnnotatedTextClicked(annotatedTextWithActions: AnnotatedStringWithActionsList, offset: Int) {
+    override fun closeApp() {
+        emitVmEvent(RumbleEvent.CloseApp)
+    }
+
+    override fun showSnackbar(message: String, title: String?, duration: SnackbarDuration) {
+        emitVmEvent(RumbleEvent.ShowSnackbar(message, title, duration))
+    }
+
+    override fun onAnnotatedTextClicked(
+        annotatedTextWithActions: AnnotatedStringWithActionsList,
+        offset: Int
+    ) {
         annotatedStringUseCase.invoke(annotatedTextWithActions, offset)
     }
 

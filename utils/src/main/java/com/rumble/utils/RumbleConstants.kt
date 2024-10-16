@@ -15,7 +15,7 @@ object RumbleConstants {
     const val PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS = 100
 
     const val MINIMUM_PASSWORD_LENGTH = 8
-    const val MINIMUM_AGE_REQUIREMENT = 13
+    const val MINIMUM_AGE_REQUIREMENT = 17
     const val MAX_LINES_TITLE_REGULAR_VIDEO_CARD = 2
     const val VIDEO_CARD_THUMBNAIL_ASPECT_RATION = 16f / 9f
     const val RUMBLE_AD_CARD_ASPECT_RATION = 336f / 280f
@@ -110,6 +110,7 @@ object RumbleConstants {
     const val HTTP_PREFIX = "http://"
     const val HTTPS_PREFIX = "https://"
     const val MAX_COMMENT_FIELD_LINES = 3
+    const val HIDE_MINIPLAYER_DURATION = 50L
 
     @Language("JSON")
     val countriesList = """

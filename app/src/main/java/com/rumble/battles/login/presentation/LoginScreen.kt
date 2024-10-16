@@ -102,6 +102,12 @@ fun LoginScreen(
                     }
                 }
 
+                is LoginScreenVmEvent.NavigateToAgeVerification -> {
+                    navController.navigate(LandingScreens.AgeVerificationScreen.getPath(onStart = event.onStartLogin)) {
+
+                    }
+                }
+
                 is LoginScreenVmEvent.Error -> {
                     snackBarHostState.showRumbleSnackbar(
                         message = event.errorMessage
@@ -122,7 +128,7 @@ fun LoginScreen(
 
     LaunchedEffect(Unit) {
         authHandler.eventFlow.collectLatest { event ->
-            when(event) {
+            when (event) {
                 is AuthHandlerEvent.NavigateToRegistration -> {
                     navController.navigate(
                         LandingScreens.RegisterScreen.getPath(
@@ -179,7 +185,7 @@ fun LoginScreen(
 
             BoxWithConstraints(
                 modifier = Modifier.conditional(IsTablet()) {
-                   widthIn(max = loginContentWidthTablet)
+                    widthIn(max = loginContentWidthTablet)
                 }
             ) {
                 Column(

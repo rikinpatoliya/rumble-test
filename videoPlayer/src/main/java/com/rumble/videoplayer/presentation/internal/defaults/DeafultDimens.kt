@@ -38,7 +38,7 @@ internal val nowPlayingOffsetShort = 50.dp
 internal val nowPlayingOffsetShortShrank = 60.dp
 internal val miniPlayerSeekBarHeight = 4.dp
 internal var embeddedThumbSize = 13.dp
-internal var embeddedThumbOffset = 26.dp
+internal var embeddedThumbOffset = 9.dp
 
 val playButtonSize = 84.dp
 val playControl = 32.dp

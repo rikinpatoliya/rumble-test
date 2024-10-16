@@ -229,6 +229,7 @@ sealed class VideoDetailsAlertReason : AlertDialogReason {
     data class DeleteReason(val commentEntity: CommentEntity) : VideoDetailsAlertReason()
     data class ErrorReason(val errorMessage: String?, val messageToShort: Boolean = false) :
         VideoDetailsAlertReason()
+
     data class ShowEmailVerificationSent(val email: String) : VideoDetailsAlertReason()
     data object ShowYourEmailNotVerifiedYet : VideoDetailsAlertReason()
     data class RestrictedContentReason(val videoEntity: VideoEntity) : VideoDetailsAlertReason()
@@ -361,9 +362,11 @@ class VideoDetailsViewModel @Inject constructor(
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
         } else {
             state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
-            emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+            if (deviceType != DeviceType.Tablet) {
+                state.value = state.value.copy(screenOrientationLocked = false)
+                emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+            }
         }
-        viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(layoutState != CollapsableLayoutState.EXPENDED) }
     }
 
     override fun onCleared() {
@@ -629,8 +632,12 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onClearVideo() {
-        dismissResources()
-        emitVmEvent(VideoDetailsEvent.NavigateBack)
+        if (state.value.currentComment.isNotEmpty()) {
+            showDiscardDialog(true)
+        } else {
+            dismissResources()
+            emitVmEvent(VideoDetailsEvent.NavigateBack)
+        }
     }
 
     override fun onDelete(commentEntity: CommentEntity) {
@@ -1414,8 +1421,12 @@ class VideoDetailsViewModel @Inject constructor(
     private fun onScreenOrientationChanged(orientation: Int) {
         val currentScreenOrientation = state.value.screenOrientation
         if (orientation < 0 ||
-            (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(currentScreenOrientation)) ||
-            (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isPortrait(currentScreenOrientation))
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE && isLandscape(
+                currentScreenOrientation
+            )) ||
+            (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isPortrait(
+                currentScreenOrientation
+            ))
         ) {
             return
         }

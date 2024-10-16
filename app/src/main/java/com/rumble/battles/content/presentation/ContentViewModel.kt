@@ -53,6 +53,7 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNot
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelSubscriptionUseCase
 import com.rumble.domain.common.domain.domainmodel.AddToPlaylistResult
+import com.rumble.domain.common.domain.domainmodel.DeviceType
 import com.rumble.domain.common.domain.domainmodel.PlayListResult
 import com.rumble.domain.common.domain.domainmodel.RemoveFromPlaylistResult
 import com.rumble.domain.common.domain.usecase.AddToPlaylistUseCase
@@ -90,6 +91,7 @@ import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.domain.onboarding.domain.usecase.FeedOnboardingViewUseCase
 import com.rumble.domain.onboarding.domain.usecase.SaveFeedOnboardingUseCase
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscriptionData
+import com.rumble.domain.premium.domain.domainmodel.PremiumSubscriptionParams
 import com.rumble.domain.premium.domain.domainmodel.SubscriptionResult
 import com.rumble.domain.premium.domain.usecases.BuildPremiumSubscriptionParamsUseCase
 import com.rumble.domain.premium.domain.usecases.FetchPremiumSubscriptionListUseCase
@@ -103,6 +105,7 @@ import com.rumble.domain.sort.SortFollowingType
 import com.rumble.domain.video.domain.usecases.GetVideoOptionsUseCase
 import com.rumble.domain.video.model.VideoOption
 import com.rumble.network.queryHelpers.PlayListType
+import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -144,7 +147,9 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
 }
 
 data class VideoDetailsState(
-    val visible: Boolean = false
+    val visible: Boolean = false,
+    val collapsed: Boolean = false,
+    val isTablet: Boolean = false,
 )
 
 data class BottomSheetUIState(val data: BottomSheetContent)
@@ -157,8 +162,8 @@ data class UserUIState(
 )
 
 sealed class BottomSheetContent {
-    object HideBottomSheet : BottomSheetContent()
-    object ChangeAppearance : BottomSheetContent()
+    data object HideBottomSheet : BottomSheetContent()
+    data object ChangeAppearance : BottomSheetContent()
     data class UserUploadChannelSwitcher(val channels: List<UserUploadChannelEntity>) :
         BottomSheetContent()
 
@@ -183,31 +188,31 @@ sealed class BottomSheetContent {
         val playListEntityWithOptions: PlayListEntityWithOptions,
     ) : BottomSheetContent()
 
-    object PlayListSettingsSheet : BottomSheetContent()
+    data object PlayListSettingsSheet : BottomSheetContent()
 
-    object PremiumPromo : BottomSheetContent()
-    object PremiumOptions : BottomSheetContent()
-    object PremiumSubscription : BottomSheetContent()
+    data object PremiumPromo : BottomSheetContent()
+    data object PremiumOptions : BottomSheetContent()
+    data object PremiumSubscription : BottomSheetContent()
     data class SortFollowingSheet(val sortFollowingType: SortFollowingType) : BottomSheetContent()
-    object AuthMenu : BottomSheetContent()
+    data object AuthMenu : BottomSheetContent()
 }
 
 sealed class ContentScreenVmEvent {
-    object HideBottomSheetEvent : ContentScreenVmEvent()
-    object ShowBottomSheetEvent : ContentScreenVmEvent()
-    object HideAlertDialogEvent : ContentScreenVmEvent()
+    data object HideBottomSheetEvent : ContentScreenVmEvent()
+    data object ShowBottomSheetEvent : ContentScreenVmEvent()
+    data object HideAlertDialogEvent : ContentScreenVmEvent()
     data class ShowAlertDialogEvent(
         val reason: RumbleActivityAlertReason
     ) : ContentScreenVmEvent()
 
-    object NavigateToLibrary : ContentScreenVmEvent()
+    data object NavigateToLibrary : ContentScreenVmEvent()
     data class UserUploadNotification(
         val uploadTitle: String,
         val success: Boolean = false,
         val message: String? = null
     ) : ContentScreenVmEvent()
 
-    object NavigateHome : ContentScreenVmEvent()
+    data object NavigateHome : ContentScreenVmEvent()
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
     data class Error(val errorMessage: String? = null) : ContentScreenVmEvent()
     data class ShowSnackBarMessage(val messageId: Int) : ContentScreenVmEvent()
@@ -217,19 +222,26 @@ sealed class ContentScreenVmEvent {
     data class ChannelNotificationsUpdated(val channelDetailsEntity: ChannelDetailsEntity) :
         ContentScreenVmEvent()
 
-    object VideoAlreadyInPlayList : ContentScreenVmEvent()
+    data object VideoAlreadyInPlayList : ContentScreenVmEvent()
     data class VideoAddedToPlayList(val withPadding: Boolean) : ContentScreenVmEvent()
     data class VideoRemovedFromPlayList(val withPadding: Boolean) : ContentScreenVmEvent()
-    object PlayListDeleted : ContentScreenVmEvent()
+    data object PlayListDeleted : ContentScreenVmEvent()
     data class PlayListUpdated(val playListEntity: PlayListEntity) : ContentScreenVmEvent()
     data class PlayListCreated(val playListEntity: PlayListEntity) : ContentScreenVmEvent()
-    object WatchHistoryCleared : ContentScreenVmEvent()
+    data object WatchHistoryCleared : ContentScreenVmEvent()
     data class StartPremiumPurchase(
         val billingClient: BillingClient,
         val billingParams: BillingFlowParams
     ) : ContentScreenVmEvent()
-    data class ExpendVideoDetails(val videoId: Long, val playListId: String?, val shuffle: Boolean?): ContentScreenVmEvent()
-    data class SortFollowingTypeUpdated(val sortFollowingType: SortFollowingType) : ContentScreenVmEvent()
+
+    data class ExpendVideoDetails(
+        val videoId: Long,
+        val playListId: String?,
+        val shuffle: Boolean?
+    ) : ContentScreenVmEvent()
+
+    data class SortFollowingTypeUpdated(val sortFollowingType: SortFollowingType) :
+        ContentScreenVmEvent()
 }
 
 private const val TAG = "ContentViewModel"
@@ -271,6 +283,7 @@ class ContentViewModel @Inject constructor(
     private val shouldSuggestNewAppVersionUseCase: ShouldSuggestNewAppVersionUseCase,
     private val shouldForceNewAppVersionUseCase: ShouldForceNewAppVersionUseCase,
     private val openPlayStoreUseCase: OpenPlayStoreUseCase,
+    private val deviceType: DeviceType,
 ) : ViewModel(), ContentHandler {
     override val userNameFlow: Flow<String> = sessionManager.userNameFlow
     override val userPictureFlow: Flow<String> = sessionManager.userPictureFlow
@@ -290,7 +303,9 @@ class ContentViewModel @Inject constructor(
     override val appUpdateState: MutableStateFlow<AppUpdateState> =
         MutableStateFlow(AppUpdateState())
     override val videoDetailsState: MutableState<VideoDetailsState> = mutableStateOf(
-        VideoDetailsState()
+        VideoDetailsState(
+            isTablet = deviceType == DeviceType.Tablet
+        )
     )
     override val addToPlayListState = MutableStateFlow(AddToPlayListState())
     override val updatedPlaylist: MutableStateFlow<UpdatePlaylist?> = MutableStateFlow(null)
@@ -303,8 +318,7 @@ class ContentViewModel @Inject constructor(
     }
 
     private var purchaseInProgress: Boolean = false
-    private var currentSubscriptionData: PremiumSubscriptionData? = null
-    private var currentSubscriptionVideoId: Long? = null
+    private var currentSubscriptionParams: PremiumSubscriptionParams = PremiumSubscriptionParams()
 
     init {
         loadDeepLink()
@@ -312,6 +326,13 @@ class ContentViewModel @Inject constructor(
         purchaseUpdateListener.subscribeToPurchaseUpdate(this)
         viewModelScope.launch(errorHandler) {
             subscriptionList = fetchPremiumSubscriptionListUseCase() ?: emptyList()
+        }
+        viewModelScope.launch {
+            sessionManager.videoDetailsCollapsedFlow.distinctUntilChanged().collectLatest {
+                videoDetailsState.value = videoDetailsState.value.copy(
+                    collapsed = it
+                )
+            }
         }
     }
 
@@ -972,8 +993,8 @@ class ContentViewModel @Inject constructor(
     }
     // endregion
 
-    override fun onShowPremiumPromo(videoId: Long?) {
-        currentSubscriptionVideoId = videoId
+    override fun onShowPremiumPromo(videoId: Long?, source: SubscriptionSource?) {
+        currentSubscriptionParams = currentSubscriptionParams.copy(videoId = videoId, source = source)
         analyticsEventUseCase(PremiumPromoViewEvent)
         updateBottomSheetUiState(BottomSheetContent.PremiumPromo)
     }
@@ -987,13 +1008,16 @@ class ContentViewModel @Inject constructor(
 
     override fun onGetPremium() {
         analyticsEventUseCase(PremiumPromoGetButtonTapEvent)
-        onShowSubscriptionOptions(currentSubscriptionVideoId)
+        onShowSubscriptionOptions(currentSubscriptionParams.videoId, currentSubscriptionParams.source)
     }
 
-    override fun onShowSubscriptionOptions(videoId: Long?) {
+    override fun onShowSubscriptionOptions(videoId: Long?, source: SubscriptionSource?) {
         if (userUIState.value.isLoggedIn) {
             if (subscriptionList.isNotEmpty() or developModeUseCase()) {
-                currentSubscriptionVideoId = videoId
+                currentSubscriptionParams = currentSubscriptionParams.copy(
+                    videoId = videoId,
+                    source = source
+                )
                 updateBottomSheetUiState(BottomSheetContent.PremiumSubscription)
             } else {
                 emitVmEvent(
@@ -1010,10 +1034,18 @@ class ContentViewModel @Inject constructor(
             purchaseInProgress = false
             if (result is PurchaseResult.Success) {
                 viewModelScope.launch(errorHandler) {
-                    currentSubscriptionData?.let {
-                        sendPremiumPurchasedEventUseCase(it.type, currentSubscriptionVideoId)
+                    currentSubscriptionParams.subscriptionData?.let {
+                        sendPremiumPurchasedEventUseCase(
+                            it.type,
+                            currentSubscriptionParams.videoId,
+                            currentSubscriptionParams.source,
+                        )
                     }
-                    when (val proofResult = postSubscriptionProofUseCase(result.purchaseToken, currentSubscriptionVideoId)) {
+                    when (val proofResult = postSubscriptionProofUseCase(
+                        result.purchaseToken,
+                        currentSubscriptionParams.videoId,
+                        currentSubscriptionParams.source
+                    )) {
                         is SubscriptionResult.Success -> {
                             sessionManager.saveIsPremiumUser(true)
                             emitVmEvent(
@@ -1031,13 +1063,11 @@ class ContentViewModel @Inject constructor(
                             emitVmEvent(ContentScreenVmEvent.Error())
                         }
                     }
-                    currentSubscriptionData = null
-                    currentSubscriptionVideoId = null
+                    currentSubscriptionParams = PremiumSubscriptionParams()
                 }
             } else if (result is PurchaseResult.Failure) {
                 emitVmEvent(ContentScreenVmEvent.Error())
-                currentSubscriptionData = null
-                currentSubscriptionVideoId = null
+                currentSubscriptionParams = PremiumSubscriptionParams()
                 unhandledErrorUseCase(TAG, Error(result.errorMessage))
             }
         }
@@ -1045,7 +1075,8 @@ class ContentViewModel @Inject constructor(
 
     override fun onSubscribe(premiumSubscriptionData: PremiumSubscriptionData) {
         viewModelScope.launch(errorHandler) {
-            currentSubscriptionData = premiumSubscriptionData
+            currentSubscriptionParams =
+                currentSubscriptionParams.copy(subscriptionData = premiumSubscriptionData)
             purchaseInProgress = true
             emitVmEvent(ContentScreenVmEvent.HideBottomSheetEvent)
             emitVmEvent(
@@ -1169,7 +1200,7 @@ class ContentViewModel @Inject constructor(
                 if (sessionManager.isPremiumUserFlow.first()) {
                     updateBottomSheetUiState(BottomSheetContent.PremiumOptions)
                 } else {
-                    onShowSubscriptionOptions()
+                    onShowSubscriptionOptions(videoId = null, source = SubscriptionSource.PushNotification)
                 }
                 notificationDataManager.setShowPremiumMenu(false)
             }

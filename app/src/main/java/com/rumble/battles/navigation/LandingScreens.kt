@@ -21,6 +21,9 @@ sealed class LandingScreens(val screenName: String) {
 
     object PasswordResetScreen : LandingScreens("PasswordResetScreen")
     object AuthLandingScreen : LandingScreens("AuthLandingScreen")
+    object AgeVerificationScreen : LandingScreens("AgeVerificationScreen?${LandingPath.ON_START.path}={${LandingPath.ON_START.path}}") {
+        fun getPath(onStart: Boolean = false) = "AgeVerificationScreen?${LandingPath.ON_START.path}=$onStart"
+    }
 
     object RumbleWebViewScreen : LandingScreens("webView/{${LandingPath.URL.path}}") {
         fun getPath(url: String): String {
