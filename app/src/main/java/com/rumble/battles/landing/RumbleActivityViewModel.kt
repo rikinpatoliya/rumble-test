@@ -3,6 +3,7 @@ package com.rumble.battles.landing
 import android.app.Application
 import android.content.pm.PackageManager
 import android.support.v4.media.session.MediaSessionCompat
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -86,6 +87,12 @@ interface RumbleActivityHandler {
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
     fun closeApp()
+    fun showSnackbar(
+        message: String,
+        title: String? = null,
+        duration: SnackbarDuration = SnackbarDuration.Long
+    )
+
     fun onAnnotatedTextClicked(
         annotatedTextWithActions: AnnotatedStringWithActionsList,
         offset: Int
@@ -104,6 +111,11 @@ sealed class RumbleEvent {
     object CloseApp : RumbleEvent()
     object PremiumPurchased : RumbleEvent()
     data class OpenWebView(val url: String) : RumbleEvent()
+    data class ShowSnackbar(
+        val message: String,
+        val title: String? = null,
+        val duration: SnackbarDuration = SnackbarDuration.Long
+    ) : RumbleEvent()
 }
 
 sealed class RumbleActivityAlertReason : AlertDialogReason {
@@ -345,6 +357,10 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun closeApp() {
         emitVmEvent(RumbleEvent.CloseApp)
+    }
+
+    override fun showSnackbar(message: String, title: String?, duration: SnackbarDuration) {
+        emitVmEvent(RumbleEvent.ShowSnackbar(message, title, duration))
     }
 
     override fun onAnnotatedTextClicked(

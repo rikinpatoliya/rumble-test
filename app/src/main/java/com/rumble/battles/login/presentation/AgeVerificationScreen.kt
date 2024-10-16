@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -52,12 +51,9 @@ import com.rumble.battles.commonViews.TransparentStatusBar
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.AnnotatedTextAction
-import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.enforcedBone
@@ -94,7 +90,6 @@ fun AgeVerificationScreen(
     val state by ageVerificationHandler.uiState.collectAsStateWithLifecycle()
     val alertDialogState by ageVerificationHandler.alertDialogState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     var showDatePicker by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
@@ -114,7 +109,7 @@ fun AgeVerificationScreen(
         ageVerificationHandler.vmEvents.collect { event ->
             when (event) {
                 is AgeVerificationScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
+                    activityHandler.showSnackbar(
                         message = event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
@@ -250,10 +245,6 @@ fun AgeVerificationScreen(
                 onAnnotatedTextClicked = ageVerificationHandler::onAnnotatedTextClicked,
             )
         }
-    }
-
-    RumbleTheme(darkTheme = true) {
-        RumbleSnackbarHost(snackBarHostState)
     }
 }
 
