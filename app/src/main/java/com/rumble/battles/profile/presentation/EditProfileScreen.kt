@@ -61,6 +61,7 @@ import com.rumble.battles.CountryPickerTag
 import com.rumble.battles.EditProfileImageTag
 import com.rumble.battles.EditProfileTag
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CheckMarkItem
 import com.rumble.battles.commonViews.MainActionBottomCardView
 import com.rumble.battles.commonViews.MenuSelectionItem
@@ -88,11 +89,8 @@ import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusXMedium
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.RumbleConstants.ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE
-import com.rumble.utils.RumbleConstants.BIRTHDAY_DATE_PATTERN
 import com.rumble.utils.RumbleConstants.PROFILE_IMAGE_BITMAP_MAX_WIDTH
-import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.clickableNoRipple
-import com.rumble.utils.extension.convertToDate
 import com.rumble.utils.extension.scaleToMaxWidth
 import com.rumble.utils.extension.toUtcLocalDate
 import com.rumble.utils.extension.toUtcLong
@@ -264,7 +262,7 @@ private fun CountrySelectionBottomSheet(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(paddingLarge))
+            BottomNavigationBarScreenSpacer()
         }
     }
 }
