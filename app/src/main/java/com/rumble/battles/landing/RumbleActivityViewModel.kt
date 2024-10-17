@@ -24,7 +24,7 @@ import com.rumble.domain.landing.usecases.SilentLoginUseCase
 import com.rumble.domain.landing.usecases.TransferUserDataUseCase
 import com.rumble.domain.landing.usecases.UpdateMediaSessionUseCase
 import com.rumble.domain.logging.domain.usecase.InitProductionLoggingUseCase
-import com.rumble.domain.login.domain.usecases.GetAgeVerifiedStatusUseCase
+import com.rumble.domain.login.domain.usecases.GetClearSessionOnAppStartUseCase
 import com.rumble.domain.notifications.domain.domainmodel.NotificationHandlerResult
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.notifications.domain.usecases.RumbleNotificationHandlerUseCase
@@ -151,7 +151,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val updateMediaSessionUseCase: UpdateMediaSessionUseCase,
     private val initProductionLoggingUseCase: InitProductionLoggingUseCase,
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
-    private val getAgeVerifiedStatusUseCase: GetAgeVerifiedStatusUseCase,
+    private val getClearSessionOnAppStartUseCase: GetClearSessionOnAppStartUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
@@ -176,6 +176,12 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
+        /*TODO uncomment once age verification is added back*/
+//        viewModelScope.launch {
+//            if (getClearSessionOnAppStartUseCase()) {
+//                signOutUseCase()
+//            }
+//        }
         viewModelScope.launch(errorHandler) {
             generateViewerIdUseCase()
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())

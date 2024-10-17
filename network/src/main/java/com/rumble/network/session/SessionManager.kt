@@ -30,7 +30,7 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     private val userNameKey = stringPreferencesKey("userNameKey")
     private val userPictureKey = stringPreferencesKey("userPictureKey")
     private val loginTypeKey = intPreferencesKey("loginTypeKey")
-    private val ageVerifiedKey = booleanPreferencesKey("ageVerifiedKey")
+    private val clearSessionOnAppStartKey = booleanPreferencesKey("clearSessionOnAppStartKey")
 
     /**
      * @see subdomainKey doesn’t get reset when the user logs in and logs out with another account,
@@ -198,8 +198,8 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         Timber.tag(TAG).e(it)
         emit(value = 0)
     }
-    val ageVerifiedFlow: Flow<Boolean?> = context.dataStore.data.map { prefs ->
-        prefs[ageVerifiedKey]
+    val clearSessionOnAppStartFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[clearSessionOnAppStartKey] ?: false
     }.catch {
         Timber.tag(TAG).e(it)
         emit(value = false)
@@ -443,7 +443,7 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
                 prefs[userPictureKey] = ""
                 prefs[loginTypeKey] = 0
                 prefs[isPremiumUserKey] = false
-                prefs[ageVerifiedKey] = false
+                prefs[clearSessionOnAppStartKey] = false
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)
@@ -531,10 +531,10 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     }
 
 
-    suspend fun saveAgeVerified(verified: Boolean) {
+    suspend fun saveClearSessionOnAppStart(clearSession: Boolean) {
         try {
             context.dataStore.edit { prefs ->
-                prefs[ageVerifiedKey] = verified
+                prefs[clearSessionOnAppStartKey] = clearSession
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)

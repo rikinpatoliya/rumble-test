@@ -284,16 +284,17 @@ class RegisterViewModel @Inject constructor(
                             if (userRegistrationEntity.loginType == LoginType.RUMBLE) {
                                 emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
                             } else {
-                                // for sso login, verify age restrictions
-                                val profileResult = getUserProfileUseCase()
-                                if (profileResult.success) {
-                                    val birthday =
-                                        profileResult.userProfileEntity?.birthday?.toUtcLong()
-                                    if (birthday == null || birthdayValidationUseCase(birthday).first) {
-                                        emitVmEvent(RegistrationScreenVmEvent.NavigateToAgeVerification)
-                                        return@launch
-                                    }
-                                }
+                                /*TODO uncomment once age verification is added back*/
+//                                // for sso login, verify age restrictions
+//                                val profileResult = getUserProfileUseCase()
+//                                if (profileResult.success) {
+//                                    val birthday =
+//                                        profileResult.userProfileEntity?.birthday?.toUtcLong()
+//                                    if (birthday == null || birthdayValidationUseCase(birthday).first) {
+//                                        emitVmEvent(RegistrationScreenVmEvent.NavigateToAgeVerification)
+//                                        return@launch
+//                                    }
+//                                }
                                 emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
                             }
                         } else {
