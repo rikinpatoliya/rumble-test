@@ -75,7 +75,8 @@
     <string name="username_can_only_contain">Username can contain only letters, numbers and underscores</string>
     <string name="username_at_least_3_characters">Username must be at least 3 alphanumeric characters</string>
     <string name="birthday_empty_error_message">Please provide your birthday</string>
-    <string name="birthday_at_least_17_error_message">You must be at least 17 years old to use the Rumble platform</string>
+    <!--TODO revert message to 17 years once age verification is added back -->
+    <string name="birthday_at_least_13_error_message">You must be at least 13 years old to use the Rumble platform</string>
     <string name="why_we_ask_for_birth">Why do we ask for your date of birth?</string>
     <string name="date_of_birth_dialog_text_part_1">Rumble requests your date of birth in order to comply with its</string>
     <string name="date_of_birth_dialog_text_part_2">and applicable privacy laws. If you have any questions, please contact</string>

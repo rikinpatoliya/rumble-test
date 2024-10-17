@@ -306,9 +306,11 @@ class EditProfileViewModel @Inject constructor(
 
                     is UpdateUserProfileResult.Success -> {
                         if (result.requiresConfirmation) {
-                            emitVmEvent(EditProfileVmEvent.ProfileUpdateResult(R.string.profile_details_update_success_message))
-                        } else {
+                            // email confirmation required, ask user to check email
                             emitVmEvent(EditProfileVmEvent.ProfileUpdateResult(R.string.check_email_to_confirm_details))
+                        } else {
+                            // profile updated and no email confirmation required
+                            emitVmEvent(EditProfileVmEvent.ProfileUpdateResult(R.string.profile_details_update_success_message))
                         }
                     }
                 }
@@ -365,15 +367,16 @@ class EditProfileViewModel @Inject constructor(
             validInput = false
         }
 
-        val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday?.toUtcLong())
-        if (birthdayError.first) {
-            uiState.update {
-                it.copy(
-                    birthdayError = birthdayError
-                )
-            }
-            validInput = false
-        }
+        /*TODO uncomment once age verification is added back*/
+//        val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday?.toUtcLong())
+//        if (birthdayError.first) {
+//            uiState.update {
+//                it.copy(
+//                    birthdayError = birthdayError
+//                )
+//            }
+//            validInput = false
+//        }
 
         return validInput
     }
