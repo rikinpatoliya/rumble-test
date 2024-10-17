@@ -452,6 +452,7 @@ private fun EditProfileContent(
         RumbleInputSelectorFieldView(
             label = stringResource(id = R.string.birthday).uppercase(),
             labelColor = MaterialTheme.colors.primary,
+            errorMessageColor = MaterialTheme.colors.secondary,
             value = if (state.userProfileEntity.birthday == null) "" else state.userProfileEntity.birthday?.toUtcLong()
                 ?.convertToDate(
                     pattern = BIRTHDAY_DATE_PATTERN, useUtc = true

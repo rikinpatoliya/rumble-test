@@ -3,7 +3,6 @@ package com.rumble.battles.login.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.LandingPath
@@ -11,9 +10,8 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.SendEmailUseCase
-import com.rumble.domain.login.domain.usecases.SaveAgeVerifiedStatusUseCase
+import com.rumble.domain.login.domain.usecases.SaveClearSessionOnAppStartUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
-import com.rumble.domain.profile.domain.SignOutUseCase
 import com.rumble.domain.profile.domain.UpdateUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
@@ -22,13 +20,11 @@ import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.UpdateUserProfileResult
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
-import com.rumble.network.session.SessionManager
 import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -89,7 +85,7 @@ class AgeVerificationViewModel @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val updateUserProfileUseCase: UpdateUserProfileUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
-    private val saveAgeVerifiedStatusUseCase: SaveAgeVerifiedStatusUseCase,
+    private val saveClearSessionOnAppStartUseCase: SaveClearSessionOnAppStartUseCase,
     stateHandle: SavedStateHandle
 ) : ViewModel(), AgeVerificationHandler {
 
@@ -240,23 +236,21 @@ class AgeVerificationViewModel @Inject constructor(
 
     override fun saveAgeNotVerifiedState() {
         viewModelScope.launch {
-            saveAgeVerifiedStatusUseCase(false)
+            saveClearSessionOnAppStartUseCase(true)
         }
     }
 
     private fun validInput(userProfileEntity: UserProfileEntity): Boolean {
         var validInput = true
-        val birthday = userProfileEntity.birthday
-        if (birthday != null) {
-            val birthdayError = birthdayValidationUseCase(birthday.toUtcLong())
-            if (birthdayError.first) {
-                uiState.update {
-                    it.copy(
-                        birthdayError = birthdayError
-                    )
-                }
-                validInput = false
+
+        val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday?.toUtcLong())
+        if (birthdayError.first) {
+            uiState.update {
+                it.copy(
+                    birthdayError = birthdayError
+                )
             }
+            validInput = false
         }
 
         return validInput

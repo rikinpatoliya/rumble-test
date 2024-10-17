@@ -7,9 +7,10 @@ import javax.inject.Inject
 
 class BirthdayValidationUseCase @Inject constructor() {
     operator fun invoke(
-        birthday: Long,
+        birthday: Long?,
     ): Pair<Boolean, InputValidationError> {
         return when {
+            birthday == null -> Pair(true, InputValidationError.Empty)
             birthday == 0L -> Pair(true, InputValidationError.Empty)
             isLessThen17Years(birthday) -> Pair(true, InputValidationError.MinCharacters)
             else -> Pair(false, InputValidationError.None)
