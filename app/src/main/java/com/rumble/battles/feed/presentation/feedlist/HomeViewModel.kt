@@ -342,8 +342,8 @@ class HomeViewModel @Inject constructor(
             sessionManager.cookiesFlow.distinctUntilChanged().collectLatest { cookies ->
                 if (cookies.isNotBlank()) {
                     loadChannelsWithFreshContent()
-                    loadVideoCollections()
                 }
+                loadVideoCollections()
             }
         }
     }
