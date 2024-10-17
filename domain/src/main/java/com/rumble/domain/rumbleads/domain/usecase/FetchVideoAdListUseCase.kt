@@ -14,6 +14,7 @@ import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.common.domain.usecase.RumbleUseCase
 import com.rumble.domain.rumbleads.domain.domainmodel.VideoAdListResult
 import com.rumble.domain.rumbleads.model.repository.RumbleAdRepository
+import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.videoplayer.domain.model.VideoAdDataEntity
@@ -41,6 +42,12 @@ class FetchVideoAdListUseCase @Inject constructor(
         return if (userPreferenceManager.disableAdsFlow.first()) {
             VideoAdDataEntity()
         } else {
+            val debugAdType = userPreferenceManager.debugAdTypeFlow.first()
+            val customAdTag = if (debugAdType == DebugAdType.CUSTOM_AD_TAG) {
+                userPreferenceManager.customAdTagFlow.first()
+            } else {
+                null
+            }
             val watchedTimeSeconds = ceil(watchedTime.toDouble()).toLong()
             analyticsEventUseCase(ImaFetchEvent(watchedTimeSeconds), true)
             val result = rumbleAdRepository.fetchVideoAdList(
@@ -48,9 +55,10 @@ class FetchVideoAdListUseCase @Inject constructor(
                 videoId = createPreRollVideoIdUseCase(videoId),
                 publisherId = publisherId,
                 ignoreParams = userPreferenceManager.forceAdsFlow.first(),
-                adsDebug = userPreferenceManager.playDebugAdFlow.first(),
+                adsDebug = debugAdType == DebugAdType.DEBUG_AD,
                 disableAdsFilter = developModeUseCase(),
-                enableMidrolls = 1
+                enableMidrolls = 1,
+                customAdTag = customAdTag
             )
             when (result) {
                 is VideoAdListResult.Failure -> {

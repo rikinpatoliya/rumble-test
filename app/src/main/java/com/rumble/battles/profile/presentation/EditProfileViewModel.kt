@@ -104,7 +104,24 @@ class EditProfileViewModel @Inject constructor(
     }
 
     private var userProfileEntity: UserProfileEntity =
-        UserProfileEntity("", "", "", false, "", "", "", "", "", "", CountryEntity(0, ""), "", 0, false, Gender.Unspecified, null)
+        UserProfileEntity(
+            "",
+            "",
+            "",
+            false,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            CountryEntity(0, ""),
+            "",
+            0,
+            false,
+            Gender.Unspecified,
+            null
+        )
 
     override val uiState = MutableStateFlow(UserProfileUIState(userProfileEntity))
     override val userNameFlow: Flow<String> = sessionManager.userNameFlow
@@ -263,6 +280,7 @@ class EditProfileViewModel @Inject constructor(
                     is UpdateUserProfileResult.Error -> {
                         emitVmEvent(EditProfileVmEvent.ProfileUpdateResult(R.string.generic_error_message_contact_support))
                     }
+
                     is UpdateUserProfileResult.FormError -> {
                         uiState.update {
                             it.copy(
@@ -274,19 +292,25 @@ class EditProfileViewModel @Inject constructor(
                                 cityErrorMessage = result.cityErrorMessage,
                                 stateErrorMessage = result.stateErrorMessage,
                                 postalCodeErrorMessage = result.postalCodeErrorMessage,
-                                birthdayError = if (result.birthdayErrorMessage.isBlank()){
+                                birthdayError = if (result.birthdayErrorMessage.isBlank()) {
                                     Pair(false, InputValidationError.None)
                                 } else {
-                                    Pair(true, InputValidationError.Custom(result.birthdayErrorMessage))
+                                    Pair(
+                                        true,
+                                        InputValidationError.Custom(result.birthdayErrorMessage)
+                                    )
                                 }
                             )
                         }
                     }
+
                     is UpdateUserProfileResult.Success -> {
                         if (result.requiresConfirmation) {
-                            emitVmEvent(EditProfileVmEvent.ProfileUpdateResult(R.string.profile_details_update_success_message))
-                        } else {
+                            // email confirmation required, ask user to check email
                             emitVmEvent(EditProfileVmEvent.ProfileUpdateResult(R.string.check_email_to_confirm_details))
+                        } else {
+                            // profile updated and no email confirmation required
+                            emitVmEvent(EditProfileVmEvent.ProfileUpdateResult(R.string.profile_details_update_success_message))
                         }
                     }
                 }
@@ -343,17 +367,16 @@ class EditProfileViewModel @Inject constructor(
             validInput = false
         }
 
-        if (userProfileEntity.birthday != null) {
-            val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday!!.toUtcLong())
-            if (birthdayError.first) {
-                uiState.update {
-                    it.copy(
-                        birthdayError = birthdayError
-                    )
-                }
-                validInput = false
-            }
-        }
+        /*TODO uncomment once age verification is added back*/
+//        val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday?.toUtcLong())
+//        if (birthdayError.first) {
+//            uiState.update {
+//                it.copy(
+//                    birthdayError = birthdayError
+//                )
+//            }
+//            validInput = false
+//        }
 
         return validInput
     }

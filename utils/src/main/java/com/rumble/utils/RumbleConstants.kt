@@ -15,7 +15,8 @@ object RumbleConstants {
     const val PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS = 100
 
     const val MINIMUM_PASSWORD_LENGTH = 8
-    const val MINIMUM_AGE_REQUIREMENT = 17
+    /*TODO revert to 17 once age verification is added back*/
+    const val MINIMUM_AGE_REQUIREMENT = 13
     const val MAX_LINES_TITLE_REGULAR_VIDEO_CARD = 2
     const val VIDEO_CARD_THUMBNAIL_ASPECT_RATION = 16f / 9f
     const val RUMBLE_AD_CARD_ASPECT_RATION = 336f / 280f
