@@ -1,9 +1,6 @@
 package com.rumble.battles.login.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -63,7 +60,7 @@ import com.rumble.battles.commonViews.RumbleDropDownMenu
 import com.rumble.battles.commonViews.RumbleInputFieldView
 import com.rumble.battles.commonViews.RumbleInputSelectorFieldView
 import com.rumble.battles.commonViews.RumbleProgressIndicatorWithDimmedBackground
-import com.rumble.battles.commonViews.RumbleWheelDataPicker
+import com.rumble.battles.commonViews.RumbleWheelDatePicker
 import com.rumble.battles.commonViews.TransparentStatusBar
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
@@ -134,9 +131,11 @@ fun RegisterScreen(
                 is RegistrationScreenVmEvent.NavigateToHomeScreen -> {
                     onNavigateToHomeScreen()
                 }
+
                 is RegistrationScreenVmEvent.NavigateToAgeVerification -> {
                     onNavigateToAgeVerification()
                 }
+
                 is RegistrationScreenVmEvent.NavigateToWebView -> {
                     onNavigateToWebView(event.url)
                 }
@@ -288,7 +287,7 @@ fun RegisterScreen(
                         else -> ""
                     }
                 ) {
-                    if (!showDatePicker){
+                    if (!showDatePicker) {
                         showDatePicker = true
                         focusManager.clearFocus()
                     }
@@ -355,15 +354,12 @@ fun RegisterScreen(
             }
         }
 
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            visible = showDatePicker,
-            enter = slideInVertically(initialOffsetY = { it }),
-            exit = slideOutVertically(targetOffsetY = { it })
-        ) {
-            RumbleWheelDataPicker(
+        if (showDatePicker) {
+            RumbleWheelDatePicker(
                 initialValue = state.userRegistrationEntity.birthday,
-                onChanged = { registerHandler.onBirthdayChanged(it) })
+                onChanged = { registerHandler.onBirthdayChanged(it) },
+                onDismissRequest = { showDatePicker = false }
+            )
         }
     }
     if (state.loading) {
