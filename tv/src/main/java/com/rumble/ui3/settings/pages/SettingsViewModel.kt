@@ -3,6 +3,7 @@ package com.rumble.ui3.settings.pages
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
+import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.domain.usecase.GetCanUseAdsDebugMode
 import com.rumble.domain.settings.model.UserPreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -70,9 +71,9 @@ class SettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            userPreferenceManager.playDebugAdFlow.distinctUntilChanged().collectLatest {
+            userPreferenceManager.debugAdTypeFlow.distinctUntilChanged().collectLatest {
                 uiState.value = uiState.value.copy(
-                    displayDebugAd = it
+                    displayDebugAd = it == DebugAdType.DEBUG_AD
                 )
             }
         }
@@ -92,7 +93,7 @@ class SettingsViewModel @Inject constructor(
 
     override fun onDisplayDebugAdChanged(displayDebugAd: Boolean) {
         viewModelScope.launch {
-            userPreferenceManager.savePlayDebugAd(displayDebugAd)
+            userPreferenceManager.saveDebugAdType(if (displayDebugAd) DebugAdType.DEBUG_AD else DebugAdType.REAL_AD)
         }
     }
 }

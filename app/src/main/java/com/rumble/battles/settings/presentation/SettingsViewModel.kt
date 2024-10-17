@@ -17,6 +17,7 @@ import com.rumble.domain.settings.domain.domainmodel.AuthProviderEntity
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.CanSubmitLogsResult
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
+import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.domain.domainmodel.PlaybackInFeedsMode
 import com.rumble.domain.settings.domain.domainmodel.UploadQuality
 import com.rumble.domain.settings.domain.usecase.GetAuthProvidersUseCase
@@ -58,7 +59,7 @@ interface SettingsHandler {
     val playbackInFeedsMode: Flow<PlaybackInFeedsMode>
     val disableAdsFlow: Flow<Boolean>
     val forceAdsFlow: Flow<Boolean>
-    val playDebugAdFlow: Flow<Boolean>
+    val debugAdTypeFlow: Flow<DebugAdType>
 
     fun onUpdateBackgroundPlay(backgroundPlay: BackgroundPlay)
     fun onUpdatePlaybackInFeed(playbackInFeedsMode: PlaybackInFeedsMode)
@@ -72,7 +73,6 @@ interface SettingsHandler {
     fun onShareLogs(title: String, widthDp: Int, heightDp: Int, width: Int, height: Int)
     fun onDisableAds(disableAds: Boolean)
     fun onForceAds(forceAds: Boolean)
-    fun onPlayDebugAd(playAd: Boolean)
     fun onSendFeedback()
     fun onChangeColorMode(colorMode: ColorMode)
     fun onAutoplayOn(on: Boolean)
@@ -151,7 +151,7 @@ class SettingsViewModel @Inject constructor(
         userPreferenceManager.playbackInFeedsModeModeFlow
     override val disableAdsFlow: Flow<Boolean> = userPreferenceManager.disableAdsFlow
     override val forceAdsFlow: Flow<Boolean> = userPreferenceManager.forceAdsFlow
-    override val playDebugAdFlow: Flow<Boolean> = userPreferenceManager.playDebugAdFlow
+    override val debugAdTypeFlow: Flow<DebugAdType> = userPreferenceManager.debugAdTypeFlow
 
     private val _vmEvents = Channel<SettingsScreenVmEvent>(capacity = Channel.CONFLATED)
     override val vmEvents: Flow<SettingsScreenVmEvent> = _vmEvents.receiveAsFlow()
@@ -318,12 +318,6 @@ class SettingsViewModel @Inject constructor(
     override fun onForceAds(forceAds: Boolean) {
         viewModelScope.launch {
             userPreferenceManager.saveForceAds(forceAds)
-        }
-    }
-
-    override fun onPlayDebugAd(playAd: Boolean) {
-        viewModelScope.launch {
-            userPreferenceManager.savePlayDebugAd(playAd)
         }
     }
 

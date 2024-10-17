@@ -144,6 +144,8 @@ import com.rumble.battles.search.presentation.searchScreen.SearchScreen
 import com.rumble.battles.search.presentation.searchScreen.SearchViewModel
 import com.rumble.battles.search.presentation.videosSearch.VideosSearchScreen
 import com.rumble.battles.search.presentation.videosSearch.VideosSearchViewModel
+import com.rumble.battles.settings.presentation.DebugAdSettingsScreen
+import com.rumble.battles.settings.presentation.DebugAdSettingsViewModel
 import com.rumble.battles.settings.presentation.ChangeEmailScreen
 import com.rumble.battles.settings.presentation.ChangeEmailViewModel
 import com.rumble.battles.settings.presentation.ChangePasswordScreen
@@ -1245,6 +1247,13 @@ private fun createNavigationGraph(
             val changeSubdomainViewModel: ChangeSubdomainViewModel = hiltViewModel()
             ChangeSubdomainScreen(
                 changeSubdomainHandler = changeSubdomainViewModel,
+                onBackClick = { currentNavController.navigateUp() }
+            )
+        }
+        composable(RumbleScreens.DebugAdSettings.rootName) {
+            val debugAdSettingViewModel: DebugAdSettingsViewModel = hiltViewModel()
+            DebugAdSettingsScreen(
+                debugAdSettingsHandler = debugAdSettingViewModel,
                 onBackClick = { currentNavController.navigateUp() }
             )
         }

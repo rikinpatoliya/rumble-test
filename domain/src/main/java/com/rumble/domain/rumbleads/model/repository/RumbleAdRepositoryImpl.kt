@@ -153,6 +153,7 @@ class RumbleAdRepositoryImpl(
         adsDebug: Boolean,
         disableAdsFilter: Boolean,
         enableMidrolls: Int,
+        customAdTag: String?
     ): VideoAdListResult = withContext(dispatcher) {
         try {
             val response = remoteDataSource.fetchAdList(
@@ -172,7 +173,7 @@ class RumbleAdRepositoryImpl(
                             it.copy(adDataList = it.adDataList.filter { ad -> (ad.autoplay != 0) || disableAdsFilter })
                         }
                     VideoAdListResult.Success(
-                        preRollMetadata.copy(adPlacementList = preRollList).toAdDataEntity()
+                        preRollMetadata.copy(adPlacementList = preRollList).toAdDataEntity(customAdTag)
                     )
                 } else {
                     VideoAdListResult.EmptyVideoAdList

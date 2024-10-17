@@ -21,12 +21,12 @@ fun RumbleAd.toAdEntity(): RumbleAdEntity =
         price = bidding?.let { BigDecimal(it.price) }
     )
 
-fun AdPlacement.toAdEntity(): AdEntity =
+fun AdPlacement.toAdEntity(customAdTag: String?): AdEntity =
     AdEntity(
         timeCode = TimeCodeMapper.parseTimeCode(timeCode),
         urlList = adDataList.map {
             PreRollUrl(
-                url = it.url,
+                url = if (customAdTag.isNullOrBlank()) it.url else customAdTag,
                 requestedUrlList = it.events?.reqEvents ?: emptyList(),
                 impressionUrlList = it.events?.impEvents ?: emptyList(),
                 pgImpressionUrlList = it.events?.pgimpEvents ?: emptyList(),
@@ -35,9 +35,9 @@ fun AdPlacement.toAdEntity(): AdEntity =
         }.toMutableList(),
     )
 
-fun AdMetadata.toAdDataEntity(): VideoAdDataEntity =
+fun AdMetadata.toAdDataEntity(customAdTag: String?): VideoAdDataEntity =
     VideoAdDataEntity(
-        preRollList = adPlacementList.map { it.toAdEntity() },
+        preRollList = adPlacementList.map { it.toAdEntity(customAdTag) },
         startUrlList = events?.startEvents ?: emptyList(),
         viewUrlList = events?.viewEvents ?: emptyList(),
         pgViewUrlList = events?.pgviewEvents ?: emptyList()

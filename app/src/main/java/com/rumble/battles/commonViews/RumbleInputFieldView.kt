@@ -52,6 +52,11 @@ fun RumbleInputFieldView(
     hasError: Boolean = false,
     errorMessage: String = "",
     showTrailingIcon: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default.copy(
+        autoCorrect = true,
+        keyboardType = KeyboardType.Text,
+        imeAction = ImeAction.Next
+    )
 ) {
 
     var text by remember { mutableStateOf(initialValue) }
@@ -104,11 +109,7 @@ fun RumbleInputFieldView(
                     }
                 }
             },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                autoCorrect = true,
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            )
+            keyboardOptions = keyboardOptions
         )
 
         if (hasError) {

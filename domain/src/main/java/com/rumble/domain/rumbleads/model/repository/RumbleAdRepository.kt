@@ -36,6 +36,7 @@ interface RumbleAdRepository {
         adsDebug: Boolean,
         disableAdsFilter: Boolean,
         enableMidrolls: Int,
+        customAdTag: String?,
     ): VideoAdListResult
 
     suspend fun sendAdEvent(urlList: List<String>, initTime: Long): SendAdEventResult
