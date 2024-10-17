@@ -10,9 +10,6 @@ import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -73,7 +70,7 @@ import com.rumble.battles.commonViews.RumbleInputFieldView
 import com.rumble.battles.commonViews.RumbleInputSelectorFieldView
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.RumbleProgressIndicator
-import com.rumble.battles.commonViews.RumbleWheelDataPicker
+import com.rumble.battles.commonViews.RumbleWheelDatePicker
 import com.rumble.battles.commonViews.keyboardAsState
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
@@ -199,14 +196,13 @@ fun EditProfileScreen(
                         onClick = editProfileHandler::onUpdateUserProfile
                     )
                 }
-                AnimatedVisibility(
-                    visible = showDatePicker,
-                    enter = slideInVertically(initialOffsetY = { it }),
-                    exit = slideOutVertically(targetOffsetY = { it })
-                ) {
-                    RumbleWheelDataPicker(initialValue = state.userProfileEntity.birthday?.toUtcLong()
-                        ?: 0L,
-                        onChanged = { editProfileHandler.onBirthdayChanged(it.toUtcLocalDate()) })
+
+                if (showDatePicker) {
+                    RumbleWheelDatePicker(
+                        initialValue = state.userProfileEntity.birthday?.toUtcLong() ?: 0L,
+                        onChanged = { editProfileHandler.onBirthdayChanged(it.toUtcLocalDate()) },
+                        onDismissRequest = { showDatePicker = false }
+                    )
                 }
             }
         }

@@ -1,9 +1,6 @@
 package com.rumble.battles.login.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -46,7 +43,7 @@ import com.rumble.battles.commonViews.MainActionButton
 import com.rumble.battles.commonViews.RumbleAuthTopAppBar
 import com.rumble.battles.commonViews.RumbleInputSelectorFieldView
 import com.rumble.battles.commonViews.RumbleProgressIndicatorWithDimmedBackground
-import com.rumble.battles.commonViews.RumbleWheelDataPicker
+import com.rumble.battles.commonViews.RumbleWheelDatePicker
 import com.rumble.battles.commonViews.TransparentStatusBar
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
@@ -216,15 +213,12 @@ fun AgeVerificationScreen(
             }
         }
 
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            visible = showDatePicker,
-            enter = slideInVertically(initialOffsetY = { it }),
-            exit = slideOutVertically(targetOffsetY = { it })
-        ) {
-            RumbleWheelDataPicker(
+        if (showDatePicker) {
+            RumbleWheelDatePicker(
                 initialValue = state.userProfileEntity.birthday?.toUtcLong() ?: 0L,
-                onChanged = { ageVerificationHandler.onBirthdayChanged(it.toUtcLocalDate()) })
+                onChanged = { ageVerificationHandler.onBirthdayChanged(it.toUtcLocalDate()) },
+                onDismissRequest = { showDatePicker = false }
+            )
         }
     }
     if (state.loading) {
