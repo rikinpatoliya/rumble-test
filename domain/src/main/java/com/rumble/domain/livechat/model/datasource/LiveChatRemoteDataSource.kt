@@ -59,7 +59,7 @@ class LiveChatRemoteDataSourceImpl(
     private val emoteApi: EmoteApi,
     private val liveChatEventsApi: LiveChatEventsApi,
     private val appName: String,
-    private val versionCode: String,
+    private val versionCode: Int,
     private val packageName: String,
     private val appVersion: String,
     private val osVersion: String,

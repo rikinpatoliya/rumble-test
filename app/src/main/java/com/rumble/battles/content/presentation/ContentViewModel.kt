@@ -85,7 +85,6 @@ import com.rumble.domain.onboarding.domain.domainmodel.None
 import com.rumble.domain.onboarding.domain.domainmodel.OnboardingPopupType
 import com.rumble.domain.onboarding.domain.domainmodel.OnboardingType
 import com.rumble.domain.onboarding.domain.domainmodel.OnboardingViewState
-import com.rumble.domain.onboarding.domain.domainmodel.ShowLibraryOnboarding
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboarding
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.domain.onboarding.domain.usecase.FeedOnboardingViewUseCase
@@ -144,6 +143,7 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun onOpenVideoDetails(videoId: Long, playListId: String? = null, shuffle: Boolean? = null)
     fun onCloseVideoDetails()
     fun onNavigateHome()
+    fun scrollToTop(index: Int)
 }
 
 data class VideoDetailsState(
@@ -205,7 +205,6 @@ sealed class ContentScreenVmEvent {
         val reason: RumbleActivityAlertReason
     ) : ContentScreenVmEvent()
 
-    data object NavigateToLibrary : ContentScreenVmEvent()
     data class UserUploadNotification(
         val uploadTitle: String,
         val success: Boolean = false,
@@ -213,6 +212,7 @@ sealed class ContentScreenVmEvent {
     ) : ContentScreenVmEvent()
 
     data object NavigateHome : ContentScreenVmEvent()
+    object ScrollToTop : ContentScreenVmEvent()
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
     data class Error(val errorMessage: String? = null) : ContentScreenVmEvent()
     data class ShowSnackBarMessage(val messageId: Int) : ContentScreenVmEvent()
@@ -916,13 +916,6 @@ class ContentViewModel @Inject constructor(
     // endregion
 
     // region OnboardingHandler
-    override fun onLibrary(withNavigation: Boolean) {
-        viewModelScope.launch {
-            updateOnboardingState(emptyList())
-            if (withNavigation) emitVmEvent(ContentScreenVmEvent.NavigateToLibrary)
-        }
-    }
-
     override fun onSkipAll(popupsList: List<OnboardingPopupType>) {
         viewModelScope.launch {
             updateOnboardingState(popupsList)
@@ -967,13 +960,6 @@ class ContentViewModel @Inject constructor(
     private suspend fun updateOnboardingState(popupsList: List<OnboardingPopupType>) {
         when (onboardingViewState.value) {
             ShowOnboarding -> saveFeedOnboardingUseCase(OnboardingType.FeedScreen)
-            ShowLibraryOnboarding -> saveFeedOnboardingUseCase(
-                listOf(
-                    OnboardingType.LibraryScreen,
-                    OnboardingType.YourLibrary
-                )
-            )
-
             is ShowOnboardingPopups -> {
                 if (popupsList.isNotEmpty()) {
                     saveFeedOnboardingUseCase(popupsList.map {
@@ -1118,6 +1104,10 @@ class ContentViewModel @Inject constructor(
         emitVmEvent(ContentScreenVmEvent.NavigateHome)
     }
 
+    override fun scrollToTop(index: Int) {
+        emitVmEvent(ContentScreenVmEvent.ScrollToTop)
+    }
+
     private fun emitVmEvent(event: ContentScreenVmEvent) =
         viewModelScope.launch { eventFlow.emit(event) }
 
@@ -1171,7 +1161,7 @@ class ContentViewModel @Inject constructor(
                     onboardingViewState.value = DoNotShow
                 } else if (onboardingViewState.value != DoNotShow) {
                     onboardingViewState.value =
-                        feedOnboardingViewUseCase(BuildConfig.VERSION_CODE)
+                        feedOnboardingViewUseCase()
                 }
             }
         }

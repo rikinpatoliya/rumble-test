@@ -52,6 +52,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.content.presentation.ContentHandler
+import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.discover.presentation.views.ErrorView
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelsHandler
 import com.rumble.battles.feed.presentation.views.FeaturedChannelListView
@@ -152,6 +153,14 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
+        contentHandler.eventFlow.collectLatest {
+            if (it is ContentScreenVmEvent.ScrollToTop) {
+                listState.animateScrollToItem(0)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
         homeHandler.eventFlow.collectLatest {
             when (it) {
                 is HomeEvent.PlayVideo -> {
@@ -222,7 +231,7 @@ fun HomeScreen(
                 .testTag(SwipeRefreshTag)
                 .constrainAs(list) {
                     top.linkTo(header.bottom)
-                    bottom.linkTo(navigation.top)
+                    bottom.linkTo(parent.bottom)
                     height = Dimension.fillToConstraints
                 },
             state = rememberSwipeRefreshState(

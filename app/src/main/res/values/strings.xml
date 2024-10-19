@@ -534,9 +534,6 @@
     <string name="video_list_just_for_you">Just for you</string>
 
     <!-- Library -->
-    <string name="explore_library">Explore Library</string>
-    <string name="library_onboarding_title">Introducing Your Personal Library</string>
-    <string name="library_onboarding_description">Save content for later, continue watching your previous videos, and curate custom playlists to share with the community.</string>
     <string name="watch_history">Watch History</string>
     <string name="purchases">Purchases</string>
     <string name="watch_later">Watch Later</string>

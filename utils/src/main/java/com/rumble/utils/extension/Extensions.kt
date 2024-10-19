@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.navigation.NavController
 import kotlin.system.exitProcess
 
 fun Context.restartApp(launchActivity: Intent) {
@@ -20,4 +21,10 @@ fun Context.restartApp(launchActivity: Intent) {
         this.applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent)
     exitProcess(0)
+}
+
+fun NavController.isAtTopOfNavStack(): Boolean {
+    val currentDestination = this.currentBackStackEntry?.destination?.id
+    val startDestination = this.graph.startDestinationId
+    return currentDestination == startDestination
 }

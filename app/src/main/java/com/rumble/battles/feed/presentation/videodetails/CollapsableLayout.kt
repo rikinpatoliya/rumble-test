@@ -46,6 +46,7 @@ private const val autoScrollUpPercentage = 0.9f
 @Composable
 fun CollapsableLayout(
     modifier: Modifier = Modifier,
+    handler: VideoDetailsHandler,
     collapseAvailable: Boolean = true,
     enforcedState: CollapsableLayoutState = CollapsableLayoutState.EXPENDED,
     shadowElevation: Dp = elevation,
@@ -58,6 +59,7 @@ fun CollapsableLayout(
 ) {
     val scope = rememberCoroutineScope()
     var containerHeight by remember { mutableFloatStateOf(0f) }
+    val state by handler.state
     var maxOffset by remember { mutableFloatStateOf(0f) }
     val sheetOffset = remember { Animatable(0f) }
     var collapseDirection by remember { mutableStateOf(CollapseDirection.DOWN) }
@@ -127,9 +129,10 @@ fun CollapsableLayout(
         modifier = modifier
             .padding(top = (sheetOffset.value / LocalDensity.current.density).dp)
             .onGloballyPositioned { coordinates ->
-                if (maxOffset == 0f) {
+                if (maxOffset == 0f || state.shouldUpdateMiniPlayerMaxOffset) {
                     containerHeight = coordinates.size.height.toFloat()
                     maxOffset = containerHeight - bottomPaddingPx
+                    handler.onMiniPlayerMaxOffsetUpdated()
                 }
             }
             .pointerInput(Unit) {

@@ -3,12 +3,15 @@ package com.rumble.battles.feed.presentation.videodetails
 import android.app.Application
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import androidx.annotation.OptIn
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.paging.PagingData
 import com.google.android.gms.common.util.DeviceProperties
 import com.google.firebase.perf.metrics.Trace
@@ -170,6 +173,8 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
 
     fun onUpdateLayoutState(layoutState: CollapsableLayoutState)
     fun onClearVideo()
+    fun getVideoAspectRatio(): Int
+    fun onMiniPlayerMaxOffsetUpdated()
 }
 
 data class PlayListState(
@@ -194,6 +199,7 @@ data class VideoDetailsState(
     val isLoading: Boolean = true,
     val screenOrientation: Int = Configuration.ORIENTATION_UNDEFINED,
     val isFullScreen: Boolean = false,
+    val isCollapsingMiniPlayerInProgress: Boolean = false,
     val uiType: UiType = UiType.EMBEDDED,
     val bottomSheetReason: BottomSheetReason? = null,
     val currentComment: String = "",
@@ -210,6 +216,7 @@ data class VideoDetailsState(
     val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
+    val shouldUpdateMiniPlayerMaxOffset: Boolean = true,
 )
 
 sealed class BottomSheetReason {
@@ -443,9 +450,11 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onOrientationChanged(orientation: Int) {
         updateUid(orientation)
+        state.value = state.value.copy(shouldUpdateMiniPlayerMaxOffset = true)
     }
 
     override fun onCollapsing(percentage: Float) {
+        state.value = state.value.copy(isCollapsingMiniPlayerInProgress = percentage in 0.01..0.99)
         if (percentage > 0) {
             state.value = state.value.copy(uiType = UiType.IN_LIST)
             emitVmEvent(VideoDetailsEvent.HideKeyboard)
@@ -638,6 +647,19 @@ class VideoDetailsViewModel @Inject constructor(
             dismissResources()
             emitVmEvent(VideoDetailsEvent.NavigateBack)
         }
+    }
+
+    @OptIn(UnstableApi::class)
+    override fun getVideoAspectRatio(): Int =
+        if (state.value.rumblePlayer?.playerTarget?.value == PlayerTarget.AD
+            || state.value.videoEntity?.portraitMode == true
+        )
+            AspectRatioFrameLayout.RESIZE_MODE_FIT
+        else
+            AspectRatioFrameLayout.RESIZE_MODE_FILL
+
+    override fun onMiniPlayerMaxOffsetUpdated() {
+        state.value = state.value.copy(shouldUpdateMiniPlayerMaxOffset = false)
     }
 
     override fun onDelete(commentEntity: CommentEntity) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetState
@@ -82,6 +83,8 @@ fun LibraryScreen(
     val activityHandlerState by activityHandler.activityHandlerState.collectAsStateWithLifecycle()
     val alertDialogState by libraryHandler.alertDialogState.collectAsStateWithLifecycle()
 
+    val listState = rememberLazyListState()
+
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
 
@@ -117,6 +120,8 @@ fun LibraryScreen(
                 libraryHandler.refreshWatchHistory()
             } else if (it is ContentScreenVmEvent.PlayListUpdated) {
                 libraryHandler.onPlayListUpdated(it.playListEntity)
+            } else if (it is ContentScreenVmEvent.ScrollToTop) {
+                listState.animateScrollToItem(0)
             }
         }
     }
@@ -171,6 +176,7 @@ fun LibraryScreen(
             ) {
                 BoxWithConstraints {
                     LazyColumn(
+                        state = listState,
                         contentPadding = PaddingValues(
                             top = paddingMedium,
                             start = CalculatePaddingForTabletWidth(maxWidth),

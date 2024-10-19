@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class UserAgentInterceptor @Inject constructor(
     @AppName private val appName: String,
-    @VersionCode private val versionCode: String
+    @VersionCode private val versionCode: Int
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response = chain.run {
         val userAgent = "${appName}/${versionCode} okhttp/${okhttp3.OkHttp.VERSION}"

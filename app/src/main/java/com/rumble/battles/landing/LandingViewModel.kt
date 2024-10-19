@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.feed.domain.usecase.GetSensorBasedOrientationChangeEnabledUseCase
 import com.rumble.domain.landing.usecases.LoginRequiredUseCase
+import com.rumble.domain.landing.usecases.SaveVersionCodeUseCase
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.usecase.PrepareAppForTestingUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -23,6 +24,7 @@ interface LandingHandler {
 
     suspend fun shouldLogin(): Boolean
     fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
+    fun onSaveAppVersion()
 }
 
 @HiltViewModel
@@ -32,7 +34,8 @@ class LandingViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val loginRequiredUseCase: LoginRequiredUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
-    private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase
+    private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
+    private val saveVersionCodeUseCase: SaveVersionCodeUseCase
 ) : ViewModel(), LandingHandler {
 
     override val colorMode: Flow<ColorMode> = userPreferenceManager.colorMode
@@ -59,6 +62,12 @@ class LandingViewModel @Inject constructor(
     ) {
         viewModelScope.launch(errorHandler) {
             prepareAppForTestingUseCase(uitUserName, uitPassword)
+        }
+    }
+
+    override fun onSaveAppVersion() {
+        viewModelScope.launch(errorHandler) {
+            saveVersionCodeUseCase()
         }
     }
 }

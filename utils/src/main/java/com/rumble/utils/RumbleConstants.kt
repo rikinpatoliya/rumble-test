@@ -87,7 +87,6 @@ object RumbleConstants {
     const val SEARCH_INITIAL_MAX_LENGTH = 100
     const val SEARCH_UPDATE_DELAY_MS = 500L
     const val SUPPORT_EMAIL = "support@rumble.com"
-    const val VERSION_CODE_LIBRARY_FEATURE = 400
     const val LIVE_TIME_UPDATE = 1_000L
     const val TV_SEARCH_DEBOUNCE_TIME_MS = 250L
     const val TV_ALERT_DIALOG_DISPLAY_TIME: Long = 3000L

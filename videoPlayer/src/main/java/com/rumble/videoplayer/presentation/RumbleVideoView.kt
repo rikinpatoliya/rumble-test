@@ -72,6 +72,7 @@ fun RumbleVideoView(
     uiType: UiType = UiType.DISCOVER,
     dismissControlsDelay: Long = controlsInactiveDelay,
     isFullScreen: Boolean = false,
+    isCollapsingMiniPlayerInProgress: Boolean = false,
     liveChatDisabled: Boolean = false,
     userVote: VoteData? = null,
     onChangeFullscreenMode: (Boolean) -> Unit = {},
@@ -176,6 +177,8 @@ fun RumbleVideoView(
                     update = { playerView ->
                         if (isFullScreen)
                             playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                        else if (isCollapsingMiniPlayerInProgress)
+                            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                         else
                             playerView.resizeMode = aspectRatioMode
                     }
@@ -217,6 +220,8 @@ fun RumbleVideoView(
                 update = { playerView ->
                     if (isFullScreen)
                         playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    else if (isCollapsingMiniPlayerInProgress)
+                        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                     else
                         playerView.resizeMode = aspectRatioMode
                 }

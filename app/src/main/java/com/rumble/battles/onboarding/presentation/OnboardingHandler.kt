@@ -13,7 +13,6 @@ interface OnboardingHandler {
     val followingIconLocationState: StateFlow<Offset>
     val libraryIconLocationState: StateFlow<Offset>
 
-    fun onLibrary(withNavigation: Boolean = false)
     fun onSkipAll(popupsList: List<OnboardingPopupType>)
     fun onNext(popup: OnboardingPopupType, index: Int, popupsList: List<OnboardingPopupType>)
     fun onBack(index: Int)

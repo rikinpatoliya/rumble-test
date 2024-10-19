@@ -55,7 +55,7 @@ object LiveChatModule {
         emoteApi: EmoteApi,
         liveChatEventsApi: LiveChatEventsApi,
         @AppName appName: String,
-        @VersionCode versionCode: String,
+        @VersionCode versionCode: Int,
         @AppRequestName packageName: String,
         @AppVersion appVersion: String,
         @OsVersion osVersion: String,

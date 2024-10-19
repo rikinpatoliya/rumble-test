@@ -5,7 +5,6 @@ import com.rumble.domain.onboarding.domain.domainmodel.OnboardingPopupType
 import com.rumble.domain.onboarding.domain.domainmodel.OnboardingType
 import com.rumble.domain.onboarding.domain.domainmodel.OnboardingViewState
 import com.rumble.domain.onboarding.domain.domainmodel.RoomOnboardingView
-import com.rumble.domain.onboarding.domain.domainmodel.ShowLibraryOnboarding
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.domain.onboarding.model.repsitory.OnboardingViewRepository
 import com.rumble.network.session.SessionManager
@@ -19,13 +18,12 @@ const val CURRENT_ONBOARDING_VERSION = 0
 class FeedOnboardingViewUseCase @Inject constructor(
     private val onboardingViewRepository: OnboardingViewRepository,
     private val saveFeedOnboardingUseCase: SaveFeedOnboardingUseCase,
-    private val showLibraryOnboardingUseCase: ShowLibraryOnboardingUseCase,
     private val sessionManager: SessionManager
 ) {
 
-    suspend operator fun invoke(versionCode: Int): OnboardingViewState {
-        val oldLibraryResult = handleLibraryOnboardingTransition()
-        val libraryPopupResult = onboardingViewRepository.getOnboarding(
+    suspend operator fun invoke(): OnboardingViewState {
+        handleLibraryOnboardingTransition()
+        val libraryResult = onboardingViewRepository.getOnboarding(
             onboardingType = OnboardingType.YourLibrary,
             version = CURRENT_ONBOARDING_VERSION
         )
@@ -35,9 +33,7 @@ class FeedOnboardingViewUseCase @Inject constructor(
             version = CURRENT_ONBOARDING_VERSION
         )
         val onboardingList = filterOnboardingList(onboardingViewRepository.getOnboardingList())
-        return if (oldLibraryResult == null && libraryPopupResult == null && showLibraryOnboardingUseCase(versionCode)) {
-            ShowLibraryOnboarding
-        } else if (feedResult == null || playbackResult == null || onboardingList.isNotEmpty()) {
+        return if (feedResult == null || playbackResult == null || libraryResult == null || onboardingList.isNotEmpty()) {
             ShowOnboardingPopups(onboardingList)
         } else {
             DoNotShow
@@ -61,7 +57,7 @@ class FeedOnboardingViewUseCase @Inject constructor(
         return result
     }
 
-    private suspend fun handleLibraryOnboardingTransition(): RoomOnboardingView? {
+    private suspend fun handleLibraryOnboardingTransition() {
         val result = onboardingViewRepository.getOnboarding(
             onboardingType = OnboardingType.LibraryScreen,
             version = CURRENT_ONBOARDING_VERSION
@@ -73,7 +69,6 @@ class FeedOnboardingViewUseCase @Inject constructor(
                 ) == null
             ) saveFeedOnboardingUseCase(OnboardingType.YourLibrary)
         }
-        return result
     }
 
     private suspend fun handleFeedOnboardingTransition(): RoomOnboardingView? {

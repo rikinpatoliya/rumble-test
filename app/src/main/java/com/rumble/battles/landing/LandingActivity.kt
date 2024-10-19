@@ -90,6 +90,7 @@ class LandingActivity : ComponentActivity() {
 
     private fun navigateToMain() {
         lifecycleScope.launch {
+            viewModel.onSaveAppVersion()
             if (BuildConfig.ENVIRONMENT == Environment.QA
                 || BuildConfig.ENVIRONMENT == Environment.DEV
             ) {

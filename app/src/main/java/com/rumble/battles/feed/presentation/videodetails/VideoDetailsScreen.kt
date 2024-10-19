@@ -434,6 +434,7 @@ fun VideoDetailsScreen(
                 .conditional(state.isFullScreen.not()) {
                     systemBarsPadding()
                 },
+            handler = handler,
             collapseAvailable = state.isFullScreen.not(),
             enforcedState = state.layoutState,
             bottomThreshold = miniPlayerBottomThreshold,
@@ -650,6 +651,7 @@ fun VideoDetailsView(
                     rumblePlayer = state.rumblePlayer,
                     handler = handler,
                     fullScreen = state.isFullScreen,
+                    isCollapsingMiniPlayerInProgress = state.isCollapsingMiniPlayerInProgress,
                     uiType = state.uiType,
                     liveChatDisabled = state.videoEntity?.liveChatDisabled ?: true,
                     onCollapse = onEnforceCollapse,
@@ -1051,6 +1053,7 @@ private fun VideoPlayerView(
     rumblePlayer: RumblePlayer?,
     handler: VideoDetailsHandler,
     fullScreen: Boolean,
+    isCollapsingMiniPlayerInProgress: Boolean,
     uiType: UiType,
     liveChatDisabled: Boolean,
     onCollapse: () -> Unit,
@@ -1062,9 +1065,10 @@ private fun VideoPlayerView(
             RumbleVideoView(
                 modifier = Modifier.fillMaxSize(),
                 rumblePlayer = rumblePlayer,
-                aspectRatioMode = if (rumblePlayer.playerTarget.value == PlayerTarget.AD) AspectRatioFrameLayout.RESIZE_MODE_FIT else AspectRatioFrameLayout.RESIZE_MODE_FILL,
+                aspectRatioMode = handler.getVideoAspectRatio(),
                 uiType = uiType,
                 isFullScreen = fullScreen,
+                isCollapsingMiniPlayerInProgress = isCollapsingMiniPlayerInProgress,
                 onChangeFullscreenMode = {
                     handler.onFullScreen(fullScreen = it)
                 },

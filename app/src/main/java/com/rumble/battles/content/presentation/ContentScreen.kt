@@ -44,9 +44,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -106,7 +104,6 @@ import com.rumble.battles.library.presentation.library.LibraryViewModel
 import com.rumble.battles.library.presentation.playlist.PlayListTypeRefresh
 import com.rumble.battles.library.presentation.playlist.PlayListViewModel
 import com.rumble.battles.library.presentation.playlist.PlayListsViewModel
-import com.rumble.battles.library.presentation.views.LibraryOnboardingView
 import com.rumble.battles.library.presentation.views.PLAY_LIST_ENTITY
 import com.rumble.battles.library.presentation.views.PLAY_LIST_TYPE_REFRESH
 import com.rumble.battles.library.presentation.views.PlayListScreen
@@ -144,8 +141,6 @@ import com.rumble.battles.search.presentation.searchScreen.SearchScreen
 import com.rumble.battles.search.presentation.searchScreen.SearchViewModel
 import com.rumble.battles.search.presentation.videosSearch.VideosSearchScreen
 import com.rumble.battles.search.presentation.videosSearch.VideosSearchViewModel
-import com.rumble.battles.settings.presentation.DebugAdSettingsScreen
-import com.rumble.battles.settings.presentation.DebugAdSettingsViewModel
 import com.rumble.battles.settings.presentation.ChangeEmailScreen
 import com.rumble.battles.settings.presentation.ChangeEmailViewModel
 import com.rumble.battles.settings.presentation.ChangePasswordScreen
@@ -156,6 +151,8 @@ import com.rumble.battles.settings.presentation.CloseAccountScreen
 import com.rumble.battles.settings.presentation.CloseAccountViewModel
 import com.rumble.battles.settings.presentation.CreditsScreen
 import com.rumble.battles.settings.presentation.CreditsScreenViewModel
+import com.rumble.battles.settings.presentation.DebugAdSettingsScreen
+import com.rumble.battles.settings.presentation.DebugAdSettingsViewModel
 import com.rumble.battles.settings.presentation.SettingsScreen
 import com.rumble.battles.settings.presentation.SettingsViewModel
 import com.rumble.battles.settings.presentation.UploadQualityScreen
@@ -169,12 +166,12 @@ import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
 import com.rumble.domain.feed.domain.domainmodel.ads.AdEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.onboarding.domain.domainmodel.ShowLibraryOnboarding
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingNone
 import com.rumble.utils.RumbleConstants.HIDE_MINIPLAYER_DURATION
 import com.rumble.utils.RumbleConstants.NAV_BAR_ANIMATION_DURATION
+import com.rumble.utils.extension.isAtTopOfNavStack
 import com.rumble.utils.extension.navigationSafeEncode
 import com.rumble.utils.replaceUrlParameter
 import kotlinx.coroutines.CoroutineScope
@@ -219,7 +216,7 @@ fun ContentScreen(
     val tabScreens = NavItems.items.map {
         it.root.rootName
     }
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(NAV_ITEM_INDEX_HOME) }
     var navigateToMyVideos by remember { mutableStateOf(false) }
     val navControllers = remember {
         tabScreens.map {
@@ -321,18 +318,6 @@ fun ContentScreen(
                     )
                 }
 
-                ContentScreenVmEvent.NavigateToLibrary -> {
-                    navControllers[selectedTabIndex].navigate(
-                        route = RumbleScreens.Library.rootName,
-                        navOptions = NavOptions.Builder()
-                            .setPopUpTo(
-                                navControllers[selectedTabIndex].graph.findStartDestination().id,
-                                true
-                            )
-                            .build()
-                    )
-                }
-
                 is ContentScreenVmEvent.UserUploadNotification -> {
                     snackBarHostState.showRumbleSnackbar(
                         message = if (event.success) {
@@ -422,6 +407,7 @@ fun ContentScreen(
                 is ContentScreenVmEvent.PlayListCreated -> {}
                 is ContentScreenVmEvent.ChannelNotificationsUpdated -> {}
                 is ContentScreenVmEvent.SortFollowingTypeUpdated -> {}
+                else -> {}
             }
         }
     }
@@ -479,7 +465,11 @@ fun ContentScreen(
                         selectedTabIndex = selectedTabIndex,
                         onNavigationItemClicked = { _, index ->
                             if (selectedTabIndex == index) {
-                                navControllers[index].popBackStack(tabScreens[index], false)
+                                if (navControllers[index].isAtTopOfNavStack()) {
+                                    contentHandler.scrollToTop(index)
+                                } else {
+                                    navControllers[index].popBackStack(tabScreens[index], false)
+                                }
                             }
                             selectedTabIndex = index
                         },
@@ -575,12 +565,7 @@ fun ContentScreen(
     }
 
     if (activityHandler.isLaunchedFromNotification.not()) {
-        if (onboardingViewState.value == ShowLibraryOnboarding) {
-            LibraryOnboardingView(
-                onClose = contentHandler::onLibrary,
-                onLibrary = { contentHandler.onLibrary(true) }
-            )
-        } else if (onboardingViewState.value is ShowOnboardingPopups) {
+        if (onboardingViewState.value is ShowOnboardingPopups) {
             val popupsList = (onboardingViewState.value as ShowOnboardingPopups).list
             if (popupsList.isNotEmpty()) {
                 OnboardingPopupsOverlay(
@@ -812,9 +797,6 @@ private fun createNavigationGraph(
                 },
                 onViewNotifications = {
                     currentNavController.navigate(RumbleScreens.ProfileNotifications.rootName)
-                },
-                onNavigateToSettings = {
-                    currentNavController.navigate(RumbleScreens.Settings.getPath())
                 },
             )
         }

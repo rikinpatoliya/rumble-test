@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -43,6 +44,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.content.presentation.ContentHandler
+import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.discover.presentation.views.DontMissItView
 import com.rumble.battles.discover.presentation.views.EditorPicksView
 import com.rumble.battles.discover.presentation.views.LiveCategoriesView
@@ -82,7 +84,6 @@ fun DiscoverScreen(
     onBrowseCategory: (String) -> Unit = {},
     onBrowseAllCategories: () -> Unit = {},
     onViewNotifications: () -> Unit,
-    onNavigateToSettings: () -> Unit,
 ) {
     val state by discoverHandler.state.collectAsStateWithLifecycle()
     val userUIState by contentHandler.userUIState.collectAsStateWithLifecycle()
@@ -97,8 +98,18 @@ fun DiscoverScreen(
         }
     }
 
+    val listState = rememberLazyListState()
+
     BackHandler {
         contentHandler.onNavigateHome()
+    }
+
+    LaunchedEffect(Unit) {
+        contentHandler.eventFlow.collectLatest {
+            if (it is ContentScreenVmEvent.ScrollToTop) {
+                listState.animateScrollToItem(0)
+            }
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -169,6 +180,7 @@ fun DiscoverScreen(
                         .semantics {
                             testTag = DiscoverMainContentColumn
                         },
+                    state = listState,
                     contentPadding =
                     PaddingValues(
                         top = paddingMedium,

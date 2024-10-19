@@ -45,7 +45,7 @@ class MobileSingletonModule {
     @VersionCode
     @Singleton
     @Provides
-    fun provideAppVersionCode() = "${BuildConfig.VERSION_CODE}"
+    fun provideAppVersionCode(): Int = BuildConfig.VERSION_CODE
 
     @AppName
     @Singleton
