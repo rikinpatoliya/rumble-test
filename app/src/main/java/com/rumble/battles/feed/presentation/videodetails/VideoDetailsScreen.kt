@@ -446,17 +446,17 @@ fun VideoDetailsScreen(
                 handler.onUpdateLayoutState(it)
             },
             onCollapseProgress = { percentage, direction ->
-                collapseDirection = direction
-                collapsePercentage = percentage
-                if (direction == CollapseDirection.UP && collapsed) {
-                    collapsed = false
-                    collapsePaddingVisible = false
-                } else if (direction == CollapseDirection.DOWN && state.isFullScreen) {
-                    handler.onFullScreen(false)
+                if (!state.isFullScreen) {
+                    collapseDirection = direction
+                    collapsePercentage = percentage
+                    if (direction == CollapseDirection.UP && collapsed) {
+                        collapsed = false
+                        collapsePaddingVisible = false
+                    }
+                    if (percentage >= 0.5f && collapseHorizontalPadding == paddingNone && direction == CollapseDirection.DOWN) collapsePaddingVisible =
+                        true
+                    handler.onCollapsing(percentage)
                 }
-                if (percentage >= 0.5f && collapseHorizontalPadding == paddingNone && direction == CollapseDirection.DOWN) collapsePaddingVisible =
-                    true
-                handler.onCollapsing(percentage)
             }
         ) {
             if (collapsed) {
