@@ -5,10 +5,12 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.WindowInsetsController
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -62,6 +65,8 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -74,6 +79,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -145,6 +151,7 @@ import com.rumble.theme.RumbleTypography.h6Light
 import com.rumble.theme.RumbleTypography.tinyBody
 import com.rumble.theme.RumbleTypography.tinyBodySemiBold
 import com.rumble.theme.brandedLocalsRed
+import com.rumble.theme.brandedPlayerBackground
 import com.rumble.theme.commentActionButtonWidth
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageMedium
@@ -189,6 +196,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import kotlin.math.roundToInt
 
 @SuppressLint("SourceLockedOrientationActivity", "InlinedApi")
 @OptIn(ExperimentalMaterialApi::class)
@@ -361,7 +369,10 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    contentHandler.onShowPremiumPromo(state.videoEntity?.id, SubscriptionSource.Video)
+                    contentHandler.onShowPremiumPromo(
+                        state.videoEntity?.id,
+                        SubscriptionSource.Video
+                    )
                 }
 
                 is VideoDetailsEvent.OpenMuteMenu -> {
@@ -373,7 +384,10 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.OpenPremiumSubscriptionOptions -> {
-                    contentHandler.onShowSubscriptionOptions(state.videoEntity?.id, SubscriptionSource.Video)
+                    contentHandler.onShowSubscriptionOptions(
+                        state.videoEntity?.id,
+                        SubscriptionSource.Video
+                    )
                 }
 
                 is VideoDetailsEvent.SetOrientation -> {
@@ -444,17 +458,17 @@ fun VideoDetailsScreen(
                 handler.onUpdateLayoutState(it)
             },
             onCollapseProgress = { percentage, direction ->
-                collapseDirection = direction
-                collapsePercentage = percentage
-                if (direction == CollapseDirection.UP && collapsed) {
-                    collapsed = false
-                    collapsePaddingVisible = false
-                } else if (direction == CollapseDirection.DOWN && state.isFullScreen) {
-                    handler.onFullScreen(false)
+                if (!state.isFullScreen) {
+                    collapseDirection = direction
+                    collapsePercentage = percentage
+                    if (direction == CollapseDirection.UP && collapsed) {
+                        collapsed = false
+                        collapsePaddingVisible = false
+                    }
+                    if (percentage >= 0.5f && collapseHorizontalPadding == paddingNone && direction == CollapseDirection.DOWN) collapsePaddingVisible =
+                        true
+                    handler.onCollapsing(percentage)
                 }
-                if (percentage >= 0.5f && collapseHorizontalPadding == paddingNone && direction == CollapseDirection.DOWN) collapsePaddingVisible =
-                    true
-                handler.onCollapsing(percentage)
             }
         ) {
             if (collapsed) {
@@ -607,8 +621,7 @@ fun VideoDetailsView(
                     } else {
                         boxMaxWidth
                     }
-                }
-                else width / 16 * 9
+                } else width / 16 * 9
             }
 
             if (miniPlayerHeight >= height * (1 - collapsePercentage) && collapseDirection == CollapseDirection.DOWN) {
@@ -641,7 +654,10 @@ fun VideoDetailsView(
                     url = state.videoEntity?.videoThumbnail ?: "",
                     onBack = { handler.onBack() },
                     onSubscribeNow = {
-                        contentHandler.onShowSubscriptionOptions(state.videoEntity?.id, SubscriptionSource.Video)
+                        contentHandler.onShowSubscriptionOptions(
+                            state.videoEntity?.id,
+                            SubscriptionSource.Video
+                        )
                     }
                 )
             } else {
@@ -1066,8 +1082,53 @@ private fun VideoPlayerView(
         modifier = modifier
     ) {
         rumblePlayer?.let {
+            var height by remember { mutableFloatStateOf(0f) }
+            val thresholdHeight = remember(height) {
+                height * RumbleConstants.FULLSCREEN_VIDEO_DRAG_THRESHOLD
+            }
+            var dragOffset by remember { mutableFloatStateOf(0f) }
+            val scope = rememberCoroutineScope()
+
+            val onDragEndCancel: () -> Unit = {
+                when {
+                    dragOffset >= thresholdHeight -> {
+                        dragOffset = 0f
+                        handler.onFullScreen(fullScreen = false)
+                    }
+
+                    else -> {
+                        // Animate dragOffset to 0
+                        scope.launch {
+                            animate(
+                                initialValue = dragOffset,
+                                targetValue = 0f,
+                                animationSpec = tween(durationMillis = RumbleConstants.VIDEO_DRAG_CANCEL_ANIMATION_DURATION)
+                            ) { value, _ ->
+                                dragOffset = value
+                            }
+                        }
+                    }
+                }
+            }
             RumbleVideoView(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(brandedPlayerBackground)
+                    .onSizeChanged { height = it.height.toFloat() }
+                    .conditional(uiType == UiType.FULL_SCREEN_LANDSCAPE && fullScreen) {
+                        Modifier
+                            .offset { IntOffset(0, dragOffset.roundToInt()) }
+                            .pointerInput(Unit) {
+                                detectVerticalDragGestures(
+                                    onDragEnd = onDragEndCancel,
+                                    onDragCancel = onDragEndCancel
+                                ) { change, dragAmount ->
+                                    dragOffset += dragAmount
+                                    // Constrain dragOffset within bounds
+                                    dragOffset = dragOffset.coerceIn(0f, thresholdHeight)
+                                }
+                            }
+                    },
                 rumblePlayer = rumblePlayer,
                 aspectRatioMode = handler.getVideoAspectRatio(),
                 uiType = uiType,
