@@ -430,11 +430,9 @@ fun VideoDetailsScreen(
                     padding(horizontal = collapseHorizontalPadding)
                 }
                 .padding(bottom = collapseBottomPaddingDp)
-                .wrapContentHeight()
-                .conditional(state.isFullScreen.not()) {
+                .conditional(state.isFullScreen.not() && IsTablet().not()) {
                     systemBarsPadding()
                 },
-            handler = handler,
             collapseAvailable = state.isFullScreen.not(),
             enforcedState = state.layoutState,
             bottomThreshold = miniPlayerBottomThreshold,

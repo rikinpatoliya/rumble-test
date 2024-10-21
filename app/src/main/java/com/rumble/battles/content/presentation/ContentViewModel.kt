@@ -212,7 +212,7 @@ sealed class ContentScreenVmEvent {
     ) : ContentScreenVmEvent()
 
     data object NavigateHome : ContentScreenVmEvent()
-    object ScrollToTop : ContentScreenVmEvent()
+    data object ScrollToTop : ContentScreenVmEvent()
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
     data class Error(val errorMessage: String? = null) : ContentScreenVmEvent()
     data class ShowSnackBarMessage(val messageId: Int) : ContentScreenVmEvent()
