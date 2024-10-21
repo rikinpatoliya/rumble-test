@@ -847,6 +847,7 @@ class CameraViewModel @Inject constructor(
                     saveDraftToDB()
                 }
             }
+            resetForm()
             onPublish()
         } else {
             uiState.update {
@@ -943,5 +944,28 @@ class CameraViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    private fun resetForm() {
+        uiState.value = uiState.value.copy(
+            uploadVideoUri = "",
+            videoExtension = RUMBLE_VIDEO_EXTENSION,
+            thumbnails = emptyList(),
+            generateUIThumbs = true,
+            selectedThumbnail = null,
+            selectedUploadImage = null,
+            title = "",
+            description = "",
+            titleError = false,
+            titleEmptyError = false,
+            descriptionError = false,
+            exclusiveAgreementChecked = false,
+            termsOfServiceChecked = false,
+            exclusiveAgreementError = false,
+            termsOfServiceError = false,
+            selectedUploadLicense = UploadLicense.RUMBLE_ONLY,
+            selectedUploadVisibility = UploadVisibility.PUBLIC,
+            selectedUploadSchedule = UploadSchedule(option = UploadScheduleOption.NOW)
+        )
     }
 }
