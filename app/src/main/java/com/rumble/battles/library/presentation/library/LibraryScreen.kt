@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetState
@@ -64,6 +64,7 @@ fun LibraryScreen(
     libraryHandler: LibraryHandler,
     contentHandler: ContentHandler,
     authHandler: AuthHandler,
+    listState: LazyListState,
     playListTypeRefresh: PlayListTypeRefresh? = null,
     playListEntityRefresh: PlayListEntity? = null,
     onSearch: () -> Unit,
@@ -82,8 +83,6 @@ fun LibraryScreen(
     val userUIState by contentHandler.userUIState.collectAsStateWithLifecycle()
     val activityHandlerState by activityHandler.activityHandlerState.collectAsStateWithLifecycle()
     val alertDialogState by libraryHandler.alertDialogState.collectAsStateWithLifecycle()
-
-    val listState = rememberLazyListState()
 
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }

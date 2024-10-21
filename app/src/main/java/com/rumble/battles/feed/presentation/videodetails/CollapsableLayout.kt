@@ -20,12 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rumble.theme.elevation
 import com.rumble.theme.radiusNone
 import com.rumble.utils.RumbleConstants.COLLAPSE_ANIMATION_DURATION
+import com.rumble.utils.extension.toPx
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -46,7 +49,6 @@ private const val autoScrollUpPercentage = 0.9f
 @Composable
 fun CollapsableLayout(
     modifier: Modifier = Modifier,
-    handler: VideoDetailsHandler,
     collapseAvailable: Boolean = true,
     enforcedState: CollapsableLayoutState = CollapsableLayoutState.EXPENDED,
     shadowElevation: Dp = elevation,
@@ -59,7 +61,6 @@ fun CollapsableLayout(
 ) {
     val scope = rememberCoroutineScope()
     var containerHeight by remember { mutableFloatStateOf(0f) }
-    val state by handler.state
     var maxOffset by remember { mutableFloatStateOf(0f) }
     val sheetOffset = remember { Animatable(0f) }
     var collapseDirection by remember { mutableStateOf(CollapseDirection.DOWN) }
@@ -67,6 +68,13 @@ fun CollapsableLayout(
     var currentSate by rememberSaveable { mutableStateOf(enforcedState) }
     val currentEnforcedState by rememberUpdatedState(enforcedState)
     val collapseAvailableCurrent by rememberUpdatedState(collapseAvailable)
+    val configuration = LocalConfiguration.current
+    val context = LocalContext.current
+
+    LaunchedEffect(configuration.orientation) {
+        containerHeight = (configuration.screenHeightDp.toPx(context)).toFloat()
+        maxOffset = containerHeight - bottomPaddingPx
+    }
 
     LaunchedEffect(maxOffset) {
         if (maxOffset > 0 && enforcedState == CollapsableLayoutState.COLLAPSED) {
@@ -129,10 +137,9 @@ fun CollapsableLayout(
         modifier = modifier
             .padding(top = (sheetOffset.value / LocalDensity.current.density).dp)
             .onGloballyPositioned { coordinates ->
-                if (maxOffset == 0f || state.shouldUpdateMiniPlayerMaxOffset) {
+                if (maxOffset == 0f) {
                     containerHeight = coordinates.size.height.toFloat()
                     maxOffset = containerHeight - bottomPaddingPx
-                    handler.onMiniPlayerMaxOffsetUpdated()
                 }
             }
             .pointerInput(Unit) {

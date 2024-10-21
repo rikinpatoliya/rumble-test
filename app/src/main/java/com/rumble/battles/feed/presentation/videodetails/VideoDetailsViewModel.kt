@@ -174,7 +174,6 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onUpdateLayoutState(layoutState: CollapsableLayoutState)
     fun onClearVideo()
     fun getVideoAspectRatio(): Int
-    fun onMiniPlayerMaxOffsetUpdated()
 }
 
 data class PlayListState(
@@ -216,7 +215,6 @@ data class VideoDetailsState(
     val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
-    val shouldUpdateMiniPlayerMaxOffset: Boolean = true,
 )
 
 sealed class BottomSheetReason {
@@ -450,7 +448,6 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onOrientationChanged(orientation: Int) {
         updateUid(orientation)
-        state.value = state.value.copy(shouldUpdateMiniPlayerMaxOffset = true)
     }
 
     override fun onCollapsing(percentage: Float) {
@@ -657,10 +654,6 @@ class VideoDetailsViewModel @Inject constructor(
             AspectRatioFrameLayout.RESIZE_MODE_FIT
         else
             AspectRatioFrameLayout.RESIZE_MODE_FILL
-
-    override fun onMiniPlayerMaxOffsetUpdated() {
-        state.value = state.value.copy(shouldUpdateMiniPlayerMaxOffset = false)
-    }
 
     override fun onDelete(commentEntity: CommentEntity) {
         alertDialogState.value =

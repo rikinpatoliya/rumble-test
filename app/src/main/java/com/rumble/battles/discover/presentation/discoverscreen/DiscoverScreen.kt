@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -76,6 +76,7 @@ fun DiscoverScreen(
     activityHandler: RumbleActivityHandler,
     discoverHandler: DiscoverHandler,
     contentHandler: ContentHandler,
+    listState: LazyListState,
     onSearch: () -> Unit = {},
     onChannelClick: (id: String) -> Unit = {},
     onVideoClick: (video: VideoEntity) -> Unit = {},
@@ -97,8 +98,6 @@ fun DiscoverScreen(
             discoverHandler.onVideoPlayerImpression()
         }
     }
-
-    val listState = rememberLazyListState()
 
     BackHandler {
         contentHandler.onNavigateHome()

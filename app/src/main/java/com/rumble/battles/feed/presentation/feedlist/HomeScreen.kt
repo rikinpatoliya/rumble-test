@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -78,7 +79,6 @@ import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXSmall
 import com.rumble.utils.RumbleConstants.PLAYER_MIN_VISIBILITY
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
-import com.rumble.utils.extension.rememberLazyListState
 import kotlinx.coroutines.flow.collectLatest
 
 private const val ITEMS_SHIFT_USER_LOGGED_IN = 2
@@ -90,6 +90,7 @@ fun HomeScreen(
     homeHandler: HomeHandler,
     contentHandler: ContentHandler,
     recommendedChannelsHandler: RecommendedChannelsHandler,
+    listState: LazyListState,
     onSearch: () -> Unit,
     onChannelClick: (id: String) -> Unit,
     onFreshContentChannelClick: (id: String) -> Unit,
@@ -128,8 +129,6 @@ fun HomeScreen(
             videoEntity.dislikeNumber = updated.dislikeNumber
         }
     }
-
-    val listState = videoListItems.rememberLazyListState()
 
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {

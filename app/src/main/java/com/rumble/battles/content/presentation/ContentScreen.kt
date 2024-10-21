@@ -12,6 +12,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -24,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -230,14 +233,20 @@ fun ContentScreen(
             }
         }
     }
-    val configuration = LocalConfiguration.current
+
+    val scrollStates = remember { mutableStateListOf<LazyListState>() }
+    if (scrollStates.isEmpty()) {
+        tabScreens.forEach { _ ->
+            scrollStates.add(rememberLazyListState())
+        }
+    }
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val observer = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_RESUME) {
             contentHandler.onContentResumed()
         }
     }
-    var enforceHideVideo by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -248,15 +257,6 @@ fun ContentScreen(
 
     BackHandler(bottomSheetState.isVisible) {
         hideBottomSheet(coroutineScope, bottomSheetState, contentHandler)
-    }
-
-    LaunchedEffect(configuration.orientation) {
-        // Workaround, we need it to update position of mini player after screen rotation on tablets.
-        if (videoDetailsState.isTablet and videoDetailsState.visible and videoDetailsState.collapsed) {
-            enforceHideVideo = true
-            delay(HIDE_MINIPLAYER_DURATION)
-            enforceHideVideo = false
-        }
     }
 
     LaunchedEffect(activityHandler.eventFlow) {
@@ -482,6 +482,7 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_HOME],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_HOME],
+                    scrollStates[NAV_ITEM_INDEX_HOME],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -491,6 +492,7 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_DISCOVER],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_DISCOVER],
+                    scrollStates[NAV_ITEM_INDEX_DISCOVER],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -500,6 +502,7 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_CAMERA],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_CAMERA],
+                    scrollStates[NAV_ITEM_INDEX_CAMERA],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -509,6 +512,7 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_LIBRARY],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_LIBRARY],
+                    scrollStates[NAV_ITEM_INDEX_LIBRARY],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -519,6 +523,7 @@ fun ContentScreen(
                         tabScreens[NAV_ITEM_INDEX_ACCOUNT],
                         parentController,
                         navControllers[NAV_ITEM_INDEX_ACCOUNT],
+                        scrollStates[NAV_ITEM_INDEX_ACCOUNT],
                         activityHandler,
                         contentHandler,
                         bottomSheetState,
@@ -535,7 +540,7 @@ fun ContentScreen(
                     }
                 }
             }
-            if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA && enforceHideVideo.not()) {
+            if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA) {
                 VideoDetailsScreen(
                     activityHandler = activityHandler,
                     handler = videoDetailsViewModel,
@@ -608,6 +613,7 @@ fun TabNavHost(
     startDestination: String,
     parentController: NavController,
     navController: NavHostController,
+    listState: LazyListState,
     activityHandler: RumbleActivityHandler,
     contentHandler: ContentHandler,
     bottomSheetState: ModalBottomSheetState,
@@ -619,6 +625,7 @@ fun TabNavHost(
             startDestination,
             parentController,
             navController,
+            listState,
             bottomSheetState,
             contentHandler,
             activityHandler,
@@ -710,6 +717,7 @@ private fun createNavigationGraph(
     startDestination: String,
     parentController: NavController,
     currentNavController: NavHostController,
+    listState: LazyListState,
     bottomSheetState: ModalBottomSheetState,
     contentHandler: ContentHandler,
     activityHandler: RumbleActivityHandler,
@@ -728,6 +736,7 @@ private fun createNavigationGraph(
                 homeHandler = feedListViewModel,
                 contentHandler = contentHandler,
                 recommendedChannelsHandler = recommendedChannelsHandler,
+                listState = listState,
                 onSearch = {
                     currentNavController.navigate(RumbleScreens.Search.getPath())
                 },
@@ -772,6 +781,7 @@ private fun createNavigationGraph(
                 activityHandler = activityHandler,
                 discoverHandler = discoverViewModel,
                 contentHandler = contentHandler,
+                listState = listState,
                 onSearch = {
                     currentNavController.navigate(RumbleScreens.Search.getPath())
                 },
@@ -894,6 +904,7 @@ private fun createNavigationGraph(
                 libraryHandler = libraryViewModel,
                 contentHandler = contentHandler,
                 authHandler = authViewModel,
+                listState = listState,
                 playListTypeRefresh = playListTypeRefresh,
                 playListEntityRefresh = playListEntityRefresh,
                 onSearch = {
