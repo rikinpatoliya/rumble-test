@@ -2,18 +2,24 @@ package com.rumble.videoplayer.presentation
 
 import android.view.KeyEvent.ACTION_UP
 import android.view.ViewGroup
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,9 +29,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -36,6 +45,7 @@ import com.rumble.theme.brandedPlayerBackground
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXXGiant
 import com.rumble.theme.paddingXXXXLarge
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.conditional
 import com.rumble.utils.extension.keepScreenOn
@@ -61,6 +71,8 @@ import com.rumble.videoplayer.presentation.internal.views.AdLoadingScreen
 import com.rumble.videoplayer.presentation.internal.views.LoadingScreen
 import com.rumble.videoplayer.presentation.internal.views.ReplayScreen
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -150,8 +162,57 @@ fun RumbleVideoView(
         }
     }
 
+    var height by remember { mutableFloatStateOf(0f) }
+    val thresholdHeight = remember(height) {
+        height * RumbleConstants.FULLSCREEN_VIDEO_DRAG_THRESHOLD
+    }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+    val scope = rememberCoroutineScope()
+
+    val onDragEndCancel: () -> Unit = {
+        when {
+            dragOffset >= thresholdHeight -> {
+                dragOffset = 0f
+                onChangeFullscreenMode(false)
+            }
+
+            else -> {
+                // Animate dragOffset to 0
+                scope.launch {
+                    animate(
+                        initialValue = dragOffset,
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 200)
+                    ) { value, _ ->
+                        dragOffset = value
+                    }
+                }
+            }
+        }
+    }
+
     Box(
-        modifier = modifier.background(playerBackgroundColor)
+        modifier = modifier
+            .background(playerBackgroundColor)
+            .onSizeChanged { height = it.height.toFloat() }
+            .then(
+                if (uiType == UiType.FULL_SCREEN_LANDSCAPE && isFullScreen) {
+                    Modifier
+                        .offset { IntOffset(0, dragOffset.roundToInt()) }
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onDragEnd = onDragEndCancel,
+                                onDragCancel = onDragEndCancel
+                            ) { change, dragAmount ->
+                                dragOffset += dragAmount
+                                // Constrain dragOffset within bounds
+                                dragOffset = dragOffset.coerceIn(0f, thresholdHeight)
+                            }
+                        }
+                } else {
+                    Modifier
+                }
+            )
     ) {
         if (playerTarget == PlayerTarget.REMOTE) {
             CastControlView(
