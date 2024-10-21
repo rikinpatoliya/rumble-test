@@ -621,8 +621,7 @@ fun VideoDetailsView(
                     } else {
                         boxMaxWidth
                     }
-                }
-                else width / 16 * 9
+                } else width / 16 * 9
             }
 
             if (miniPlayerHeight >= height * (1 - collapsePercentage) && collapseDirection == CollapseDirection.DOWN) {
@@ -1103,7 +1102,7 @@ private fun VideoPlayerView(
                             animate(
                                 initialValue = dragOffset,
                                 targetValue = 0f,
-                                animationSpec = tween(durationMillis = 200)
+                                animationSpec = tween(durationMillis = RumbleConstants.VIDEO_DRAG_CANCEL_ANIMATION_DURATION)
                             ) { value, _ ->
                                 dragOffset = value
                             }

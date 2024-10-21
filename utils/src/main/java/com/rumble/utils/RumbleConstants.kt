@@ -112,6 +112,7 @@ object RumbleConstants {
     const val MAX_COMMENT_FIELD_LINES = 3
     const val HIDE_MINIPLAYER_DURATION = 50L
     const val FULLSCREEN_VIDEO_DRAG_THRESHOLD = 0.33f
+    const val VIDEO_DRAG_CANCEL_ANIMATION_DURATION = 200
 
     @Language("JSON")
     val countriesList = """
