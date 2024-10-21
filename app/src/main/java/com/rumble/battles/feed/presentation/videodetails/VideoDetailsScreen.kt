@@ -75,13 +75,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.min
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -603,7 +603,13 @@ fun VideoDetailsView(
                 if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
             val height = if (isKeyboardVisible) videoHeightReduced else {
                 if (state.isFullScreen) boxMxHeight
-                else if (state.videoEntity?.portraitMode == true) boxMaxWidth
+                else if (state.videoEntity?.portraitMode == true) {
+                    if (isTablet) {
+                        min(width, boxMxHeight)
+                    } else {
+                        boxMaxWidth
+                    }
+                }
                 else width / 16 * 9
             }
 
