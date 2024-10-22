@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,9 +29,11 @@ import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.RumbleTypography.tinyBody
 import com.rumble.theme.elevation
+import com.rumble.theme.miniPlayerActionSize
 import com.rumble.theme.miniPlayerHeight
 import com.rumble.theme.miniPlayerWidth
 import com.rumble.theme.paddingMedium
+import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusXXXXMedium
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.videoplayer.R
@@ -149,14 +152,18 @@ fun MiniPlayerControlsView(
         if (playerTarget != PlayerTarget.AD) {
             if (isPlaying) {
                 Icon(
-                    modifier = Modifier.clickableNoRipple { onPause() },
+                    modifier = Modifier
+                        .size(miniPlayerActionSize)
+                        .clickableNoRipple { onPause() },
                     painter = painterResource(id = R.drawable.ic_pause_embedded),
                     contentDescription = stringResource(id = R.string.pause),
                     tint = RumbleCustomTheme.colors.primary
                 )
             } else {
                 Icon(
-                    modifier = Modifier.clickableNoRipple { onPlay() },
+                    modifier = Modifier
+                        .size(miniPlayerActionSize)
+                        .clickableNoRipple { onPlay() },
                     painter = painterResource(id = R.drawable.ic_play_embedded),
                     contentDescription = stringResource(id = R.string.play),
                     tint = RumbleCustomTheme.colors.primary
@@ -165,7 +172,10 @@ fun MiniPlayerControlsView(
         }
 
         Icon(
-            modifier = Modifier.clickableNoRipple { onClose() },
+            modifier = Modifier
+                .size(miniPlayerActionSize)
+                .padding(paddingXXXSmall)
+                .clickableNoRipple { onClose() },
             painter = painterResource(id = R.drawable.ic_close),
             contentDescription = stringResource(id = R.string.close),
             tint = RumbleCustomTheme.colors.primary
