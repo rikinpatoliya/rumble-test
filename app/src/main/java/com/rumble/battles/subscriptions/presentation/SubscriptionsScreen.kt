@@ -87,7 +87,7 @@ fun SubscriptionsScreen(
 
     LaunchedEffect(swipeRefreshState.isSwipeInProgress) {
         if (swipeRefreshState.isSwipeInProgress) {
-            if (state.searchVisible.not()) subscriptionsScreenHandler.onUpdateSearchVisible()
+            if (state.searchVisible.not() && state.followedChannels.isNotEmpty()) subscriptionsScreenHandler.onUpdateSearchVisible()
         }
     }
 
