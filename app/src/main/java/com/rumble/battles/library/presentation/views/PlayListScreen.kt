@@ -373,10 +373,6 @@ fun PlayListScreen(
                         }
                     }
 
-                    item {
-                        BottomNavigationBarScreenSpacer()
-                    }
-
                     playListVideos.apply {
                         when {
                             loadState.refresh is LoadState.Error -> {
@@ -413,6 +409,10 @@ fun PlayListScreen(
                                 }
                             }
                         }
+                    }
+
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
                 }
             }

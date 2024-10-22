@@ -392,10 +392,6 @@ fun ChannelDetailsScreen(
                                 }
                             }
 
-                            item {
-                                BottomNavigationBarScreenSpacer()
-                            }
-
                             videoListItems.apply {
                                 if (loadState.append is LoadState.Loading) {
                                     item {
@@ -407,6 +403,10 @@ fun ChannelDetailsScreen(
                                         )
                                     }
                                 }
+                            }
+
+                            item {
+                                BottomNavigationBarScreenSpacer()
                             }
                         }
                     }

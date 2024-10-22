@@ -273,6 +273,55 @@ fun BrowseCategoriesScreen(
                             }
                         }
                     }
+                    videoListItems.apply {
+                        when {
+                            loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
+                                item {
+                                    EmptyView(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(paddingMedium),
+                                        title = stringResource(id = R.string.no_live_streams),
+                                        text = stringResource(id = R.string.no_channels_live)
+                                    )
+                                }
+                            }
+
+                            loadState.refresh is LoadState.Error ->
+                                item {
+                                    ErrorView(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(paddingMedium),
+                                        backgroundColor = MaterialTheme.colors.onSecondary,
+                                        onRetry = categoryHandler::onRefresh
+                                    )
+                                }
+
+                            loadState.append is LoadState.Error -> {
+                                item {
+                                    ErrorView(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(paddingMedium),
+                                        backgroundColor = MaterialTheme.colors.onSecondary,
+                                        onRetry = videoListItems::retry,
+                                    )
+                                }
+                            }
+
+                            loadState.append is LoadState.Loading -> {
+                                item {
+                                    PageLoadingView(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .wrapContentHeight()
+                                            .padding(paddingMedium)
+                                    )
+                                }
+                            }
+                        }
+                    }
                     item {
                         BottomNavigationBarScreenSpacer()
                     }
@@ -288,48 +337,6 @@ fun BrowseCategoriesScreen(
                 backgroundColor = MaterialTheme.colors.onSecondary,
                 onRetry = categoryHandler::onRefresh
             )
-        }
-
-        videoListItems.apply {
-            when {
-                loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
-                    EmptyView(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingMedium),
-                        title = stringResource(id = R.string.no_live_streams),
-                        text = stringResource(id = R.string.no_channels_live)
-                    )
-                }
-
-                loadState.refresh is LoadState.Error ->
-                    ErrorView(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingMedium),
-                        backgroundColor = MaterialTheme.colors.onSecondary,
-                        onRetry = categoryHandler::onRefresh
-                    )
-
-                loadState.append is LoadState.Error -> {
-                    ErrorView(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingMedium),
-                        backgroundColor = MaterialTheme.colors.onSecondary,
-                        onRetry = videoListItems::retry,
-                    )
-                }
-
-                loadState.append is LoadState.Loading -> {
-                    PageLoadingView(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .padding(paddingMedium)
-                    )
-                }
-            }
         }
     }
 

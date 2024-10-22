@@ -102,10 +102,6 @@ fun RecommendedChannelScreen(
                             )
                         }
                     }
-                    items(RECOMMENDED_CHANNELS_COLUMNS_QUANTITY) {
-                        BottomNavigationBarScreenSpacer()
-                    }
-
                     channelPagingItems.apply {
                         when {
                             loadState.refresh is LoadState.NotLoading && channelPagingItems.itemCount == 0 -> {
@@ -156,6 +152,9 @@ fun RecommendedChannelScreen(
                                 }
                             }
                         }
+                    }
+                    items(RECOMMENDED_CHANNELS_COLUMNS_QUANTITY) {
+                        BottomNavigationBarScreenSpacer()
                     }
                 }
             }

@@ -161,10 +161,6 @@ fun PlayListsScreen(
                         }
                     }
 
-                    item {
-                        BottomNavigationBarScreenSpacer()
-                    }
-
                     playLists.apply {
                         when {
                             loadState.refresh is LoadState.NotLoading && playLists.itemCount == 0 -> {
@@ -229,6 +225,10 @@ fun PlayListsScreen(
                                 }
                             }
                         }
+                    }
+
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
                 }
             }

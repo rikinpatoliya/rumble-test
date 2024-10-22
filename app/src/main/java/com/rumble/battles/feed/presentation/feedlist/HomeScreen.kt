@@ -175,7 +175,8 @@ fun HomeScreen(
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect {
-            val shift = if (userUIState.isLoggedIn) ITEMS_SHIFT_USER_LOGGED_IN else ITEMS_SHIFT_USER_NOT_LOGGED_IN
+            val shift =
+                if (userUIState.isLoggedIn) ITEMS_SHIFT_USER_LOGGED_IN else ITEMS_SHIFT_USER_NOT_LOGGED_IN
             var createPlayer = false
             val itemPosition =
                 listState.findFirstFullyVisibleItemIndex(shift, PLAYER_MIN_VISIBILITY)
@@ -242,13 +243,6 @@ fun HomeScreen(
             },
             indicator = { state, trigger -> RumbleSwipeRefreshIndicator(state, trigger) }
         ) {
-
-            //TODO: Experimental fix for crashes on Android 8.0 (Api 26). Can't reproduce, therefore isolating potential causes.
-            //https://console.firebase.google.com/project/rumble-video-battles/crashlytics/app/android:com.rumble.battles/issues/fc1194938bb6b92ae69ea9299fe2c3b1
-            //potential cause https://issuetracker.google.com/issues/229752147
-
-//            BoxWithConstraints {
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -323,7 +317,11 @@ fun HomeScreen(
                                     rumblePlayer = homeHandler.currentPlayerState.value,
                                     soundOn = soundOn,
                                     onChannelClick = { onChannelClick(it.channelId) },
-                                    onMoreClick = { videoEntity -> contentHandler.onMoreVideoOptionsClicked(videoEntity) },
+                                    onMoreClick = { videoEntity ->
+                                        contentHandler.onMoreVideoOptionsClicked(
+                                            videoEntity
+                                        )
+                                    },
                                     onImpression = homeHandler::onVideoCardImpression,
                                     onPlayerImpression = homeHandler::onPlayerImpression,
                                     onClick = homeHandler::onVideoClick,
@@ -354,16 +352,16 @@ fun HomeScreen(
                                         vertical = paddingXSmall
                                     ),
                                     onClick = {
-                                        contentHandler.onShowSubscriptionOptions(null, SubscriptionSource.Home)
+                                        contentHandler.onShowSubscriptionOptions(
+                                            null,
+                                            SubscriptionSource.Home
+                                        )
                                     },
                                     onDismiss = homeHandler::onDismissPremiumBanner
                                 )
                             }
                         }
                     }
-                }
-                item {
-                    BottomNavigationBarScreenSpacer()
                 }
                 videoListItems.apply {
                     when {
@@ -415,8 +413,10 @@ fun HomeScreen(
                         }
                     }
                 }
+                item {
+                    BottomNavigationBarScreenSpacer()
+                }
             }
-//            }
         }
     }
 

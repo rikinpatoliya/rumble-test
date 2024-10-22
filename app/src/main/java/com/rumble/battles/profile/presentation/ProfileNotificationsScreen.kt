@@ -145,9 +145,6 @@ fun ProfileNotificationsScreen(
                             ProfileNotificationItem(item, context, onChannelClick, onVideoClick)
                         }
                     }
-                    item {
-                        BottomNavigationBarScreenSpacer()
-                    }
                     notificationsList.apply {
                         item {
                             when {
@@ -172,6 +169,9 @@ fun ProfileNotificationsScreen(
                                 }
                             }
                         }
+                    }
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
                 }
             }
