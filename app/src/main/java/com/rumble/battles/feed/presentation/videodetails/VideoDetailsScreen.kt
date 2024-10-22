@@ -447,7 +447,7 @@ fun VideoDetailsScreen(
                     padding(horizontal = collapseHorizontalPadding)
                 }
                 .padding(bottom = collapseBottomPaddingDp)
-                .conditional(state.isFullScreen.not() && IsTablet().not()) {
+                .conditional(state.isFullScreen.not()) {
                     systemBarsPadding()
                 },
             collapseAvailable = state.isFullScreen.not(),
