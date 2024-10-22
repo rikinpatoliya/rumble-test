@@ -67,14 +67,16 @@ class SubscriptionsViewModel @Inject constructor(
 
     override fun updateSortFollowing(sortFollowingType: SortFollowingType) {
         state.update { uiState ->
+            val searchVisible = if (uiState.searchVisible) originalFollowedChannels.isNotEmpty() else false
+            val query = if (searchVisible) uiState.query else ""
             uiState.copy(
                 followedChannels = sortFollowing(
-                    filterFollowingUseCase(
-                        state.value.query,
-                        originalFollowedChannels
-                    ), sortFollowingType
+                    filterFollowingUseCase(query, originalFollowedChannels),
+                    sortFollowingType
                 ),
-                sortFollowingType = sortFollowingType
+                sortFollowingType = sortFollowingType,
+                searchVisible = searchVisible,
+                query = if (searchVisible) uiState.query else ""
             )
         }
     }
