@@ -289,6 +289,9 @@ fun VideoDetailsScreen(
         systemUiController.systemBarsBehavior =
             WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         if (state.isFullScreen) {
+            if (contentHandler.bottomSheetUiState.value.data is BottomSheetContent.PremiumPromo){
+                contentHandler.onClosePremiumPromo()
+            }
             contentHandler.updateBottomSheetUiState(BottomSheetContent.HideBottomSheet)
             handler.onDismissBottomSheet()
         }
