@@ -59,7 +59,7 @@ class PlayerAdsHelper {
     }
 
     fun hasPreRollForPosition(position: Long, isLive: Boolean): Boolean {
-        if (isLive) {
+        if (isLive && preRollHash.contains(0)) {
             currentIndex = 0
             currentPreRollList = preRollHash.remove(0) ?: mutableListOf()
         } else {

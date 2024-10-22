@@ -258,11 +258,6 @@ fun VideoListScreen(
                             }
                         }
                     }
-
-                    item {
-                        BottomNavigationBarScreenSpacer()
-                    }
-
                     videoPagingItems.apply {
                         when {
                             loadState.refresh is LoadState.NotLoading && videoPagingItems.itemCount == 0 -> {
@@ -311,6 +306,9 @@ fun VideoListScreen(
                                 }
                             }
                         }
+                    }
+                    item {
+                        BottomNavigationBarScreenSpacer()
                     }
                 }
             }
