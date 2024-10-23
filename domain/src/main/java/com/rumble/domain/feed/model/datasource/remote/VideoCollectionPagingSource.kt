@@ -61,7 +61,11 @@ class VideoCollectionPagingSource(
                 LoadResult.Page(
                     data = itemsWithIndex,
                     prevKey = null,
-                    nextKey = if (itemsWithIndex.isEmpty()) null else nextKey + loadSize
+                    nextKey = when {
+                        itemsWithIndex.isEmpty() -> null
+                        nextKey == 0 -> loadSize + 1 // added 1 to account for featured channels
+                        else -> nextKey + loadSize
+                    }
                 )
             } catch (e: Exception) {
                 LoadResult.Error(e)
