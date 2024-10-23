@@ -1,8 +1,12 @@
 package com.rumble.battles.search.presentation.searchScreen
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.navigation.RumblePath
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
@@ -22,7 +26,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface SearchHandler {
+interface SearchHandler: LazyListStateHandler {
     val initialQuery: String
     val state: StateFlow<SearchQueryUIState>
     val navDest: String
@@ -62,6 +66,12 @@ class SearchViewModel @Inject constructor(
         stateHandle.get<String>(RumblePath.NAVIGATION.path) ?: "".navigationSafeDecode()
 
     override val parentScreen: String = stateHandle.get<String>(RumblePath.PARAMETER.path) ?: ""
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
 
     init {
         viewModelScope.launch {

@@ -14,6 +14,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,7 +67,17 @@ fun PlayListsScreen(
 ) {
     val playLists: LazyPagingItems<PlayListEntity> =
         playListsHandler.playListsFlow.collectAndHandleState(handleLoadStates = playListsHandler::handleLoadState)
-    val listState = rememberLazyListState()
+    val savedListState = playListsHandler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
+
+    LaunchedEffect(listState) {
+        playListsHandler.updateListState(listState)
+    }
 
     LaunchedEffect(Unit) {
         contentHandler.eventFlow.collectLatest {

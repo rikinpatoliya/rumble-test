@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -23,7 +24,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,6 +85,17 @@ fun VideosSearchScreen(
     val coroutineScope = rememberCoroutineScope()
     BackHandler(bottomSheetState.isVisible) {
         coroutineScope.launch { bottomSheetState.hide() }
+    }
+    val savedListState = handler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
+
+    LaunchedEffect(listState) {
+        handler.updateListState(listState)
     }
 
     LaunchedEffect(Unit) {
@@ -164,6 +178,7 @@ fun VideosSearchScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingMedium),
+                    state = listState,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(paddingLarge),
                     contentPadding = PaddingValues(horizontal = horizontalContentPadding)

@@ -1,5 +1,6 @@
 package com.rumble.battles.library.presentation.playlist
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,7 @@ import androidx.paging.cachedIn
 import com.rumble.analytics.CardSize
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.common.presentation.RestrictedVideoHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
@@ -58,7 +60,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface PlayListHandler : RestrictedVideoHandler, EditPlayListHandler {
+interface PlayListHandler : RestrictedVideoHandler, EditPlayListHandler, LazyListStateHandler {
     val state: StateFlow<PlayListScreenUIState>
     val playListVideosFlow: Flow<PagingData<Feed>>
     val eventFlow: Flow<PlayListScreenVmEvent>
@@ -133,6 +135,12 @@ class PlayListViewModel @Inject constructor(
         mutableStateOf(AlertDialogState())
     override val playListSettingsState =
         MutableStateFlow<PlayListSettingsBottomSheetDialog>(PlayListSettingsBottomSheetDialog.DefaultPopupState)
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
 
     override fun onRefreshPlayList() {
         viewModelScope.launch(errorHandler) {

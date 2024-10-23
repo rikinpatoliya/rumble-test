@@ -1,5 +1,6 @@
 package com.rumble.battles.channels.channeldetails.presentation
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import com.rumble.analytics.CardSize
 import com.rumble.analytics.LocalsJoinButtonEvent
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.RumblePath
@@ -57,7 +59,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface ChannelDetailsHandler {
+interface ChannelDetailsHandler: LazyListStateHandler {
 
     val uiState: StateFlow<ChannelDetailsUIState>
     val listToggleViewStyle: Flow<ListToggleViewStyle>
@@ -195,6 +197,12 @@ class ChannelDetailsViewModel @Inject constructor(
     override val currentPlayerState: MutableState<RumblePlayer?> = mutableStateOf(null)
 
     override val soundState = userPreferenceManager.videoCardSoundStateFlow
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
 
     init {
         observeLoginState()

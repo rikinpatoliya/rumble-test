@@ -1,11 +1,15 @@
 package com.rumble.battles.library.presentation.playlist
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.library.domain.model.PlayListOption
@@ -20,7 +24,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface PlayListsHandler {
+interface PlayListsHandler: LazyListStateHandler {
     val playListsFlow: Flow<PagingData<PlayListEntity>>
     val eventFlow: Flow<PlayListsScreenVmEvent>
 
@@ -44,6 +48,12 @@ class PlayListsViewModel @Inject constructor(
     override val playListsFlow: Flow<PagingData<PlayListEntity>> =
         getLibraryPlayListsPagedUseCase().cachedIn(viewModelScope)
     override val eventFlow: MutableSharedFlow<PlayListsScreenVmEvent> = MutableSharedFlow()
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
 
     private val errorHandler = CoroutineExceptionHandler { context, throwable ->
         unhandledErrorUseCase(TAG, throwable)

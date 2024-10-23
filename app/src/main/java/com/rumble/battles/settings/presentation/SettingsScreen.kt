@@ -22,6 +22,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -98,9 +99,19 @@ fun SettingsScreen(
     )
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
-    val listState = rememberLazyListState()
+    val savedListState = settingsHandler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
 
     val clipboard: ClipboardManager = LocalClipboardManager.current
+
+    LaunchedEffect(listState) {
+        settingsHandler.updateListState(listState)
+    }
 
     LaunchedEffect(key1 = context) {
         settingsHandler.vmEvents.collect { event ->

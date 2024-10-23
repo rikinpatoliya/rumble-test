@@ -1,7 +1,11 @@
 package com.rumble.battles.subscriptions.presentation
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.FetchFollowedChannelsUseV2Case
@@ -15,7 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-interface SubscriptionsScreenHandler {
+interface SubscriptionsScreenHandler: LazyListStateHandler {
     val state: StateFlow<SubscriptionsScreenUIState>
     fun onRefresh()
     fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
@@ -95,6 +99,12 @@ class SubscriptionsViewModel @Inject constructor(
         state.update {
             it.copy(searchVisible = true)
         }
+    }
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
     }
 
     private fun loadFollowingChannels() {

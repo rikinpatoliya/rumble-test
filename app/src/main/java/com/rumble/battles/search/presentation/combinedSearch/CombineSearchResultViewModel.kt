@@ -1,5 +1,6 @@
 package com.rumble.battles.search.presentation.combinedSearch
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.rumble.analytics.CardSize
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.RumblePath
@@ -41,7 +43,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface CombineSearchResultHandler {
+interface CombineSearchResultHandler: LazyListStateHandler {
     val query: String
     val state: State<CombineSearchResultState>
     val alertDialogState: State<AlertDialogState>
@@ -126,6 +128,12 @@ class CombineSearchResultViewModel @Inject constructor(
         mutableStateOf(AlertDialogState())
     override val soundState = userPreferenceManager.videoCardSoundStateFlow
     override val eventFlow: MutableSharedFlow<CombinedSearchEvent> = MutableSharedFlow()
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
 
     private var currentVisibleFeed: VideoEntity? = null
     private var lastDisplayedFeed: VideoEntity? = null

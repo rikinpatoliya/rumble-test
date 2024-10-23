@@ -31,6 +31,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -151,7 +152,13 @@ fun ChannelDetailsScreen(
             channelDetailsHandler.onViewResumed()
         }
     }
-    val scrollState = rememberLazyListState()
+    val savedListState = channelDetailsHandler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val scrollState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
     val soundOn by channelDetailsHandler.soundState.collectAsStateWithLifecycle(initialValue = false)
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -163,6 +170,10 @@ fun ChannelDetailsScreen(
 
     BackHandler(bottomSheetState.isVisible) {
         coroutineScope.launch { bottomSheetState.hide() }
+    }
+
+    LaunchedEffect(scrollState) {
+        channelDetailsHandler.updateListState(scrollState)
     }
 
     LaunchedEffect(videoDetailsState) {

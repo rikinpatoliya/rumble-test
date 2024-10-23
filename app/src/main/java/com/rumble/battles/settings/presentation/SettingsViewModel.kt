@@ -1,9 +1,13 @@
 package com.rumble.battles.settings.presentation
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.battles.BuildConfig
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.RumblePath
@@ -49,7 +53,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-interface SettingsHandler {
+interface SettingsHandler: LazyListStateHandler {
     val uiState: StateFlow<SettingsScreenUIState>
     val loginTypeFlow: Flow<LoginType>
     val backgroundPlay: Flow<BackgroundPlay>
@@ -160,6 +164,12 @@ class SettingsViewModel @Inject constructor(
         unhandledErrorUseCase(TAG, throwable)
         uiState.update { it.copy(loading = false) }
         emitVmEvent(SettingsScreenVmEvent.Error())
+    }
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
     }
 
     init {

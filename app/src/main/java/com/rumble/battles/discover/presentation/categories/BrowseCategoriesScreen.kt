@@ -12,16 +12,18 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -67,7 +69,6 @@ import com.rumble.theme.paddingNone
 import com.rumble.theme.paddingSmall
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
-import com.rumble.utils.extension.rememberLazyListState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -87,8 +88,21 @@ fun BrowseCategoriesScreen(
     val configuration = LocalConfiguration.current
     var isCollapsed by rememberSaveable { mutableStateOf(false) }
     val soundOn by categoryHandler.soundState.collectAsStateWithLifecycle(initialValue = false)
-    val gridState: LazyGridState = rememberLazyGridState()
-    val listState = videoListItems.rememberLazyListState()
+    val savedGridState = categoryHandler.gridState.value
+    val firstGridVisibleItemIndex by remember { derivedStateOf { savedGridState.firstVisibleItemIndex } }
+    val firstGridVisibleItemScrollOffset by remember { derivedStateOf { savedGridState.firstVisibleItemScrollOffset } }
+    val gridState = rememberLazyGridState(
+        initialFirstVisibleItemIndex = firstGridVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstGridVisibleItemScrollOffset
+    )
+    val savedListState = categoryHandler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
+
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             categoryHandler.onCreatePlayerForVisibleFeed()
@@ -132,6 +146,7 @@ fun BrowseCategoriesScreen(
     }
 
     LaunchedEffect(listState) {
+        categoryHandler.updateListState(listState)
         snapshotFlow { listState.layoutInfo }.collect {
             if (state.displayType != CategoryDisplayType.CATEGORIES)
                 isCollapsed = listState.firstVisibleItemScrollOffset > 0
@@ -155,6 +170,7 @@ fun BrowseCategoriesScreen(
     }
 
     LaunchedEffect(gridState) {
+        categoryHandler.updateGridState(gridState)
         snapshotFlow { gridState.layoutInfo }.collect {
             if (state.displayType == CategoryDisplayType.CATEGORIES)
                 isCollapsed = gridState.firstVisibleItemScrollOffset > 0

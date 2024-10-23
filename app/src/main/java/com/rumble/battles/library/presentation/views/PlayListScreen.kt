@@ -29,6 +29,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -131,7 +132,13 @@ fun PlayListScreen(
     val playListVideos: LazyPagingItems<Feed> =
         playListHandler.playListVideosFlow.collectAndHandleState(handleLoadStates = playListHandler::handleLoadState)
     val alertDialogState by playListHandler.alertDialogState
-    val listState = rememberLazyListState()
+    val savedListState = playListHandler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
     var isTopBarTitleVisible by remember { mutableStateOf(false) }
@@ -146,6 +153,10 @@ fun PlayListScreen(
                 listState.layoutInfo.visibleItemsInfo.firstOrNull()?.key != TOP_BAR_TITLE_VISIBLE_KEY
             return super.onPostScroll(consumed, available, source)
         }
+    }
+
+    LaunchedEffect(listState) {
+        playListHandler.updateListState(listState)
     }
 
     LaunchedEffect(Unit) {

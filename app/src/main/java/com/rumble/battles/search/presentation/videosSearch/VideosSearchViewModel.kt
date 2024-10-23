@@ -1,5 +1,6 @@
 package com.rumble.battles.search.presentation.videosSearch
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +12,7 @@ import androidx.paging.cachedIn
 import com.rumble.analytics.CardSize
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.RumblePath
@@ -33,7 +35,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface VideosSearchHandler {
+interface VideosSearchHandler: LazyListStateHandler {
     val query: String
     val videoList: Flow<PagingData<VideoEntity>>
     val selection: SortFilterSelection
@@ -93,6 +95,12 @@ class VideosSearchViewModel @Inject constructor(
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
+    }
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
     }
 
 

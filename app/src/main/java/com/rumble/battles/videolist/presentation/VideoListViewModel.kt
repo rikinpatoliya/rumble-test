@@ -1,5 +1,6 @@
 package com.rumble.battles.videolist.presentation
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,7 @@ import androidx.paging.cachedIn
 import com.rumble.analytics.CardSize
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.RumblePath
@@ -52,7 +54,7 @@ data class VideoListState(
     val rumblePlayer: RumblePlayer? = null,
 )
 
-interface VideoListHandler {
+interface VideoListHandler: LazyListStateHandler {
     val videosPagingDataFlow: Flow<PagingData<Feed>>
     val state: StateFlow<VideoListState>
     val listToggleViewStyle: Flow<ListToggleViewStyle>
@@ -114,6 +116,12 @@ class VideoListViewModel @Inject constructor(
 
     override val alertDialogState: MutableState<AlertDialogState> =
         mutableStateOf(AlertDialogState())
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
 
     private val errorHandler = CoroutineExceptionHandler { _, error ->
         unhandledErrorUseCase(TAG, error)

@@ -1,5 +1,6 @@
 package com.rumble.battles.videos.presentation
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsUIState
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsVmEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.domain.analytics.domain.domainmodel.myVideosScreen
@@ -67,7 +69,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface MyVideosHandler {
+interface MyVideosHandler: LazyListStateHandler {
 
     val uiState: StateFlow<ChannelDetailsUIState>
     val listToggleViewStyle: Flow<ListToggleViewStyle>
@@ -181,6 +183,12 @@ class MyVideosViewModel @Inject constructor(
     override val currentPlayerState: MutableState<RumblePlayer?> = mutableStateOf(null)
 
     override val soundState = userPreferenceManager.videoCardSoundStateFlow
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
 
     init {
         viewModelScope.launch(errorHandler) {

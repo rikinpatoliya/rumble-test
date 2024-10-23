@@ -1,5 +1,7 @@
 package com.rumble.battles.discover.presentation.categories
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +27,8 @@ import com.rumble.analytics.CategoryVideoCardEvent
 import com.rumble.analytics.CategoryVideosTabTapEvent
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyGridStateHandler
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.battles.navigation.RumblePath
@@ -64,7 +68,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface CategoryHandler {
+interface CategoryHandler: LazyListStateHandler, LazyGridStateHandler {
     val state: StateFlow<CategoryState>
     val currentPlayerState: State<RumblePlayer?>
     val soundState: Flow<Boolean>
@@ -161,6 +165,18 @@ class CategoryViewModel @Inject constructor(
     override val alertDialogState: MutableState<AlertDialogState> =
         mutableStateOf(AlertDialogState())
     override val eventFlow: MutableSharedFlow<CategoryEvent> = MutableSharedFlow()
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
+
+    override fun updateListState(newState: LazyListState) {
+        listState.value = newState
+    }
+
+    override var gridState: MutableState<LazyGridState> = mutableStateOf(LazyGridState(0, 0))
+
+    override fun updateGridState(newState: LazyGridState) {
+        gridState.value = newState
+    }
 
     init {
         observeSoundState()

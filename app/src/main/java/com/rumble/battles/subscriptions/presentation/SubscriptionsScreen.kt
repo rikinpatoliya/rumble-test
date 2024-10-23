@@ -21,7 +21,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,11 +68,21 @@ fun SubscriptionsScreen(
     val coroutineScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
 
-    val contentListState = rememberLazyListState()
+    val savedListState = subscriptionsScreenHandler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
 
     val swipeRefreshState = rememberSwipeRefreshState(
         isRefreshing = state.loading
     )
+
+    LaunchedEffect(listState) {
+        subscriptionsScreenHandler.updateListState(listState)
+    }
 
     LaunchedEffect(Unit) {
         contentHandler.eventFlow.collectLatest {
@@ -136,7 +148,7 @@ fun SubscriptionsScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize(),
-                state = contentListState,
+                state = listState,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(paddingSmall),
                 contentPadding = PaddingValues(

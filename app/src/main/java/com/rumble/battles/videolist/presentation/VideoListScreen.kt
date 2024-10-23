@@ -16,6 +16,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -86,7 +87,13 @@ fun VideoListScreen(
     )
     val context = LocalContext.current
     val snackBarHostState = remember { androidx.compose.material3.SnackbarHostState() }
-    val listState = rememberLazyListState()
+    val savedListState = videoListHandler.listState.value
+    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
+    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
+    )
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             videoListHandler.onCreatePlayerForVisibleFeed()
@@ -110,6 +117,9 @@ fun VideoListScreen(
         if (videoDetailsState.visible.not()) videoListHandler.onCreatePlayerForVisibleFeed()
     }
 
+    LaunchedEffect(listState) {
+        videoListHandler.updateListState(listState)
+    }
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect {
