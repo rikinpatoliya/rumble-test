@@ -84,7 +84,6 @@ import com.rumble.videoplayer.presentation.internal.defaults.playNexTvHeight
 import com.rumble.videoplayer.presentation.internal.defaults.playNexTvWidth
 import com.rumble.videoplayer.presentation.internal.defaults.playNextAppearanceDelay
 import com.rumble.videoplayer.presentation.internal.defaults.playNextCloseSize
-import com.rumble.videoplayer.presentation.internal.defaults.playNextCount
 import com.rumble.videoplayer.presentation.internal.defaults.playNextDelay
 import com.rumble.videoplayer.presentation.internal.defaults.playNextWidthFrame
 import com.rumble.videoplayer.presentation.internal.defaults.playNextWidthFrameTv
@@ -101,10 +100,12 @@ private enum class FocusedAction {
 fun PlayNextView(
     uiType: UiType,
     rumbleVideo: RumbleVideo,
+    delayInitialCount: Int,
+    onPlayNextCountChanged: (Int) -> Unit,
     onCancel: () -> Unit,
-    onPlayNow: () -> Unit
+    onPlayNow: () -> Unit,
 ) {
-    var delayCount by rememberSaveable { mutableIntStateOf(playNextCount) }
+    var delayCount by rememberSaveable { mutableIntStateOf(delayInitialCount) }
     val isLiveVideo = remember {
         rumbleVideo.streamStatus == StreamStatus.LiveStream
             || rumbleVideo.streamStatus == StreamStatus.OfflineStream
@@ -119,6 +120,7 @@ fun PlayNextView(
         while (delayCount > 0) {
             delay(playNextDelay)
             delayCount--
+            onPlayNextCountChanged(delayCount)
         }
         playNow = true
     }

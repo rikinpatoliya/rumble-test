@@ -57,24 +57,18 @@ internal fun EmbeddedControlsView(
     val displaySeek = rumblePlayer.enableSeekBar
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        EmbeddedControls(
-            isVisible,
-            isFullScreen,
-            seekInProgress,
-            rumblePlayer,
-            onChangeFullscreenMode,
-            onMore,
-            onBack,
-            onSeek
-        )
-
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .conditional(seekInProgress.not() and isVisible) {
+            background(brandedPlayerBackground.copy(0.6f))
+        }
+    ) {
         if (displaySeek) {
             EmbeddedSeekBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),
-                displayThumb = isVisible  && rumblePlayer.isLiveVideo.not(),
+                displayThumb = isVisible,
                 rumblePlayer = rumblePlayer
             ) {
                 onSeekInProgress(it)
@@ -87,6 +81,17 @@ internal fun EmbeddedControlsView(
                 }
             }
         }
+
+        EmbeddedControls(
+            isVisible,
+            isFullScreen,
+            seekInProgress,
+            rumblePlayer,
+            onChangeFullscreenMode,
+            onMore,
+            onBack,
+            onSeek
+        )
     }
 }
 
@@ -112,11 +117,7 @@ private fun EmbeddedControls(
         exit = fadeOut()
     ) {
         ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .conditional(seekInProgress.not()) {
-                    background(brandedPlayerBackground.copy(0.6f))
-                }
+            modifier = Modifier.fillMaxSize()
         ) {
             val (playerControls, fullScreenButton, replay, more, cast, duration, live, back) = createRefs()
 

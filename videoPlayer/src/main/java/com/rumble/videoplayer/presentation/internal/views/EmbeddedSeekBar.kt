@@ -39,6 +39,7 @@ import com.rumble.videoplayer.presentation.internal.defaults.embeddedSeekBarHeig
 import com.rumble.videoplayer.presentation.internal.defaults.embeddedThumbOffset
 import com.rumble.videoplayer.presentation.internal.defaults.embeddedThumbSize
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EmbeddedSeekBar(
@@ -46,12 +47,14 @@ internal fun EmbeddedSeekBar(
     rumblePlayer: RumblePlayer,
     seekBarHeight: Dp = embeddedSeekBarHeight,
     displayThumb: Boolean = false,
+    increaseSeekArea: Boolean = true,
     onSeekInProgress: (Boolean) -> Unit = {}
 ) {
     val progressPercentage by rumblePlayer.progressPercentage
     var progress by rememberSaveable { mutableFloatStateOf(0f) }
     var isDragging by rememberSaveable { mutableStateOf(false) }
     val playerState by rumblePlayer.playbackState
+    val seekHeightRatio = if (increaseSeekArea) 15 else 1
 
     BoxWithConstraints(modifier = modifier) {
         val widthInPx = with(LocalDensity.current) { maxWidth.toPx() }
@@ -89,7 +92,7 @@ internal fun EmbeddedSeekBar(
             Column(modifier = Modifier.align(Alignment.BottomCenter)) {
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
-                    .height(seekBarHeight.times(3)))
+                    .height(seekBarHeight.times(seekHeightRatio)))
 
                 Box {
                     if (playerState.isBuffering) {
@@ -120,7 +123,7 @@ internal fun EmbeddedSeekBar(
             ) {
                 Slider(
                     modifier = Modifier
-                        .height(seekBarHeight * 3)
+                        .height(seekBarHeight * seekHeightRatio)
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .offset(y = embeddedThumbOffset),

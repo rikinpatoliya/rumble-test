@@ -97,6 +97,7 @@ fun MiniPlayerView(
                     .align(Alignment.BottomCenter),
                 rumblePlayer = rumblePlayer,
                 seekBarHeight = miniPlayerSeekBarHeight,
+                increaseSeekArea = false,
             )
         }
     }

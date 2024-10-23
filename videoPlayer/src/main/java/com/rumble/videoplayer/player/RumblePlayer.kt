@@ -78,6 +78,7 @@ import com.rumble.videoplayer.presentation.internal.defaults.liveVideoSeekBuffer
 import com.rumble.videoplayer.presentation.internal.defaults.maxBufferSize
 import com.rumble.videoplayer.presentation.internal.defaults.maxCountDown
 import com.rumble.videoplayer.presentation.internal.defaults.mintBufferSize
+import com.rumble.videoplayer.presentation.internal.defaults.playNextCount
 import com.rumble.videoplayer.presentation.internal.defaults.seekDuration
 import com.rumble.videoplayer.presentation.internal.defaults.watchProgressDelay
 import dagger.hilt.EntryPoint
@@ -239,6 +240,7 @@ class RumblePlayer(
     internal var relatedVideoList: List<RumbleVideo> = emptyList()
     internal var playList: RumblePlayList? = null
     internal var lastFocusedPlayListIndex = 0
+    internal var playNextCurrentCount = playNextCount
 
     var targetChangeListener: PlayerTargetChangeListener? = null
 
@@ -400,6 +402,7 @@ class RumblePlayer(
     }
 
     internal fun onPlayNextVideo() {
+        playNextCurrentCount = playNextCount
         getNextRelatedVideoUseCase(relatedVideoList, rumbleVideo)?.let {
             playNextVideo(it, true)
         }
@@ -433,6 +436,10 @@ class RumblePlayer(
     internal fun updateUiType(type: UiType) {
         uiType = type
         handleTimeRang()
+    }
+
+    internal fun onPlayNextCountChanged(newValue: Int) {
+        playNextCurrentCount = newValue
     }
 
     fun setVideo(

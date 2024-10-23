@@ -241,6 +241,8 @@ fun RumbleVideoView(
                         PlayNextView(
                             uiType = uiType,
                             rumbleVideo = it,
+                            delayInitialCount = rumblePlayer.playNextCurrentCount,
+                            onPlayNextCountChanged = rumblePlayer::onPlayNextCountChanged,
                             onCancel = rumblePlayer::onCancelNextVideo,
                             onPlayNow = rumblePlayer::onPlayNextVideo
                         )
