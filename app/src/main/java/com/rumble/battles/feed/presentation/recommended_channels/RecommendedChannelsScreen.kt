@@ -12,13 +12,9 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -55,18 +51,7 @@ fun RecommendedChannelScreen(
 
     val channelPagingItems: LazyPagingItems<ChannelDetailsEntity> =
         recommendedChannelsHandler.channels.collectAsLazyPagingItems()
-
-    val savedGridState = recommendedChannelsHandler.gridState.value
-    val firstGridVisibleItemIndex by remember { derivedStateOf { savedGridState.firstVisibleItemIndex } }
-    val firstGridVisibleItemScrollOffset by remember { derivedStateOf { savedGridState.firstVisibleItemScrollOffset } }
-    val gridState = rememberLazyGridState(
-        initialFirstVisibleItemIndex = firstGridVisibleItemIndex,
-        initialFirstVisibleItemScrollOffset = firstGridVisibleItemScrollOffset
-    )
-
-    LaunchedEffect(gridState) {
-        recommendedChannelsHandler.updateGridState(gridState)
-    }
+    val gridState by recommendedChannelsHandler.gridState
 
     Column(
         modifier = Modifier

@@ -15,14 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -99,19 +97,9 @@ fun SettingsScreen(
     )
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
-    val savedListState = settingsHandler.listState.value
-    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
-    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
-    val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = firstVisibleItemIndex,
-        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
-    )
+    val listState by settingsHandler.listState
 
     val clipboard: ClipboardManager = LocalClipboardManager.current
-
-    LaunchedEffect(listState) {
-        settingsHandler.updateListState(listState)
-    }
 
     LaunchedEffect(key1 = context) {
         settingsHandler.vmEvents.collect { event ->

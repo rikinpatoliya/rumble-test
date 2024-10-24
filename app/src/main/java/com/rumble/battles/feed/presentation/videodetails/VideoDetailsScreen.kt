@@ -135,6 +135,7 @@ import com.rumble.battles.feed.presentation.views.WatchingNowView
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.landing.RumbleEvent
 import com.rumble.battles.livechat.presentation.BuyRantSheet
+import com.rumble.battles.livechat.presentation.LiveChatEvent
 import com.rumble.battles.livechat.presentation.LiveChatHandler
 import com.rumble.battles.livechat.presentation.LiveChatModerationMenu
 import com.rumble.battles.livechat.presentation.LiveChatView
@@ -424,6 +425,22 @@ fun VideoDetailsScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        liveChatHandler.eventFlow.collectLatest {
+            when (it) {
+                is LiveChatEvent.EnforceLiveGatePremiumRestriction -> {
+                    handler.onEnforceLiveGatePremiumRestriction()
+                }
+
+                is LiveChatEvent.LiveGateStarted -> {
+                    handler.onLiveGateEvent(it.liveGateEntity)
+                }
+
+                else -> return@collectLatest
+            }
+        }
+    }
+
     BackHandler {
         if (bottomSheetState.isVisible) {
             coroutineScope.launch { bottomSheetState.hide() }
@@ -638,7 +655,7 @@ fun VideoDetailsView(
                     if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
                 val height = if (isKeyboardVisible) videoHeightReduced else {
                     if (state.isFullScreen) boxMxHeight
-                    else if (state.videoEntity?.portraitMode == true) {
+                    else if (state.videoEntity?.portraitMode == true && state.hasPremiumRestriction.not()) {
                         if (isTablet) {
                             min(width, boxMxHeight)
                         } else {
@@ -667,20 +684,39 @@ fun VideoDetailsView(
                         .height(actualHeight)
 
                 if (state.hasPremiumRestriction) {
-                    PremiumOnlyThumbnailView(
-                        modifier = sizeModifier
-                            .aspectRatio(
-                                ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
-                            ),
-                        url = state.videoEntity?.videoThumbnail ?: "",
-                        onBack = { handler.onBack() },
-                        onSubscribeNow = {
-                            contentHandler.onShowSubscriptionOptions(
-                                state.videoEntity?.id,
-                                SubscriptionSource.Video
-                            )
-                        }
-                    )
+                    if (state.videoEntity?.hasLiveGate == true) {
+                        PremiumOnlyThumbnailView(
+                            modifier = sizeModifier
+                                .aspectRatio(
+                                    ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
+                                ),
+                            text =  stringResource(id = R.string.rest_video_premium_only),
+                            url = state.videoEntity?.videoThumbnail ?: "",
+                            onBack = { handler.onBack() },
+                            onSubscribeNow = {
+                                contentHandler.onShowSubscriptionOptions(
+                                    state.videoEntity?.id,
+                                    SubscriptionSource.Video
+                                )
+                            }
+                        )
+                    } else {
+                        PremiumOnlyThumbnailView(
+                            modifier = sizeModifier
+                                .aspectRatio(
+                                    ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
+                                ),
+                            text =  stringResource(id = R.string.this_video_only_rumble_premium),
+                            url = state.videoEntity?.videoThumbnail ?: "",
+                            onBack = { handler.onBack() },
+                            onSubscribeNow = {
+                                contentHandler.onShowSubscriptionOptions(
+                                    state.videoEntity?.id,
+                                    SubscriptionSource.Video
+                                )
+                            }
+                        )
+                    }
                 } else {
                     VideoPlayerView(
                         modifier = sizeModifier

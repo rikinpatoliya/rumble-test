@@ -9,6 +9,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.rumble.analytics.BrowseCategoriesBackButtonEvent
 import com.rumble.analytics.BrowseCategoriesCategoryButtonEvent
 import com.rumble.analytics.BrowseCategoriesCategoryCardEvent
@@ -69,7 +70,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface CategoryHandler: LazyListStateHandler, LazyGridStateHandler {
+interface CategoryHandler : LazyListStateHandler, LazyGridStateHandler {
     val state: StateFlow<CategoryState>
     val currentPlayerState: State<RumblePlayer?>
     val soundState: Flow<Boolean>
@@ -116,7 +117,8 @@ sealed class CategoryEvent {
 }
 
 sealed class CategoryAlertReason : AlertDialogReason {
-    data class RestrictedContentReason(val videoEntity: VideoEntity, val index: Int) : CategoryAlertReason()
+    data class RestrictedContentReason(val videoEntity: VideoEntity, val index: Int) :
+        CategoryAlertReason()
 }
 
 private const val TAG = "CategoryViewModel"
@@ -169,15 +171,7 @@ class CategoryViewModel @Inject constructor(
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
-    override fun updateListState(newState: LazyListState) {
-        listState.value = newState
-    }
-
     override var gridState: MutableState<LazyGridState> = mutableStateOf(LazyGridState(0, 0))
-
-    override fun updateGridState(newState: LazyGridState) {
-        gridState.value = newState
-    }
 
     init {
         observeSoundState()
@@ -195,7 +189,7 @@ class CategoryViewModel @Inject constructor(
                             displayType = displayType,
                             showLiveCategoryList = state.value.showLiveCategoryList,
                             subcategoryList = state.value.subcategoryList
-                        ),
+                        ).cachedIn(viewModelScope),
                         displayType = displayType
                     )
                 }
@@ -221,7 +215,7 @@ class CategoryViewModel @Inject constructor(
                             displayType = state.value.displayType,
                             showLiveCategoryList = state.value.showLiveCategoryList,
                             subcategoryList = result.subcategoryList
-                        ),
+                        ).cachedIn(viewModelScope),
                         subcategoryList = result.subcategoryList,
                         displayErrorView = false,
                         isLoading = false
@@ -445,7 +439,7 @@ class CategoryViewModel @Inject constructor(
     private fun fetchCategoryLiveVideoList() {
         state.update {
             state.value.copy(
-                liveVideoList = getCategoryLiveVideoListUseCase(),
+                liveVideoList = getCategoryLiveVideoListUseCase().cachedIn(viewModelScope),
                 isLoading = false,
                 displayErrorView = false
             )

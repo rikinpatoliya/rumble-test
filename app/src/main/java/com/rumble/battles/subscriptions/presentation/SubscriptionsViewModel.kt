@@ -103,10 +103,6 @@ class SubscriptionsViewModel @Inject constructor(
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
-    override fun updateListState(newState: LazyListState) {
-        listState.value = newState
-    }
-
     private fun loadFollowingChannels() {
         viewModelScope.launch {
             state.update {

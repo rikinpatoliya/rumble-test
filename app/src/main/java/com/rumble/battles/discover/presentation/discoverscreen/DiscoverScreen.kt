@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -76,7 +75,6 @@ fun DiscoverScreen(
     activityHandler: RumbleActivityHandler,
     discoverHandler: DiscoverHandler,
     contentHandler: ContentHandler,
-    listState: LazyListState,
     onSearch: () -> Unit = {},
     onChannelClick: (id: String) -> Unit = {},
     onVideoClick: (video: VideoEntity) -> Unit = {},
@@ -89,6 +87,7 @@ fun DiscoverScreen(
     val state by discoverHandler.state.collectAsStateWithLifecycle()
     val userUIState by contentHandler.userUIState.collectAsStateWithLifecycle()
     val activityHandlerState by activityHandler.activityHandlerState.collectAsStateWithLifecycle()
+    val listState by discoverHandler.listState
     val alertDialogState by discoverHandler.alertDialogState
     val observer = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_PAUSE) {

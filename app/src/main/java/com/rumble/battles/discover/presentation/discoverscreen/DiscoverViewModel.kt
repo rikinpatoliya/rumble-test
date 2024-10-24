@@ -1,5 +1,6 @@
 package com.rumble.battles.discover.presentation.discoverscreen
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,7 @@ import com.rumble.analytics.DiscoverCategoryClickEvent
 import com.rumble.analytics.DiscoverCategoryViewAllEvent
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.domain.analytics.domain.domainmodel.discoverScreen
@@ -51,7 +53,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface DiscoverHandler {
+interface DiscoverHandler: LazyListStateHandler {
     val state: StateFlow<DiscoverState>
     val alertDialogState: State<AlertDialogState>
     val eventFlow: Flow<DiscoverEvent>
@@ -111,6 +113,7 @@ class DiscoverViewModel @Inject constructor(
     override val alertDialogState: MutableState<AlertDialogState> =
         mutableStateOf(AlertDialogState())
     override val eventFlow: MutableSharedFlow<DiscoverEvent> = MutableSharedFlow()
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
     private var liveVideoJob: Job? = null
     private var editorPicksJob: Job? = null

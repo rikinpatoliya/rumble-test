@@ -138,10 +138,6 @@ class PlayListViewModel @Inject constructor(
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
-    override fun updateListState(newState: LazyListState) {
-        listState.value = newState
-    }
-
     override fun onRefreshPlayList() {
         viewModelScope.launch(errorHandler) {
             refreshPlayList()

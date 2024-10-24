@@ -6,7 +6,4 @@ import androidx.compose.runtime.State
 interface LazyListStateHandler {
 
     val listState: State<LazyListState>
-
-    fun updateListState(newState: LazyListState)
-
 }

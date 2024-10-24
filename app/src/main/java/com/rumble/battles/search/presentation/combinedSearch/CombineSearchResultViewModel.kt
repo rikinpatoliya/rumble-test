@@ -132,10 +132,6 @@ class CombineSearchResultViewModel @Inject constructor(
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
-    override fun updateListState(newState: LazyListState) {
-        listState.value = newState
-    }
-
     private var currentVisibleFeed: VideoEntity? = null
     private var lastDisplayedFeed: VideoEntity? = null
 

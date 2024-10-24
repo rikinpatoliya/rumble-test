@@ -1,6 +1,7 @@
 package com.rumble.battles.feed.presentation.feedlist
 
 import android.app.Application
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import com.rumble.analytics.CardSize
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
 import com.rumble.battles.R
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.domain.analytics.domain.domainmodel.feedScreen
@@ -80,7 +82,7 @@ sealed class HomeEvent {
     data class NavigateToChannelDetails(val channelId: String) : HomeEvent()
 }
 
-interface HomeHandler {
+interface HomeHandler: LazyListStateHandler {
     val homeScreenState: StateFlow<HomeScreenState>
     val homeCategories: StateFlow<List<VideoCollectionType>>
     val updatedEntity: StateFlow<VideoEntity?>
@@ -150,6 +152,8 @@ class HomeViewModel @Inject constructor(
         mutableStateOf(AlertDialogState())
 
     override val eventFlow: MutableSharedFlow<HomeEvent> = MutableSharedFlow()
+
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)

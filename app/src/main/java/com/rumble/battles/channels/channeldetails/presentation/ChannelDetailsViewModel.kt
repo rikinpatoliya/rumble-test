@@ -201,10 +201,6 @@ class ChannelDetailsViewModel @Inject constructor(
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
-    override fun updateListState(newState: LazyListState) {
-        listState.value = newState
-    }
-
     init {
         observeLoginState()
         observeSoundState()

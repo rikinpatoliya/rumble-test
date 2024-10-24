@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -39,7 +38,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -170,13 +168,7 @@ fun MyVideosScreen(
         }
     } else null
 
-    val savedListState = myVideosHandler.listState.value
-    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
-    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
-    val scrollState = rememberLazyListState(
-        initialFirstVisibleItemIndex = firstVisibleItemIndex,
-        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
-    )
+    val scrollState by myVideosHandler.listState
 
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -203,10 +195,6 @@ fun MyVideosScreen(
 
     BackHandler(bottomSheetState.isVisible) {
         coroutineScope.launch { bottomSheetState.hide() }
-    }
-
-    LaunchedEffect(scrollState) {
-        myVideosHandler.updateListState(scrollState)
     }
 
     LaunchedEffect(videoDetailsState) {

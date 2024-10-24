@@ -187,10 +187,6 @@ class MyVideosViewModel @Inject constructor(
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
-    override fun updateListState(newState: LazyListState) {
-        listState.value = newState
-    }
-
     init {
         viewModelScope.launch(errorHandler) {
             uiState.update { it.copy(loading = true, userId = sessionManager.userIdFlow.first()) }

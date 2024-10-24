@@ -1,10 +1,14 @@
 package com.rumble.battles.library.presentation.library
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.analytics.CardSize
 import com.rumble.analytics.MatureContentCancelEvent
 import com.rumble.analytics.MatureContentWatchEvent
+import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.domain.analytics.domain.domainmodel.libraryScreen
@@ -38,7 +42,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-interface LibraryHandler {
+interface LibraryHandler: LazyListStateHandler {
     val state: StateFlow<LibraryScreenUIState>
     val alertDialogState: StateFlow<AlertDialogState>
     val eventFlow: Flow<LibraryScreenVmEvent>
@@ -104,6 +108,7 @@ class LibraryViewModel @Inject constructor(
     override val state = MutableStateFlow(LibraryScreenUIState())
     override val alertDialogState = MutableStateFlow(AlertDialogState())
     override val eventFlow: MutableSharedFlow<LibraryScreenVmEvent> = MutableSharedFlow()
+    override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
     private var watchHistoryJob: Job? = null
     private var purchasesJob: Job? = null
