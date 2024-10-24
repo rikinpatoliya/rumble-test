@@ -677,7 +677,11 @@ class VideoDetailsViewModel @Inject constructor(
             videoEntity = state.value.videoEntity?.copy(hasLiveGate = true)
         )
         state.value.videoEntity?.let {
-            val countdown = calculateLiveGateCountdownValueUseCase(it, liveGateEntity.videoTimeCode, liveGateEntity.countDownValue)
+            val countdown = calculateLiveGateCountdownValueUseCase(
+                it,
+                liveGateEntity.videoTimeCode,
+                liveGateEntity.countDownValue
+            )
             state.value.rumblePlayer?.startPremiumCountDown(countdown.toLong())
         }
     }
@@ -1245,6 +1249,7 @@ class VideoDetailsViewModel @Inject constructor(
             inLiveChat = false,
             inComments = false,
             displayPremiumOnlyContent = false,
+            hasPremiumRestriction = false,
         )
         orientationEventListener.disable()
         viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(true) }
@@ -1413,11 +1418,19 @@ class VideoDetailsViewModel @Inject constructor(
                 state.value = state.value.copy(displayPremiumOnlyContent = true)
                 state.value.rumblePlayer?.playVideo()
                 videoEntity.liveGateEntity?.let {
-                    state.value.rumblePlayer?.startPremiumCountDown(videoEntity.duration, CountDownType.FreePreview)
+                    state.value.rumblePlayer?.startPremiumCountDown(
+                        videoEntity.duration,
+                        CountDownType.FreePreview
+                    )
                 }
             } else {
                 state.value = state.value.copy(hasPremiumRestriction = true)
             }
+        } else {
+            state.value = state.value.copy(
+                hasPremiumRestriction = false,
+                displayPremiumOnlyContent = false
+            )
         }
     }
 
