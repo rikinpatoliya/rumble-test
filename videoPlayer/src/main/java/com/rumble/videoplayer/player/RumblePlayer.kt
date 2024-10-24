@@ -1068,6 +1068,10 @@ class RumblePlayer(
                 if (isPlaying) _adPlaybackState.value = AdPlaybackState.Resumed
                 else if (adPlaybackState.value != AdPlaybackState.Paused) handleAdFinish()
             }
+
+            override fun onPlayerError(error: PlaybackException) {
+                handleAdFinish()
+            }
         })
     }
 
