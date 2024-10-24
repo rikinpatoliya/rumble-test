@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -31,9 +30,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -119,13 +116,7 @@ fun CombineSearchResultScreen(
             skipHalfExpanded = true
         )
     val coroutineScope = rememberCoroutineScope()
-    val savedListState = handler.listState.value
-    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
-    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
-    val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = firstVisibleItemIndex,
-        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
-    )
+    val listState by handler.listState
     val listConnection = object : NestedScrollConnection {
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             handler.onCreatePlayerForVisibleFeed()
@@ -144,10 +135,6 @@ fun CombineSearchResultScreen(
 
     LaunchedEffect(videoDetailsState) {
         if (videoDetailsState.visible.not()) handler.onCreatePlayerForVisibleFeed()
-    }
-
-    LaunchedEffect(listState) {
-        handler.updateListState(listState)
     }
 
     LaunchedEffect(Unit) {

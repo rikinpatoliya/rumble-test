@@ -28,8 +28,4 @@ class RecommendedChannelsViewModel @Inject constructor(
 
     override var gridState: MutableState<LazyGridState> = mutableStateOf(LazyGridState(0, 0))
 
-    override fun updateGridState(newState: LazyGridState) {
-        gridState.value = newState
-    }
-
 }

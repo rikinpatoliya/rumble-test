@@ -51,10 +51,6 @@ class PlayListsViewModel @Inject constructor(
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
-    override fun updateListState(newState: LazyListState) {
-        listState.value = newState
-    }
-
     private val errorHandler = CoroutineExceptionHandler { context, throwable ->
         unhandledErrorUseCase(TAG, throwable)
     }

@@ -663,6 +663,7 @@
     <string name="premium">Premium</string>
     <string name="subscribe_to_rumble_premium">Subscribe to Rumble Premium to watch the full video and enjoy ad-free viewing.</string>
     <string name="subscribe">Subscribe</string>
+    <string name="rest_video_premium_only">The rest of this video is only available to Rumble Premium subscribers. Subscribe to continue watching this video and enjoy ad-free viewing.</string>
 
     <!-- Deep Links -->
     <string name="deep_link_host">rumble-dev.onelink.me</string>

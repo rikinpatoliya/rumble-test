@@ -41,14 +41,6 @@ fun LiveChatView(
                     handler.onError()
                 }
 
-                is LiveChatEvent.EnforceLiveGatePremiumRestriction -> {
-                    handler.onEnforceLiveGatePremiumRestriction()
-                }
-
-                is LiveChatEvent.LiveGateStarted -> {
-                    handler.onLiveGateEvent(it.liveGateEntity)
-                }
-
                 else -> return@collectLatest
             }
         }

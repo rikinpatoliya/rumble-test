@@ -35,6 +35,7 @@ import com.rumble.theme.paddingXXXXLarge
 @Composable
 fun PremiumOnlyThumbnailView(
     modifier: Modifier = Modifier,
+    text: String,
     url: String = "",
     onBack: () -> Unit,
     onSubscribeNow: () -> Unit,
@@ -83,7 +84,7 @@ fun PremiumOnlyThumbnailView(
             )
             Spacer(modifier = Modifier.height(paddingXXXSmall))
             Text(
-                text = stringResource(id = R.string.this_video_only_rumble_premium),
+                text = text,
                 color = enforcedWhite,
                 style = tinyBody,
                 textAlign = TextAlign.Center,

@@ -16,13 +16,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,20 +86,8 @@ fun CategoryScreen(
     val state by categoryHandler.state.collectAsStateWithLifecycle()
     val configuration = LocalConfiguration.current
     val videoListItems: LazyPagingItems<Feed> = state.videoList.collectAsLazyPagingItems()
-    val savedGridState = categoryHandler.gridState.value
-    val firstGridVisibleItemIndex by remember { derivedStateOf { savedGridState.firstVisibleItemIndex } }
-    val firstGridVisibleItemScrollOffset by remember { derivedStateOf { savedGridState.firstVisibleItemScrollOffset } }
-    val gridState = rememberLazyGridState(
-        initialFirstVisibleItemIndex = firstGridVisibleItemIndex,
-        initialFirstVisibleItemScrollOffset = firstGridVisibleItemScrollOffset
-    )
-    val savedListState = categoryHandler.listState.value
-    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
-    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
-    val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = firstVisibleItemIndex,
-        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
-    )
+    val gridState by categoryHandler.gridState
+    val listState by categoryHandler.listState
     var isCollapsed by remember { mutableStateOf(false) }
     val soundOn by categoryHandler.soundState.collectAsStateWithLifecycle(initialValue = false)
     val alertDialogState by categoryHandler.alertDialogState
@@ -149,7 +134,6 @@ fun CategoryScreen(
     }
 
     LaunchedEffect(listState) {
-        categoryHandler.updateListState(listState)
         snapshotFlow { listState.layoutInfo }.collect {
             if (state.displayType != CategoryDisplayType.CATEGORIES)
                 isCollapsed = listState.firstVisibleItemScrollOffset > 0
@@ -173,7 +157,6 @@ fun CategoryScreen(
     }
 
     LaunchedEffect(gridState) {
-        categoryHandler.updateGridState(gridState)
         snapshotFlow { gridState.layoutInfo }.collect {
             if (state.displayType == CategoryDisplayType.CATEGORIES)
                 isCollapsed = gridState.firstVisibleItemScrollOffset > 0

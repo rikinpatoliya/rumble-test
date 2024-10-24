@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -90,7 +89,6 @@ fun HomeScreen(
     homeHandler: HomeHandler,
     contentHandler: ContentHandler,
     recommendedChannelsHandler: RecommendedChannelsHandler,
-    listState: LazyListState,
     onSearch: () -> Unit,
     onChannelClick: (id: String) -> Unit,
     onFreshContentChannelClick: (id: String) -> Unit,
@@ -106,6 +104,8 @@ fun HomeScreen(
     val categories by homeHandler.homeCategories.collectAsStateWithLifecycle()
 
     val state by homeHandler.homeScreenState.collectAsStateWithLifecycle()
+
+    val listState by homeHandler.listState
 
     val userUIState by contentHandler.userUIState.collectAsStateWithLifecycle()
 

@@ -13,14 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -55,18 +51,7 @@ fun SearchScreen(
 
     val state by searchHandler.state.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    val savedListState = searchHandler.listState.value
-    val firstVisibleItemIndex by remember { derivedStateOf { savedListState.firstVisibleItemIndex } }
-    val firstVisibleItemScrollOffset by remember { derivedStateOf { savedListState.firstVisibleItemScrollOffset } }
-    val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = firstVisibleItemIndex,
-        initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset
-    )
-
-    LaunchedEffect(listState) {
-        searchHandler.updateListState(listState)
-    }
+    val listState by searchHandler.listState
 
     BoxWithConstraints {
 

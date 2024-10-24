@@ -12,8 +12,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -26,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,7 +31,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -172,13 +168,11 @@ import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
 import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingNone
-import com.rumble.utils.RumbleConstants.HIDE_MINIPLAYER_DURATION
 import com.rumble.utils.RumbleConstants.NAV_BAR_ANIMATION_DURATION
 import com.rumble.utils.extension.isAtTopOfNavStack
 import com.rumble.utils.extension.navigationSafeEncode
 import com.rumble.utils.replaceUrlParameter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -231,13 +225,6 @@ fun ContentScreen(
                 RumbleScreens.Profile.rootName -> profileNavController
                 else -> homeNavController
             }
-        }
-    }
-
-    val scrollStates = remember { mutableStateListOf<LazyListState>() }
-    if (scrollStates.isEmpty()) {
-        tabScreens.forEach { _ ->
-            scrollStates.add(rememberLazyListState())
         }
     }
 
@@ -486,7 +473,6 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_HOME],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_HOME],
-                    scrollStates[NAV_ITEM_INDEX_HOME],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -496,7 +482,6 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_DISCOVER],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_DISCOVER],
-                    scrollStates[NAV_ITEM_INDEX_DISCOVER],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -506,7 +491,6 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_CAMERA],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_CAMERA],
-                    scrollStates[NAV_ITEM_INDEX_CAMERA],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -516,7 +500,6 @@ fun ContentScreen(
                     tabScreens[NAV_ITEM_INDEX_LIBRARY],
                     parentController,
                     navControllers[NAV_ITEM_INDEX_LIBRARY],
-                    scrollStates[NAV_ITEM_INDEX_LIBRARY],
                     activityHandler,
                     contentHandler,
                     bottomSheetState,
@@ -527,7 +510,6 @@ fun ContentScreen(
                         tabScreens[NAV_ITEM_INDEX_ACCOUNT],
                         parentController,
                         navControllers[NAV_ITEM_INDEX_ACCOUNT],
-                        scrollStates[NAV_ITEM_INDEX_ACCOUNT],
                         activityHandler,
                         contentHandler,
                         bottomSheetState,
@@ -617,7 +599,6 @@ fun TabNavHost(
     startDestination: String,
     parentController: NavController,
     navController: NavHostController,
-    listState: LazyListState,
     activityHandler: RumbleActivityHandler,
     contentHandler: ContentHandler,
     bottomSheetState: ModalBottomSheetState,
@@ -629,7 +610,6 @@ fun TabNavHost(
             startDestination,
             parentController,
             navController,
-            listState,
             bottomSheetState,
             contentHandler,
             activityHandler,
@@ -721,7 +701,6 @@ private fun createNavigationGraph(
     startDestination: String,
     parentController: NavController,
     currentNavController: NavHostController,
-    listState: LazyListState,
     bottomSheetState: ModalBottomSheetState,
     contentHandler: ContentHandler,
     activityHandler: RumbleActivityHandler,
@@ -740,7 +719,6 @@ private fun createNavigationGraph(
                 homeHandler = feedListViewModel,
                 contentHandler = contentHandler,
                 recommendedChannelsHandler = recommendedChannelsHandler,
-                listState = listState,
                 onSearch = {
                     currentNavController.navigate(RumbleScreens.Search.getPath())
                 },
@@ -785,7 +763,6 @@ private fun createNavigationGraph(
                 activityHandler = activityHandler,
                 discoverHandler = discoverViewModel,
                 contentHandler = contentHandler,
-                listState = listState,
                 onSearch = {
                     currentNavController.navigate(RumbleScreens.Search.getPath())
                 },
@@ -908,7 +885,6 @@ private fun createNavigationGraph(
                 libraryHandler = libraryViewModel,
                 contentHandler = contentHandler,
                 authHandler = authViewModel,
-                listState = listState,
                 playListTypeRefresh = playListTypeRefresh,
                 playListEntityRefresh = playListEntityRefresh,
                 onSearch = {
