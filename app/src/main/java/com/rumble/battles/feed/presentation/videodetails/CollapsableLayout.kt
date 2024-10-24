@@ -167,7 +167,9 @@ fun CollapsableLayout(
                         scope.launch {
                             if (collapseAvailableCurrent) {
                                 val newOffset = sheetOffset.value + dragAmount.y
-                                sheetOffset.snapTo(newOffset.coerceIn(0f, maxOffset))
+                                if (newOffset >= 0) {
+                                    sheetOffset.snapTo(newOffset.coerceIn(0f, maxOffset))
+                                }
                             }
                             collapseDirection =
                                 if (change.previousPosition.y < change.position.y) CollapseDirection.DOWN
