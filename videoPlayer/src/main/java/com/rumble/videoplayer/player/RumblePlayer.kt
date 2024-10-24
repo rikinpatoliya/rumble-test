@@ -555,6 +555,9 @@ class RumblePlayer(
     fun pauseAndResetState() {
         pauseVideo()
         _playbackSate.value = PlayerPlaybackState.Idle()
+        _currentCountDownValue.value = 0
+        _countDownType.value = CountDownType.Ad
+        countDownJob.cancel()
     }
 
     fun seekBack(duration: Int = seekDuration) {
@@ -624,6 +627,8 @@ class RumblePlayer(
         releaseAdPlayer()
         playerAdsHelper.onClear()
         _playbackSate.value = PlayerPlaybackState.PlayerPlaybackReleased()
+        _currentCountDownValue.value = 0
+        _countDownType.value = CountDownType.Ad
         progressJob.cancel()
         reportLiveVideoJob.cancel()
         timeRangeJob.cancel()
