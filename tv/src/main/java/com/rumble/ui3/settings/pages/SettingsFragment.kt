@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +40,7 @@ import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageSmall
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
+import com.rumble.theme.paddingXGiant
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -75,12 +76,11 @@ fun DebugSettings(settingsHandler: SettingsHandler) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(paddingSmall),
+            .padding(paddingXGiant),
         verticalArrangement = Arrangement.spacedBy(
             space = paddingMedium,
             alignment = Alignment.CenterVertically
-        ),
-        horizontalAlignment = Alignment.CenterHorizontally
+        )
     ) {
         DebugSettingsToggle(
             text = stringResource(R.string.disable_ads),
@@ -113,7 +113,7 @@ private fun DebugSettingsToggle(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .width(360.dp)
             .clip(shape = RoundedCornerShape(8.dp))
             .background(color = enforcedWhite.copy(0.1f))
             .toggleable(
