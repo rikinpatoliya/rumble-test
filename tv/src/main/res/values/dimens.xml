@@ -122,7 +122,7 @@
     <dimen name="focused_border_corner_radius">12dp</dimen>
     <dimen name="video_card_border_width">3dp</dimen>
     <dimen name="video_card_width">242dp</dimen>
-    <dimen name="video_card_height">237dp</dimen>
+    <dimen name="video_card_height">264dp</dimen>
     <dimen name="video_card_icon_width">242dp</dimen>
     <dimen name="video_card_icon_height">136dp</dimen>
     <dimen name="video_focus_card_width">236dp</dimen>
@@ -151,8 +151,14 @@
     <dimen name="video_card_stats_margin_top">1dp</dimen>
     <dimen name="video_card_stats_icon_width">12dp</dimen>
     <dimen name="video_card_stats_icon_height">12dp</dimen>
-    <dimen name="video_card_stats_views_label_margin_start">6dp</dimen>
     <dimen name="video_card_stats_views_label_margin_top">6dp</dimen>
+    <dimen name="video_card_premium_tag_margin_top">6dp</dimen>
+    <dimen name="video_card_premium_tag_radius">8dp</dimen>
+    <dimen name="video_card_premium_tag_padding_bottom">4dp</dimen>
+    <dimen name="video_card_premium_tag_padding_left">8dp</dimen>
+    <dimen name="video_card_premium_tag_padding_right">10dp</dimen>
+    <dimen name="video_card_premium_tag_padding_top">4dp</dimen>
+    <dimen name="video_card_premium_tag_icon_padding_end">6dp</dimen>
     <dimen name="video_card_stats_like_label_margin_top">9dp</dimen>
     <dimen name="video_card_stats_comments_margin_start">12dp</dimen>
     <dimen name="video_card_stats_comments_label_margin_start">4dp</dimen>
