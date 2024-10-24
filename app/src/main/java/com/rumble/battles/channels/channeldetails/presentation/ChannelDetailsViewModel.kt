@@ -47,6 +47,7 @@ import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -120,29 +121,29 @@ data class ChannelDetailsUIState(
 
 sealed class ChannelDetailsDialog {
     data class BlockDialog(val channelDetailsEntity: ChannelDetailsEntity) : ChannelDetailsDialog()
-    object ReportDialog : ChannelDetailsDialog()
-    object ActionMenuDialog : ChannelDetailsDialog()
+    data object ReportDialog : ChannelDetailsDialog()
+    data object ActionMenuDialog : ChannelDetailsDialog()
     data class LocalsPopupDialog(val localsCommunityEntity: LocalsCommunityEntity) :
         ChannelDetailsDialog()
 }
 
 sealed class ChannelDetailsAlertDialogReason : AlertDialogReason {
-    object SendEmailErrorDialog : ChannelDetailsAlertDialogReason()
+    data object SendEmailErrorDialog : ChannelDetailsAlertDialogReason()
     data class RestrictedContentReason(val videoEntity: VideoEntity) :
         ChannelDetailsAlertDialogReason()
 }
 
 sealed class ChannelDetailsVmEvent {
-    object ShowMenuPopup : ChannelDetailsVmEvent()
-    object ShowLocalsPopup : ChannelDetailsVmEvent()
-    object ShowChannelReportedMessage : ChannelDetailsVmEvent()
-    object ShowEmailVerifiedMessage : ChannelDetailsVmEvent()
+    data object ShowMenuPopup : ChannelDetailsVmEvent()
+    data object ShowLocalsPopup : ChannelDetailsVmEvent()
+    data object ShowChannelReportedMessage : ChannelDetailsVmEvent()
+    data object ShowEmailVerifiedMessage : ChannelDetailsVmEvent()
     data class ShowMoreUploadOptionsBottomSheet(val uploadVideoEntity: UploadVideoEntity) :
         ChannelDetailsVmEvent()
 
     data class Error(val errorMessage: String? = null) : ChannelDetailsVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : ChannelDetailsVmEvent()
-    object OpenAuthMenu: ChannelDetailsVmEvent()
+    data object OpenAuthMenu: ChannelDetailsVmEvent()
 }
 
 private const val TAG = "ChannelDetailsViewModel"
@@ -289,7 +290,19 @@ class ChannelDetailsViewModel @Inject constructor(
             currentVisibleFeed?.let {
                 if (currentVisibleFeed?.id != lastDisplayedFeed?.id) {
                     currentPlayerState.value?.stopPlayer()
-                    currentPlayerState.value = initVideoCardPlayerUseCase(it, channelDetailsScreen)
+                    currentPlayerState.value = initVideoCardPlayerUseCase(
+                        videoEntity = it,
+                        screenId = channelDetailsScreen,
+                        liveVideoReport = { _, result ->
+                            if (result.hasLiveGate) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    currentPlayerState.value?.stopPlayer()
+                                    currentPlayerState.value = null
+                                    lastDisplayedFeed = null
+                                }
+                            }
+                        }
+                    )
                     lastDisplayedFeed = currentVisibleFeed
                 }
             }

@@ -27,7 +27,8 @@ class ReportLiveVideoUseCase @Inject constructor(
 ) : RumbleUseCase {
     suspend operator fun invoke(
         videoId: Long,
-        viewerId: String
+        viewerId: String,
+        requestLiveGateData: Boolean = false,
     ): LiveVideoReportResult? {
         val result = buildReportUrl()?.let {
             liveVideoApi.reportLiveVideo(
@@ -38,7 +39,8 @@ class ReportLiveVideoUseCase @Inject constructor(
                         viewerId
                     )
                 ),
-                serviceName = "video.watching-now"
+                serviceName = "video.watching-now",
+                requestLiveGateData = if (requestLiveGateData) 1 else null,
             )
         }
         return if (result?.isSuccessful == true) {
@@ -47,7 +49,10 @@ class ReportLiveVideoUseCase @Inject constructor(
                 LiveVideoReportResult(
                     watchingNow = it.data.watchingNow,
                     statusCode = it.data.liveStatus,
-                    isLive = it.data.liveStatus == LiveStreamStatus.LIVE.value || it.data.liveStatus == LiveStreamStatus.OFFLINE.value
+                    isLive = it.data.liveStatus == LiveStreamStatus.LIVE.value || it.data.liveStatus == LiveStreamStatus.OFFLINE.value,
+                    hasLiveGate = it.data.liveGate != null,
+                    videoTimeCode = it.data.liveGate?.timeCode,
+                    countDownValue = it.data.liveGate?.countdown
                 )
             }
         } else {
@@ -59,7 +64,7 @@ class ReportLiveVideoUseCase @Inject constructor(
         }
     }
 
-    private suspend fun buildReportUrl(): String? {
+    private fun buildReportUrl(): String? {
         val url = "${runBlocking { sessionManager.livePingEndpointFlow.first() }}/service.php"
         return if (URLUtil.isValidUrl(url)) url
         else null

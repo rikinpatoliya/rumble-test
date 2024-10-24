@@ -35,7 +35,7 @@ class FTvSingletonModule {
     @VersionCode
     @Singleton
     @Provides
-    fun provideAppVersionCode() = "${BuildConfig.VERSION_CODE}"
+    fun provideAppVersionCode() = BuildConfig.VERSION_CODE
 
     @AppName
     @Singleton

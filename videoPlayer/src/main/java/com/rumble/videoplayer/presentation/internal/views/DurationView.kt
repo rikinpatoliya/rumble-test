@@ -21,7 +21,7 @@ internal fun DurationView(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = currentPosition.parsedTime(),
+            text = currentPosition.parsedMillisecondsTime(),
             color = enforcedWhite,
             style = RumbleTypography.h6Bold
         )
@@ -32,14 +32,14 @@ internal fun DurationView(
             style = RumbleTypography.h6Bold
         )
         Text(
-            text = totalDuration.parsedTime(),
+            text = totalDuration.parsedMillisecondsTime(),
             color = enforcedWhite.copy(alpha = 0.7f),
             style = RumbleTypography.h6Bold
         )
     }
 }
 
-internal fun Long.parsedTime(): String {
+internal fun Long.parsedMillisecondsTime(): String {
     val thisInSeconds = this / 1000
     val hours = (thisInSeconds / 60 / 60).toInt()
     val minutes = ((thisInSeconds - (hours * 60 * 60)) / 60).toInt()

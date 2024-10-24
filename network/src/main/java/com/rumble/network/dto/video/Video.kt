@@ -3,6 +3,7 @@ package com.rumble.network.dto.video
 import com.google.gson.annotations.SerializedName
 import com.rumble.network.dto.categories.Categories
 import com.rumble.network.dto.comments.Comments
+import com.rumble.network.dto.livechat.LiveGate
 
 data class Video(
     @SerializedName("id")
@@ -67,4 +68,6 @@ data class Video(
     val includeMetadata: Boolean?,
     @SerializedName("availability")
     val availability: String?,
+    @SerializedName("live_gate")
+    val liveGate: LiveGate?,
 )

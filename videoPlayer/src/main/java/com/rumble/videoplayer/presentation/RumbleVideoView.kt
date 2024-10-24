@@ -56,9 +56,10 @@ import com.rumble.videoplayer.presentation.internal.controlViews.PlayNextView
 import com.rumble.videoplayer.presentation.internal.controlViews.TvControlsView
 import com.rumble.videoplayer.presentation.internal.controlViews.TvErrorView
 import com.rumble.videoplayer.presentation.internal.defaults.controlsInactiveDelay
-import com.rumble.videoplayer.presentation.internal.views.AdCountDownView
 import com.rumble.videoplayer.presentation.internal.views.AdLoadingScreen
+import com.rumble.videoplayer.presentation.internal.views.CountDownView
 import com.rumble.videoplayer.presentation.internal.views.LoadingScreen
+import com.rumble.videoplayer.presentation.internal.views.PreviewTagView
 import com.rumble.videoplayer.presentation.internal.views.ReplayScreen
 import kotlinx.coroutines.delay
 
@@ -102,6 +103,7 @@ fun RumbleVideoView(
     val focusManager = LocalFocusManager.current
     val hasRelatedVideos by rumblePlayer.hasRelatedVideos
     val currentCountDownValue by rumblePlayer.currentCountDownValue
+    val countdownType by rumblePlayer.countDownType
 
     val observer = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_PAUSE) {
@@ -279,11 +281,20 @@ fun RumbleVideoView(
                     when (uiType) {
                         UiType.EMBEDDED -> {
 
-                            AdCountDownView(
+                            PreviewTagView(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(paddingMedium),
+                                countDownValue = currentCountDownValue,
+                                type = countdownType,
+                            )
+
+                            CountDownView(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(paddingMedium),
                                 countDownValue = currentCountDownValue,
+                                type = countdownType,
                                 uiType = uiType
                             )
 
@@ -304,7 +315,18 @@ fun RumbleVideoView(
 
                         UiType.FULL_SCREEN_LANDSCAPE -> {
 
-                            AdCountDownView(
+                            PreviewTagView(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(
+                                        horizontal = paddingMedium,
+                                        vertical = paddingXXXXLarge
+                                    ),
+                                countDownValue = currentCountDownValue,
+                                type = countdownType,
+                            )
+
+                            CountDownView(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(
@@ -312,6 +334,7 @@ fun RumbleVideoView(
                                         vertical = paddingXXXXLarge
                                     ),
                                 countDownValue = currentCountDownValue,
+                                type = countdownType,
                                 uiType = uiType
                             )
 
@@ -329,11 +352,21 @@ fun RumbleVideoView(
                         }
 
                         UiType.TV -> {
-                            AdCountDownView(
+
+                            PreviewTagView(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(horizontal = paddingMedium, vertical = paddingXXGiant),
+                                countDownValue = currentCountDownValue,
+                                type = countdownType,
+                            )
+
+                            CountDownView(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(horizontal = paddingMedium, vertical = paddingXXGiant),
                                 countDownValue = currentCountDownValue,
+                                type = countdownType,
                                 uiType = uiType
                             )
 
@@ -354,11 +387,20 @@ fun RumbleVideoView(
 
                         UiType.FULL_SCREEN_PORTRAIT -> {
 
-                            AdCountDownView(
+                            PreviewTagView(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(paddingMedium),
+                                countDownValue = currentCountDownValue,
+                                type = countdownType,
+                            )
+
+                            CountDownView(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(paddingMedium),
                                 countDownValue = currentCountDownValue,
+                                type = countdownType,
                                 uiType = uiType
                             )
 

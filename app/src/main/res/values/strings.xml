@@ -660,6 +660,9 @@
     <string name="subscription_not_available">This subscription is not available in your country</string>
     <string name="go_premium_to_chat">Go Premium To Chat</string>
     <string name="go_premium_to_comment">Go Premium To Comment</string>
+    <string name="premium">Premium</string>
+    <string name="subscribe_to_rumble_premium">Subscribe to Rumble Premium to watch the full video and enjoy ad-free viewing.</string>
+    <string name="subscribe">Subscribe</string>
 
     <!-- Deep Links -->
     <string name="deep_link_host">rumble-dev.onelink.me</string>

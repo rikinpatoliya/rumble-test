@@ -1,43 +1,36 @@
 package com.rumble.player
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
-import com.rumble.R
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.theme.RumbleTypography
-import com.rumble.theme.borderXXSmall
 import com.rumble.theme.brandedPlayerBackground
-import com.rumble.theme.enforcedBlack
-import com.rumble.theme.enforcedFiardHighlight
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
-import com.rumble.theme.paddingXLarge
 import com.rumble.theme.paddingXMedium
-import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.paddingXXSmall
-import com.rumble.theme.radiusMedium
 import com.rumble.theme.tvPlayerGradientHeight
+import com.rumble.videoplayer.presentation.internal.controlViews.PremiumNoteView
 import com.rumble.videoplayer.presentation.internal.controlViews.PremiumTag
 import com.rumble.videoplayer.presentation.internal.views.TvChannelDetailsView
 
@@ -81,43 +74,18 @@ fun PremiumPayWall(
                 }
             )
 
-            Column(modifier = Modifier
-                .wrapContentSize()
-                .background(
-                    color = enforcedBlack.copy(alpha = 0.8f),
-                    shape = RoundedCornerShape(radiusMedium)
-                )
-                .border(
-                    width = borderXXSmall,
-                    color = enforcedFiardHighlight,
-                    shape = RoundedCornerShape(radiusMedium)
-                )
-                .constrainAs(premiumNote) {
-                    top.linkTo(parent.top, margin = paddingXXMedium)
-                    end.linkTo(parent.end, margin = paddingXLarge)
-                }) {
-
-                Text(
-                    modifier = Modifier.padding(
-                        top = paddingMedium,
-                        start = paddingMedium,
-                        end = paddingMedium
-                    ),
-                    text = stringResource(id = R.string.premium_only_content),
-                    color = enforcedWhite,
-                    style = RumbleTypography.tvH3
-                )
-                Text(
-                    modifier = Modifier.padding(
-                        top = paddingXSmall,
-                        bottom = paddingMedium,
-                        start = paddingMedium,
-                        end = paddingMedium
-                    ),
-                    text = stringResource(id = R.string.premium_only_content_message),
-                    color = enforcedWhite,
-                    style = RumbleTypography.labelRegularTv
-                )
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = paddingLarge, vertical = paddingXXMedium)
+                    .constrainAs(premiumTag) {
+                        top.linkTo(parent.top)
+                    }
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PremiumTag(modifier = Modifier.padding(bottom = paddingMedium))
+                Spacer(modifier = Modifier.weight(1f))
+                PremiumNoteView()
             }
 
             Text(
@@ -132,13 +100,6 @@ fun PremiumPayWall(
                 text = videoEntity.title,
                 color = enforcedWhite,
                 style = RumbleTypography.tvH2
-            )
-
-            PremiumTag(modifier = Modifier
-                .constrainAs(premiumTag) {
-                    top.linkTo(title.bottom)
-                    start.linkTo(parent.start, margin = paddingLarge)
-                }
             )
 
             val channelFocusRequester = FocusRequester()

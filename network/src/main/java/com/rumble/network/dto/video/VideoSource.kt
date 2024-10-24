@@ -20,5 +20,7 @@ data class VideoSource(
     @SerializedName("followers")
     val followers: Int,
     @SerializedName("verified_badge")
-    val verifiedBadge: Boolean?
+    val verifiedBadge: Boolean?,
+    @SerializedName("subscribed")
+    val subscribed: Boolean?,
 )

@@ -44,21 +44,21 @@ class LiveChatRepositoryImpl(
     override suspend fun fetchChatEvents(videoId: Long): Flow<LiveChatResult> =
         remoteDataSource.fetchChatEvents(videoId)
             .map {
-                var event = LiveChatNetworkModelMapper.mapToLiveChatMassageEntityList(
+                var liveChatResult = LiveChatNetworkModelMapper.mapToLiveChatResult(
                     it,
                     baseUrl,
                     currentUserId
                 )
-                event.liveChatConfig?.let { config ->
-                    val result = remoteDataSource.fetchEmoteList(config.chatId)
-                    if (result.isSuccessful) {
-                        result.body()?.let { response ->
-                            event = event
+                liveChatResult.liveChatConfig?.let { config ->
+                    val emoteListResult = remoteDataSource.fetchEmoteList(config.chatId)
+                    if (emoteListResult.isSuccessful) {
+                        emoteListResult.body()?.let { response ->
+                            liveChatResult = liveChatResult
                                 .copy(liveChatConfig = config.copy(emoteList = response.data.toEmoteEntityList()))
                         }
                     }
                 }
-                event
+                liveChatResult
             }
 
     override suspend fun postMessage(

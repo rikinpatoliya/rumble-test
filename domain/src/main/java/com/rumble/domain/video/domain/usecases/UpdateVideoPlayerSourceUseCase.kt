@@ -23,6 +23,7 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
         applyLastPosition: Boolean = true,
         useLowQuality: Boolean = false,
         autoplay: Boolean = false,
+        requestLiveGateData: Boolean = false,
         updatedRelatedVideoList: Boolean,
         videoStartMethod: VideoStartMethod = VideoStartMethod.URL_PROVIDED,
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
@@ -39,7 +40,8 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
                     relatedVideoList = emptyList(),
                     publisherId = publisherId,
                     screenId = screenId,
-                    includeMetadata = false
+                    includeMetadata = false,
+                    requestLiveGateData = requestLiveGateData,
                 )
             } else emptyList()
         return player.apply {
@@ -55,7 +57,8 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
                     relatedVideoList = relatedVideoList,
                     publisherId = publisherId,
                     screenId = screenId,
-                    includeMetadata = videoEntity.includeMetadata
+                    includeMetadata = videoEntity.includeMetadata,
+                    requestLiveGateData = requestLiveGateData,
                 ),
                 onSaveLastPosition = if (positionCanBeSaved(videoEntity.livestreamStatus)) { position, videoId ->
                     saveLastPosition(position, videoId)

@@ -1,8 +1,10 @@
 package com.rumble.videoplayer.presentation.internal.controlViews
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -14,8 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.enforcedDarkmo
+import com.rumble.theme.enforcedWhite
+import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusXXSmall
@@ -23,13 +29,12 @@ import com.rumble.theme.rumbleGreen
 import com.rumble.videoplayer.R
 
 @Composable
-fun PremiumTag(modifier: Modifier) {
+fun PremiumTag(modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier
-            .background(enforcedDarkmo, shape = RoundedCornerShape(radiusXXSmall))
+        modifier = modifier
             .wrapContentSize()
-            .padding(vertical = paddingXXXSmall, horizontal = paddingXXSmall)
-            .then(modifier),
+            .background(enforcedDarkmo, shape = RoundedCornerShape(radiusXXSmall))
+            .padding(vertical = paddingXXXSmall, horizontal = paddingXXSmall),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -40,8 +45,25 @@ fun PremiumTag(modifier: Modifier) {
         Spacer(modifier = Modifier.width(paddingXXSmall))
         Text(
             text = stringResource(id = R.string.premium_only),
-            color = rumbleGreen,
+            color = enforcedWhite,
             style = RumbleTypography.tinyBodySemiBold
         )
+    }
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    RumbleTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            PremiumTag(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(paddingLarge)
+            )
+        }
     }
 }

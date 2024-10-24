@@ -26,6 +26,7 @@ import com.rumble.domain.livechat.domain.domainmodel.DeleteMessageResult
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatResult
+import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
 import com.rumble.domain.livechat.domain.domainmodel.MessageModerationResult
 import com.rumble.domain.livechat.domain.domainmodel.MutePeriod
 import com.rumble.domain.livechat.domain.domainmodel.MuteUserResult
@@ -48,7 +49,6 @@ import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.LIVE_CHAT_MAX_MESSAGE_COUNT
 import com.rumble.utils.RumbleConstants.RANT_STATE_UPDATE_RATIO
-import com.rumble.utils.RumbleUrlAnnotation
 import com.rumble.utils.extension.getComposeColor
 import com.rumble.utils.extension.getUserId
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -113,22 +113,24 @@ data class LiveChatState(
 )
 
 sealed class LiveChatEvent {
-    object Error : LiveChatEvent()
+    data object Error : LiveChatEvent()
     data class ScrollLiveChat(val index: Int) : LiveChatEvent()
     data class ScrollRant(val index: Int) : LiveChatEvent()
-    object CloseBottomSheet : LiveChatEvent()
+    data object CloseBottomSheet : LiveChatEvent()
     data class StartPurchase(val billingClient: BillingClient, val params: BillingFlowParams) :
         LiveChatEvent()
 
-    object ScrollToBottom : LiveChatEvent()
+    data object ScrollToBottom : LiveChatEvent()
     data class RantPurchaseSucceeded(val rantLevel: RantLevel) : LiveChatEvent()
-    object OpenModerationMenu : LiveChatEvent()
-    object HideModerationMenu : LiveChatEvent()
+    data object OpenModerationMenu : LiveChatEvent()
+    data object HideModerationMenu : LiveChatEvent()
+    data object EnforceLiveGatePremiumRestriction : LiveChatEvent()
+    data class LiveGateStarted(val liveGateEntity: LiveGateEntity) : LiveChatEvent()
 }
 
 sealed class LiveChatAlertReason : AlertDialogReason {
-    object UnpinMessage : LiveChatAlertReason()
-    object DeleteMessage : LiveChatAlertReason()
+    data object UnpinMessage : LiveChatAlertReason()
+    data object DeleteMessage : LiveChatAlertReason()
     data class ErrorMessage(val errorMessage: String) : LiveChatAlertReason()
 }
 
@@ -395,17 +397,19 @@ class LiveChatViewModel @Inject constructor(
         eventsJob = viewModelScope.launch(errorHandler) {
             messageList = mutableListOf()
             getLiveChatEventsUseCase(videoId).collect { result ->
-                if (liveChatConfig == null) {
+                if (result.initialConfig) {
                     result.liveChatConfig?.let {
-                        val rantConfig = it.rantConfig
-                        liveChatConfig = it.copy(
-                            rantConfig = rantConfig.copy(
-                                levelList = fetchRantProductDetailsUseCase(rantConfig.levelList)
-                            )
-                        )
+                        initLiveChatConfig(it)
+                    }
+                    if (result.liveGate != null) {
+                        emitEvent(LiveChatEvent.EnforceLiveGatePremiumRestriction)
                     }
                     state.value = state.value.copy(liveChatConfig = liveChatConfig)
                     startUpdateRantList()
+                } else {
+                    result.liveGate?.let {
+                        emitEvent(LiveChatEvent.LiveGateStarted(it))
+                    }
                 }
                 liveChatConfig?.let { config ->
                     messageList = handleDeletedMessages(result)
@@ -440,6 +444,15 @@ class LiveChatViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun initLiveChatConfig(config: LiveChatConfig) {
+        val rantConfig = config.rantConfig
+        liveChatConfig = config.copy(
+            rantConfig = rantConfig.copy(
+                levelList = fetchRantProductDetailsUseCase(rantConfig.levelList)
+            )
+        )
     }
 
     private fun handleDeletedMessages(result: LiveChatResult) =

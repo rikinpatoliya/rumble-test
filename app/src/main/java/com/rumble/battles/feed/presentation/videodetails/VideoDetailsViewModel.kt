@@ -65,8 +65,10 @@ import com.rumble.domain.library.domain.usecase.GetPlayListUseCase
 import com.rumble.domain.library.domain.usecase.GetPlayListVideosUseCase
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageResult
+import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
 import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
+import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValueUseCase
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.SendRantPurchasedEventUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStartUseCase
@@ -89,6 +91,7 @@ import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS
 import com.rumble.utils.extension.getChannelId
 import com.rumble.videoplayer.player.RumblePlayer
+import com.rumble.videoplayer.player.config.CountDownType
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.ReportType
 import com.rumble.videoplayer.player.config.RumbleVideoMode
@@ -96,6 +99,7 @@ import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.views.SettingsBottomSheetHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -173,6 +177,8 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
 
     fun onUpdateLayoutState(layoutState: CollapsableLayoutState)
     fun onClearVideo()
+    fun onEnforceLiveGatePremiumRestriction()
+    fun onLiveGateEvent(liveGateEntity: LiveGateEntity)
     fun getVideoAspectRatio(): Int
 }
 
@@ -215,6 +221,7 @@ data class VideoDetailsState(
     val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
+    val displayPremiumOnlyContent: Boolean = false,
 )
 
 sealed class BottomSheetReason {
@@ -308,6 +315,7 @@ class VideoDetailsViewModel @Inject constructor(
     private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
     private val deviceType: DeviceType,
+    private val calculateLiveGateCountdownValueUseCase: CalculateLiveGateCountdownValueUseCase,
 ) : ViewModel(), VideoDetailsHandler, DefaultLifecycleObserver {
     private var playListId: String = ""
     private var shouldShufflePlayList = false
@@ -361,15 +369,18 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onUpdateLayoutState(layoutState: CollapsableLayoutState) {
-        state.value = state.value.copy(layoutState = layoutState)
-        if (layoutState == CollapsableLayoutState.EXPENDED) {
-            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Normal
-            emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
-        } else {
-            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
-            if (deviceType != DeviceType.Tablet) {
-                state.value = state.value.copy(screenOrientationLocked = false)
-                emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+        if (state.value.hasPremiumRestriction) onBack()
+        else {
+            state.value = state.value.copy(layoutState = layoutState)
+            if (layoutState == CollapsableLayoutState.EXPENDED) {
+                state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Normal
+                emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
+            } else {
+                state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
+                if (deviceType != DeviceType.Tablet) {
+                    state.value = state.value.copy(screenOrientationLocked = false)
+                    emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+                }
             }
         }
     }
@@ -643,6 +654,31 @@ class VideoDetailsViewModel @Inject constructor(
         } else {
             dismissResources()
             emitVmEvent(VideoDetailsEvent.NavigateBack)
+        }
+    }
+
+    override fun onEnforceLiveGatePremiumRestriction() {
+        state.value.videoEntity?.let {
+            viewModelScope.launch(errorHandler + Dispatchers.Main) {
+                if (hasPremiumRestrictionUseCase(it)) {
+                    state.value.rumblePlayer?.pauseVideo()
+                    state.value = state.value.copy(
+                        videoEntity = state.value.videoEntity?.copy(hasLiveGate = true),
+                        hasPremiumRestriction = true,
+                    )
+                    onFullScreen(false)
+                }
+            }
+        }
+    }
+
+    override fun onLiveGateEvent(liveGateEntity: LiveGateEntity) {
+        state.value = state.value.copy(
+            videoEntity = state.value.videoEntity?.copy(hasLiveGate = true)
+        )
+        state.value.videoEntity?.let {
+            val countdown = calculateLiveGateCountdownValueUseCase(it, liveGateEntity.videoTimeCode, liveGateEntity.countDownValue)
+            state.value.rumblePlayer?.startPremiumCountDown(countdown.toLong())
         }
     }
 
@@ -1066,8 +1102,8 @@ class VideoDetailsViewModel @Inject constructor(
                             playList = playList,
                             screenId = videoDetailsScreen,
                             saveLastPosition = saveLastPositionUseCase::invoke,
-                            liveVideoReport = { videoId, watchingNow, status ->
-                                onLiveVideoReport(videoId, status, watchingNow)
+                            liveVideoReport = { videoId, result ->
+                                onLiveVideoReport(videoId, result.statusCode, result.watchingNow)
                             },
                             onNextVideo = { videoId, channelId, autoplay ->
                                 videoList.forEachIndexed { index, feed ->
@@ -1077,6 +1113,9 @@ class VideoDetailsViewModel @Inject constructor(
                                     }
                                 }
                                 onNextVideo(videoId, channelId, autoplay)
+                            },
+                            onPremiumCountdownFinished = {
+                                onEnforceLiveGatePremiumRestriction()
                             }
                         )
                         if (hasPremiumRestrictionUseCase(videoEntity).not())
@@ -1182,6 +1221,9 @@ class VideoDetailsViewModel @Inject constructor(
                 initVideoState(videoEntity)
             }
         }
+        state.value.videoEntity?.let {
+            getPremiumRestriction(it)
+        }
         fetchChannelDetails(state.value.videoEntity?.channelId)
         getRumbleAd()
         showPremiumPromo()
@@ -1202,6 +1244,7 @@ class VideoDetailsViewModel @Inject constructor(
             userProfile = state.value.userProfile,
             inLiveChat = false,
             inComments = false,
+            displayPremiumOnlyContent = false,
         )
         orientationEventListener.disable()
         viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(true) }
@@ -1214,8 +1257,8 @@ class VideoDetailsViewModel @Inject constructor(
         val player = initVideoPlayerSourceUseCase(
             videoId = videoEntity.id,
             saveLastPosition = saveLastPositionUseCase::invoke,
-            liveVideoReport = { videoId, watchingNow, status ->
-                onLiveVideoReport(videoId, status, watchingNow)
+            liveVideoReport = { videoId, result ->
+                onLiveVideoReport(videoId, result.statusCode, result.watchingNow)
             },
             screenId = videoDetailsScreen,
             onVideoSizeDefined = ::onVideoSizeDefined,
@@ -1227,6 +1270,9 @@ class VideoDetailsViewModel @Inject constructor(
                     videoLoadTimeTraceStopUseCase(it)
                 }
                 videoLoadTimeTrace = null
+            },
+            onPremiumCountdownFinished = {
+                onEnforceLiveGatePremiumRestriction()
             }
         )
         if (hasPremiumRestrictionUseCase(videoEntity).not())
@@ -1261,6 +1307,9 @@ class VideoDetailsViewModel @Inject constructor(
                     if (hasPremiumRestrictionUseCase(video).not())
                         player.playVideo()
                 }
+            }
+            state.value.videoEntity?.let {
+                getPremiumRestriction(it)
             }
         }
     }
@@ -1346,10 +1395,9 @@ class VideoDetailsViewModel @Inject constructor(
                 videoEntity = it,
                 isLoading = false,
                 commentsDisabled = it.commentsDisabled,
-                watchingNow = it.watchingNow
+                watchingNow = it.watchingNow,
             )
             onVideoPlayerImpression()
-            getPremiumRestriction(it)
             initLiveChat(it)
             if (state.value.lastBottomSheet == LastBottomSheet.COMMENTS && state.value.inComments)
                 onOpenComments()
@@ -1360,8 +1408,17 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private suspend fun getPremiumRestriction(videoEntity: VideoEntity) {
-        state.value =
-            state.value.copy(hasPremiumRestriction = hasPremiumRestrictionUseCase(videoEntity))
+        if (hasPremiumRestrictionUseCase(videoEntity)) {
+            if (videoEntity.hasLiveGate && videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
+                state.value = state.value.copy(displayPremiumOnlyContent = true)
+                state.value.rumblePlayer?.playVideo()
+                videoEntity.liveGateEntity?.let {
+                    state.value.rumblePlayer?.startPremiumCountDown(videoEntity.duration, CountDownType.FreePreview)
+                }
+            } else {
+                state.value = state.value.copy(hasPremiumRestriction = true)
+            }
+        }
     }
 
     private suspend fun fetchChannelDetails(channelId: String?) {

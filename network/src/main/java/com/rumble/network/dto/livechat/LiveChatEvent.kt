@@ -58,4 +58,11 @@ sealed class LiveChatEvent {
         @SerializedName("data")
         val data: CanModerateData
     ) : LiveChatEvent()
+
+    data class LiveGateEvent(
+        @SerializedName("type")
+        val eventType: LiveChatEventType,
+        @SerializedName("data")
+        val data: LiveGate
+    ) : LiveChatEvent()
 }

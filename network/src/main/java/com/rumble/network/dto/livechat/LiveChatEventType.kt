@@ -9,7 +9,8 @@ enum class LiveChatEventType(val value: String) {
     MUTE_USERS("mute_users"),
     PIN_MESSAGE("pin_message"),
     UNPIN_MESSAGE("unpin_message"),
-    CAN_MODERATE("can_moderate");
+    CAN_MODERATE("can_moderate"),
+    LIVE_GATE("live_gate");
 
     override fun toString(): String = this.value
 

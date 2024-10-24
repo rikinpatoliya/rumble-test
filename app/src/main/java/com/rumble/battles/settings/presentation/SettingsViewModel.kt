@@ -84,7 +84,7 @@ interface SettingsHandler: LazyListStateHandler {
 
 sealed class SettingsAlertDialogReason : AlertDialogReason {
     data class UnlinkConfirmationDialog(val loginType: LoginType) : SettingsAlertDialogReason()
-    object ChangeSubdomainConfirmationDialog : SettingsAlertDialogReason()
+    data object ChangeSubdomainConfirmationDialog : SettingsAlertDialogReason()
 }
 
 data class SettingsScreenUIState(
@@ -110,7 +110,7 @@ data class DebugUIState(
 sealed class SettingsScreenVmEvent {
     data class Error(val errorMessage: String? = null) : SettingsScreenVmEvent()
     data class AccountUnlinkSuccess(val loginType: LoginType) : SettingsScreenVmEvent()
-    object ScrollToPlaybackSettings : SettingsScreenVmEvent()
+    data object ScrollToPlaybackSettings : SettingsScreenVmEvent()
     data class CopyVersionToClipboard(val version: String) : SettingsScreenVmEvent()
 }
 
@@ -387,7 +387,7 @@ class SettingsViewModel @Inject constructor(
                     uiState.update {
                         it.copy(
                             debugState = it.debugState.copy(
-                                canUseSubdomain = notificationSettingsResult.canUseCustomApiDomain,
+                                canUseSubdomain = notificationSettingsResult.canUseCustomApiDomain || isDevelopModeUseCase(),
                                 canUseAdsDebugMode = notificationSettingsResult.canUseCustomApiDomain || isDevelopModeUseCase()
                             ),
                             loading = false,

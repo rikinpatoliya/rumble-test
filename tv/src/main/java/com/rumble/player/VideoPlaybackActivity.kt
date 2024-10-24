@@ -9,10 +9,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -22,6 +24,7 @@ import com.rumble.R
 import com.rumble.network.connection.InternetConnectionState
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.enforcedDarkmo
+import com.rumble.theme.paddingLarge
 import com.rumble.ui3.library.VideoCard
 import com.rumble.ui3.main.InternetConnectionLostDialogFragment
 import com.rumble.util.Constant.FINISH_ACTION
@@ -29,6 +32,8 @@ import com.rumble.util.Utils
 import com.rumble.util.showAlert
 import com.rumble.videoplayer.presentation.RumbleVideoView
 import com.rumble.videoplayer.presentation.UiType
+import com.rumble.videoplayer.presentation.internal.controlViews.PremiumNoteView
+import com.rumble.videoplayer.presentation.internal.controlViews.PremiumTag
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -176,6 +181,14 @@ open class VideoPlaybackActivity : FragmentActivity() {
                             )
                         }
                     )
+
+                    if (state.showPayWallControls) {
+                        PremiumTag(modifier = Modifier
+                            .padding(top = paddingLarge)
+                            .align(Alignment.TopStart)
+                            .padding(paddingLarge)
+                        )
+                    }
 
                     if (saveToPlaylistState.visible) {
                         SaveToPlaylistDialog(

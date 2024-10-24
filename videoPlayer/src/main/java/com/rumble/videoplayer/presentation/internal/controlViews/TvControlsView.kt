@@ -20,7 +20,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -48,8 +52,10 @@ import com.rumble.theme.brandedPlayerBackground
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingLarge
+import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXLarge
+import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXGiant
 import com.rumble.utils.extension.conditional
@@ -191,8 +197,14 @@ fun TvControlsView(
                 }
         ) {
             val (premiumTag, title, play, progress, duration, replay, report, speed, quality, live, channel, like, dislike, addToPlaylist, gradient, playList) = createRefs()
-            val bottomOffset: Dp by animateDpAsState(targetValue = if (playListHidden) playerBottomGuideline else playerBottomGuidelineExtended, label = "bottomGuideline")
-            val gradientOffset: Dp by animateDpAsState(targetValue = if (playListHidden) gradientBottomGuideLine else gradientBottomGuideLineExtended, label = "gradientOffset")
+            val bottomOffset: Dp by animateDpAsState(
+                targetValue = if (playListHidden) playerBottomGuideline else playerBottomGuidelineExtended,
+                label = "bottomGuideline"
+            )
+            val gradientOffset: Dp by animateDpAsState(
+                targetValue = if (playListHidden) gradientBottomGuideLine else gradientBottomGuideLineExtended,
+                label = "gradientOffset"
+            )
             val bottomGuideline = createGuidelineFromBottom(bottomOffset)
             val gradientGuideline = createGuidelineFromBottom(gradientOffset)
             val speedDisabled = rumblePlayer.enableSeekBar.not()
@@ -218,7 +230,12 @@ fun TvControlsView(
             if (playListHidden) {
                 Text(
                     modifier = Modifier
-                        .padding(top = paddingLarge, start = paddingLarge, end = paddingLarge, bottom = paddingXXSmall)
+                        .padding(
+                            top = paddingLarge,
+                            start = paddingLarge,
+                            end = paddingLarge,
+                            bottom = paddingXXSmall
+                        )
                         .constrainAs(title) {
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
@@ -230,13 +247,34 @@ fun TvControlsView(
                     style = RumbleTypography.tvH2
                 )
 
-                if (rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true) {
-                    PremiumTag(modifier = Modifier
-                        .constrainAs(premiumTag) {
-                            top.linkTo(title.bottom)
-                            start.linkTo(parent.start, margin = paddingLarge)
-                        }
-                    )
+                if (rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true &&
+                    rumblePlayer.rumbleVideo?.hasLiveGate?.not() == true
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = paddingLarge, vertical = paddingXXMedium)
+                            .constrainAs(premiumTag) {
+                                top.linkTo(parent.top)
+                            }
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        PremiumTag(modifier = Modifier.padding(bottom = paddingMedium))
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                } else if (rumblePlayer.rumbleVideo?.hasLiveGate == true && rumblePlayer.userIsPremium.not()) {
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = paddingLarge, vertical = paddingXXMedium)
+                            .constrainAs(premiumTag) {
+                                top.linkTo(parent.top)
+                            }
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        PremiumNoteView()
+                    }
                 }
 
                 if (playerState is PlayerPlaybackState.Finished && isLive.not()) {
@@ -498,8 +536,8 @@ fun TvControlsView(
                                 right = likeFocus
                                 up = replayFocus
                             }
-                            .onFocusChanged {
-                                if (it.isFocused) focusedElement = Focusable.CHANNEL
+                            .onFocusChanged { state ->
+                                if (state.isFocused) focusedElement = Focusable.CHANNEL
                             }
                             .constrainAs(channel) {
                                 start.linkTo(parent.start)
@@ -628,8 +666,7 @@ private fun handleKeyEvent(
             onHidePlayList()
         }
         true
-    }
-    else {
+    } else {
         (event.nativeKeyEvent.keyCode == KEYCODE_DPAD_UP && rumblePlayer.isFinished().not() &&
             (focusedElement == Focusable.REPORT ||
                 focusedElement == Focusable.SPEED ||

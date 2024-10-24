@@ -1,10 +1,10 @@
 package com.rumble.network.di
 
 import com.rumble.network.api.LoginApi
-import com.rumble.network.interceptors.AcceptJsonHeadersInterceptor
 import com.rumble.network.interceptors.ApiVersionInterceptor
 import com.rumble.network.interceptors.QueryInterceptor
 import com.rumble.network.interceptors.ResponseInterceptor
+import com.rumble.network.interceptors.UrlEncodedInterceptor
 import com.rumble.network.interceptors.UserAgentInterceptor
 import dagger.Module
 import dagger.Provides
@@ -26,7 +26,7 @@ object LoginModule {
     @Provides
     @LoginHttpClient
     fun provideOkHttpClient(
-        acceptJsonHeadersInterceptor: AcceptJsonHeadersInterceptor,
+        urlEncodedInterceptor: UrlEncodedInterceptor,
         loggingInterceptor: HttpLoggingInterceptor,
         queryInterceptor: QueryInterceptor,
         apiVersionInterceptor: ApiVersionInterceptor,
@@ -35,7 +35,7 @@ object LoginModule {
         curlLoggingInterceptor: RetrofitCurlPrinterInterceptor,
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient.Builder()
-            .addInterceptor(acceptJsonHeadersInterceptor)
+            .addInterceptor(urlEncodedInterceptor)
             .addInterceptor(userAgentInterceptor)
             .addInterceptor(queryInterceptor)
             .addInterceptor(apiVersionInterceptor)

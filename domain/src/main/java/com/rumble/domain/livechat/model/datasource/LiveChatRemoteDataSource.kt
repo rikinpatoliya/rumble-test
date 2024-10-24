@@ -183,6 +183,11 @@ class LiveChatRemoteDataSourceImpl(
                 LiveChatEvent.UnpinMessageEvent::class.java
             )
 
+            LiveChatEventType.LIVE_GATE -> gson.fromJson(
+                jsonString,
+                LiveChatEvent.LiveGateEvent::class.java
+            )
+
             else -> LiveChatEvent.LiveChatError("Unsupported live chat event type")
         }
     }

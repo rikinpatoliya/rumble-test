@@ -43,6 +43,8 @@ data class RumbleVideo(
     val dislikeNumber: Long = 0,
     val userId: String = "",
     val isPremiumExclusiveContent: Boolean = false,
+    val requestLiveGateData: Boolean = false,
+    val hasLiveGate: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

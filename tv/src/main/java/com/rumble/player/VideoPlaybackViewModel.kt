@@ -18,21 +18,27 @@ import com.rumble.domain.feed.domain.usecase.GetVideoDetailsUseCase
 import com.rumble.domain.feed.domain.usecase.ReportContentUseCase
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
+import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValueUseCase
 import com.rumble.domain.premium.domain.usecases.FetchUserInfoUseCase
+import com.rumble.domain.settings.domain.usecase.HasPremiumRestrictionUseCase
 import com.rumble.domain.video.domain.usecases.CreateRumblePlayListUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoPlayerSourceUseCase
 import com.rumble.domain.video.domain.usecases.SaveLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.UpdateVideoPlayerSourceUseCase
 import com.rumble.network.connection.InternetConnectionObserver
 import com.rumble.network.connection.InternetConnectionState
+import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.network.dto.channel.ReportContentType
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
 import com.rumble.videoplayer.domain.model.VoteData
 import com.rumble.videoplayer.player.RumblePlayer
+import com.rumble.videoplayer.player.config.CountDownType
+import com.rumble.videoplayer.player.config.LiveVideoReportResult
 import com.rumble.videoplayer.player.config.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -50,16 +56,17 @@ data class VideoPlayerState(
     val fromChannel: String = "",
     val channelDetailsEntity: ChannelDetailsEntity? = null,
     val showPayWall: Boolean = false,
+    val showPayWallControls: Boolean = false,
 )
 
 sealed class VideoPlayerEvent {
-    object VideoReported : VideoPlayerEvent()
-    object Error : VideoPlayerEvent()
-    object LoginToLike : VideoPlayerEvent()
-    object LoginToDislike : VideoPlayerEvent()
-    object ClosePlayer : VideoPlayerEvent()
-    object LoginToAddToPlaylist : VideoPlayerEvent()
-    object AddToPlaylist : VideoPlayerEvent()
+    data object VideoReported : VideoPlayerEvent()
+    data object Error : VideoPlayerEvent()
+    data object LoginToLike : VideoPlayerEvent()
+    data object LoginToDislike : VideoPlayerEvent()
+    data object ClosePlayer : VideoPlayerEvent()
+    data object LoginToAddToPlaylist : VideoPlayerEvent()
+    data object AddToPlaylist : VideoPlayerEvent()
     data class OpenChannelDetails(val channelDetailsEntity: ChannelDetailsEntity) :
         VideoPlayerEvent()
 }
@@ -82,6 +89,8 @@ class VideoPlaybackViewModel @Inject constructor(
     private val createRumblePlayListUseCase: CreateRumblePlayListUseCase,
     private val fetchUserInfoUseCase: FetchUserInfoUseCase,
     private val sessionManager: SessionManager,
+    private val hasPremiumRestrictionUseCase: HasPremiumRestrictionUseCase,
+    private val calculateLiveGateCountdownValueUseCase: CalculateLiveGateCountdownValueUseCase,
 ) : ViewModel() {
 
     val videoPlayerState: MutableState<VideoPlayerState> = mutableStateOf(VideoPlayerState())
@@ -105,29 +114,34 @@ class VideoPlaybackViewModel @Inject constructor(
         viewModelScope.launch(errorHandler) {
             fetchUserInfoUseCase()
             isPremium = sessionManager.isPremiumUserFlow.first()
-
+            val updatedVideoEntity = getVideoDetailsUseCase(videoEntity.id) ?: videoEntity
             videoPlayerState.value = videoPlayerState.value.copy(
                 rumblePlayer = initVideoPlayerSourceUseCase(
-                    videoId = videoEntity.id,
+                    videoId = updatedVideoEntity.id,
                     screenId = videoDetailsScreen,
                     saveLastPosition = saveLastPositionUseCase::invoke,
                     autoplay = true,
+                    requestLiveGateData = true,
                     onNextVideo = ::onNextVideo,
                     showAds = sessionManager.isPremiumUserFlow.first().not(),
-                    liveVideoReport = { videoId, _, status ->
-                        onLiveVideoReport(videoId, status)
+                    liveVideoReport = { videoId, result ->
+                        onLiveVideoReport(videoId, result)
                     },
+                    onPremiumCountdownFinished = {
+                        enforceLiveGateRestriction()
+                    }
                 ),
-                videoEntity = videoEntity,
+                videoEntity = updatedVideoEntity,
                 fromChannel = fromChannel,
-                channelDetailsEntity = fetchChannelDetails(videoEntity.channelId),
-                showPayWall = videoEntity.isPremiumExclusiveContent && isPremium.not()
+                channelDetailsEntity = fetchChannelDetails(updatedVideoEntity.channelId),
+                showPayWall = updatedVideoEntity.hasLiveGate.not() && hasPremiumRestrictionUseCase(updatedVideoEntity)
             )
             if (videoPlayerState.value.showPayWall.not()) {
                 videoPlayerState.value.rumblePlayer?.playVideo()
             }
             fetchCurrentUserVoteState(videoId = videoEntity.id)
             onVideoPlayerImpression()
+            handleLiveGate(updatedVideoEntity)
         }
     }
 
@@ -138,9 +152,11 @@ class VideoPlaybackViewModel @Inject constructor(
                 feedList = videoList,
                 publisherId = PublisherId.AndroidTv,
                 shuffle = shuffle,
-                loop = true
+                loop = true,
+                requestLiveGateData = true,
             )
             val initialVideo = videoList.first()
+            val updatedVideoEntity = getVideoDetailsUseCase(initialVideo.id) ?: initialVideo
             fetchUserInfoUseCase()
             isPremium = sessionManager.isPremiumUserFlow.first()
 
@@ -149,21 +165,25 @@ class VideoPlaybackViewModel @Inject constructor(
                     playList = playList,
                     screenId = videoDetailsScreen,
                     saveLastPosition = saveLastPositionUseCase::invoke,
-                    liveVideoReport = { videoId, _, status ->
-                        onLiveVideoReport(videoId, status)
+                    liveVideoReport = { videoId, result ->
+                        onLiveVideoReport(videoId, result)
                     },
                     onNextVideo = ::onNextVideo,
                     showAds = sessionManager.isPremiumUserFlow.first().not(),
+                    onPremiumCountdownFinished = {
+                        enforceLiveGateRestriction()
+                    }
                 ),
-                videoEntity = initialVideo,
-                channelDetailsEntity = fetchChannelDetails(initialVideo.channelId),
-                showPayWall = initialVideo.isPremiumExclusiveContent && isPremium.not()
+                videoEntity = updatedVideoEntity,
+                channelDetailsEntity = fetchChannelDetails(updatedVideoEntity.channelId),
+                showPayWall = hasPremiumRestrictionUseCase(updatedVideoEntity)
             )
             if (videoPlayerState.value.showPayWall.not()) {
                 videoPlayerState.value.rumblePlayer?.playVideo()
             }
-            fetchCurrentUserVoteState(videoId = initialVideo.id)
+            fetchCurrentUserVoteState(videoId = updatedVideoEntity.id)
             onVideoPlayerImpression()
+            handleLiveGate(updatedVideoEntity)
         }
     }
 
@@ -245,25 +265,85 @@ class VideoPlaybackViewModel @Inject constructor(
         videoPlayerState.value.rumblePlayer?.pauseVideo()
     }
 
-    private fun onLiveVideoReport(videoId: Long, status: Int?) {
-        if (status != videoPlayerState.value.videoEntity?.livestreamStatus?.value &&
-            videoId == videoPlayerState.value.videoEntity?.id) {
+    private fun enforceLiveGateRestriction() {
+        videoPlayerState.value.videoEntity?.let {
+            viewModelScope.launch(Dispatchers.Main + errorHandler) {
+                if (hasPremiumRestrictionUseCase(it)) {
+                    videoPlayerState.value.rumblePlayer?.pauseVideo()
+                    videoPlayerState.value =
+                        videoPlayerState.value.copy(showPayWall = true)
+                }
+            }
+        }
+    }
+
+    private suspend fun handleLiveGate(videoEntity: VideoEntity) {
+        val hasRestriction = hasPremiumRestrictionUseCase(videoEntity)
+        if (hasRestriction) {
+            videoEntity.liveGateEntity?.let {
+                videoPlayerState.value = videoPlayerState.value.copy(
+                    showPayWallControls = true,
+                    videoEntity = videoPlayerState.value.videoEntity?.copy(hasLiveGate = true)
+                )
+                if (videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
+                    videoPlayerState.value.rumblePlayer?.startPremiumCountDown(
+                        videoEntity.duration,
+                        CountDownType.FreePreview
+                    )
+                } else {
+                    enforceLiveGateRestriction()
+                }
+            }
+
+        } else if (videoEntity.liveGateEntity != null) {
+            videoPlayerState.value = videoPlayerState.value.copy(
+                showPayWallControls = true
+            )
+        }
+        videoPlayerState.value.rumblePlayer?.userIsPremium = hasRestriction.not()
+    }
+
+    private fun onLiveVideoReport(videoId: Long, result: LiveVideoReportResult) {
+        if (result.statusCode != videoPlayerState.value.videoEntity?.livestreamStatus?.value &&
+            videoId == videoPlayerState.value.videoEntity?.id
+        ) {
             updateVideoSource(
                 videoId = videoId,
                 updatedRelatedVideoList = true,
                 autoplay = false
             )
         }
+        if (result.hasLiveGate && videoPlayerState.value.videoEntity?.hasLiveGate == false) {
+            videoPlayerState.value = videoPlayerState.value.copy(
+                showPayWallControls = true,
+                videoEntity = videoPlayerState.value.videoEntity?.copy(hasLiveGate = true)
+            )
+            videoPlayerState.value.videoEntity?.let {
+                val countdown = calculateLiveGateCountdownValueUseCase(
+                    it,
+                    result.videoTimeCode ?: 0,
+                    result.countDownValue ?: 0
+                )
+                videoPlayerState.value.rumblePlayer?.startPremiumCountDown(
+                    countdown.toLong(),
+                    CountDownType.Premium
+                )
+            }
+        }
     }
 
-    private fun updateVideoSource(videoId: Long, updatedRelatedVideoList: Boolean, autoplay: Boolean) {
+    private fun updateVideoSource(
+        videoId: Long,
+        updatedRelatedVideoList: Boolean,
+        autoplay: Boolean
+    ) {
         viewModelScope.launch(errorHandler) {
             val videoEntityDeferred = async { getVideoDetailsUseCase(videoId) }
             videoEntityDeferred.await()?.let { videoEntity ->
                 videoPlayerState.value = videoPlayerState.value.copy(
                     videoEntity = videoEntity,
                     currentVote = getUserCurrentVote(videoEntity),
-                    showPayWall = videoEntity.isPremiumExclusiveContent && isPremium.not()
+                    showPayWall = hasPremiumRestrictionUseCase(videoEntity)
                 )
                 videoPlayerState.value.rumblePlayer?.let { player ->
                     updateVideoPlayerSourceUseCase(
@@ -272,7 +352,8 @@ class VideoPlaybackViewModel @Inject constructor(
                         saveLastPosition = saveLastPositionUseCase::invoke,
                         screenId = videoDetailsScreen,
                         autoplay = autoplay,
-                        updatedRelatedVideoList = updatedRelatedVideoList
+                        updatedRelatedVideoList = updatedRelatedVideoList,
+                        requestLiveGateData = true,
                     )
                 }
                 if (videoPlayerState.value.showPayWall.not()) {

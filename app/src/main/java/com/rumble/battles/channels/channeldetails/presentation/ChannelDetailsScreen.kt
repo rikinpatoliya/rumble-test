@@ -104,9 +104,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-private const val TAG = "ChannelDetailsScreen"
 
-private const val ITEMS_SHIFT = 3
+private const val ITEMS_SHIFT = 2
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -180,7 +179,7 @@ fun ChannelDetailsScreen(
         if (videoDetailsState.visible.not()) channelDetailsHandler.onCreatePlayerForVisibleFeed()
     }
 
-    LaunchedEffect(scrollState) {
+    LaunchedEffect(scrollState, videoListItems.itemCount) {
         snapshotFlow { scrollState.layoutInfo }.collect {
             var createPlayer = false
             val itemPosition = scrollState.findFirstFullyVisibleItemIndex(

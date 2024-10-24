@@ -36,6 +36,7 @@ import com.rumble.utils.extension.navigationSafeDecode
 import com.rumble.videoplayer.player.RumblePlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -116,9 +117,9 @@ class CombineSearchResultViewModel @Inject constructor(
     }
 
     override var selection: SortFilterSelection = SortFilterSelection(
-        sortSelection = SortType.values().first(),
-        filterSelection = FilterType.values().first(),
-        durationSelection = DurationType.values().first()
+        sortSelection = SortType.entries.first(),
+        filterSelection = FilterType.entries.first(),
+        durationSelection = DurationType.entries.first()
     )
     override val query: String =
         (stateHandle.get<String>(RumblePath.QUERY.path) ?: "").navigationSafeDecode()
@@ -186,7 +187,19 @@ class CombineSearchResultViewModel @Inject constructor(
             currentVisibleFeed?.let {
                 if (currentVisibleFeed?.id != lastDisplayedFeed?.id) {
                     state.value.rumblePlayer?.stopPlayer()
-                    state.value = state.value.copy(rumblePlayer = initVideoCardPlayerUseCase(it, combineSearchScreen))
+                    state.value = state.value.copy(rumblePlayer = initVideoCardPlayerUseCase(
+                        videoEntity = it,
+                        screenId = combineSearchScreen,
+                        liveVideoReport = { _, result ->
+                            if (result.hasLiveGate) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    state.value.rumblePlayer?.stopPlayer()
+                                    state.value = state.value.copy(rumblePlayer = null)
+                                    lastDisplayedFeed = null
+                                }
+                            }
+                        }
+                    ))
                     lastDisplayedFeed = currentVisibleFeed
                 }
             }

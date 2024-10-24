@@ -22,20 +22,28 @@ import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXMedium
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusLarge
+import com.rumble.utils.extension.parsedTime
 import com.rumble.videoplayer.R
+import com.rumble.videoplayer.player.config.CountDownType
 import com.rumble.videoplayer.presentation.UiType
 
 @Composable
-fun AdCountDownView(
+fun CountDownView(
     modifier: Modifier = Modifier,
     uiType: UiType = UiType.EMBEDDED,
-    countDownValue: Int,
+    type: CountDownType = CountDownType.Ad,
+    countDownValue: Long,
 ) {
     val background =
         if (uiType == UiType.TV) enforcedGray900 else enforcedFiardHighlight.copy(alpha = 0.9f)
     val style = if (uiType == UiType.TV) h4 else h6
     val horizontalPadding = if (uiType == UiType.TV) paddingLarge else paddingXMedium
     val verticalPadding = if (uiType == UiType.TV) paddingMedium else paddingXSmall
+    val text = when (type) {
+        CountDownType.Ad -> stringResource(id = R.string.ad_begins, countDownValue)
+        CountDownType.Premium -> stringResource(id = R.string.premium_only_in, countDownValue)
+        CountDownType.FreePreview -> stringResource(id = R.string.free_preview_end, countDownValue.parsedTime())
+    }
 
     AnimatedVisibility(
         modifier = modifier,
@@ -51,7 +59,7 @@ fun AdCountDownView(
                     vertical = verticalPadding,
                     horizontal = horizontalPadding
                 ),
-                text = stringResource(id = R.string.ad_begins, countDownValue),
+                text = text,
                 color = enforcedWhite,
                 style = style
             )
@@ -63,7 +71,7 @@ fun AdCountDownView(
 @Preview
 private fun PreviewMobile() {
     RumbleTheme {
-        AdCountDownView(countDownValue = 4, uiType = UiType.EMBEDDED)
+        CountDownView(countDownValue = 4, uiType = UiType.EMBEDDED)
     }
 }
 
@@ -71,6 +79,6 @@ private fun PreviewMobile() {
 @Preview
 private fun PreviewTv() {
     RumbleTheme {
-        AdCountDownView(countDownValue = 4, uiType = UiType.TV)
+        CountDownView(countDownValue = 4, uiType = UiType.TV)
     }
 }

@@ -5,6 +5,7 @@ import com.rumble.domain.common.model.RumbleResult
 
 data class LiveChatResult(
     val success: Boolean = true,
+    val initialConfig: Boolean = false,
     val messageList: List<LiveChatMessageEntity> = emptyList(),
     val deletedMessageIdList: List<Long> = emptyList(),
     val mutedUserIdList: List<Long> = emptyList(),
@@ -12,5 +13,6 @@ data class LiveChatResult(
     val pinnedMessageId: Long? = null,
     val unpinnedMessageId: Long? = null,
     val canModerate: Boolean? = null,
+    val liveGate: LiveGateEntity? = null,
     override val rumbleError: RumbleError? = null
 ) : RumbleResult

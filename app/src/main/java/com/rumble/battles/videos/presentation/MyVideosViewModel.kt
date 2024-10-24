@@ -54,6 +54,7 @@ import com.rumble.utils.RumbleConstants.RETRY_DELAY_USER_UPLOAD_CHANNELS
 import com.rumble.videoplayer.player.RumblePlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -113,7 +114,7 @@ sealed class MyVideosScreenAlertDialogReason : AlertDialogReason {
         MyVideosScreenAlertDialogReason()
 
     data class ShowEmailVerificationSent(val email: String) : MyVideosScreenAlertDialogReason()
-    object ShowYourEmailNotVerifiedYet : MyVideosScreenAlertDialogReason()
+    data object ShowYourEmailNotVerifiedYet : MyVideosScreenAlertDialogReason()
     data class RestrictedContentReason(val videoEntity: VideoEntity) :
         MyVideosScreenAlertDialogReason()
 }
@@ -333,7 +334,19 @@ class MyVideosViewModel @Inject constructor(
             currentVisibleFeed?.let {
                 if (currentVisibleFeed?.id != lastDisplayedFeed?.id) {
                     currentPlayerState.value?.stopPlayer()
-                    currentPlayerState.value = initVideoCardPlayerUseCase(it, myVideosScreen)
+                    currentPlayerState.value = initVideoCardPlayerUseCase(
+                        videoEntity = it,
+                        screenId = myVideosScreen,
+                        liveVideoReport = { _, result ->
+                            if (result.hasLiveGate) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    currentPlayerState.value?.stopPlayer()
+                                    currentPlayerState.value = null
+                                    lastDisplayedFeed = null
+                                }
+                            }
+                        }
+                    )
                     lastDisplayedFeed = currentVisibleFeed
                 }
             }

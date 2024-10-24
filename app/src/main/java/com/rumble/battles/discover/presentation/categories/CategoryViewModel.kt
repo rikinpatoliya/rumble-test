@@ -57,6 +57,7 @@ import com.rumble.domain.video.domain.usecases.SaveLastPositionUseCase
 import com.rumble.videoplayer.player.RumblePlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -266,7 +267,19 @@ class CategoryViewModel @Inject constructor(
             currentVisibleFeed?.let {
                 if (currentVisibleFeed?.id != lastDisplayedFeed?.id) {
                     currentPlayerState.value?.stopPlayer()
-                    currentPlayerState.value = initVideoCardPlayerUseCase(it, categoryScreen)
+                    currentPlayerState.value = initVideoCardPlayerUseCase(
+                        videoEntity = it,
+                        screenId = categoryScreen,
+                        liveVideoReport = { _, result ->
+                            if (result.hasLiveGate) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    currentPlayerState.value?.stopPlayer()
+                                    currentPlayerState.value = null
+                                    lastDisplayedFeed = null
+                                }
+                            }
+                        }
+                    )
                     lastDisplayedFeed = currentVisibleFeed
                 }
             }

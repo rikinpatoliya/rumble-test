@@ -173,7 +173,8 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(listState) {
+
+    LaunchedEffect(listState, videoListItems.itemCount) {
         snapshotFlow { listState.layoutInfo }.collect {
             val shift =
                 if (userUIState.isLoggedIn) ITEMS_SHIFT_USER_LOGGED_IN else ITEMS_SHIFT_USER_NOT_LOGGED_IN
@@ -209,7 +210,7 @@ fun HomeScreen(
             .fillMaxSize()
             .systemBarsPadding()
     ) {
-        val (header, list, navigation) = createRefs()
+        val (header, list) = createRefs()
 
         RumbleLogoSearchHeaderView(
             modifier = Modifier

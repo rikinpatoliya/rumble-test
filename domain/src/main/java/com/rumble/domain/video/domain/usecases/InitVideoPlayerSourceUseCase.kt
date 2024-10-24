@@ -11,6 +11,7 @@ import com.rumble.network.di.Publisher
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.VideoStartMethod
+import com.rumble.videoplayer.player.config.LiveVideoReportResult
 import com.rumble.videoplayer.player.config.StreamStatus
 import com.rumble.videoplayer.player.internal.notification.RumblePlayList
 import javax.inject.Inject
@@ -37,12 +38,14 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         useLowQuality: Boolean = false,
         autoplay: Boolean = false,
         showAds: Boolean = false,
+        requestLiveGateData: Boolean = false,
         videoStartMethod: VideoStartMethod = VideoStartMethod.URL_PROVIDED,
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
-        liveVideoReport: ((Long, Long, Int?) -> Unit)? = null,
+        liveVideoReport: ((Long, LiveVideoReportResult) -> Unit)? = null,
         onVideoSizeDefined: ((Int, Int) -> Unit)? = null,
         onNextVideo: ((Long, String, Boolean) -> Unit)? = null,
-        sendInitialPlaybackEvent: (() -> Unit)? = null
+        sendInitialPlaybackEvent: (() -> Unit)? = null,
+        onPremiumCountdownFinished:  (() -> Unit)? = null,
     ): RumblePlayer {
         val videoEntity = getVideoDetailsUseCase(videoId)
         val relatedVideoList =
@@ -57,7 +60,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                     relatedVideoList = emptyList(),
                     publisherId = publisherId,
                     screenId = screenId,
-                    includeMetadata = false
+                    includeMetadata = false,
+                    requestLiveGateData = requestLiveGateData,
                 )
             } else emptyList()
         val videoPlayer = createPlayerUseCase()
@@ -73,7 +77,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                     relatedVideoList = relatedVideoList,
                     publisherId = publisherId,
                     screenId = screenId,
-                    includeMetadata = videoEntity.includeMetadata
+                    includeMetadata = videoEntity.includeMetadata,
+                    requestLiveGateData = requestLiveGateData,
                 ),
                 reportLiveVideo = reportLiveVideoUseCase::invoke,
                 onLiveVideoReport = liveVideoReport,
@@ -90,7 +95,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 fetchPreRollList = if (showAds) fetchVideoAdListUseCase::invoke else null,
                 reportAdEvent = if (showAds) sendAdEventUseCase::invoke else null,
                 playList = null,
-                sendInitialPlaybackEvent = sendInitialPlaybackEvent
+                sendInitialPlaybackEvent = sendInitialPlaybackEvent,
+                onPremiumCountdownFinished = onPremiumCountdownFinished,
             )
         }
         return videoPlayer
@@ -101,10 +107,11 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         screenId: String,
         showAds: Boolean = true,
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
-        liveVideoReport: ((Long, Long, Int?) -> Unit)? = null,
+        liveVideoReport: ((Long, LiveVideoReportResult) -> Unit)? = null,
         onVideoSizeDefined: ((Int, Int) -> Unit)? = null,
         onNextVideo: ((Long, String, Boolean) -> Unit)? = null,
-        sendInitialPlaybackEvent: (() -> Unit)? = null
+        sendInitialPlaybackEvent: (() -> Unit)? = null,
+        onPremiumCountdownFinished:  (() -> Unit)? = null,
     ): RumblePlayer {
         val initialVideo = playList.videoList.first()
         return createPlayerUseCase().apply {
@@ -125,7 +132,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 fetchPreRollList = if (showAds) fetchVideoAdListUseCase::invoke else null,
                 reportAdEvent = if (showAds) sendAdEventUseCase::invoke else null,
                 playList = playList,
-                sendInitialPlaybackEvent = sendInitialPlaybackEvent
+                sendInitialPlaybackEvent = sendInitialPlaybackEvent,
+                onPremiumCountdownFinished = onPremiumCountdownFinished,
             )
         }
     }

@@ -5,6 +5,7 @@ import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatResult
+import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantConfig
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.network.dto.livechat.LiveChatChannel
@@ -21,7 +22,7 @@ object LiveChatNetworkModelMapper {
     private const val CURRENCY =
         "$" //This parameter may come from the server in the future, but for now it's a constant for all messages
 
-    fun mapToLiveChatMassageEntityList(
+    fun mapToLiveChatResult(
         event: LiveChatEvent,
         baseUrl: String,
         currentUerId: String
@@ -52,9 +53,16 @@ object LiveChatNetworkModelMapper {
                     )
                 LiveChatResult(
                     messageList = entities,
+                    initialConfig = true,
                     liveChatConfig = config,
                     pinnedMessageId = event.data.pinnedMessage?.id,
-                    canModerate = event.data.canModerate ?: false
+                    canModerate = event.data.canModerate ?: false,
+                    liveGate = event.data.liveGate?.let {
+                        LiveGateEntity(
+                            videoTimeCode = it.timeCode,
+                            countDownValue = it.countdown
+                        )
+                    },
                 )
             }
 
@@ -89,6 +97,15 @@ object LiveChatNetworkModelMapper {
                 } else {
                     LiveChatResult(canModerate = null)
                 }
+            }
+
+            is LiveChatEvent.LiveGateEvent -> {
+                LiveChatResult(
+                    liveGate = LiveGateEntity(
+                        videoTimeCode = event.data.timeCode,
+                        countDownValue = event.data.countdown
+                    )
+                )
             }
 
             else -> LiveChatResult(success = false)

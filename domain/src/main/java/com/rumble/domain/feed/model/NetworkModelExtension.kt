@@ -23,6 +23,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.VideoSource
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
 import com.rumble.domain.feed.domain.domainmodel.video.WatchingNowEntity
 import com.rumble.domain.library.domain.model.PlayListVisibility
+import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
 import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.domain.profile.domainmodel.ProfileNotificationEntity
@@ -57,7 +58,6 @@ import com.rumble.utils.extension.convertUtcToLocal
 import com.rumble.utils.extension.toChannelIdString
 import com.rumble.utils.extension.toDate
 import com.rumble.utils.extension.toUserIdString
-import com.rumble.utils.extension.toUtcLong
 import java.time.LocalDateTime
 import kotlin.math.max
 
@@ -203,7 +203,10 @@ fun Video.getVideoEntity(): VideoEntity =
         isPremiumExclusiveContent = availability?.equals(
             RumbleConstants.PREMIUM_VIDEO_AVAILABILITY,
             true
-        ) ?: false
+        ) ?: false,
+        subscribedToCurrentChannel = videoSource?.subscribed == true,
+        hasLiveGate = liveGate != null,
+        liveGateEntity = liveGate?.let { LiveGateEntity(it.timeCode, it.countdown) },
     )
 
 private fun Categories.getVideoCategories(): List<VideoCategoryEntity> {

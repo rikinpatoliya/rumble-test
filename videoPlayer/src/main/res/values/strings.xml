@@ -48,6 +48,9 @@
     <string name="collapse">Collapse</string>
     <string name="video_play_after_ad">Video will play after ad</string>
     <string name="sponsored">Sponsored</string>
+    <string name="premium_only_in">Premium only in %d</string>
+    <string name="free_preview_end">Free preview ends in %s</string>
+    <string name="preview">Preview</string>
 
     <string name="video_card_upcoming_label">Upcoming</string>
     <string name="video_card_live_starting_label">Starting</string>
@@ -64,7 +67,7 @@
     <string name="scheduled_for">Scheduled for</string>
     <string name="at">at</string>
 
-    <string name="premium_only">Premium only</string>
+    <string name="premium_only">Premium</string>
     <string name="premium_only_content">Premium Only Content</string>
     <string name="premium_only_content_message">This video is only available to Rumble \nPremium subscribers. Subscribe to enjoy \nexclusive content and ad-free viewing.</string>
 </resources>

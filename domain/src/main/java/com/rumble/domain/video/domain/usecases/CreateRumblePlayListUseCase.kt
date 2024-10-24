@@ -17,7 +17,8 @@ class CreateRumblePlayListUseCase @Inject constructor(
         feedList: List<Feed>,
         publisherId: PublisherId,
         shuffle: Boolean,
-        loop: Boolean
+        loop: Boolean,
+        requestLiveGateData: Boolean = false,
     ) = RumblePlayList(
         title = title,
         videoList = feedList.filterIsInstance<VideoEntity>().map {
@@ -32,6 +33,7 @@ class CreateRumblePlayListUseCase @Inject constructor(
                 publisherId = publisherId,
                 screenId = videoDetailsScreen,
                 includeMetadata = it.includeMetadata,
+                requestLiveGateData = requestLiveGateData,
             )
         },
         shuffle = shuffle,

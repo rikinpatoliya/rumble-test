@@ -22,6 +22,6 @@ internal fun LiveDurationView(
 
 private fun getTimeTillLive(currentPosition: Long, totalDuration: Long): String {
     val time = totalDuration - currentPosition
-    return if (time > 0) "-${time.parsedTime()}"
-    else time.parsedTime()
+    return if (time > 0) "-${time.parsedMillisecondsTime()}"
+    else time.parsedMillisecondsTime()
 }

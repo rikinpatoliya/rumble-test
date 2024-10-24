@@ -34,6 +34,7 @@ class CreateRumbleVideoUseCase @Inject constructor(
         publisherId: PublisherId,
         screenId: String,
         includeMetadata: Boolean,
+        requestLiveGateData: Boolean,
     ): RumbleVideo {
         val backgroundPlay =
             if (restrictBackground) BackgroundPlay.OFF
@@ -115,7 +116,9 @@ class CreateRumbleVideoUseCase @Inject constructor(
                 LiveStreamStatus.LIVE -> RumbleLiveStreamStatus.LIVE
             },
             liveDateTime = videoEntity.liveDateTime,
-            liveStreamedOn = videoEntity.liveStreamedOn
+            liveStreamedOn = videoEntity.liveStreamedOn,
+            requestLiveGateData = requestLiveGateData,
+            hasLiveGate = videoEntity.hasLiveGate,
         )
     }
 }

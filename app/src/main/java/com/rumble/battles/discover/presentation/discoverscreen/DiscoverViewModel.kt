@@ -35,10 +35,10 @@ import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoCardPlayerUseCase
 import com.rumble.domain.video.domain.usecases.SaveLastPositionUseCase
-import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.LIVE_CATEGORIES_LIMIT
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -91,7 +91,6 @@ private const val TAG = "DiscoverViewModel"
 
 @HiltViewModel
 class DiscoverViewModel @Inject constructor(
-    private val sessionManager: SessionManager,
     private val getLiveVideoListUseCase: GetLiveVideoListUseCase,
     private val getEditorPicksVideoListUseCase: GetEditorPicksVideoListUseCase,
     private val getTopChannelsUseCase: GetTopChannelsUseCase,
@@ -237,7 +236,15 @@ class DiscoverViewModel @Inject constructor(
                 it.copy(
                     dontMissPlayer = initVideoCardPlayerUseCase(
                         videoEntity = videoEntity,
-                        screenId = discoverScreen
+                        screenId = discoverScreen,
+                        liveVideoReport = { _, result ->
+                            if (result.hasLiveGate) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    state.value.dontMissPlayer?.stopPlayer()
+                                    state.value = state.value.copy(dontMissPlayer = null)
+                                }
+                            }
+                        }
                     )
                 )
             }

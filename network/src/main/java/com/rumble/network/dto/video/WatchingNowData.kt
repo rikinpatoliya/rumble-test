@@ -1,7 +1,7 @@
 package com.rumble.network.dto.video
 
 import com.google.gson.annotations.SerializedName
-import com.rumble.network.dto.login.UserState
+import com.rumble.network.dto.livechat.LiveGate
 
 
 /**
@@ -16,4 +16,6 @@ data class WatchingNowData(
     val numWatchingNow: Int,
     @SerializedName("livestream_status")
     val livestreamStatus: Int,
+    @SerializedName("live_gate")
+    val liveGate: LiveGate?,
 )

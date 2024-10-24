@@ -124,6 +124,7 @@ import com.rumble.battles.feed.presentation.views.CommentAuthorChooserBottomShee
 import com.rumble.battles.feed.presentation.views.LikeDislikeView
 import com.rumble.battles.feed.presentation.views.LikeDislikeViewStyle
 import com.rumble.battles.feed.presentation.views.PlayListVideoView
+import com.rumble.battles.feed.presentation.views.PremiumOnlyContentView
 import com.rumble.battles.feed.presentation.views.PremiumOnlyThumbnailView
 import com.rumble.battles.feed.presentation.views.TotalLiveTimeView
 import com.rumble.battles.feed.presentation.views.VerifyEmailBottomSheet
@@ -171,6 +172,7 @@ import com.rumble.theme.paddingXGiant
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.paddingXXSmall
+import com.rumble.theme.paddingXXXLarge
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.playListVideoDetailsMaxHeight
 import com.rumble.theme.radiusLarge
@@ -589,6 +591,7 @@ fun VideoDetailsView(
     val alertDialogState by handler.alertDialogState
     val coroutineScope = rememberCoroutineScope()
     var minimalHeightReached by rememberSaveable { mutableStateOf(collapsePercentage > 0f) }
+    val displayPremiumOnlyContent = state.isFullScreen.not() && state.displayPremiumOnlyContent
 
     LaunchedEffect(Unit) {
         snapshotFlow { liveChatBottomSheetState.currentValue }
@@ -608,104 +611,120 @@ fun VideoDetailsView(
         tween(COLLAPSE_ANIMATION_DURATION),
         label = "width"
     )
+
     Column(
         modifier = modifier
     ) {
-        Row(verticalAlignment = CenterVertically) {
-            val isTablet = IsTablet()
-            val isKeyboardVisible by keyboardAsState()
-            val width =
-                if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
-            val height = if (isKeyboardVisible) videoHeightReduced else {
-                if (state.isFullScreen) boxMxHeight
-                else if (state.videoEntity?.portraitMode == true) {
-                    if (isTablet) {
-                        min(width, boxMxHeight)
-                    } else {
-                        boxMaxWidth
-                    }
-                } else width / 16 * 9
-            }
-
-            if (miniPlayerHeight >= height * (1 - collapsePercentage) && collapseDirection == CollapseDirection.DOWN) {
-                minimalHeightReached = true
-            } else if (collapseDirection == CollapseDirection.UP) {
-                minimalHeightReached = false
-            }
-
-            val actualHeight = max(height * (1 - collapsePercentage), miniPlayerHeight)
-
-            val sizeModifier =
-                Modifier
-                    .conditional(state.isFullScreen.not()) { this.padding(horizontal = contentPadding) }
-                    .conditional(state.isFullScreen) {
-                        width(width)
-                    }
-                    .conditional(state.isFullScreen.not()) {
-                        width(actualWidth)
-                    }
-                    .height(actualHeight)
-
-            if (state.videoEntity?.isPremiumExclusiveContent == true
-                && contentHandler.isPremiumUser().not()
-            ) {
-                PremiumOnlyThumbnailView(
-                    modifier = sizeModifier
-                        .aspectRatio(
-                            ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
-                        ),
-                    url = state.videoEntity?.videoThumbnail ?: "",
-                    onBack = { handler.onBack() },
-                    onSubscribeNow = {
-                        contentHandler.onShowSubscriptionOptions(
-                            state.videoEntity?.id,
-                            SubscriptionSource.Video
-                        )
-                    }
+        Box {
+            if (displayPremiumOnlyContent) {
+                PremiumOnlyContentView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(BottomCenter),
+                    onSubscribe = handler::onSubscribeToPremium
                 )
-            } else {
-                VideoPlayerView(
-                    modifier = sizeModifier
-                        .testTag(VideoPlayerViewTag)
-                        .conditional(state.inLiveChat and state.isFullScreen) {
-                            Modifier.weight(3f)
+            }
+
+            Row(
+                modifier = Modifier
+                    .conditional(displayPremiumOnlyContent) {
+                        padding(bottom = paddingXXXLarge)
+                    }
+                    .align(Alignment.TopCenter),
+                verticalAlignment = CenterVertically) {
+                val isTablet = IsTablet()
+                val isKeyboardVisible by keyboardAsState()
+                val width =
+                    if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
+                val height = if (isKeyboardVisible) videoHeightReduced else {
+                    if (state.isFullScreen) boxMxHeight
+                    else if (state.videoEntity?.portraitMode == true) {
+                        if (isTablet) {
+                            min(width, boxMxHeight)
+                        } else {
+                            boxMaxWidth
                         }
-                        .background(MaterialTheme.colors.primaryVariant),
-                    rumblePlayer = state.rumblePlayer,
-                    handler = handler,
-                    fullScreen = state.isFullScreen,
-                    isCollapsingMiniPlayerInProgress = state.isCollapsingMiniPlayerInProgress,
-                    uiType = state.uiType,
-                    liveChatDisabled = state.videoEntity?.liveChatDisabled ?: true,
-                    onCollapse = onEnforceCollapse,
-                )
-
-                if (state.isFullScreen.not()) {
-                    state.rumblePlayer?.let {
-                        MiniPlayerInfoView(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = paddingMedium),
-                            rumblePlayer = it
-                        )
-                    }
-
-                    MiniPlayerControlsView(
-                        modifier = Modifier.padding(end = paddingMedium),
-                        playerTarget = state.rumblePlayer?.playerTarget?.value,
-                        isPlaying = state.rumblePlayer?.isPlaying() ?: true,
-                    )
+                    } else width / 16 * 9
                 }
 
-                if (state.inLiveChat and state.isFullScreen) {
-                    LiveChatView(
-                        modifier = Modifier
-                            .weight(2f)
-                            .fillMaxHeight(),
-                        handler = handler,
-                        liveChatHandler = liveChatHandler,
-                        activityHandler = activityHandler
+                if (miniPlayerHeight >= height * (1 - collapsePercentage) && collapseDirection == CollapseDirection.DOWN) {
+                    minimalHeightReached = true
+                } else if (collapseDirection == CollapseDirection.UP) {
+                    minimalHeightReached = false
+                }
+
+                val actualHeight = max(height * (1 - collapsePercentage), miniPlayerHeight)
+
+                val sizeModifier =
+                    Modifier
+                        .conditional(state.isFullScreen.not()) { this.padding(horizontal = contentPadding) }
+                        .conditional(state.isFullScreen) {
+                            width(width)
+                        }
+                        .conditional(state.isFullScreen.not()) {
+                            width(actualWidth)
+                        }
+                        .height(actualHeight)
+
+                if (state.hasPremiumRestriction) {
+                    PremiumOnlyThumbnailView(
+                        modifier = sizeModifier
+                            .aspectRatio(
+                                ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
+                            ),
+                        url = state.videoEntity?.videoThumbnail ?: "",
+                        onBack = { handler.onBack() },
+                        onSubscribeNow = {
+                            contentHandler.onShowSubscriptionOptions(
+                                state.videoEntity?.id,
+                                SubscriptionSource.Video
+                            )
+                        }
                     )
+                } else {
+                    VideoPlayerView(
+                        modifier = sizeModifier
+                            .testTag(VideoPlayerViewTag)
+                            .conditional(state.inLiveChat and state.isFullScreen) {
+                                Modifier.weight(3f)
+                            }
+                            .background(MaterialTheme.colors.primaryVariant),
+                        rumblePlayer = state.rumblePlayer,
+                        handler = handler,
+                        fullScreen = state.isFullScreen,
+                        isCollapsingMiniPlayerInProgress = state.isCollapsingMiniPlayerInProgress,
+                        uiType = state.uiType,
+                        liveChatDisabled = state.videoEntity?.liveChatDisabled ?: true,
+                        onCollapse = onEnforceCollapse,
+                    )
+
+                    if (state.isFullScreen.not()) {
+                        state.rumblePlayer?.let {
+                            MiniPlayerInfoView(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = paddingMedium),
+                                rumblePlayer = it
+                            )
+                        }
+
+                        MiniPlayerControlsView(
+                            modifier = Modifier.padding(end = paddingMedium),
+                            playerTarget = state.rumblePlayer?.playerTarget?.value,
+                            isPlaying = state.rumblePlayer?.isPlaying() ?: true,
+                        )
+                    }
+
+                    if (state.inLiveChat and state.isFullScreen) {
+                        LiveChatView(
+                            modifier = Modifier
+                                .weight(2f)
+                                .fillMaxHeight(),
+                            handler = handler,
+                            liveChatHandler = liveChatHandler,
+                            activityHandler = activityHandler
+                        )
+                    }
                 }
             }
         }
@@ -1125,7 +1144,7 @@ private fun VideoPlayerView(
                                 detectVerticalDragGestures(
                                     onDragEnd = onDragEndCancel,
                                     onDragCancel = onDragEndCancel
-                                ) { change, dragAmount ->
+                                ) { _, dragAmount ->
                                     dragOffset += dragAmount
                                     // Constrain dragOffset within bounds
                                     dragOffset = dragOffset.coerceIn(0f, thresholdHeight)
@@ -1303,7 +1322,7 @@ private fun VideoDetailsHeaderView(
                 style = RumbleTypography.h3,
                 color = MaterialTheme.colors.primary
             )
-            if (videoEntity.isPremiumExclusiveContent) {
+            if (videoEntity.isPremiumExclusiveContent || videoEntity.hasLiveGate) {
                 VideoCardPremiumTagView(
                     modifier = Modifier
                         .padding(top = paddingXXSmall, start = paddingMedium)

@@ -10,6 +10,10 @@ class HasPremiumRestrictionUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(videoEntity: VideoEntity): Boolean {
         val isPremiumUser = sessionManager.isPremiumUserFlow.first()
-        return isPremiumUser.not() && videoEntity.isPremiumExclusiveContent
+        val userId = sessionManager.userIdFlow.first()
+        return (isPremiumUser.not() && videoEntity.isPremiumExclusiveContent && videoEntity.hasLiveGate.not()) ||
+            (videoEntity.hasLiveGate && isPremiumUser.not() &&
+                videoEntity.subscribedToCurrentChannel.not() &&
+                videoEntity.channelId != userId)
     }
 }

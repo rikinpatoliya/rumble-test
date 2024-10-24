@@ -11,5 +11,10 @@ import retrofit2.http.Url
 interface LiveVideoApi {
 
     @POST
-    suspend fun reportLiveVideo(@Url url: String, @Body body: LiveReportBody, @Query("name") serviceName: String): Response<LiveReportResponse>
+    suspend fun reportLiveVideo(
+        @Url url: String,
+        @Body body: LiveReportBody,
+        @Query("name") serviceName: String,
+        @Query("requires_live_gate_data") requestLiveGateData: Int? = null,
+    ): Response<LiveReportResponse>
 }
