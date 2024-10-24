@@ -472,6 +472,10 @@ fun ContentScreen(
                                 }
                             }
                             selectedTabIndex = index
+                            if (index == NAV_ITEM_INDEX_CAMERA) {
+                                // pause video when camera tab is selected
+                                activityHandler.onPauseVideo()
+                            }
                         },
                     )
                 }
