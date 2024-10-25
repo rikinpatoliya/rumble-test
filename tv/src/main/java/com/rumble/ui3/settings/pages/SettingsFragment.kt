@@ -36,6 +36,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.R
 import com.rumble.leanback.BrowseSupportFragment
 import com.rumble.theme.RumbleTvTypography.labelBoldTv
+import com.rumble.theme.debugSettingsToggleRadius
+import com.rumble.theme.debugSettingsToggleWidth
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageSmall
 import com.rumble.theme.paddingMedium
@@ -113,8 +115,8 @@ private fun DebugSettingsToggle(
 ) {
     Row(
         modifier = Modifier
-            .width(360.dp)
-            .clip(shape = RoundedCornerShape(8.dp))
+            .width(debugSettingsToggleWidth)
+            .clip(shape = RoundedCornerShape(debugSettingsToggleRadius))
             .background(color = enforcedWhite.copy(0.1f))
             .toggleable(
                 value = checked,

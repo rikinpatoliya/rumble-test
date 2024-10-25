@@ -70,3 +70,6 @@ val tvLazyVerticalGridBottomPadding = 50.dp
 val backButtonArrowSize = 10.dp
 val recommendedChannelsGridWidth = 752.dp
 
+val debugSettingsToggleWidth = 360.dp
+val debugSettingsToggleRadius = 8.dp
+
