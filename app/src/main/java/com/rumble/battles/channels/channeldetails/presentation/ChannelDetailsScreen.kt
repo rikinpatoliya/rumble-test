@@ -130,8 +130,7 @@ fun ChannelDetailsScreen(
             skipHalfExpanded = true
         )
     val coroutineScope = rememberCoroutineScope()
-    val videoListItems: LazyPagingItems<Feed> =
-        channelDetailsHandler.videoList.collectAsLazyPagingItems()
+    val videoListItems: LazyPagingItems<Feed> = state.videoList.collectAsLazyPagingItems()
     val updatedEntity by channelDetailsHandler.updatedEntity.collectAsStateWithLifecycle()
     updatedEntity?.let { updated ->
         videoListItems.itemSnapshotList.find { it is VideoEntity && it.id == updated.id }?.let {

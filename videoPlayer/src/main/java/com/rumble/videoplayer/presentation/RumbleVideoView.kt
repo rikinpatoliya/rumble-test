@@ -364,7 +364,7 @@ fun RumbleVideoView(
                             CountDownView(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .padding(horizontal = paddingMedium, vertical = paddingXXGiant),
+                                    .padding(horizontal = paddingMedium, vertical = paddingXXXXLarge),
                                 countDownValue = currentCountDownValue,
                                 type = countdownType,
                                 uiType = uiType

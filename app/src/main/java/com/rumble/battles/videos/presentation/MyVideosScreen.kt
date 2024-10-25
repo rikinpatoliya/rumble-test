@@ -34,12 +34,10 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -84,8 +82,6 @@ import com.rumble.battles.commonViews.VideosCountView
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.discover.presentation.views.ErrorView
@@ -143,10 +139,8 @@ fun MyVideosScreen(
         initialValue = ListToggleViewStyle.GRID
     )
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
 
-    val videoListItems: LazyPagingItems<Feed> =
-        myVideosHandler.videoList.collectAsLazyPagingItems()
+    val videoListItems: LazyPagingItems<Feed> = state.videoList.collectAsLazyPagingItems()
     val updatedEntity by myVideosHandler.updatedEntity.collectAsStateWithLifecycle()
     updatedEntity?.let { updated ->
         videoListItems.itemSnapshotList.find { it is VideoEntity && it.id == updated.id }?.let {
@@ -231,16 +225,14 @@ fun MyVideosScreen(
         myVideosHandler.vmEvents.collect { event ->
             when (event) {
                 is ChannelDetailsVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage, true)
                 }
 
                 is ChannelDetailsVmEvent.ShowEmailVerifiedMessage -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.email_successfully_verified_message),
-                        title = context.getString(R.string.сongratulations),
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.email_successfully_verified_message,
+                        titleId = R.string.сongratulations,
+                        withPadding = true
                     )
                 }
 
@@ -560,7 +552,6 @@ fun MyVideosScreen(
             }
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 @Composable

@@ -23,6 +23,7 @@ import com.rumble.videoplayer.R
 @Composable
 fun PremiumNoteView(
     modifier: Modifier = Modifier,
+    text: String,
 ) {
     Column(
         modifier = modifier
@@ -55,7 +56,7 @@ fun PremiumNoteView(
                 start = paddingMedium,
                 end = paddingMedium
             ),
-            text = stringResource(id = R.string.premium_only_content_message),
+            text = text,
             color = enforcedWhite,
             style = RumbleTypography.labelRegularTv
         )

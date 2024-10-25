@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -59,6 +60,7 @@ import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXGiant
 import com.rumble.utils.extension.conditional
+import com.rumble.videoplayer.R
 import com.rumble.videoplayer.domain.model.VoteData
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.RumbleVideo
@@ -248,7 +250,7 @@ fun TvControlsView(
                 )
 
                 if (rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true ||
-                    rumblePlayer.rumbleVideo?.hasLiveGate?.not() == true
+                    rumblePlayer.rumbleVideo?.hasLiveGate == true
                 ) {
                     Row(
                         modifier = Modifier
@@ -262,9 +264,11 @@ fun TvControlsView(
                         PremiumTag(modifier = Modifier.padding(bottom = paddingMedium))
                         Spacer(modifier = Modifier.weight(1f))
                         if (rumblePlayer.userIsPremium.not()) {
-                            PremiumNoteView()
+                            PremiumNoteView(
+                                text = if (rumblePlayer.rumbleVideo?.hasLiveGate == true) stringResource(R.string.preview_message)
+                                else stringResource(R.string.premium_only_content_message)
+                            )
                         }
-
                     }
                 } 
 
