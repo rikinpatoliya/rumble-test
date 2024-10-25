@@ -986,7 +986,7 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onClosePremiumPromo() {
-        analyticsEventUseCase(PremiumPromoCloseEvent, true)
+        analyticsEventUseCase(PremiumPromoCloseEvent)
         viewModelScope.launch {
             userPreferenceManager.saveLastPremiumPromoTimeStamp(System.currentTimeMillis())
         }
