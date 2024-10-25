@@ -167,6 +167,7 @@ fun VideoListScreen(
         modifier = Modifier
             .testTag(VideosListTag)
             .fillMaxSize()
+            .systemBarsPadding()
             .background(MaterialTheme.colors.background)
     ) {
         RumbleBasicTopAppBar(

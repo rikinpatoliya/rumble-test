@@ -247,7 +247,7 @@ fun TvControlsView(
                     style = RumbleTypography.tvH2
                 )
 
-                if (rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true &&
+                if (rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true ||
                     rumblePlayer.rumbleVideo?.hasLiveGate?.not() == true
                 ) {
                     Row(
@@ -261,21 +261,12 @@ fun TvControlsView(
                     ) {
                         PremiumTag(modifier = Modifier.padding(bottom = paddingMedium))
                         Spacer(modifier = Modifier.weight(1f))
+                        if (rumblePlayer.userIsPremium.not()) {
+                            PremiumNoteView()
+                        }
+
                     }
-                } else if (rumblePlayer.rumbleVideo?.hasLiveGate == true && rumblePlayer.userIsPremium.not()) {
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = paddingLarge, vertical = paddingXXMedium)
-                            .constrainAs(premiumTag) {
-                                top.linkTo(parent.top)
-                            }
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Spacer(modifier = Modifier.weight(1f))
-                        PremiumNoteView()
-                    }
-                }
+                } 
 
                 if (playerState is PlayerPlaybackState.Finished && isLive.not()) {
                     ReplayButton(

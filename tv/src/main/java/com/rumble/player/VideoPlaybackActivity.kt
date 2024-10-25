@@ -182,14 +182,6 @@ open class VideoPlaybackActivity : FragmentActivity() {
                         }
                     )
 
-                    if (state.showPayWallControls) {
-                        PremiumTag(modifier = Modifier
-                            .padding(top = paddingLarge)
-                            .align(Alignment.TopStart)
-                            .padding(paddingLarge)
-                        )
-                    }
-
                     if (saveToPlaylistState.visible) {
                         SaveToPlaylistDialog(
                             viewModel = saveToPlaylistViewModel,
