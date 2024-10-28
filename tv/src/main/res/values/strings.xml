@@ -171,6 +171,11 @@
     <string name="disable_ads">Disable ads</string>
     <string name="force_ads">Force ads</string>
     <string name="always_play_debug_ad">Always play debug ad</string>
+    <string name="custom_subdomain">Custom subdomain</string>
+    <string name="reset_custom_subdomain">Reset custom subdomain</string>
+    <string name="save">Save</string>
+    <string name="subdomain_changed_restart_app">Subdomain has been changed, please restart the app</string>
+    <string name="ok">OK</string>
     <!-- endregion -->
 
     <!-- region Subscriptions screen -->
