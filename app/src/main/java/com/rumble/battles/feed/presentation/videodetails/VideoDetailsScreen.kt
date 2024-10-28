@@ -217,6 +217,7 @@ fun VideoDetailsScreen(
     onChannelClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
     onTagClick: (String) -> Unit,
+    onNavigateBack: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val state by handler.state
@@ -330,9 +331,10 @@ fun VideoDetailsScreen(
                     coroutineScope.launch { bottomSheetState.show() }
                 }
 
-                is VideoDetailsEvent.NavigateBack -> {
+                is VideoDetailsEvent.CloseVideoDetails -> {
                     contentHandler.onCloseVideoDetails()
                     collapsed = false
+                    activityHandler.currentPlayer = null
                 }
 
                 is VideoDetailsEvent.ShowCommentReportedMessage -> {
@@ -450,9 +452,10 @@ fun VideoDetailsScreen(
             coroutineScope.launch { bottomSheetState.hide() }
         } else if (contentBottomSheetState.isVisible) {
             coroutineScope.launch { contentBottomSheetState.hide() }
-        } else {
-            activityHandler.currentPlayer = null
+        } else if (state.layoutState == CollapsableLayoutState.EXPENDED) {
             handler.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+        } else {
+            onNavigateBack()
         }
     }
 
@@ -614,7 +617,8 @@ fun VideoDetailsView(
     val alertDialogState by handler.alertDialogState
     val coroutineScope = rememberCoroutineScope()
     var minimalHeightReached by rememberSaveable { mutableStateOf(collapsePercentage > 0f) }
-    val displayPremiumOnlyContent = state.isFullScreen.not() && state.displayPremiumOnlyContent && collapsePaddingVisible.not()
+    val displayPremiumOnlyContent =
+        state.isFullScreen.not() && state.displayPremiumOnlyContent && collapsePaddingVisible.not()
 
     LaunchedEffect(Unit) {
         snapshotFlow { liveChatBottomSheetState.currentValue }
@@ -709,7 +713,7 @@ fun VideoDetailsView(
                                 ),
                             text = stringResource(id = R.string.rest_video_premium_only),
                             url = state.videoEntity?.videoThumbnail ?: "",
-                            onBack = { handler.onBack() },
+                            onBack = { handler.onCloseVideoDetails() },
                             onSubscribeNow = {
                                 contentHandler.onShowSubscriptionOptions(
                                     state.videoEntity?.id,
@@ -725,7 +729,7 @@ fun VideoDetailsView(
                                 ),
                             text = stringResource(id = R.string.this_video_only_rumble_premium),
                             url = state.videoEntity?.videoThumbnail ?: "",
-                            onBack = { handler.onBack() },
+                            onBack = { handler.onCloseVideoDetails() },
                             onSubscribeNow = {
                                 contentHandler.onShowSubscriptionOptions(
                                     state.videoEntity?.id,
