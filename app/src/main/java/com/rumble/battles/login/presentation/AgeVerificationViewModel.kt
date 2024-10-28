@@ -25,6 +25,7 @@ import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -89,7 +90,7 @@ class AgeVerificationViewModel @Inject constructor(
     stateHandle: SavedStateHandle
 ) : ViewModel(), AgeVerificationHandler {
 
-    private val onStartLogin = stateHandle.get<Boolean>(LandingPath.ON_START.path) ?: true
+    private val popOnAgeVerification = stateHandle.get<String>(LandingPath.POP_ON_AGE_VERIFICATION.path)?.toBoolean() ?: false
 
     private var userProfileEntity: UserProfileEntity =
         UserProfileEntity(
@@ -202,34 +203,42 @@ class AgeVerificationViewModel @Inject constructor(
         if (validInput(userProfileEntity)) {
             viewModelScope.launch(errorHandler) {
                 uiState.update { it.copy(loading = true) }
-                when (val updateUserProfileResult = updateUserProfileUseCase(userProfileEntity)) {
-                    is UpdateUserProfileResult.Success -> {
-                        uiState.update { it.copy(loading = false) }
-                        if (onStartLogin) {
-                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
-                        } else {
-                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack)
-                        }
-                    }
-
-                    is UpdateUserProfileResult.Error -> {
-                        uiState.update { it.copy(loading = false) }
-                        emitVmEvent(
-                            AgeVerificationScreenVmEvent.Error(
-                                errorMessage = updateUserProfileResult.rumbleError.message
-                            )
-                        )
-                    }
-
-                    is UpdateUserProfileResult.FormError -> {
-                        uiState.update { it.copy(loading = false) }
-                        emitVmEvent(
-                            AgeVerificationScreenVmEvent.Error(
-                                errorMessage = updateUserProfileResult.birthdayErrorMessage
-                            )
-                        )
-                    }
+                delay(2000)
+                uiState.update { it.copy(loading = false) }
+                if (popOnAgeVerification) {
+                    emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack)
+                } else {
+                    emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
                 }
+
+//                when (val updateUserProfileResult = updateUserProfileUseCase(userProfileEntity)) {
+//                    is UpdateUserProfileResult.Success -> {
+//                        uiState.update { it.copy(loading = false) }
+//                        if (popOnAgeVerification) {
+//                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack)
+//                        } else {
+//                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
+//                        }
+//                    }
+//
+//                    is UpdateUserProfileResult.Error -> {
+//                        uiState.update { it.copy(loading = false) }
+//                        emitVmEvent(
+//                            AgeVerificationScreenVmEvent.Error(
+//                                errorMessage = updateUserProfileResult.rumbleError.message
+//                            )
+//                        )
+//                    }
+//
+//                    is UpdateUserProfileResult.FormError -> {
+//                        uiState.update { it.copy(loading = false) }
+//                        emitVmEvent(
+//                            AgeVerificationScreenVmEvent.Error(
+//                                errorMessage = updateUserProfileResult.birthdayErrorMessage
+//                            )
+//                        )
+//                    }
+//                }
             }
         }
     }

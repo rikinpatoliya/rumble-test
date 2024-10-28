@@ -25,6 +25,7 @@ fun BottomSheetOverNavBarContent(
     onHideBottomSheet: () -> Unit,
     onNavigateToLogin: () -> Unit,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
+    onNavigateToAgeVerification: () -> Unit,
 ) {
     when (bottomSheetData) {
         is BottomSheetContent.ChangeAppearance -> {
@@ -176,7 +177,8 @@ fun BottomSheetOverNavBarContent(
                 onNavigateToRegistration = { loginType, userId, token, email ->
                     onHideBottomSheet()
                     onNavigateToRegistration(loginType.value.toString(), userId, token, email)
-                }
+                },
+                onNavigateToAgeVerification = onNavigateToAgeVerification
             )
         }
 

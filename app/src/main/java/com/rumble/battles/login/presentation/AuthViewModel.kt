@@ -19,10 +19,13 @@ import com.google.android.gms.tasks.Task
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.login.domain.usecases.SSOLoginUseCase
+import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.model.UserPreferenceManager
+import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
 import com.rumble.network.dto.login.UNABLE_TO_FIND_USER_ERROR
 import com.rumble.utils.RumbleConstants.FACEBOOK_REGISTRATION_EMAIL_REQUEST_FIELD
+import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
@@ -58,6 +61,8 @@ sealed class AuthHandlerEvent {
         val token: String,
         val email: String
     ) : AuthHandlerEvent()
+
+    object NavigateToAgeVerification : AuthHandlerEvent()
 }
 
 @HiltViewModel
@@ -65,6 +70,8 @@ class AuthViewModel @Inject constructor(
     override val googleSignInClient: GoogleSignInClient?,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val ssoLoginUseCase: SSOLoginUseCase,
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val birthdayValidationUseCase: BirthdayValidationUseCase,
     userPreferenceManager: UserPreferenceManager,
 ) : ViewModel(), AuthHandler {
 
@@ -94,6 +101,19 @@ class AuthViewModel @Inject constructor(
             viewModelScope.launch(errorHandler) {
                 val result = ssoLoginUseCase(LoginType.GOOGLE, userId = userId, token = token)
                 if (result.success) {
+                    /*TODO uncomment once age verification is added back*/
+                    // for sso login, verify age restrictions
+                    state.value = state.value.copy(loading = true)
+                    val profileResult = getUserProfileUseCase()
+                    if (profileResult.success) {
+                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
+                        if (birthdayValidationUseCase(birthday).first) {
+                            state.value = state.value.copy(loading = false)
+                            emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
+                            return@launch
+                        }
+                    }
+                    state.value = state.value.copy(loading = false)
                     emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
                 } else if (result.error == UNABLE_TO_FIND_USER_ERROR) {
                     emitEvent(
@@ -133,7 +153,23 @@ class AuthViewModel @Inject constructor(
     private fun onFacebookLogin(accessToken: AccessToken) {
         state.value = state.value.copy(loading = true)
         viewModelScope.launch(errorHandler) {
-            if (ssoLoginUseCase(LoginType.FACEBOOK, userId = accessToken.userId, token = accessToken.token).success) {
+            if (ssoLoginUseCase(
+                    LoginType.FACEBOOK,
+                    userId = accessToken.userId,
+                    token = accessToken.token
+                ).success
+            ) {
+                /*TODO uncomment once age verification is added back*/
+                // for sso login, verify age restrictions
+                val profileResult = getUserProfileUseCase()
+                if (profileResult.success) {
+                    val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
+                    if (birthdayValidationUseCase(birthday).first) {
+                        state.value = state.value.copy(loading = false)
+                        emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
+                        return@launch
+                    }
+                }
                 state.value = state.value.copy(loading = false)
                 emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
             } else {

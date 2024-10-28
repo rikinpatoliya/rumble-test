@@ -103,8 +103,7 @@ fun LoginScreen(
                 }
 
                 is LoginScreenVmEvent.NavigateToAgeVerification -> {
-                    navController.navigate(LandingScreens.AgeVerificationScreen.getPath(onStart = event.onStartLogin)) {
-
+                    navController.navigate(LandingScreens.AgeVerificationScreen.getPath()) {
                     }
                 }
 
@@ -154,6 +153,10 @@ fun LoginScreen(
                             inclusive = true
                         }
                     }
+                }
+
+                AuthHandlerEvent.NavigateToAgeVerification -> {
+                    navController.navigate(LandingScreens.AgeVerificationScreen.getPath())
                 }
             }
         }

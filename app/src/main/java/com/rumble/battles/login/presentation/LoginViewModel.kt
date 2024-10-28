@@ -106,14 +106,16 @@ class LoginViewModel @Inject constructor(
                 ) {
                     /*TODO uncomment once age verification is added back*/
 //                    // verify age restrictions
-//                    val profileResult = getUserProfileUseCase()
-//                    if (profileResult.success) {
-//                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
-//                        if (birthday == null || birthdayValidationUseCase(birthday).first) {
-//                            emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
-//                            return@launch
-//                        }
-//                    }
+                    val profileResult = getUserProfileUseCase()
+                    if (profileResult.success) {
+                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
+                        if (birthday == null || birthdayValidationUseCase(birthday).first) {
+                            emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
+                            return@launch
+                        }
+                        emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
+                        return@launch
+                    }
                     handleNavigation()
                 } else {
                     state.value = currentState.copy(loading = false)

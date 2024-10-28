@@ -66,7 +66,8 @@ fun AuthLandingScreen(
     activityHandler: RumbleActivityHandler,
     onEmailLogin: () -> Unit,
     onNavigateToHome: () -> Unit,
-    onNavigateToRegistration: (String, String, String, String) -> Unit
+    onNavigateToRegistration: (String, String, String, String) -> Unit,
+    onNavigateToAgeVerification: () -> Unit
 ) {
     val state by loginHandler.state
     val context = LocalContext.current
@@ -121,6 +122,10 @@ fun AuthLandingScreen(
                 is AuthHandlerEvent.NavigateToHomeScreen -> {
                     activityHandler.loadNotificationState()
                     onNavigateToHome()
+                }
+
+                AuthHandlerEvent.NavigateToAgeVerification -> {
+                    onNavigateToAgeVerification()
                 }
             }
         }

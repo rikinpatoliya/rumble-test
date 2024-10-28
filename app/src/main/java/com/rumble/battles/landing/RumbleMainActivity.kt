@@ -225,6 +225,9 @@ class RumbleMainActivity : FragmentActivity() {
                                 email
                             )
                         )
+                    },
+                    onNavigateToAgeVerification = {
+                        navController.navigate(LandingScreens.AgeVerificationScreen.getPath())
                     }
                 )
             }
@@ -343,10 +346,7 @@ class RumbleMainActivity : FragmentActivity() {
                         }
                     },
                     onNavigateBack = {
-                        navController.popBackStack(
-                            LandingScreens.LoginScreen.getPath(false),
-                            inclusive = true
-                        )
+                        navController.popBackStack()
                     },
                     onNavigateToWebView = {
                         navController.navigate(
