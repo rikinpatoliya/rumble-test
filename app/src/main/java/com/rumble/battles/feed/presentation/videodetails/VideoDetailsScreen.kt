@@ -5,9 +5,12 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.WindowInsetsController
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -292,7 +295,7 @@ fun VideoDetailsScreen(
         systemUiController.systemBarsBehavior =
             WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         if (state.isFullScreen) {
-            if (contentHandler.bottomSheetUiState.value.data is BottomSheetContent.PremiumPromo){
+            if (contentHandler.bottomSheetUiState.value.data is BottomSheetContent.PremiumPromo) {
                 contentHandler.onClosePremiumPromo()
             }
             contentHandler.updateBottomSheetUiState(BottomSheetContent.HideBottomSheet)
@@ -548,6 +551,7 @@ fun VideoDetailsScreen(
                                 contentPadding = contentPadding,
                                 boxMaxWidth = boxMaxWidth,
                                 boxMxHeight = boxMaxHeight,
+                                collapsePaddingVisible = collapsePaddingVisible,
                                 handler = handler,
                                 contentHandler = contentHandler,
                                 activityHandler = activityHandler,
@@ -591,6 +595,7 @@ fun VideoDetailsView(
     boxMaxWidth: Dp,
     boxMxHeight: Dp,
     contentPadding: Dp,
+    collapsePaddingVisible: Boolean,
     activityHandler: RumbleActivityHandler,
     handler: VideoDetailsHandler,
     contentHandler: ContentHandler,
@@ -608,7 +613,7 @@ fun VideoDetailsView(
     val alertDialogState by handler.alertDialogState
     val coroutineScope = rememberCoroutineScope()
     var minimalHeightReached by rememberSaveable { mutableStateOf(collapsePercentage > 0f) }
-    val displayPremiumOnlyContent = state.isFullScreen.not() && state.displayPremiumOnlyContent
+    val displayPremiumOnlyContent = state.isFullScreen.not() && state.displayPremiumOnlyContent && collapsePaddingVisible.not()
 
     LaunchedEffect(Unit) {
         snapshotFlow { liveChatBottomSheetState.currentValue }
@@ -633,14 +638,20 @@ fun VideoDetailsView(
         modifier = modifier
     ) {
         Box {
-            if (displayPremiumOnlyContent) {
-                PremiumOnlyContentView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(BottomCenter),
-                    onSubscribe = handler::onSubscribeToPremium
-                )
-            }
+            this@Column.AnimatedVisibility(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(BottomCenter),
+                visible = displayPremiumOnlyContent,
+                content = {
+                    PremiumOnlyContentView(
+                        modifier = Modifier.fillMaxWidth(),
+                        onSubscribe = handler::onSubscribeToPremium
+                    )
+                },
+                enter = fadeIn(),
+                exit = fadeOut()
+            )
 
             Row(
                 modifier = Modifier
@@ -690,7 +701,7 @@ fun VideoDetailsView(
                                 .aspectRatio(
                                     ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
                                 ),
-                            text =  stringResource(id = R.string.rest_video_premium_only),
+                            text = stringResource(id = R.string.rest_video_premium_only),
                             url = state.videoEntity?.videoThumbnail ?: "",
                             onBack = { handler.onBack() },
                             onSubscribeNow = {
@@ -706,7 +717,7 @@ fun VideoDetailsView(
                                 .aspectRatio(
                                     ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
                                 ),
-                            text =  stringResource(id = R.string.this_video_only_rumble_premium),
+                            text = stringResource(id = R.string.this_video_only_rumble_premium),
                             url = state.videoEntity?.videoThumbnail ?: "",
                             onBack = { handler.onBack() },
                             onSubscribeNow = {
@@ -1183,7 +1194,9 @@ private fun VideoPlayerView(
                                 ) { _, dragAmount ->
                                     dragOffset += dragAmount
                                     // Constrain dragOffset within bounds
-                                    dragOffset = dragOffset.coerceIn(0f, thresholdHeight)
+                                    if (thresholdHeight >= 0) {
+                                        dragOffset = dragOffset.coerceIn(0f, thresholdHeight)
+                                    }
                                 }
                             }
                     },

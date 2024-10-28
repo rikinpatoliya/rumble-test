@@ -156,6 +156,7 @@ class RumblePlayer(
     private var reportAdEvent: (suspend (List<String>, Long) -> Unit)? = null
     private var sendInitialPlaybackEvent: (() -> Unit)? = null
     private var onPremiumCountdownFinished: (() -> Unit)? = null
+    private var onVideoReady: ((Long) -> Unit)? = null
 
     // Internal logic
     private val getCurrentDeviceVolumeUseCase: GetCurrentDeviceVolumeUseCase
@@ -194,7 +195,6 @@ class RumblePlayer(
     private var lastResume: Long = System.currentTimeMillis()
     private var playListIdList: List<Long> = emptyList()
     private var uiType: UiType = UiType.IN_LIST
-    private var startPremiumCountDownThenReady: Boolean = false
 
     private var _adPlaybackState: MutableState<AdPlaybackState> =
         mutableStateOf(AdPlaybackState.None)
@@ -462,6 +462,7 @@ class RumblePlayer(
         reportAdEvent: (suspend (List<String>, Long) -> Unit)?,
         sendInitialPlaybackEvent: (() -> Unit)?,
         onPremiumCountdownFinished: (() -> Unit)?,
+        onVideoReady: ((Long) -> Unit)?,
     ) {
         initTime = System.currentTimeMillis()
         this.reportLiveVideo = reportLiveVideo
@@ -475,6 +476,8 @@ class RumblePlayer(
         this.reportAdEvent = reportAdEvent
         this.sendInitialPlaybackEvent = sendInitialPlaybackEvent
         this.onPremiumCountdownFinished = onPremiumCountdownFinished
+        this.onVideoReady = onVideoReady
+
         relatedVideoList = video.relatedVideoList
         _hasRelatedVideos.value =
             hasNextRelatedVideoUseCase(video.relatedVideoList, video, getAutoplayValue())
@@ -497,9 +500,13 @@ class RumblePlayer(
         video: RumbleVideo,
         onSaveLastPosition: ((Long, Long) -> Unit)?,
         updatedRelatedVideoList: Boolean,
-        autoPlay: Boolean
+        autoPlay: Boolean,
+        onPremiumCountdownFinished: (() -> Unit)?,
+        onVideoReady: ((Long) -> Unit)?,
     ) {
         this.autoPlay = autoPlay
+        this.onPremiumCountdownFinished = onPremiumCountdownFinished
+        this.onVideoReady = onVideoReady
         initTime = System.currentTimeMillis()
         saveLastPosition = onSaveLastPosition
         if (updatedRelatedVideoList) {
@@ -703,21 +710,18 @@ class RumblePlayer(
         }
     }
 
-    fun startPremiumCountDown(seconds: Long = 0, type: CountDownType = CountDownType.Premium) {
+    fun startPremiumCountDown(seconds: Long, type: CountDownType = CountDownType.Premium) {
         countDownJob.cancel()
         _countDownType.value = type
         _currentCountDownValue.value = seconds
-        startPremiumCountDownThenReady = seconds == 0L
-        if (startPremiumCountDownThenReady.not()) {
-            countDownJob = backgroundScope.launch {
-                while (isActive) {
-                    delay(countDownDelay)
-                    _currentCountDownValue.value -= 1
-                    withContext(Dispatchers.Main) {
-                        if (_currentCountDownValue.value == 1L) {
-                            delay(countDownDelay)
-                            stopPremiumCountDown()
-                        }
+        countDownJob = backgroundScope.launch {
+            while (isActive) {
+                delay(countDownDelay)
+                _currentCountDownValue.value -= 1
+                withContext(Dispatchers.Main) {
+                    if (_currentCountDownValue.value <= 1L) {
+                        delay(countDownDelay)
+                        stopPremiumCountDown()
                     }
                 }
             }
@@ -739,7 +743,12 @@ class RumblePlayer(
     private fun resumePremiumCountDown(currentValue: Long) {
         if (countDownType.value == CountDownType.FreePreview) {
             val durationToEnd = player.duration - currentValue
-            startPremiumCountDown(TimeUnit.MILLISECONDS.toSeconds(durationToEnd), countDownType.value)
+            if (durationToEnd > 0)
+                startPremiumCountDown(
+                    TimeUnit.MILLISECONDS.toSeconds(durationToEnd),
+                    countDownType.value
+                )
+            else stopPremiumCountDown()
         }
     }
 
@@ -1015,10 +1024,7 @@ class RumblePlayer(
                     }
 
                     Player.STATE_READY -> {
-                        if (startPremiumCountDownThenReady) {
-                            startPremiumCountDownThenReady = false
-                            startPremiumCountDown(TimeUnit.MILLISECONDS.toSeconds(player.duration), _countDownType.value)
-                        }
+                        onVideoReady?.invoke(player.duration)
                         val currentState = this@RumblePlayer.playbackState.value
                         if (currentState is PlayerPlaybackState.Fetching) {
                             sendInitialPlaybackEvent?.invoke()
@@ -1259,9 +1265,14 @@ class RumblePlayer(
                         withContext(Dispatchers.Main) {
                             if (viewResumed || player.isPlaying) {
                                 withContext(Dispatchers.IO) {
-                                    reportLiveVideo?.invoke(videoId, viewerId, rumbleVideo?.requestLiveGateData == true)
+                                    reportLiveVideo?.invoke(
+                                        videoId,
+                                        viewerId,
+                                        rumbleVideo?.requestLiveGateData == true
+                                    )
                                         ?.let { reportResult ->
-                                            rumbleVideo = rumbleVideo?.copy(hasLiveGate = reportResult.hasLiveGate)
+                                            rumbleVideo =
+                                                rumbleVideo?.copy(hasLiveGate = reportResult.hasLiveGate)
                                             onLiveVideoReport?.invoke(videoId, reportResult)
                                             if (reportResult.isLive.not()) reportLiveVideoJob.cancel()
                                             else watchingNow = reportResult.watchingNow
