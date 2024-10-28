@@ -74,7 +74,6 @@ interface MyVideosHandler: LazyListStateHandler {
 
     val uiState: StateFlow<ChannelDetailsUIState>
     val listToggleViewStyle: Flow<ListToggleViewStyle>
-    val videoList: Flow<PagingData<Feed>>
     val updatedEntity: StateFlow<VideoEntity?>
     val userUploadChannels: StateFlow<List<UserUploadChannelEntity>?>
     val userUploads: Flow<List<UploadVideoEntity>>
@@ -124,8 +123,8 @@ private const val TAG = "MyVideosViewModel"
 @HiltViewModel
 class MyVideosViewModel @Inject constructor(
     private val sessionManager: SessionManager,
-    getChannelDataUseCase: GetChannelDataUseCase,
-    getChannelVideosUseCase: GetChannelVideosUseCase,
+    private val getChannelDataUseCase: GetChannelDataUseCase,
+    private val getChannelVideosUseCase: GetChannelVideosUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val userPreferenceManager: UserPreferenceManager,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
@@ -191,28 +190,15 @@ class MyVideosViewModel @Inject constructor(
         viewModelScope.launch(errorHandler) {
             uiState.update { it.copy(loading = true, userId = sessionManager.userIdFlow.first()) }
             fetchUserUploadChannels()
-            getChannelDataUseCase(uiState.value.userId)
-                .onSuccess { channelDetailEntity ->
-                    uiState.update {
-                        it.copy(
-                            channelDetailsEntity = channelDetailEntity,
-                            loading = false
-                        )
-                    }
-                }
-                .onFailure { throwable ->
-                    handleFailure(throwable)
-                }
+            fetchUserChannelData()
         }
+        fetchVideoList()
         startObserveConnectionState()
         observeUserNamePicture()
         observeSoundState()
         observePlaybackInFeedMode()
         resetWaitingConnectionUploads()
     }
-
-    override val videoList: Flow<PagingData<Feed>> =
-        getChannelVideosUseCase(uiState.value.userId).cachedIn(viewModelScope)
 
     override fun onToggleVideoViewStyle(listToggleViewStyle: ListToggleViewStyle) {
         viewModelScope.launch(errorHandler) {
@@ -404,6 +390,23 @@ class MyVideosViewModel @Inject constructor(
         analyticsEventUseCase(MatureContentWatchEvent)
     }
 
+    private fun fetchVideoList() {
+        uiState.update {
+            uiState.value.copy(
+                videoList = getChannelVideosUseCase(uiState.value.userId).cachedIn(viewModelScope)
+            )
+        }
+    }
+
+    private fun onRefresh() {
+        viewModelScope.launch(errorHandler) {
+            uiState.update { it.copy(loading = true, userId = sessionManager.userIdFlow.first()) }
+            fetchUserUploadChannels()
+            fetchUserChannelData()
+            fetchVideoList()
+        }
+    }
+
     private fun observeUserNamePicture() {
         viewModelScope.launch {
             sessionManager.userNameFlow.collect {
@@ -440,6 +443,21 @@ class MyVideosViewModel @Inject constructor(
                 else currentPlayerState.value?.unMute()
             }
         }
+    }
+
+    private suspend fun fetchUserChannelData() {
+        getChannelDataUseCase(uiState.value.userId)
+            .onSuccess { channelDetailEntity ->
+                uiState.update {
+                    it.copy(
+                        channelDetailsEntity = channelDetailEntity,
+                        loading = false
+                    )
+                }
+            }
+            .onFailure { throwable ->
+                handleFailure(throwable)
+            }
     }
 
     private suspend fun fetchUserUploadChannels() {
@@ -510,7 +528,7 @@ class MyVideosViewModel @Inject constructor(
             }
             internetConnectionObserver.connectivityFlow.collectLatest {
                 if ((it == InternetConnectionState.CONNECTED) and (uiState.value.connectionState == InternetConnectionState.LOST)) {
-                    resetWaitingConnectionUploads()
+                    onRefresh()
                 }
                 uiState.update { uiState ->
                     uiState.copy(connectionState = it)

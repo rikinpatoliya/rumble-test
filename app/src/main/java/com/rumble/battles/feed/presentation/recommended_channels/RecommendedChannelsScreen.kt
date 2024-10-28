@@ -57,6 +57,7 @@ fun RecommendedChannelScreen(
         modifier = Modifier
             .testTag(RecommendedChannelsTag)
             .fillMaxSize()
+            .systemBarsPadding()
             .background(MaterialTheme.colors.background)
     ) {
         RumbleBasicTopAppBar(

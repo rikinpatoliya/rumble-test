@@ -139,7 +139,8 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun onContentResumed()
     fun isPremiumUser(): Boolean
     fun onOpenAuthMenu()
-    fun onError(errorMessage: String?)
+    fun onError(errorMessage: String?, withPadding: Boolean = false)
+    fun onShowSnackBar(messageId: Int, titleId: Int? = null, withPadding: Boolean = false)
     fun onOpenVideoDetails(videoId: Long, playListId: String? = null, shuffle: Boolean? = null)
     fun onCloseVideoDetails()
     fun onNavigateHome()
@@ -214,8 +215,8 @@ sealed class ContentScreenVmEvent {
     data object NavigateHome : ContentScreenVmEvent()
     data object ScrollToTop : ContentScreenVmEvent()
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
-    data class Error(val errorMessage: String? = null) : ContentScreenVmEvent()
-    data class ShowSnackBarMessage(val messageId: Int) : ContentScreenVmEvent()
+    data class Error(val errorMessage: String? = null, val withPadding: Boolean = false) : ContentScreenVmEvent()
+    data class ShowSnackBarMessage(val messageId: Int, val titleId: Int? = null, val withPadding: Boolean = false) : ContentScreenVmEvent()
     data class ChannelSubscriptionUpdated(val channelDetailsEntity: ChannelDetailsEntity) :
         ContentScreenVmEvent()
 
@@ -1081,8 +1082,16 @@ class ContentViewModel @Inject constructor(
         updateBottomSheetUiState(BottomSheetContent.AuthMenu)
     }
 
-    override fun onError(errorMessage: String?) {
-        emitVmEvent(ContentScreenVmEvent.Error(errorMessage))
+    override fun onError(errorMessage: String?, withPadding: Boolean) {
+        emitVmEvent(ContentScreenVmEvent.Error(errorMessage, withPadding))
+    }
+
+    override fun onShowSnackBar(messageId: Int, titleId: Int?, withPadding: Boolean) {
+        emitVmEvent(
+            ContentScreenVmEvent.ShowSnackBarMessage(
+                messageId, titleId, withPadding
+            )
+        )
     }
 
     override fun onOpenVideoDetails(videoId: Long, playListId: String?, shuffle: Boolean?) {

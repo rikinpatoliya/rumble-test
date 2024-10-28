@@ -120,9 +120,11 @@ class VideoPlaybackViewModel @Inject constructor(
                     videoId = updatedVideoEntity.id,
                     screenId = videoDetailsScreen,
                     saveLastPosition = saveLastPositionUseCase::invoke,
-                    autoplay = true,
+                    autoplay = updatedVideoEntity.hasLiveGate.not(),
                     requestLiveGateData = true,
-                    onNextVideo = ::onNextVideo,
+                    onNextVideo = {videoId, channelId, autoPlay ->
+                        onNextVideo(videoId, channelId, autoPlay, true)
+                    },
                     showAds = sessionManager.isPremiumUserFlow.first().not(),
                     liveVideoReport = { videoId, result ->
                         onLiveVideoReport(videoId, result)
@@ -134,7 +136,9 @@ class VideoPlaybackViewModel @Inject constructor(
                 videoEntity = updatedVideoEntity,
                 fromChannel = fromChannel,
                 channelDetailsEntity = fetchChannelDetails(updatedVideoEntity.channelId),
-                showPayWall = updatedVideoEntity.hasLiveGate.not() && hasPremiumRestrictionUseCase(updatedVideoEntity)
+                showPayWall = updatedVideoEntity.hasLiveGate.not() && hasPremiumRestrictionUseCase(
+                    updatedVideoEntity
+                )
             )
             if (videoPlayerState.value.showPayWall.not()) {
                 videoPlayerState.value.rumblePlayer?.playVideo()
@@ -154,6 +158,7 @@ class VideoPlaybackViewModel @Inject constructor(
                 shuffle = shuffle,
                 loop = true,
                 requestLiveGateData = true,
+                applyLastPosition = false
             )
             val initialVideo = videoList.first()
             val updatedVideoEntity = getVideoDetailsUseCase(initialVideo.id) ?: initialVideo
@@ -168,7 +173,9 @@ class VideoPlaybackViewModel @Inject constructor(
                     liveVideoReport = { videoId, result ->
                         onLiveVideoReport(videoId, result)
                     },
-                    onNextVideo = ::onNextVideo,
+                    onNextVideo = {videoId, channelId, autoPlay ->
+                        onNextVideo(videoId, channelId, autoPlay, false)
+                    },
                     showAds = sessionManager.isPremiumUserFlow.first().not(),
                     onPremiumCountdownFinished = {
                         enforceLiveGateRestriction()
@@ -286,10 +293,7 @@ class VideoPlaybackViewModel @Inject constructor(
                     videoEntity = videoPlayerState.value.videoEntity?.copy(hasLiveGate = true)
                 )
                 if (videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
-                    videoPlayerState.value.rumblePlayer?.startPremiumCountDown(
-                        videoEntity.duration,
-                        CountDownType.FreePreview
-                    )
+                    videoPlayerState.value.rumblePlayer?.startPremiumCountDown(type = CountDownType.FreePreview)
                 } else {
                     enforceLiveGateRestriction()
                 }
@@ -310,7 +314,8 @@ class VideoPlaybackViewModel @Inject constructor(
             updateVideoSource(
                 videoId = videoId,
                 updatedRelatedVideoList = true,
-                autoplay = false
+                autoplay = false,
+                applyLastPosition = false
             )
         }
         if (result.hasLiveGate && videoPlayerState.value.videoEntity?.hasLiveGate == false) {
@@ -335,7 +340,8 @@ class VideoPlaybackViewModel @Inject constructor(
     private fun updateVideoSource(
         videoId: Long,
         updatedRelatedVideoList: Boolean,
-        autoplay: Boolean
+        autoplay: Boolean,
+        applyLastPosition: Boolean
     ) {
         viewModelScope.launch(errorHandler) {
             val videoEntityDeferred = async { getVideoDetailsUseCase(videoId) }
@@ -354,6 +360,7 @@ class VideoPlaybackViewModel @Inject constructor(
                         autoplay = autoplay,
                         updatedRelatedVideoList = updatedRelatedVideoList,
                         requestLiveGateData = true,
+                        applyLastPosition = applyLastPosition
                     )
                 }
                 if (videoPlayerState.value.showPayWall.not()) {
@@ -372,7 +379,7 @@ class VideoPlaybackViewModel @Inject constructor(
         }
     }
 
-    private fun onNextVideo(videoId: Long, channelId: String, autoplay: Boolean) {
+    private fun onNextVideo(videoId: Long, channelId: String, autoplay: Boolean, applyLastPosition: Boolean) {
         playerImpressionLogged = false
         videoPlayerState.value.rumblePlayer?.pauseVideo()
         viewModelScope.launch(errorHandler) {
@@ -383,7 +390,8 @@ class VideoPlaybackViewModel @Inject constructor(
         updateVideoSource(
             videoId = videoId,
             updatedRelatedVideoList = false,
-            autoplay = autoplay
+            autoplay = autoplay,
+            applyLastPosition = applyLastPosition
         )
         onVideoPlayerImpression()
     }

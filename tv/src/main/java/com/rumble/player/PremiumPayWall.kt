@@ -17,6 +17,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil.compose.AsyncImage
@@ -30,6 +31,7 @@ import com.rumble.theme.paddingXMedium
 import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.tvPlayerGradientHeight
+import com.rumble.videoplayer.R
 import com.rumble.videoplayer.presentation.internal.controlViews.PremiumNoteView
 import com.rumble.videoplayer.presentation.internal.controlViews.PremiumTag
 import com.rumble.videoplayer.presentation.internal.views.TvChannelDetailsView
@@ -85,7 +87,10 @@ fun PremiumPayWall(
             ) {
                 PremiumTag(modifier = Modifier.padding(bottom = paddingMedium))
                 Spacer(modifier = Modifier.weight(1f))
-                PremiumNoteView()
+                PremiumNoteView(
+                    text = if (videoEntity.hasLiveGate) stringResource(R.string.preview_message)
+                    else stringResource(R.string.premium_only_content_message)
+                )
             }
 
             Text(

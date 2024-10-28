@@ -211,6 +211,7 @@ fun PlayListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .systemBarsPadding()
     ) {
         PlayListScreenTopBar(
             title = if (isTopBarTitleVisible) state.playListEntity.title else "",

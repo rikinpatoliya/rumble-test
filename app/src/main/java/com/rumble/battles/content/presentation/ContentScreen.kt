@@ -300,8 +300,10 @@ fun ContentScreen(
                 }
 
                 is ContentScreenVmEvent.ShowSnackBarMessage -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(event.messageId)
+                    if (event.withPadding) snackBarHostPadding = paddingGiant
+                    (if (event.withPadding) snackBarHostStateWithPadding else snackBarHostState).showRumbleSnackbar(
+                        message = context.getString(event.messageId),
+                        title = if (event.titleId != null) context.getString(event.titleId) else null
                     )
                 }
 
@@ -334,7 +336,8 @@ fun ContentScreen(
                 }
 
                 is ContentScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
+                    if (event.withPadding) snackBarHostPadding = paddingGiant
+                    (if (event.withPadding) snackBarHostStateWithPadding else snackBarHostState).showRumbleSnackbar(
                         message = event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )

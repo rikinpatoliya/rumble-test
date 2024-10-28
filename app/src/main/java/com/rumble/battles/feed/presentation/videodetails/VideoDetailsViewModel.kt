@@ -1418,10 +1418,7 @@ class VideoDetailsViewModel @Inject constructor(
                 state.value = state.value.copy(displayPremiumOnlyContent = true)
                 state.value.rumblePlayer?.playVideo()
                 videoEntity.liveGateEntity?.let {
-                    state.value.rumblePlayer?.startPremiumCountDown(
-                        videoEntity.duration,
-                        CountDownType.FreePreview
-                    )
+                    state.value.rumblePlayer?.startPremiumCountDown(type = CountDownType.FreePreview)
                 }
             } else {
                 state.value = state.value.copy(hasPremiumRestriction = true)

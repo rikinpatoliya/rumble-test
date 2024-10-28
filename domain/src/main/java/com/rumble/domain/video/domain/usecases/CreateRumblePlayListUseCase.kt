@@ -19,6 +19,7 @@ class CreateRumblePlayListUseCase @Inject constructor(
         shuffle: Boolean,
         loop: Boolean,
         requestLiveGateData: Boolean = false,
+        applyLastPosition: Boolean = true
     ) = RumblePlayList(
         title = title,
         videoList = feedList.filterIsInstance<VideoEntity>().map {
@@ -26,7 +27,7 @@ class CreateRumblePlayListUseCase @Inject constructor(
                 videoEntity = it,
                 restrictBackground = false,
                 loopWhenFinished = false,
-                applyLastPosition = true,
+                applyLastPosition = applyLastPosition,
                 videoStartMethod = VideoStartMethod.URL_PROVIDED,
                 useLowQuality = false,
                 relatedVideoList = emptyList(),

@@ -30,6 +30,7 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUs
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelVideosUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.LogChannelViewUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.ReportChannelUseCase
+import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
@@ -40,6 +41,7 @@ import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoCardPlayerUseCase
 import com.rumble.domain.video.domain.usecases.SaveLastPositionUseCase
+import com.rumble.network.connection.InternetConnectionObserver
 import com.rumble.network.connection.InternetConnectionState
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.extension.getChannelId
@@ -54,19 +56,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface ChannelDetailsHandler: LazyListStateHandler {
+interface ChannelDetailsHandler : LazyListStateHandler {
 
     val uiState: StateFlow<ChannelDetailsUIState>
     val listToggleViewStyle: Flow<ListToggleViewStyle>
     val popupState: StateFlow<ChannelDetailsDialog>
     val alertDialogState: StateFlow<AlertDialogState>
-    val videoList: Flow<PagingData<Feed>>
     val updatedEntity: StateFlow<VideoEntity?>
     val vmEvents: Flow<ChannelDetailsVmEvent>
     val currentPlayerState: State<RumblePlayer?>
@@ -116,7 +118,8 @@ data class ChannelDetailsUIState(
     val userId: String = "",
     val userName: String = "",
     val userPicture: String = "",
-    val shareAvailable: Boolean = false
+    val shareAvailable: Boolean = false,
+    val videoList: Flow<PagingData<Feed>> = emptyFlow(),
 )
 
 sealed class ChannelDetailsDialog {
@@ -143,7 +146,7 @@ sealed class ChannelDetailsVmEvent {
 
     data class Error(val errorMessage: String? = null) : ChannelDetailsVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : ChannelDetailsVmEvent()
-    data object OpenAuthMenu: ChannelDetailsVmEvent()
+    data object OpenAuthMenu : ChannelDetailsVmEvent()
 }
 
 private const val TAG = "ChannelDetailsViewModel"
@@ -152,7 +155,7 @@ private const val TAG = "ChannelDetailsViewModel"
 class ChannelDetailsViewModel @Inject constructor(
     private val getChannelDataUseCase: GetChannelDataUseCase,
     private val logChannelViewUseCase: LogChannelViewUseCase,
-    getChannelVideosUseCase: GetChannelVideosUseCase,
+    private val getChannelVideosUseCase: GetChannelVideosUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val stateHandle: SavedStateHandle,
     private val reportChannelUseCase: ReportChannelUseCase,
@@ -166,6 +169,8 @@ class ChannelDetailsViewModel @Inject constructor(
     private val logVideoPlayerImpressionUseCase: LogVideoPlayerImpressionUseCase,
     private val shareUseCase: ShareUseCase,
     private val sessionManager: SessionManager,
+    private val internetConnectionObserver: InternetConnectionObserver,
+    private val internetConnectionUseCase: InternetConnectionUseCase
 ) : ViewModel(), ChannelDetailsHandler, NotificationsScreenHandler {
 
     private var currentVisibleFeed: VideoEntity? = null
@@ -187,9 +192,6 @@ class ChannelDetailsViewModel @Inject constructor(
 
     override val alertDialogState = MutableStateFlow(AlertDialogState())
 
-    override val videoList: Flow<PagingData<Feed>> =
-        getChannelVideosUseCase(uiState.value.channelId).cachedIn(viewModelScope)
-
     override val updatedEntity: MutableStateFlow<VideoEntity?> = MutableStateFlow(null)
 
     private val _vmEvents = Channel<ChannelDetailsVmEvent>(capacity = Channel.CONFLATED)
@@ -204,6 +206,33 @@ class ChannelDetailsViewModel @Inject constructor(
     init {
         observeLoginState()
         observeSoundState()
+        fetchVideoList()
+        startObserveConnectionState()
+    }
+
+    private fun fetchVideoList() {
+        uiState.update {
+            uiState.value.copy(
+                videoList = getChannelVideosUseCase(uiState.value.channelId).cachedIn(viewModelScope)
+            )
+        }
+    }
+
+    private fun startObserveConnectionState() {
+        viewModelScope.launch(errorHandler) {
+            uiState.update {
+                it.copy(connectionState = internetConnectionUseCase())
+            }
+            internetConnectionObserver.connectivityFlow.collectLatest {
+                if ((it == InternetConnectionState.CONNECTED) and (uiState.value.connectionState == InternetConnectionState.LOST)) {
+                    loadChannelDetails()
+                    fetchVideoList()
+                }
+                uiState.update { uiState ->
+                    uiState.copy(connectionState = it)
+                }
+            }
+        }
     }
 
     private fun loadChannelDetails() {

@@ -703,7 +703,7 @@ class RumblePlayer(
         }
     }
 
-    fun startPremiumCountDown(seconds: Long, type: CountDownType = CountDownType.Premium) {
+    fun startPremiumCountDown(seconds: Long = 0, type: CountDownType = CountDownType.Premium) {
         countDownJob.cancel()
         _countDownType.value = type
         _currentCountDownValue.value = seconds
