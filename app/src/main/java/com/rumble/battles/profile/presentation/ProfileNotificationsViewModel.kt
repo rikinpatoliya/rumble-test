@@ -16,17 +16,11 @@ import javax.inject.Inject
 interface ProfileNotificationsHandler {
     val notificationsPagingDataFlow: Flow<PagingData<ProfileNotificationEntity>>
     val uiState: StateFlow<ProfileNotificationsUIState>
-    val vmEvents: Flow<ProfileNotificationsScreenVmEvent>
-
 }
 
 data class ProfileNotificationsUIState(
     val loading: Boolean = false,
 )
-
-sealed class ProfileNotificationsScreenVmEvent {
-    data class Error(val errorMessage: String? = null) : ProfileNotificationsScreenVmEvent()
-}
 
 @HiltViewModel
 class ProfileNotificationsViewModel @Inject constructor(
@@ -34,9 +28,6 @@ class ProfileNotificationsViewModel @Inject constructor(
 ) : ViewModel(), ProfileNotificationsHandler {
 
     override val uiState = MutableStateFlow(ProfileNotificationsUIState())
-
-    override val vmEvents: MutableSharedFlow<ProfileNotificationsScreenVmEvent> =
-        MutableSharedFlow()
 
     override val notificationsPagingDataFlow: Flow<PagingData<ProfileNotificationEntity>> =
         getProfileNotificationsUseCase().cachedIn(viewModelScope)

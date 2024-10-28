@@ -116,7 +116,7 @@ fun ProfileScreen(
         }
     }
 
-    LaunchedEffect(profileHandler.vmEvents) {
+    LaunchedEffect(Unit) {
         profileHandler.vmEvents.collect {
             when (it) {
                 is ProfileScreenEvent.CopyVersionToClipboard -> {

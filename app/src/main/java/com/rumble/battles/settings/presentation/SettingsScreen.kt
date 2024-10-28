@@ -98,7 +98,7 @@ fun SettingsScreen(
 
     val clipboard: ClipboardManager = LocalClipboardManager.current
 
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(Unit) {
         settingsHandler.vmEvents.collect { event ->
             when (event) {
                 is SettingsScreenVmEvent.Error -> {

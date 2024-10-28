@@ -13,15 +13,12 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -35,8 +32,7 @@ import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.bottomBarHeight
 import com.rumble.theme.enforcedWhite
@@ -49,20 +45,16 @@ import com.rumble.theme.radiusXLarge
 @Composable
 fun CloseAccountScreen(
     closeAccountHandler: CloseAccountHandler,
+    contentHandler: ContentHandler,
     onBackClick: () -> Unit,
 ) {
     val state by closeAccountHandler.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(Unit) {
         closeAccountHandler.vmEvents.collect { event ->
             when (event) {
                 is CloseAccountVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage)
                 }
             }
         }
@@ -105,7 +97,6 @@ fun CloseAccountScreen(
             )
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 @Composable
