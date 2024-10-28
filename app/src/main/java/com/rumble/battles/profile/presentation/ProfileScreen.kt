@@ -21,17 +21,14 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,8 +53,6 @@ import com.rumble.battles.commonViews.VideoUploadingIndicatorView
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.landing.RumbleActivityHandler
@@ -68,7 +63,6 @@ import com.rumble.battles.profile.presentation.views.ProfileFollowingView
 import com.rumble.battles.profile.presentation.views.ProfileItemView
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.profile.domainmodel.AppVersionVisibility
-import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.uploadmanager.dto.VideoUploadsIndicatorStatus
 import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.theme.RumbleTypography
@@ -109,8 +103,6 @@ fun ProfileScreen(
     val activityHandlerState by activityHandler.activityHandlerState.collectAsStateWithLifecycle()
     val channelDetailsEntity: ChannelDetailsEntity? =
         (screenSate as? ProfileScreenState.LoggedIn)?.channelDetailsEntity
-    val snackBarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
     val clipboard: ClipboardManager = LocalClipboardManager.current
 
     BackHandler {
@@ -126,15 +118,13 @@ fun ProfileScreen(
             when (it) {
                 is ProfileScreenEvent.CopyVersionToClipboard -> {
                     clipboard.setText(AnnotatedString(it.version))
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.version_copied_message)
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.version_copied_message
                     )
                 }
 
                 ProfileScreenEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(null)
                 }
             }
         }
@@ -410,17 +400,6 @@ fun ProfileScreen(
 
     if (screenSate == ProfileScreenState.Loading) {
         RumbleProgressIndicatorWithDimmedBackground()
-    }
-
-    RumbleSnackbarHost(snackBarHostState)
-}
-
-@Composable
-private fun getAppearanceIconDrawable(colorMode: ColorMode): Int {
-    return when (colorMode) {
-        ColorMode.SYSTEM_DEFAULT -> R.drawable.ic_appearance_default
-        ColorMode.LIGHT_MODE -> R.drawable.ic_appearance_light
-        ColorMode.DARK_MODE -> R.drawable.ic_appearance_dark
     }
 }
 

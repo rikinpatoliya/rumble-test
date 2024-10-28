@@ -65,16 +65,16 @@ data class ProfileScreenUiState(
 
 sealed class ProfileScreenState {
     data class LoggedIn(val channelDetailsEntity: ChannelDetailsEntity?) : ProfileScreenState()
-    object Loading : ProfileScreenState()
-    object LoggedOut : ProfileScreenState()
+    data object Loading : ProfileScreenState()
+    data object LoggedOut : ProfileScreenState()
 }
 
 sealed class ProfileAlertDialogReason : AlertDialogReason {
-    object ConfirmSignOut : ProfileAlertDialogReason()
+    data object ConfirmSignOut : ProfileAlertDialogReason()
 }
 
 sealed class ProfileScreenEvent {
-    object Error : ProfileScreenEvent()
+    data object Error : ProfileScreenEvent()
     data class CopyVersionToClipboard(val version: String) : ProfileScreenEvent()
 }
 

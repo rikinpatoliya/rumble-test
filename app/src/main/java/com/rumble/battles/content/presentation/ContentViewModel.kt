@@ -141,6 +141,7 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun onOpenAuthMenu()
     fun onError(errorMessage: String?, withPadding: Boolean = true)
     fun onShowSnackBar(messageId: Int, titleId: Int? = null, withPadding: Boolean = true)
+    fun onShowSnackBar(message: String, title: String? = null, withPadding: Boolean = true)
     fun onOpenVideoDetails(videoId: Long, playListId: String? = null, shuffle: Boolean? = null)
     fun onCloseVideoDetails()
     fun onNavigateHome()
@@ -217,6 +218,7 @@ sealed class ContentScreenVmEvent {
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
     data class Error(val errorMessage: String? = null, val withPadding: Boolean = false) : ContentScreenVmEvent()
     data class ShowSnackBarMessage(val messageId: Int, val titleId: Int? = null, val withPadding: Boolean = false) : ContentScreenVmEvent()
+    data class ShowSnackBarMessageString(val message: String, val title: String? = null, val withPadding: Boolean = true) : ContentScreenVmEvent()
     data class ChannelSubscriptionUpdated(val channelDetailsEntity: ChannelDetailsEntity) :
         ContentScreenVmEvent()
 
@@ -1090,6 +1092,14 @@ class ContentViewModel @Inject constructor(
         emitVmEvent(
             ContentScreenVmEvent.ShowSnackBarMessage(
                 messageId, titleId, withPadding
+            )
+        )
+    }
+
+    override fun onShowSnackBar(message: String, title: String?, withPadding: Boolean) {
+        emitVmEvent(
+            ContentScreenVmEvent.ShowSnackBarMessageString(
+                message, title, withPadding
             )
         )
     }

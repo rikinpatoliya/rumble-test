@@ -18,11 +18,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -56,8 +54,7 @@ import com.rumble.battles.commonViews.ToggleRowView
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
@@ -76,6 +73,7 @@ private const val playbackSettingsIndex = 1
 @Composable
 fun SettingsScreen(
     settingsHandler: SettingsHandler,
+    contentHandler: ContentHandler,
     onBackClick: () -> Unit,
     onNavigate: (id: String) -> Unit,
 ) {
@@ -96,7 +94,6 @@ fun SettingsScreen(
         initialValue = PlaybackInFeedsMode.ALWAYS_ON
     )
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     val listState by settingsHandler.listState
 
     val clipboard: ClipboardManager = LocalClipboardManager.current
@@ -105,17 +102,14 @@ fun SettingsScreen(
         settingsHandler.vmEvents.collect { event ->
             when (event) {
                 is SettingsScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage)
                 }
 
                 is SettingsScreenVmEvent.AccountUnlinkSuccess -> {
-                    snackBarHostState.showRumbleSnackbar(
+                    contentHandler.onShowSnackBar(
                         message = String.format(
                             context.getString(R.string.unlink_account_success_message),
-                            context.getString(loginType.stringId).lowercase()
+                            context.getString(event.loginType.stringId).lowercase()
                         )
                     )
                 }
@@ -126,8 +120,8 @@ fun SettingsScreen(
 
                 is SettingsScreenVmEvent.CopyVersionToClipboard -> {
                     clipboard.setText(AnnotatedString(event.version))
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.version_copied_message)
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.version_copied_message,
                     )
                 }
             }
@@ -286,7 +280,6 @@ fun SettingsScreen(
             )
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 @Composable

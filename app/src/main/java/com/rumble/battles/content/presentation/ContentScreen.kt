@@ -307,6 +307,14 @@ fun ContentScreen(
                     )
                 }
 
+                is ContentScreenVmEvent.ShowSnackBarMessageString -> {
+                    if (event.withPadding) snackBarHostPadding = paddingGiant
+                    (if (event.withPadding) snackBarHostStateWithPadding else snackBarHostState).showRumbleSnackbar(
+                        message = event.message,
+                        title = event.title
+                    )
+                }
+
                 is ContentScreenVmEvent.UserUploadNotification -> {
                     snackBarHostState.showRumbleSnackbar(
                         message = if (event.success) {
@@ -986,6 +994,7 @@ private fun createNavigationGraph(
             val editProfileViewModel: EditProfileViewModel = hiltViewModel()
             EditProfileScreen(
                 editProfileHandler = editProfileViewModel,
+                contentHandler = contentHandler,
                 onBackClick = {
                     currentNavController.previousBackStackEntry
                         ?.savedStateHandle
@@ -1026,6 +1035,7 @@ private fun createNavigationGraph(
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             SettingsScreen(
                 settingsHandler = settingsViewModel,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() },
                 onNavigate = { currentNavController.navigate(it) },
             )
