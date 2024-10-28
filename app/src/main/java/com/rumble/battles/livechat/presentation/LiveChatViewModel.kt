@@ -412,15 +412,17 @@ class LiveChatViewModel @Inject constructor(
                     }
                 }
                 liveChatConfig?.let { config ->
-                    messageList = handleDeletedMessages(result)
+                    val updatedResult =
+                        filterExistingMessages(result, messageList.map { it.messageId }.toSet())
+                    messageList = handleDeletedMessages(updatedResult)
                     messageList =
                         messageList + updateRantColor(
                             initAtMentionUseCase(
-                                result.messageList,
+                                updatedResult.messageList,
                                 config.channels
                             )
                         )
-                    val messageCount = state.value.unreadMessageCount + result.messageList.size
+                    val messageCount = state.value.unreadMessageCount + updatedResult.messageList.size
                     val currentSelection = state.value.rantSelected
 
                     if (messageList.size > LIVE_CHAT_MAX_MESSAGE_COUNT) {
@@ -435,8 +437,8 @@ class LiveChatViewModel @Inject constructor(
                             ?: config.rantConfig.levelList.firstOrNull(),
                         unreadMessageCount = messageCount,
                         unreadMessageCountText = getUnreadMessageCountTextUseCase(messageCount),
-                        pinnedMessage = getPinnedMessage(result),
-                        canModerate = (if (result.canModerate != null) result.canModerate else state.value.canModerate)
+                        pinnedMessage = getPinnedMessage(updatedResult),
+                        canModerate = (if (updatedResult.canModerate != null) updatedResult.canModerate else state.value.canModerate)
                             ?: false
                     )
                     delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
@@ -453,6 +455,16 @@ class LiveChatViewModel @Inject constructor(
                 levelList = fetchRantProductDetailsUseCase(rantConfig.levelList)
             )
         )
+    }
+
+    private fun filterExistingMessages(
+        result: LiveChatResult,
+        existingMessageIds: Set<Long>
+    ): LiveChatResult {
+        val filteredMessageList = result.messageList.filterNot { messageEntity ->
+            messageEntity.messageId in existingMessageIds
+        }
+        return result.copy(messageList = filteredMessageList)
     }
 
     private fun handleDeletedMessages(result: LiveChatResult) =

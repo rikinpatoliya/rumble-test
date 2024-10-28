@@ -34,7 +34,6 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,14 +71,12 @@ import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.RumbleWheelDatePicker
 import com.rumble.battles.commonViews.keyboardAsState
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageXXLarge
-import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXSmall
@@ -101,6 +98,7 @@ private const val TAG = "EditProfileScreen"
 @Composable
 fun EditProfileScreen(
     editProfileHandler: EditProfileHandler,
+    contentHandler: ContentHandler,
     onBackClick: (newImageUri: Uri?) -> Unit,
 ) {
     val state by editProfileHandler.uiState.collectAsStateWithLifecycle()
@@ -109,7 +107,6 @@ fun EditProfileScreen(
     val sheetItems by editProfileHandler.countriesList.collectAsStateWithLifecycle(initialValue = emptyList())
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val snackBarHostState = remember { SnackbarHostState() }
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
@@ -129,14 +126,11 @@ fun EditProfileScreen(
         editProfileHandler.vmEvents.collect { event ->
             when (event) {
                 is EditProfileVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage)
                 }
 
                 is EditProfileVmEvent.ProfileUpdateResult -> {
-                    snackBarHostState.showRumbleSnackbar(message = context.getString(event.messageStringId))
+                    contentHandler.onShowSnackBar(event.messageStringId)
                 }
 
                 is EditProfileVmEvent.ShowCountrySelection -> {
@@ -216,10 +210,6 @@ fun EditProfileScreen(
             RumbleProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
-    RumbleSnackbarHost(
-        snackBarHostState = snackBarHostState,
-        modifier = Modifier.padding(bottom = paddingGiant)
-    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
