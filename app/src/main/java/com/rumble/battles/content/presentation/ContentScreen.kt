@@ -558,6 +558,9 @@ fun ContentScreen(
                         videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
                         navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
                     },
+                    onNavigateBack = {
+                        navControllers[selectedTabIndex].navigateUp()
+                    }
                 )
             }
         }

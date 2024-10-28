@@ -130,7 +130,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onLikeRelated(videoEntity: VideoEntity)
     fun onDislikeRelated(videoEntity: VideoEntity)
     fun onShare()
-    fun onBack()
+    fun onCloseVideoDetails()
     fun onLocals()
     fun onVideoSettings()
     fun reportVideo(videoEntity: VideoEntity, reportType: ReportType)
@@ -251,7 +251,7 @@ sealed class VideoDetailsEvent {
     data class VideoDetailsError(val errorMessage: String? = null) : VideoDetailsEvent()
     data object HideKeyboard : VideoDetailsEvent()
     data object ShowKeyboard : VideoDetailsEvent()
-    data object NavigateBack : VideoDetailsEvent()
+    data object CloseVideoDetails : VideoDetailsEvent()
     data object ShowBottomSheet : VideoDetailsEvent()
     data object HideBottomSheet : VideoDetailsEvent()
     data object ShowCommentReportedMessage : VideoDetailsEvent()
@@ -380,7 +380,7 @@ class VideoDetailsViewModel @Inject constructor(
                 state.value = state.value.copy(screenOrientationLocked = false)
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
             }
-            if (state.value.hasPremiumRestriction) onBack()
+            if (state.value.hasPremiumRestriction) onCloseVideoDetails()
         }
     }
 
@@ -638,12 +638,12 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onBack() {
+    override fun onCloseVideoDetails() {
         if (state.value.currentComment.isNotEmpty()) {
             showDiscardDialog(true)
         } else {
             dismissResources()
-            emitVmEvent(VideoDetailsEvent.NavigateBack)
+            emitVmEvent(VideoDetailsEvent.CloseVideoDetails)
         }
     }
 
@@ -652,7 +652,7 @@ class VideoDetailsViewModel @Inject constructor(
             showDiscardDialog(true)
         } else {
             dismissResources()
-            emitVmEvent(VideoDetailsEvent.NavigateBack)
+            emitVmEvent(VideoDetailsEvent.CloseVideoDetails)
         }
     }
 
@@ -801,7 +801,7 @@ class VideoDetailsViewModel @Inject constructor(
         emitVmEvent(VideoDetailsEvent.CloseLiveChat)
         if (navigate) {
             dismissResources()
-            emitVmEvent(VideoDetailsEvent.NavigateBack)
+            emitVmEvent(VideoDetailsEvent.CloseVideoDetails)
         }
     }
 
