@@ -14,14 +14,11 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -31,8 +28,7 @@ import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.RumbleTextActionButton
 import com.rumble.battles.commonViews.ToggleRowView
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.theme.RumbleTypography.body1
 import com.rumble.theme.RumbleTypography.h1
 import com.rumble.theme.paddingLarge
@@ -42,21 +38,17 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun NotificationSettingsScreen(
     handler: NotificationSettingsHandler,
+    contentHandler: ContentHandler,
     onBackClick: () -> Unit,
 ) {
 
     val state by handler.state
-    val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         handler.eventFlow.collectLatest { event ->
             when (event) {
                 is NotificationSettingsEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.message
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.message)
                 }
             }
         }
@@ -232,5 +224,4 @@ fun NotificationSettingsScreen(
             RumbleProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }

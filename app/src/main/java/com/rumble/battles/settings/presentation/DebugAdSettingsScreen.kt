@@ -10,23 +10,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,8 +34,7 @@ import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.theme.RumbleTypography.h4
 import com.rumble.theme.imageSmall
@@ -53,20 +46,16 @@ import com.rumble.theme.paddingXXSmall
 @Composable
 fun DebugAdSettingsScreen(
     debugAdSettingsHandler: DebugAdSettingsHandler,
+    contentHandler: ContentHandler,
     onBackClick: () -> Unit,
 ) {
     val state by debugAdSettingsHandler.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(Unit) {
         debugAdSettingsHandler.vmEvents.collect { event ->
             when (event) {
                 is DebugAdSettingsScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage)
                 }
             }
         }
@@ -105,7 +94,6 @@ fun DebugAdSettingsScreen(
             onDismissDialog = { debugAdSettingsHandler.onDismissDialog() }
         )
     }
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 @Composable

@@ -122,7 +122,7 @@ fun EditProfileScreen(
         editProfileHandler.onProfileImageChanged(uri)
     }
 
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(Unit) {
         editProfileHandler.vmEvents.collect { event ->
             when (event) {
                 is EditProfileVmEvent.Error -> {

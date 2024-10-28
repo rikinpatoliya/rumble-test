@@ -1214,6 +1214,7 @@ private fun createNavigationGraph(
             val creditsScreenViewModel: CreditsScreenViewModel = hiltViewModel()
             CreditsScreen(
                 creditsScreenHandler = creditsScreenViewModel,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() },
                 activityHandler = activityHandler,
             )
@@ -1222,6 +1223,7 @@ private fun createNavigationGraph(
             val changeEmailHandler: ChangeEmailViewModel = hiltViewModel()
             ChangeEmailScreen(
                 changeEmailHandler = changeEmailHandler,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() }
             )
         }
@@ -1229,6 +1231,7 @@ private fun createNavigationGraph(
             val changePasswordHandler: ChangePasswordViewModel = hiltViewModel()
             ChangePasswordScreen(
                 changePasswordHandler = changePasswordHandler,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() }
             )
         }
@@ -1236,6 +1239,7 @@ private fun createNavigationGraph(
             val changeSubdomainViewModel: ChangeSubdomainViewModel = hiltViewModel()
             ChangeSubdomainScreen(
                 changeSubdomainHandler = changeSubdomainViewModel,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() }
             )
         }
@@ -1243,6 +1247,7 @@ private fun createNavigationGraph(
             val debugAdSettingViewModel: DebugAdSettingsViewModel = hiltViewModel()
             DebugAdSettingsScreen(
                 debugAdSettingsHandler = debugAdSettingViewModel,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() }
             )
         }
@@ -1250,6 +1255,7 @@ private fun createNavigationGraph(
             val closeAccountViewModel: CloseAccountViewModel = hiltViewModel()
             CloseAccountScreen(
                 closeAccountHandler = closeAccountViewModel,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() }
             )
         }
@@ -1453,6 +1459,7 @@ private fun createNavigationGraph(
             val notificationSettingsViewModel: NotificationSettingsViewModel = hiltViewModel()
             NotificationSettingsScreen(
                 handler = notificationSettingsViewModel,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() },
             )
         }

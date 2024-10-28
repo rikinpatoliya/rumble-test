@@ -46,6 +46,10 @@ class NotificationSettingsViewModel @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
 ) : ViewModel(), NotificationSettingsHandler {
 
+    override val state: MutableState<NotificationSettingsState> =
+        mutableStateOf(NotificationSettingsState())
+    override val eventFlow: MutableSharedFlow<NotificationSettingsEvent> = MutableSharedFlow()
+
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
         state.value = state.value.copy(loading = false)
@@ -61,10 +65,6 @@ class NotificationSettingsViewModel @Inject constructor(
             }
         }
     }
-
-    override val state: MutableState<NotificationSettingsState> =
-        mutableStateOf(NotificationSettingsState())
-    override val eventFlow: MutableSharedFlow<NotificationSettingsEvent> = MutableSharedFlow()
 
     override fun onToggleNotificationSettings(notificationSettingsEntity: NotificationSettingsEntity) {
         state.value = state.value.copy(loading = true)

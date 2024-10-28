@@ -27,9 +27,9 @@ interface ChangeEmailHandler {
 }
 
 sealed class EmailError {
-    object None : EmailError()
-    object Invalid : EmailError()
-    object SameAsCurrent : EmailError()
+    data object None : EmailError()
+    data object Invalid : EmailError()
+    data object SameAsCurrent : EmailError()
 }
 
 sealed class ChangeEmailScreenVmEvent {

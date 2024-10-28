@@ -19,11 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,8 +48,6 @@ import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleProgressIndicator
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.discover.presentation.views.ErrorView
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.profile.domainmodel.ProfileNotificationEntity
@@ -75,25 +70,9 @@ fun ProfileNotificationsScreen(
 ) {
     val state by profileNotificationsHandler.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
 
     val notificationsList: LazyPagingItems<ProfileNotificationEntity> =
         profileNotificationsHandler.notificationsPagingDataFlow.collectAsLazyPagingItems()
-
-    LaunchedEffect(key1 = context) {
-        profileNotificationsHandler.vmEvents.collect { event ->
-            when (event) {
-                is ProfileNotificationsScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
-                }
-            }
-        }
-    }
-
-
 
     Column(
         modifier = Modifier
@@ -184,7 +163,6 @@ fun ProfileNotificationsScreen(
             RumbleProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 @Composable
