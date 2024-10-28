@@ -225,14 +225,13 @@ fun MyVideosScreen(
         myVideosHandler.vmEvents.collect { event ->
             when (event) {
                 is ChannelDetailsVmEvent.Error -> {
-                    contentHandler.onError(event.errorMessage, true)
+                    contentHandler.onError(event.errorMessage)
                 }
 
                 is ChannelDetailsVmEvent.ShowEmailVerifiedMessage -> {
                     contentHandler.onShowSnackBar(
                         messageId = R.string.email_successfully_verified_message,
                         titleId = R.string.сongratulations,
-                        withPadding = true
                     )
                 }
 

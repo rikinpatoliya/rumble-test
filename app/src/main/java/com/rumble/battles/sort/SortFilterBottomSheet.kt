@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
 import com.rumble.battles.SearchFiltersTag
+import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CheckMarkItem
 import com.rumble.battles.commonViews.RumbleTextActionButton
 import com.rumble.domain.sort.DurationType
@@ -81,6 +83,7 @@ fun SortFilterBottomSheet(
             .background(MaterialTheme.colors.background)
             .navigationBarsPadding()
             .statusBarsPadding()
+            .systemBarsPadding()
     ) {
 
         Column(
@@ -170,6 +173,7 @@ fun SortFilterBottomSheet(
                     addSeparator = durationTypes.last() != duration
                 ) { durationSelection = duration }
             }
+            BottomNavigationBarScreenSpacer()
         }
     }
 }
