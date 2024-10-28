@@ -26,12 +26,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -76,8 +74,6 @@ import com.rumble.battles.commonViews.VideosCountView
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
@@ -90,6 +86,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChanne
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
+import com.rumble.theme.bottomBarHeight
 import com.rumble.theme.collapsedSpacerPadding
 import com.rumble.theme.commentActionButtonWidth
 import com.rumble.theme.enforcedWhite
@@ -123,7 +120,6 @@ fun ChannelDetailsScreen(
     val popupState by channelDetailsHandler.popupState.collectAsStateWithLifecycle()
     val alertDialogState by channelDetailsHandler.alertDialogState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     val bottomSheetState =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
@@ -192,10 +188,7 @@ fun ChannelDetailsScreen(
         channelDetailsHandler.vmEvents.collect { event ->
             when (event) {
                 is ChannelDetailsVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage)
                 }
 
                 is ChannelDetailsVmEvent.ShowLocalsPopup,
@@ -206,8 +199,8 @@ fun ChannelDetailsScreen(
                 }
 
                 ChannelDetailsVmEvent.ShowChannelReportedMessage -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.the_channel_has_been_reported)
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.the_channel_has_been_reported,
                     )
                 }
 
@@ -504,7 +497,6 @@ fun ChannelDetailsScreen(
             }
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 @Composable
@@ -579,11 +571,21 @@ private fun ChannelDetailsScreenDialog(
 ) {
     when (dialogState) {
         is ChannelDetailsDialog.ActionMenuDialog -> {
-            ActionsMenuBottomSheet(coroutineScope, bottomSheetState, channelDetailsHandler)
+            ActionsMenuBottomSheet(
+                Modifier
+                    .systemBarsPadding()
+                    .padding(bottom = bottomBarHeight),
+                coroutineScope,
+                bottomSheetState,
+                channelDetailsHandler
+            )
         }
 
         is ChannelDetailsDialog.BlockDialog -> {
             BlockBottomSheet(
+                Modifier
+                    .systemBarsPadding()
+                    .padding(bottom = bottomBarHeight),
                 coroutineScope,
                 bottomSheetState,
                 channelDetailsEntity?.channelTitle ?: ""
@@ -597,6 +599,9 @@ private fun ChannelDetailsScreenDialog(
 
         is ChannelDetailsDialog.ReportDialog -> {
             ReportBottomSheet(
+                Modifier
+                    .systemBarsPadding()
+                    .padding(bottom = bottomBarHeight),
                 stringResource(id = R.string.report_why_reporting_account),
                 coroutineScope,
                 bottomSheetState
@@ -628,6 +633,7 @@ private fun ChannelDetailsScreenDialog(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ActionsMenuBottomSheet(
+    modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
     channelDetailsHandler: ChannelDetailsHandler,
@@ -669,6 +675,7 @@ private fun ActionsMenuBottomSheet(
     }
 
     RumbleBottomSheet(
+        modifier = modifier,
         sheetItems = sheetItems,
         onCancel = { coroutineScope.launch { bottomSheetState.hide() } }
     )
@@ -677,12 +684,14 @@ private fun ActionsMenuBottomSheet(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun BlockBottomSheet(
+    modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
     channelTitle: String,
     onBlock: () -> Unit,
 ) {
     RumbleBottomSheet(
+        modifier = modifier,
         title = "${stringResource(id = R.string.block)} $channelTitle",
         subtitle = stringResource(id = R.string.block_account_no_longer_accessible),
         sheetItems = listOf(

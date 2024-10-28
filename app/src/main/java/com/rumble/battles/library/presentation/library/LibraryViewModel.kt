@@ -84,7 +84,6 @@ data class LibraryScreenUIState(
 )
 
 sealed class LibraryScreenVmEvent {
-    data class Error(val errorMessage: String? = null) : LibraryScreenVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : LibraryScreenVmEvent()
 }
 

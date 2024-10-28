@@ -172,7 +172,7 @@ fun BottomSheetOverNavBarContent(
                     onHideBottomSheet()
                     onNavigateToLogin()
                 },
-                onError = contentHandler::onError,
+                onError = { contentHandler.onError(errorMessage = it, withPadding = false) },
                 onNavigateToRegistration = { loginType, userId, token, email ->
                     onHideBottomSheet()
                     onNavigateToRegistration(loginType.value.toString(), userId, token, email)

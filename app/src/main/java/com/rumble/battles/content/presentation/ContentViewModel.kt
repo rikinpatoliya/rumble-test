@@ -139,8 +139,8 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun onContentResumed()
     fun isPremiumUser(): Boolean
     fun onOpenAuthMenu()
-    fun onError(errorMessage: String?, withPadding: Boolean = false)
-    fun onShowSnackBar(messageId: Int, titleId: Int? = null, withPadding: Boolean = false)
+    fun onError(errorMessage: String?, withPadding: Boolean = true)
+    fun onShowSnackBar(messageId: Int, titleId: Int? = null, withPadding: Boolean = true)
     fun onOpenVideoDetails(videoId: Long, playListId: String? = null, shuffle: Boolean? = null)
     fun onCloseVideoDetails()
     fun onNavigateHome()

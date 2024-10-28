@@ -174,6 +174,7 @@ import com.rumble.theme.paddingNone
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXGiant
 import com.rumble.theme.paddingXSmall
+import com.rumble.theme.paddingXXLarge
 import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXLarge
@@ -645,7 +646,9 @@ fun VideoDetailsView(
                 visible = displayPremiumOnlyContent,
                 content = {
                     PremiumOnlyContentView(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .padding(horizontal = contentPadding)
+                            .fillMaxWidth(),
                         onSubscribe = handler::onSubscribeToPremium
                     )
                 },
@@ -655,8 +658,11 @@ fun VideoDetailsView(
 
             Row(
                 modifier = Modifier
-                    .conditional(displayPremiumOnlyContent) {
+                    .conditional(displayPremiumOnlyContent && IsTablet().not()) {
                         padding(bottom = paddingXXXLarge)
+                    }
+                    .conditional(displayPremiumOnlyContent && IsTablet()) {
+                        padding(bottom = paddingXXLarge)
                     }
                     .align(Alignment.TopCenter),
                 verticalAlignment = CenterVertically) {
