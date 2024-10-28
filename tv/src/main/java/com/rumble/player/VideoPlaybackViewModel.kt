@@ -16,6 +16,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.GetVideoDetailsUseCase
 import com.rumble.domain.feed.domain.usecase.ReportContentUseCase
+import com.rumble.domain.feed.domain.usecase.StartPremiumPreviewCountdownUseCase
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
 import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValueUseCase
@@ -56,7 +57,6 @@ data class VideoPlayerState(
     val fromChannel: String = "",
     val channelDetailsEntity: ChannelDetailsEntity? = null,
     val showPayWall: Boolean = false,
-    val showPayWallControls: Boolean = false,
 )
 
 sealed class VideoPlayerEvent {
@@ -91,6 +91,7 @@ class VideoPlaybackViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val hasPremiumRestrictionUseCase: HasPremiumRestrictionUseCase,
     private val calculateLiveGateCountdownValueUseCase: CalculateLiveGateCountdownValueUseCase,
+    private val startPremiumPreviewCountdownUseCase: StartPremiumPreviewCountdownUseCase,
 ) : ViewModel() {
 
     val videoPlayerState: MutableState<VideoPlayerState> = mutableStateOf(VideoPlayerState())
@@ -101,6 +102,7 @@ class VideoPlaybackViewModel @Inject constructor(
     private var isPremium: Boolean = false
     private var connectionStateJob: Job = Job()
     private var playerImpressionLogged = false
+    private var videoReady: Boolean = false
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         onError(throwable)
@@ -122,7 +124,7 @@ class VideoPlaybackViewModel @Inject constructor(
                     saveLastPosition = saveLastPositionUseCase::invoke,
                     autoplay = updatedVideoEntity.hasLiveGate.not(),
                     requestLiveGateData = true,
-                    onNextVideo = {videoId, channelId, autoPlay ->
+                    onNextVideo = { videoId, channelId, autoPlay ->
                         onNextVideo(videoId, channelId, autoPlay, true)
                     },
                     showAds = sessionManager.isPremiumUserFlow.first().not(),
@@ -131,6 +133,9 @@ class VideoPlaybackViewModel @Inject constructor(
                     },
                     onPremiumCountdownFinished = {
                         enforceLiveGateRestriction()
+                    },
+                    onVideoReady = {
+                        handleLiveGate(updatedVideoEntity, it)
                     }
                 ),
                 videoEntity = updatedVideoEntity,
@@ -145,7 +150,6 @@ class VideoPlaybackViewModel @Inject constructor(
             }
             fetchCurrentUserVoteState(videoId = videoEntity.id)
             onVideoPlayerImpression()
-            handleLiveGate(updatedVideoEntity)
         }
     }
 
@@ -173,12 +177,15 @@ class VideoPlaybackViewModel @Inject constructor(
                     liveVideoReport = { videoId, result ->
                         onLiveVideoReport(videoId, result)
                     },
-                    onNextVideo = {videoId, channelId, autoPlay ->
+                    onNextVideo = { videoId, channelId, autoPlay ->
                         onNextVideo(videoId, channelId, autoPlay, false)
                     },
                     showAds = sessionManager.isPremiumUserFlow.first().not(),
                     onPremiumCountdownFinished = {
                         enforceLiveGateRestriction()
+                    },
+                    onVideoReady = {
+                        handleLiveGate(updatedVideoEntity, it)
                     }
                 ),
                 videoEntity = updatedVideoEntity,
@@ -190,7 +197,6 @@ class VideoPlaybackViewModel @Inject constructor(
             }
             fetchCurrentUserVoteState(videoId = updatedVideoEntity.id)
             onVideoPlayerImpression()
-            handleLiveGate(updatedVideoEntity)
         }
     }
 
@@ -284,27 +290,29 @@ class VideoPlaybackViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleLiveGate(videoEntity: VideoEntity) {
-        val hasRestriction = hasPremiumRestrictionUseCase(videoEntity)
-        if (hasRestriction) {
-            videoEntity.liveGateEntity?.let {
-                videoPlayerState.value = videoPlayerState.value.copy(
-                    showPayWallControls = true,
-                    videoEntity = videoPlayerState.value.videoEntity?.copy(hasLiveGate = true)
-                )
-                if (videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
-                    videoPlayerState.value.rumblePlayer?.startPremiumCountDown(type = CountDownType.FreePreview)
-                } else {
-                    enforceLiveGateRestriction()
-                }
-            }
+    private fun handleLiveGate(videoEntity: VideoEntity, actualDuration: Long) {
+        if (videoReady.not()) {
+            videoReady = true
+            viewModelScope.launch(errorHandler) {
+                val hasRestriction = hasPremiumRestrictionUseCase(videoEntity)
+                if (hasRestriction) {
+                    videoEntity.liveGateEntity?.let {
+                        videoPlayerState.value = videoPlayerState.value.copy(
+                            videoEntity = videoPlayerState.value.videoEntity?.copy(hasLiveGate = true)
+                        )
+                        if (videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
+                            videoPlayerState.value.rumblePlayer?.let {
+                                startPremiumPreviewCountdownUseCase(it, actualDuration)
+                            }
+                        } else {
+                            enforceLiveGateRestriction()
+                        }
+                    }
 
-        } else if (videoEntity.liveGateEntity != null) {
-            videoPlayerState.value = videoPlayerState.value.copy(
-                showPayWallControls = true
-            )
+                }
+                videoPlayerState.value.rumblePlayer?.userIsPremium = hasRestriction.not()
+            }
         }
-        videoPlayerState.value.rumblePlayer?.userIsPremium = hasRestriction.not()
     }
 
     private fun onLiveVideoReport(videoId: Long, result: LiveVideoReportResult) {
@@ -320,7 +328,6 @@ class VideoPlaybackViewModel @Inject constructor(
         }
         if (result.hasLiveGate && videoPlayerState.value.videoEntity?.hasLiveGate == false) {
             videoPlayerState.value = videoPlayerState.value.copy(
-                showPayWallControls = true,
                 videoEntity = videoPlayerState.value.videoEntity?.copy(hasLiveGate = true)
             )
             videoPlayerState.value.videoEntity?.let {
@@ -379,7 +386,12 @@ class VideoPlaybackViewModel @Inject constructor(
         }
     }
 
-    private fun onNextVideo(videoId: Long, channelId: String, autoplay: Boolean, applyLastPosition: Boolean) {
+    private fun onNextVideo(
+        videoId: Long,
+        channelId: String,
+        autoplay: Boolean,
+        applyLastPosition: Boolean
+    ) {
         playerImpressionLogged = false
         videoPlayerState.value.rumblePlayer?.pauseVideo()
         viewModelScope.launch(errorHandler) {

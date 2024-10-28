@@ -27,6 +27,8 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
         updatedRelatedVideoList: Boolean,
         videoStartMethod: VideoStartMethod = VideoStartMethod.URL_PROVIDED,
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
+        onPremiumCountdownFinished:  (() -> Unit)? = null,
+        onVideoReady: ((Long) -> Unit)? = null,
     ): RumblePlayer {
         val relatedVideoList =
             if (updatedRelatedVideoList) fetchRelatedVideoUseCase(videoId = videoEntity.id).map {
@@ -63,7 +65,9 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
                 onSaveLastPosition = if (positionCanBeSaved(videoEntity.livestreamStatus)) { position, videoId ->
                     saveLastPosition(position, videoId)
                 } else null,
-                updatedRelatedVideoList = updatedRelatedVideoList
+                updatedRelatedVideoList = updatedRelatedVideoList,
+                onPremiumCountdownFinished = onPremiumCountdownFinished,
+                onVideoReady = onVideoReady,
             )
         }
     }

@@ -3,6 +3,7 @@ package com.rumble.battles.commonViews
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
 import com.rumble.videoplayer.player.config.ReportType
@@ -12,12 +13,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ReportBottomSheet(
+    modifier: Modifier = Modifier,
     subtitle: String,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
     onReport: (reason: ReportType) -> Unit,
 ) {
     RumbleBottomSheet(
+        modifier = modifier,
         title = stringResource(id = R.string.report),
         subtitle = subtitle,
         sheetItems = listOf(

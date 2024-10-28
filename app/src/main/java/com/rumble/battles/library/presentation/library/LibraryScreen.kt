@@ -13,14 +13,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,8 +33,6 @@ import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.landing.RumbleActivityHandler
@@ -85,9 +80,6 @@ fun LibraryScreen(
     val alertDialogState by libraryHandler.alertDialogState.collectAsStateWithLifecycle()
     val listState by libraryHandler.listState
 
-    val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
-
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(playListTypeRefresh) {
@@ -129,13 +121,6 @@ fun LibraryScreen(
     LaunchedEffect(Unit) {
         libraryHandler.eventFlow.collectLatest {
             when (it) {
-                is LibraryScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = it.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
-                }
-
                 is LibraryScreenVmEvent.PlayVideo -> onVideoClick(it.videoEntity)
             }
         }
@@ -333,5 +318,4 @@ fun LibraryScreen(
             }
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }

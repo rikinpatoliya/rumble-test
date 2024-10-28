@@ -58,6 +58,7 @@ import com.rumble.domain.feed.domain.usecase.LikeCommentUseCase
 import com.rumble.domain.feed.domain.usecase.MergeCommentsStateUserCase
 import com.rumble.domain.feed.domain.usecase.PostCommentUseCase
 import com.rumble.domain.feed.domain.usecase.ReportContentUseCase
+import com.rumble.domain.feed.domain.usecase.StartPremiumPreviewCountdownUseCase
 import com.rumble.domain.feed.domain.usecase.UpdateCommentListReplyVisibilityUseCase
 import com.rumble.domain.feed.domain.usecase.UpdateCommentVoteUseCase
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
@@ -91,7 +92,6 @@ import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS
 import com.rumble.utils.extension.getChannelId
 import com.rumble.videoplayer.player.RumblePlayer
-import com.rumble.videoplayer.player.config.CountDownType
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.ReportType
 import com.rumble.videoplayer.player.config.RumbleVideoMode
@@ -316,6 +316,7 @@ class VideoDetailsViewModel @Inject constructor(
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
     private val deviceType: DeviceType,
     private val calculateLiveGateCountdownValueUseCase: CalculateLiveGateCountdownValueUseCase,
+    private val startPremiumPreviewCountdownUseCase: StartPremiumPreviewCountdownUseCase,
 ) : ViewModel(), VideoDetailsHandler, DefaultLifecycleObserver {
     private var playListId: String = ""
     private var shouldShufflePlayList = false
@@ -369,19 +370,17 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onUpdateLayoutState(layoutState: CollapsableLayoutState) {
-        if (state.value.hasPremiumRestriction) onBack()
-        else {
-            state.value = state.value.copy(layoutState = layoutState)
-            if (layoutState == CollapsableLayoutState.EXPENDED) {
-                state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Normal
-                emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
-            } else {
-                state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
-                if (deviceType != DeviceType.Tablet) {
-                    state.value = state.value.copy(screenOrientationLocked = false)
-                    emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
-                }
+        state.value = state.value.copy(layoutState = layoutState)
+        if (layoutState == CollapsableLayoutState.EXPENDED) {
+            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Normal
+            emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
+        } else {
+            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
+            if (deviceType != DeviceType.Tablet) {
+                state.value = state.value.copy(screenOrientationLocked = false)
+                emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
             }
+            if (state.value.hasPremiumRestriction) onBack()
         }
     }
 
@@ -972,9 +971,10 @@ class VideoDetailsViewModel @Inject constructor(
                     analyticsEventUseCase(ImaDestroyedEvent, true)
                 }
                 state.value.rumblePlayer?.pauseAndResetState()
+                state.value = state.value.copy(displayPremiumOnlyContent = false)
                 onWatchVideo(videoEntity)
                 state.value = state.value.copy(
-                    isPlayListPlayBackMode = false
+                    isPlayListPlayBackMode = false,
                 )
             }
         }
@@ -1225,9 +1225,6 @@ class VideoDetailsViewModel @Inject constructor(
                 initVideoState(videoEntity)
             }
         }
-        state.value.videoEntity?.let {
-            getPremiumRestriction(it)
-        }
         fetchChannelDetails(state.value.videoEntity?.channelId)
         getRumbleAd()
         showPremiumPromo()
@@ -1278,6 +1275,9 @@ class VideoDetailsViewModel @Inject constructor(
             },
             onPremiumCountdownFinished = {
                 onEnforceLiveGatePremiumRestriction()
+            },
+            onVideoReady = {
+               getPremiumRestriction(videoEntity, it)
             }
         )
         if (hasPremiumRestrictionUseCase(videoEntity).not())
@@ -1307,14 +1307,19 @@ class VideoDetailsViewModel @Inject constructor(
                         saveLastPosition = saveLastPositionUseCase::invoke,
                         screenId = videoDetailsScreen,
                         autoplay = autoplay,
-                        updatedRelatedVideoList = updatedRelatedVideoList
+                        updatedRelatedVideoList = updatedRelatedVideoList,
+                        onPremiumCountdownFinished = {
+                            onEnforceLiveGatePremiumRestriction()
+                        },
+                        onVideoReady = {
+                            state.value.videoEntity?.let { videoEntity ->
+                                getPremiumRestriction(videoEntity, it)
+                            }
+                        }
                     )
                     if (hasPremiumRestrictionUseCase(video).not())
                         player.playVideo()
                 }
-            }
-            state.value.videoEntity?.let {
-                getPremiumRestriction(it)
             }
         }
     }
@@ -1412,22 +1417,26 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getPremiumRestriction(videoEntity: VideoEntity) {
-        if (hasPremiumRestrictionUseCase(videoEntity)) {
-            if (videoEntity.hasLiveGate && videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
-                state.value = state.value.copy(displayPremiumOnlyContent = true)
-                state.value.rumblePlayer?.playVideo()
-                videoEntity.liveGateEntity?.let {
-                    state.value.rumblePlayer?.startPremiumCountDown(type = CountDownType.FreePreview)
+    private fun getPremiumRestriction(videoEntity: VideoEntity, actualDuration: Long) {
+        viewModelScope.launch(errorHandler) {
+            if (hasPremiumRestrictionUseCase(videoEntity)) {
+                if (videoEntity.hasLiveGate && videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
+                    state.value = state.value.copy(displayPremiumOnlyContent = true)
+                    state.value.rumblePlayer?.playVideo()
+                    videoEntity.liveGateEntity?.let {
+                        state.value.rumblePlayer?.let { rumblePlayer ->
+                            startPremiumPreviewCountdownUseCase(rumblePlayer, actualDuration)
+                        }
+                    }
+                } else {
+                    state.value = state.value.copy(hasPremiumRestriction = true)
                 }
             } else {
-                state.value = state.value.copy(hasPremiumRestriction = true)
+                state.value = state.value.copy(
+                    hasPremiumRestriction = false,
+                    displayPremiumOnlyContent = false
+                )
             }
-        } else {
-            state.value = state.value.copy(
-                hasPremiumRestriction = false,
-                displayPremiumOnlyContent = false
-            )
         }
     }
 

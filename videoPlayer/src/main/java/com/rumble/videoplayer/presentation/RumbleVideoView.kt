@@ -281,22 +281,24 @@ fun RumbleVideoView(
                     when (uiType) {
                         UiType.EMBEDDED -> {
 
-                            PreviewTagView(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(paddingMedium),
-                                countDownValue = currentCountDownValue,
-                                type = countdownType,
-                            )
+                            if (seekInProgress.not()) {
+                                PreviewTagView(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                        .padding(paddingMedium),
+                                    countDownValue = currentCountDownValue,
+                                    type = countdownType,
+                                )
 
-                            CountDownView(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(paddingMedium),
-                                countDownValue = currentCountDownValue,
-                                type = countdownType,
-                                uiType = uiType
-                            )
+                                CountDownView(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(paddingMedium),
+                                    countDownValue = currentCountDownValue,
+                                    type = countdownType,
+                                    uiType = uiType
+                                )
+                            }
 
                             EmbeddedControlsView(
                                 isVisible = showControls,
@@ -315,28 +317,30 @@ fun RumbleVideoView(
 
                         UiType.FULL_SCREEN_LANDSCAPE -> {
 
-                            PreviewTagView(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(
-                                        horizontal = paddingMedium,
-                                        vertical = paddingXXXXLarge
-                                    ),
-                                countDownValue = currentCountDownValue,
-                                type = countdownType,
-                            )
+                            if (seekInProgress.not()) {
+                                PreviewTagView(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                        .padding(
+                                            horizontal = paddingMedium,
+                                            vertical = paddingXXXXLarge
+                                        ),
+                                    countDownValue = currentCountDownValue,
+                                    type = countdownType,
+                                )
 
-                            CountDownView(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(
-                                        horizontal = paddingMedium,
-                                        vertical = paddingXXXXLarge
-                                    ),
-                                countDownValue = currentCountDownValue,
-                                type = countdownType,
-                                uiType = uiType
-                            )
+                                CountDownView(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(
+                                            horizontal = paddingMedium,
+                                            vertical = paddingXXXXLarge
+                                        ),
+                                    countDownValue = currentCountDownValue,
+                                    type = countdownType,
+                                    uiType = uiType
+                                )
+                            }
 
                             FullScreenLandscapeControlsView(
                                 isVisible = showControls,
@@ -387,22 +391,24 @@ fun RumbleVideoView(
 
                         UiType.FULL_SCREEN_PORTRAIT -> {
 
-                            PreviewTagView(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(paddingMedium),
-                                countDownValue = currentCountDownValue,
-                                type = countdownType,
-                            )
+                            if (seekInProgress.not()) {
+                                PreviewTagView(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                        .padding(paddingMedium),
+                                    countDownValue = currentCountDownValue,
+                                    type = countdownType,
+                                )
 
-                            CountDownView(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(paddingMedium),
-                                countDownValue = currentCountDownValue,
-                                type = countdownType,
-                                uiType = uiType
-                            )
+                                CountDownView(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(paddingMedium),
+                                    countDownValue = currentCountDownValue,
+                                    type = countdownType,
+                                    uiType = uiType
+                                )
+                            }
 
                             FullScreenPortraitControlsView(
                                 isVisible = showControls,

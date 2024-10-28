@@ -46,6 +46,7 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         onNextVideo: ((Long, String, Boolean) -> Unit)? = null,
         sendInitialPlaybackEvent: (() -> Unit)? = null,
         onPremiumCountdownFinished:  (() -> Unit)? = null,
+        onVideoReady: ((Long) -> Unit)? = null,
     ): RumblePlayer {
         val videoEntity = getVideoDetailsUseCase(videoId)
         val relatedVideoList =
@@ -97,6 +98,7 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 playList = null,
                 sendInitialPlaybackEvent = sendInitialPlaybackEvent,
                 onPremiumCountdownFinished = onPremiumCountdownFinished,
+                onVideoReady = onVideoReady,
             )
         }
         return videoPlayer
@@ -112,6 +114,7 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         onNextVideo: ((Long, String, Boolean) -> Unit)? = null,
         sendInitialPlaybackEvent: (() -> Unit)? = null,
         onPremiumCountdownFinished:  (() -> Unit)? = null,
+        onVideoReady: ((Long) -> Unit)? = null,
     ): RumblePlayer {
         val initialVideo = playList.videoList.first()
         return createPlayerUseCase().apply {
@@ -134,6 +137,7 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 playList = playList,
                 sendInitialPlaybackEvent = sendInitialPlaybackEvent,
                 onPremiumCountdownFinished = onPremiumCountdownFinished,
+                onVideoReady = onVideoReady,
             )
         }
     }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
@@ -32,7 +33,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.navArgument
 import com.google.android.gms.common.util.DeviceProperties
-import com.rumble.battles.R
 import com.rumble.battles.commonViews.RumbleWebView
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
 import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
@@ -106,13 +106,20 @@ class RumbleMainActivity : FragmentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        lifecycleScope.launch {
-            if (viewModel.pipIsAvailable(packageManager)) {
-                enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (viewModel.pipIsAvailable(packageManager) &&
+                this@RumbleMainActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                try {
+                    enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+                } catch (e: Exception) {
+                    viewModel.currentPlayer?.pauseVideo()
+                    viewModel.onLogException(e)
+                }
             } else if (viewModel.backgroundSoundIsAvailable().not()) {
                 viewModel.currentPlayer?.pauseVideo()
             }
         }
+
     }
 
     override fun onPictureInPictureModeChanged(

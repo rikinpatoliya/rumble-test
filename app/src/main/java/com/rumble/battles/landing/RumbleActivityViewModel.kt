@@ -99,17 +99,18 @@ interface RumbleActivityHandler {
     )
 
     fun onNavigateToMyVideos()
+    fun onLogException(e: Exception)
 }
 
 
 sealed class RumbleEvent {
     data class NavigateToVideoDetailsFromNotification(val videoEntity: VideoEntity) : RumbleEvent()
-    object NavigateToMyVideos : RumbleEvent()
-    object UnexpectedError : RumbleEvent()
-    object PipModeEntered : RumbleEvent()
-    object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
-    object CloseApp : RumbleEvent()
-    object PremiumPurchased : RumbleEvent()
+    data object NavigateToMyVideos : RumbleEvent()
+    data object UnexpectedError : RumbleEvent()
+    data object PipModeEntered : RumbleEvent()
+    data object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
+    data object CloseApp : RumbleEvent()
+    data object PremiumPurchased : RumbleEvent()
     data class OpenWebView(val url: String) : RumbleEvent()
     data class ShowSnackbar(
         val message: String,
@@ -119,16 +120,16 @@ sealed class RumbleEvent {
 }
 
 sealed class RumbleActivityAlertReason : AlertDialogReason {
-    object VideoDetailsFromNotificationFailedReason : RumbleActivityAlertReason()
-    object DeleteWatchHistoryConfirmationReason : RumbleActivityAlertReason()
+    data object VideoDetailsFromNotificationFailedReason : RumbleActivityAlertReason()
+    data object DeleteWatchHistoryConfirmationReason : RumbleActivityAlertReason()
     data class DeletePlayListConfirmationReason(val playListId: String) :
         RumbleActivityAlertReason()
 
     data class UnfollowConfirmationReason(val channel: ChannelDetailsEntity) :
         RumbleActivityAlertReason()
 
-    object PremiumPurchaseMade : RumbleActivityAlertReason()
-    object SubscriptionNotAvailable : RumbleActivityAlertReason()
+    data object PremiumPurchaseMade : RumbleActivityAlertReason()
+    data object SubscriptionNotAvailable : RumbleActivityAlertReason()
 }
 
 data class ActivityHandlerState(
@@ -187,6 +188,10 @@ class RumbleActivityViewModel @Inject constructor(
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())
         }
         loadNotificationState()
+    }
+
+    override fun onLogException(e: Exception) {
+        unhandledErrorUseCase(TAG, e)
     }
 
     override fun onPlayerTargetChanged(currentTarget: PlayerTarget) {
