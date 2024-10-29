@@ -28,6 +28,7 @@ android {
         applicationId "com.rumble.firetv"
         buildConfigField "String", "REQUEST_PARAM_APP_NAME", '"com.rumble.firetv.app"'
         buildConfigField "String", "METADATA_BUNDLE_ID", '"com.rumble.firetv"'
+        buildConfigField "String", "APPS_FLYER_API_ID", '""'
     }
     signingConfigs {
         debugKey {

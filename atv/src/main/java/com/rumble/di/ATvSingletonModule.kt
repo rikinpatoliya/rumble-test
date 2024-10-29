@@ -2,6 +2,7 @@ package com.rumble.di
 
 import android.os.Build
 import com.rumble.battles.BuildConfig
+import com.rumble.network.di.AppFlyerId
 import com.rumble.network.di.AppName
 import com.rumble.network.di.AppRequestName
 import com.rumble.network.di.AppStoreUrl
@@ -62,4 +63,9 @@ class ATvSingletonModule {
     @Provides
     @Singleton
     fun provideAppStoreUrl() = "https://play.google.com/store/apps/details?id=com.rumble.battles"
+
+    @AppFlyerId
+    @Singleton
+    @Provides
+    fun provideAppFlyerId(): String = BuildConfig.APPS_FLYER_API_ID
 }

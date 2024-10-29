@@ -2,6 +2,7 @@ package com.rumble.di
 
 import android.os.Build
 import com.rumble.firetv.BuildConfig
+import com.rumble.network.di.AppFlyerId
 import com.rumble.network.di.AppName
 import com.rumble.network.di.AppRequestName
 import com.rumble.network.di.AppStoreUrl
@@ -63,4 +64,9 @@ class FTvSingletonModule {
     @Provides
     @Singleton
     fun provideAppStoreUrl() = "https://www.amazon.com/Rumble-Inc/dp/B08K9FXY9B"
+
+    @AppFlyerId
+    @Singleton
+    @Provides
+    fun provideAppFlyerId(): String = BuildConfig.APPS_FLYER_API_ID
 }

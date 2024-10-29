@@ -53,6 +53,12 @@ class AnalyticsManager @Inject constructor(
             .i("%s : %s", event.eventName, event.firebaseOps)
     }
 
+    fun setUserProperty(userProperty: AnalyticUserProperty) {
+        Firebase.analytics.setUserProperty(userProperty.propertyName, userProperty.propertyValue)
+        Timber.tag(RumbleConstants.RUMBLE_ANALYTICS_TAG)
+            .i("%s : %s", userProperty.propertyName, userProperty.propertyValue)
+    }
+
     private fun setCustomKeys(
         tag: String,
         requestUrl: String,
