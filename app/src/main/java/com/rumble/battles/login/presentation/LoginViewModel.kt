@@ -11,6 +11,7 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
+import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
