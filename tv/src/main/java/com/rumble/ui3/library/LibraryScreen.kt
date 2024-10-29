@@ -91,10 +91,10 @@ import com.rumble.theme.RumbleTvTypography.labelRegularTv
 import com.rumble.theme.browseGridColumnStartPadding
 import com.rumble.theme.browseLeftNavMenuItemHeight
 import com.rumble.theme.browseLeftNavMenuWidth
-import com.rumble.theme.enforcedGray950
 import com.rumble.theme.enforcedBone
 import com.rumble.theme.enforcedCloud
 import com.rumble.theme.enforcedDarkmo
+import com.rumble.theme.enforcedGray950
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
@@ -172,8 +172,17 @@ fun LibraryScreen(
 
     val lazyColumnState = rememberTvLazyListState()
 
-
-    if (state.loggedIn.not()) {
+    if (state.fetchingLoggedInState) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            RumbleProgressIndicator()
+        }
+    } else if (state.loggedIn.not()) {
         NotLoggedIn(focusRequester) { onNavigateToLogin() }
     } else {
         Row(
