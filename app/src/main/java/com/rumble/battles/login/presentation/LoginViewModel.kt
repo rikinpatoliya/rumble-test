@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.battles.navigation.LandingPath
+import com.rumble.battles.navigation.LandingScreens
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
@@ -29,7 +30,11 @@ sealed class LoginScreenVmEvent {
     data class Error(val errorMessage: String? = null) : LoginScreenVmEvent()
     data object UserNamePasswordError : LoginScreenVmEvent()
     data object NavigateToHomeScreen : LoginScreenVmEvent()
-    data class NavigateToAgeVerification(val onStartLogin: Boolean) : LoginScreenVmEvent()
+    data class NavigateToAgeVerification(
+        val popOnAgeVerification: Boolean,
+        val popUpToRoute: String?
+    ) : LoginScreenVmEvent()
+
     data object NavigateBack : LoginScreenVmEvent()
 }
 
@@ -106,16 +111,23 @@ class LoginViewModel @Inject constructor(
                 ) {
                     /*TODO uncomment once age verification is added back*/
 //                    // verify age restrictions
-                    val profileResult = getUserProfileUseCase()
-                    if (profileResult.success) {
-                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
-                        if (birthday == null || birthdayValidationUseCase(birthday).first) {
-                            emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
-                            return@launch
-                        }
-                        emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
-                        return@launch
-                    }
+//                    val profileResult = getUserProfileUseCase()
+//                    if (profileResult.success) {
+//                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
+//                        if (birthday == null || birthdayValidationUseCase(birthday).first) {
+//                            emitVmEvent(
+//                                LoginScreenVmEvent.NavigateToAgeVerification(
+//                                    !onStartLogin,
+//                                    if (!onStartLogin) {
+//                                        LandingScreens.LoginScreen.getPath(false)
+//                                    } else {
+//                                        null
+//                                    }
+//                                )
+//                            )
+//                            return@launch
+//                        }
+//                    }
                     handleNavigation()
                 } else {
                     state.value = currentState.copy(loading = false)

@@ -57,7 +57,7 @@ interface AgeVerificationHandler {
 sealed class AgeVerificationScreenVmEvent {
     data class Error(val errorMessage: String? = null) : AgeVerificationScreenVmEvent()
     object NavigateToHomeScreen : AgeVerificationScreenVmEvent()
-    object NavigateBack : AgeVerificationScreenVmEvent()
+    data class NavigateBack(val popUpToRoute: String?) : AgeVerificationScreenVmEvent()
     data class NavigateToWebView(val url: String) : AgeVerificationScreenVmEvent()
 }
 
@@ -90,7 +90,9 @@ class AgeVerificationViewModel @Inject constructor(
     stateHandle: SavedStateHandle
 ) : ViewModel(), AgeVerificationHandler {
 
-    private val popOnAgeVerification = stateHandle.get<String>(LandingPath.POP_ON_AGE_VERIFICATION.path)?.toBoolean() ?: false
+    private val popOnAgeVerification =
+        stateHandle.get<Boolean>(LandingPath.POP_ON_AGE_VERIFICATION.path) ?: false
+    private val popUpToRoute = stateHandle.get<String?>(LandingPath.POP_UP_TO_ROUTE.path)
 
     private var userProfileEntity: UserProfileEntity =
         UserProfileEntity(
@@ -203,42 +205,39 @@ class AgeVerificationViewModel @Inject constructor(
         if (validInput(userProfileEntity)) {
             viewModelScope.launch(errorHandler) {
                 uiState.update { it.copy(loading = true) }
-                delay(2000)
-                uiState.update { it.copy(loading = false) }
-                if (popOnAgeVerification) {
-                    emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack)
-                } else {
-                    emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
-                }
 
-//                when (val updateUserProfileResult = updateUserProfileUseCase(userProfileEntity)) {
-//                    is UpdateUserProfileResult.Success -> {
-//                        uiState.update { it.copy(loading = false) }
-//                        if (popOnAgeVerification) {
-//                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack)
-//                        } else {
-//                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
-//                        }
-//                    }
-//
-//                    is UpdateUserProfileResult.Error -> {
-//                        uiState.update { it.copy(loading = false) }
-//                        emitVmEvent(
-//                            AgeVerificationScreenVmEvent.Error(
-//                                errorMessage = updateUserProfileResult.rumbleError.message
-//                            )
-//                        )
-//                    }
-//
-//                    is UpdateUserProfileResult.FormError -> {
-//                        uiState.update { it.copy(loading = false) }
-//                        emitVmEvent(
-//                            AgeVerificationScreenVmEvent.Error(
-//                                errorMessage = updateUserProfileResult.birthdayErrorMessage
-//                            )
-//                        )
-//                    }
-//                }
+                when (val updateUserProfileResult = updateUserProfileUseCase(userProfileEntity)) {
+                    is UpdateUserProfileResult.Success -> {
+                        uiState.update { it.copy(loading = false) }
+                        if (popOnAgeVerification) {
+                            if (!popUpToRoute.isNullOrBlank()) {
+                                emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack(popUpToRoute))
+                            } else {
+                                emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack(null))
+                            }
+                        } else {
+                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
+                        }
+                    }
+
+                    is UpdateUserProfileResult.Error -> {
+                        uiState.update { it.copy(loading = false) }
+                        emitVmEvent(
+                            AgeVerificationScreenVmEvent.Error(
+                                errorMessage = updateUserProfileResult.rumbleError.message
+                            )
+                        )
+                    }
+
+                    is UpdateUserProfileResult.FormError -> {
+                        uiState.update { it.copy(loading = false) }
+                        emitVmEvent(
+                            AgeVerificationScreenVmEvent.Error(
+                                errorMessage = updateUserProfileResult.birthdayErrorMessage
+                            )
+                        )
+                    }
+                }
             }
         }
     }

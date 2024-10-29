@@ -70,6 +70,7 @@ fun AuthLandingScreen(
     onNavigateToAgeVerification: () -> Unit
 ) {
     val state by loginHandler.state
+    val authState by authHandler.state
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
     val googleResult =
@@ -233,7 +234,7 @@ fun AuthLandingScreen(
         }
     }
 
-    if (state.loading) {
+    if (state.loading || authState.loading) {
         RumbleProgressIndicatorWithDimmedBackground()
     }
 

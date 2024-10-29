@@ -81,7 +81,7 @@ fun AgeVerificationScreen(
     ageVerificationHandler: AgeVerificationHandler,
     activityHandler: RumbleActivityHandler,
     onNavigateToHomeScreen: () -> Unit,
-    onNavigateBack: () -> Unit,
+    onNavigateBack: (popUpToRoute: String?) -> Unit,
     onNavigateToWebView: (String) -> Unit
 ) {
     val state by ageVerificationHandler.uiState.collectAsStateWithLifecycle()
@@ -119,7 +119,7 @@ fun AgeVerificationScreen(
 
                 is AgeVerificationScreenVmEvent.NavigateBack -> {
                     lifecycle.removeObserver(observer)
-                    onNavigateBack()
+                    onNavigateBack(event.popUpToRoute)
                 }
 
                 is AgeVerificationScreenVmEvent.NavigateToWebView -> {

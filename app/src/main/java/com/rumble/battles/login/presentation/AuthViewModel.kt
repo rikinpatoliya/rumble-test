@@ -95,6 +95,7 @@ class AuthViewModel @Inject constructor(
 
     override fun onGoogleSignIn(task: Task<GoogleSignInAccount>) {
         if (task.isSuccessful) {
+            state.value = state.value.copy(loading = true)
             val account = task.getResult(ApiException::class.java)
             val userId = account.id ?: ""
             val token = account.idToken ?: ""
@@ -102,17 +103,16 @@ class AuthViewModel @Inject constructor(
                 val result = ssoLoginUseCase(LoginType.GOOGLE, userId = userId, token = token)
                 if (result.success) {
                     /*TODO uncomment once age verification is added back*/
-                    // for sso login, verify age restrictions
-                    state.value = state.value.copy(loading = true)
-                    val profileResult = getUserProfileUseCase()
-                    if (profileResult.success) {
-                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
-                        if (birthdayValidationUseCase(birthday).first) {
-                            state.value = state.value.copy(loading = false)
-                            emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
-                            return@launch
-                        }
-                    }
+//                    // for sso login, verify age restrictions
+//                    val profileResult = getUserProfileUseCase()
+//                    if (profileResult.success) {
+//                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
+//                        if (birthdayValidationUseCase(birthday).first) {
+//                            state.value = state.value.copy(loading = false)
+//                            emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
+//                            return@launch
+//                        }
+//                    }
                     state.value = state.value.copy(loading = false)
                     emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
                 } else if (result.error == UNABLE_TO_FIND_USER_ERROR) {
@@ -160,16 +160,16 @@ class AuthViewModel @Inject constructor(
                 ).success
             ) {
                 /*TODO uncomment once age verification is added back*/
-                // for sso login, verify age restrictions
-                val profileResult = getUserProfileUseCase()
-                if (profileResult.success) {
-                    val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
-                    if (birthdayValidationUseCase(birthday).first) {
-                        state.value = state.value.copy(loading = false)
-                        emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
-                        return@launch
-                    }
-                }
+//                // for sso login, verify age restrictions
+//                val profileResult = getUserProfileUseCase()
+//                if (profileResult.success) {
+//                    val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
+//                    if (birthdayValidationUseCase(birthday).first) {
+//                        state.value = state.value.copy(loading = false)
+//                        emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
+//                        return@launch
+//                    }
+//                }
                 state.value = state.value.copy(loading = false)
                 emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
             } else {

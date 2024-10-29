@@ -108,7 +108,8 @@ class RumbleMainActivity : FragmentActivity() {
         super.onUserLeaveHint()
         lifecycleScope.launch(Dispatchers.Main) {
             if (viewModel.pipIsAvailable(packageManager) &&
-                this@RumbleMainActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                this@RumbleMainActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+            ) {
                 try {
                     enterPictureInPictureMode(PictureInPictureParams.Builder().build())
                 } catch (e: Exception) {
@@ -168,6 +169,7 @@ class RumbleMainActivity : FragmentActivity() {
                             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                         }
                     }
+
                     is RumbleEvent.OpenWebView -> {
                         navController.navigate(
                             LandingScreens.RumbleWebViewScreen.getPath(
@@ -340,7 +342,17 @@ class RumbleMainActivity : FragmentActivity() {
             }
             composable(
                 LandingScreens.AgeVerificationScreen.screenName,
-                arguments = listOf(navArgument(LandingPath.ON_START.path) { defaultValue = false })
+                arguments = listOf(
+                    navArgument(LandingPath.POP_ON_AGE_VERIFICATION.path) {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                    navArgument(LandingPath.POP_UP_TO_ROUTE.path) {
+                        type = NavType.StringType
+                        defaultValue = null
+                        nullable = true
+                    }
+                )
             ) {
                 val ageVerificationViewModel: AgeVerificationViewModel = hiltViewModel()
                 AgeVerificationScreen(
@@ -353,8 +365,12 @@ class RumbleMainActivity : FragmentActivity() {
                             }
                         }
                     },
-                    onNavigateBack = {
-                        navController.popBackStack()
+                    onNavigateBack = { popUpToRoute ->
+                        if (!popUpToRoute.isNullOrBlank()) {
+                            navController.popBackStack(popUpToRoute, true)
+                        } else {
+                            navController.popBackStack()
+                        }
                     },
                     onNavigateToWebView = {
                         navController.navigate(

@@ -178,7 +178,10 @@ fun BottomSheetOverNavBarContent(
                     onHideBottomSheet()
                     onNavigateToRegistration(loginType.value.toString(), userId, token, email)
                 },
-                onNavigateToAgeVerification = onNavigateToAgeVerification
+                onNavigateToAgeVerification = {
+                    onHideBottomSheet()
+                    onNavigateToAgeVerification()
+                }
             )
         }
 
