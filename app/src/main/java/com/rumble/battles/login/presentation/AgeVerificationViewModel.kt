@@ -210,11 +210,7 @@ class AgeVerificationViewModel @Inject constructor(
                     is UpdateUserProfileResult.Success -> {
                         uiState.update { it.copy(loading = false) }
                         if (popOnAgeVerification) {
-                            if (!popUpToRoute.isNullOrBlank()) {
-                                emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack(popUpToRoute))
-                            } else {
-                                emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack(null))
-                            }
+                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack(popUpToRoute))
                         } else {
                             emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
                         }
