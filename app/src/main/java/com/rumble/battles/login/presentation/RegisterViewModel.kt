@@ -68,8 +68,8 @@ interface RegisterHandler {
 
 sealed class RegistrationScreenVmEvent {
     data class Error(val errorMessage: String? = null) : RegistrationScreenVmEvent()
-    object NavigateToHomeScreen : RegistrationScreenVmEvent()
-    object NavigateToAgeVerification : RegistrationScreenVmEvent()
+    data object NavigateToHomeScreen : RegistrationScreenVmEvent()
+    data object NavigateToAgeVerification : RegistrationScreenVmEvent()
     data class NavigateToWebView(val url: String) : RegistrationScreenVmEvent()
 }
 

@@ -36,7 +36,7 @@ interface PasswordResetHandler {
 }
 
 sealed class PasswordResetVmEvent {
-    object ShowSuccess : PasswordResetVmEvent()
+    data object ShowSuccess : PasswordResetVmEvent()
 }
 
 private const val TAG = "PasswordResetViewModel"

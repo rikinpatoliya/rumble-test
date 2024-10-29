@@ -18,11 +18,9 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -44,9 +42,7 @@ import com.rumble.battles.commonViews.RumbleInputFieldView
 import com.rumble.battles.commonViews.RumbleLogoView
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.TransparentStatusBar
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
-import com.rumble.theme.RumbleTheme
+import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.enforcedBone
 import com.rumble.theme.enforcedDarkmo
@@ -61,20 +57,20 @@ import com.rumble.theme.paddingXLarge
 @Composable
 fun PasswordResetScreen(
     passwordResetHandler: PasswordResetHandler,
+    activityHandler: RumbleActivityHandler,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val snackBarHostState = remember { SnackbarHostState() }
 
     val state by passwordResetHandler.state
     val userNameEmailError by passwordResetHandler.userNameEmailError
 
-    LaunchedEffect(passwordResetHandler.vmEvents) {
+    LaunchedEffect(Unit) {
         passwordResetHandler.vmEvents.collect { event ->
             when (event) {
                 is PasswordResetVmEvent.ShowSuccess -> {
-                    snackBarHostState.showRumbleSnackbar(
+                    activityHandler.showSnackbar(
                         message = context.getString(R.string.password_reset_success_message)
                     )
                 }
@@ -215,9 +211,5 @@ fun PasswordResetScreen(
         ) {
             RumbleProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
-    }
-
-    RumbleTheme(darkTheme = true) {
-        RumbleSnackbarHost(snackBarHostState)
     }
 }

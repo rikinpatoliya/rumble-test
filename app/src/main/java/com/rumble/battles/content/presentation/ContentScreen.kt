@@ -1030,6 +1030,7 @@ private fun createNavigationGraph(
             val referralsViewModel: ReferralsViewModel = hiltViewModel()
             ReferralsScreen(
                 handler = referralsViewModel,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() },
                 onChannelClick = { channelId ->
                     currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
