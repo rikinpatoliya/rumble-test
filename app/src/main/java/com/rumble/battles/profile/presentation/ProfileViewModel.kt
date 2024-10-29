@@ -76,6 +76,7 @@ sealed class ProfileAlertDialogReason : AlertDialogReason {
 sealed class ProfileScreenEvent {
     data object Error : ProfileScreenEvent()
     data class CopyVersionToClipboard(val version: String) : ProfileScreenEvent()
+    data object NavigateHome: ProfileScreenEvent()
 }
 
 private const val TAG = "ProfileViewModel"
@@ -146,6 +147,7 @@ class ProfileViewModel @Inject constructor(
                 googleSignInClient.signOut()
                 screenSate.value = ProfileScreenState.LoggedOut
             }
+            emitVmEvent(ProfileScreenEvent.NavigateHome)
         }
     }
 

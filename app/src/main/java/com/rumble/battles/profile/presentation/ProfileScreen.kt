@@ -126,6 +126,10 @@ fun ProfileScreen(
                 ProfileScreenEvent.Error -> {
                     contentHandler.onError(null)
                 }
+
+                is ProfileScreenEvent.NavigateHome -> {
+                    contentHandler.onNavigateHome()
+                }
             }
         }
     }
