@@ -6,7 +6,7 @@ object Constant {
 
     // offset percent for vertical grid margin and padding
     const val CHANNEL_DETAILS_OFFSET_PERCENT = 40f
-    const val CHANNEL_DETAILS_OFFSET_PERCENT_COLLAPSED = 30f
+    const val CHANNEL_DETAILS_OFFSET_PERCENT_COLLAPSED = 33f
     const val CHANNEL_OFFSET_PERCENT = 13f
     const val VIEW_ALL_LIVE_OFFSET_PERCENT = 25f
     const val PLAYBACK_ACTIVITY_ARGS = "video"
