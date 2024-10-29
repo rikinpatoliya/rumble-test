@@ -53,10 +53,10 @@
 
     <!-- region Channel Details -->
     <!-- region channel details header row alignment offset -->
-    <dimen name="channel_details_video_row_alignment_offset">242dp</dimen>
-    <dimen name="channel_details_video_row_alignment_offset_collapsed_header">139dp</dimen>
-    <dimen name="channel_details_header_row_alignment_offset">139dp</dimen>
-    <dimen name="channel_details_header_row_alignment_offset_collapsed">36dp</dimen>
+    <dimen name="channel_details_video_row_alignment_offset">207dp</dimen>
+    <dimen name="channel_details_video_row_alignment_offset_collapsed_header">100dp</dimen>
+    <dimen name="channel_details_header_row_alignment_offset">107dp</dimen>
+    <dimen name="channel_details_header_row_alignment_offset_collapsed">12dp</dimen>
     <dimen name="channel_details_empty_row_alignment_offset">313dp</dimen> <!-- 657dp -->
     <!-- endregion -->
     <dimen name="channel_details_header_second_horizontal_guideline">95dp</dimen>
