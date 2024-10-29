@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,13 +64,10 @@ import com.rumble.battles.commonViews.TransparentStatusBar
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.AnnotatedTextAction
 import com.rumble.domain.profile.domainmodel.Gender
-import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.enforcedBone
@@ -109,7 +105,6 @@ fun RegisterScreen(
     val state by registerHandler.uiState.collectAsStateWithLifecycle()
     val alertDialogState by registerHandler.alertDialogState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     var showDatePicker by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
@@ -118,11 +113,11 @@ fun RegisterScreen(
         else onNavigateBack()
     }
 
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(Unit) {
         registerHandler.vmEvents.collect { event ->
             when (event) {
                 is RegistrationScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
+                    activityHandler.showSnackbar(
                         message = event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
@@ -380,10 +375,6 @@ fun RegisterScreen(
                 onAnnotatedTextClicked = activityHandler::onAnnotatedTextClicked,
             )
         }
-    }
-
-    RumbleTheme(darkTheme = true) {
-        RumbleSnackbarHost(snackBarHostState)
     }
 }
 

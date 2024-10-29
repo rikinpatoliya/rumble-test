@@ -4,11 +4,11 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 sealed class LandingScreens(val screenName: String) {
-    object LoginScreen : LandingScreens("LoginScreen?${LandingPath.ON_START.path}={${LandingPath.ON_START.path}}") {
+    data object LoginScreen : LandingScreens("LoginScreen?${LandingPath.ON_START.path}={${LandingPath.ON_START.path}}") {
         fun getPath(onStart: Boolean = false) = "LoginScreen?${LandingPath.ON_START.path}=$onStart"
     }
-    object ContentScreen : LandingScreens("ContentScreen")
-    object RegisterScreen :
+    data object ContentScreen : LandingScreens("ContentScreen")
+    data object RegisterScreen :
         LandingScreens("registration/{${LandingPath.LOGINTYPE.path}}/{${LandingPath.USERID.path}}/{${LandingPath.TOKEN.path}}?email={email}") {
         fun getPath(type: String, userId: String, token: String, email: String): String =
             "registration/${type}/${userId}/${token}?email=${email}"
@@ -19,13 +19,13 @@ sealed class LandingScreens(val screenName: String) {
         fun getPath(type: String): String = "registration/${type}"
     }
 
-    object PasswordResetScreen : LandingScreens("PasswordResetScreen")
-    object AuthLandingScreen : LandingScreens("AuthLandingScreen")
-    object AgeVerificationScreen : LandingScreens("AgeVerificationScreen?${LandingPath.ON_START.path}={${LandingPath.ON_START.path}}") {
+    data object PasswordResetScreen : LandingScreens("PasswordResetScreen")
+    data object AuthLandingScreen : LandingScreens("AuthLandingScreen")
+    data object AgeVerificationScreen : LandingScreens("AgeVerificationScreen?${LandingPath.ON_START.path}={${LandingPath.ON_START.path}}") {
         fun getPath(onStart: Boolean = false) = "AgeVerificationScreen?${LandingPath.ON_START.path}=$onStart"
     }
 
-    object RumbleWebViewScreen : LandingScreens("webView/{${LandingPath.URL.path}}") {
+    data object RumbleWebViewScreen : LandingScreens("webView/{${LandingPath.URL.path}}") {
         fun getPath(url: String): String {
             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
             return "webView/$encodedUrl"

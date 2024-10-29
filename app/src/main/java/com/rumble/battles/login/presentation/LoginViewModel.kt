@@ -11,7 +11,6 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
-import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
@@ -21,16 +20,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class LoginScreenError {
-    object None : LoginScreenError()
-    object InputError : LoginScreenError()
+    data object None : LoginScreenError()
+    data object InputError : LoginScreenError()
 }
 
 sealed class LoginScreenVmEvent {
     data class Error(val errorMessage: String? = null) : LoginScreenVmEvent()
-    object UserNamePasswordError : LoginScreenVmEvent()
-    object NavigateToHomeScreen : LoginScreenVmEvent()
+    data object UserNamePasswordError : LoginScreenVmEvent()
+    data object NavigateToHomeScreen : LoginScreenVmEvent()
     data class NavigateToAgeVerification(val onStartLogin: Boolean) : LoginScreenVmEvent()
-    object NavigateBack : LoginScreenVmEvent()
+    data object NavigateBack : LoginScreenVmEvent()
 }
 
 data class LoginScreenState(

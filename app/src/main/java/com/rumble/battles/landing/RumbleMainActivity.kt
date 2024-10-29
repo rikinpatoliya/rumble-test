@@ -328,9 +328,10 @@ class RumbleMainActivity : FragmentActivity() {
                 )
             }
             composable(LandingScreens.PasswordResetScreen.screenName) {
-                val viewModel: PasswordResetViewModel = hiltViewModel()
+                val passwordResetViewModel: PasswordResetViewModel = hiltViewModel()
                 PasswordResetScreen(
-                    passwordResetHandler = viewModel,
+                    passwordResetHandler = passwordResetViewModel,
+                    activityHandler = viewModel,
                     onBack = navController::navigateUp,
                 )
             }

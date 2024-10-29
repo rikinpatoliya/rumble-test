@@ -15,11 +15,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -49,11 +47,8 @@ import com.rumble.battles.commonViews.RumbleAuthTopAppBar
 import com.rumble.battles.commonViews.RumbleInputFieldView
 import com.rumble.battles.commonViews.RumbleProgressIndicatorWithDimmedBackground
 import com.rumble.battles.commonViews.TransparentStatusBar
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.navigation.LandingScreens
-import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.enforcedBone
 import com.rumble.theme.enforcedDarkmo
@@ -85,7 +80,6 @@ fun LoginScreen(
     val userNameEmailError by loginHandler.userNameEmailError
     val passwordError by loginHandler.passwordError
     val focusManager = LocalFocusManager.current
-    val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val callbackManager = CallbackManager.Factory.create()
     LoginManager.getInstance().registerCallback(callbackManager, authHandler)
@@ -109,14 +103,16 @@ fun LoginScreen(
                 }
 
                 is LoginScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
+                    activityHandler.showSnackbar(
                         message = event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
                 }
 
                 is LoginScreenVmEvent.UserNamePasswordError -> {
-                    snackBarHostState.showRumbleSnackbar(message = context.getString(R.string.user_name_password_incorrect))
+                    activityHandler.showSnackbar(
+                        message = context.getString(R.string.user_name_password_incorrect)
+                    )
                 }
 
                 is LoginScreenVmEvent.NavigateBack -> {
@@ -141,7 +137,7 @@ fun LoginScreen(
                 }
 
                 is AuthHandlerEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
+                    activityHandler.showSnackbar(
                         message = event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
@@ -279,9 +275,5 @@ fun LoginScreen(
 
     if (state.loading) {
         RumbleProgressIndicatorWithDimmedBackground()
-    }
-
-    RumbleTheme(darkTheme = true) {
-        RumbleSnackbarHost(snackBarHostState)
     }
 }
