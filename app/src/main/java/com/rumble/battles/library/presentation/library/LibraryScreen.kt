@@ -40,6 +40,7 @@ import com.rumble.battles.library.presentation.playlist.PlayListTypeRefresh
 import com.rumble.battles.library.presentation.views.LibrarySectionView
 import com.rumble.battles.library.presentation.views.PlayListsSectionView
 import com.rumble.battles.login.presentation.AuthHandler
+import com.rumble.battles.login.presentation.AuthHandlerEvent
 import com.rumble.battles.login.presentation.AuthPlaceholderScreen
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
@@ -69,6 +70,7 @@ fun LibraryScreen(
     bottomSheetState: ModalBottomSheetState,
     onViewNotifications: () -> Unit,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
+    onNavigateToAgeVerification: () -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
 
@@ -120,6 +122,18 @@ fun LibraryScreen(
         libraryHandler.eventFlow.collectLatest {
             when (it) {
                 is LibraryScreenVmEvent.PlayVideo -> onVideoClick(it.videoEntity)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        authHandler.eventFlow.collectLatest { event ->
+            when (event) {
+                is AuthHandlerEvent.NavigateToAgeVerification -> {
+                    onNavigateToAgeVerification()
+                }
+
+                else -> return@collectLatest
             }
         }
     }

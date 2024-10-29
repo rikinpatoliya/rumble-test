@@ -62,6 +62,7 @@ fun AuthBottomSheet(
     onEmailLogin: () -> Unit = {},
     onError: (String?) -> Unit = {},
     onNavigateToRegistration: (LoginType, String, String, String) -> Unit = { _, _, _, _ -> },
+    onNavigateToAgeVerification: () -> Unit,
 ) {
     val context = LocalContext.current
     val googleResult =
@@ -90,6 +91,10 @@ fun AuthBottomSheet(
 
                 is AuthHandlerEvent.Error -> {
                     onError(event.errorMessage)
+                }
+
+                is AuthHandlerEvent.NavigateToAgeVerification -> {
+                    onNavigateToAgeVerification()
                 }
 
                 else -> return@collectLatest

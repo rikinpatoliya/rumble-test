@@ -57,6 +57,7 @@ import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.login.presentation.AuthHandler
+import com.rumble.battles.login.presentation.AuthHandlerEvent
 import com.rumble.battles.login.presentation.AuthPlaceholderScreen
 import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.battles.profile.presentation.views.ProfileFollowingView
@@ -82,6 +83,7 @@ import com.rumble.theme.paddingXLarge
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.conditional
+import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
 @Composable
@@ -92,6 +94,7 @@ fun ProfileScreen(
     onProfileItemClicked: (navigationId: String) -> Unit,
     contentHandler: ContentHandler,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
+    onNavigateToAgeVerification: () -> Unit,
     onNavigateToLogin: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onViewNotifications: () -> Unit,
@@ -130,6 +133,18 @@ fun ProfileScreen(
                 is ProfileScreenEvent.NavigateHome -> {
                     contentHandler.onNavigateHome()
                 }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        authHandler.eventFlow.collectLatest { event ->
+            when (event) {
+                is AuthHandlerEvent.NavigateToAgeVerification -> {
+                    onNavigateToAgeVerification()
+                }
+
+                else -> return@collectLatest
             }
         }
     }

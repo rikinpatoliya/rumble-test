@@ -442,6 +442,11 @@ fun ContentScreen(
                         )
                     )
                 },
+                onNavigateToAgeVerification = {
+                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
+                        popOnAgeVerification = true
+                    ))
+                }
             )
         }) {
         Scaffold(
@@ -934,6 +939,11 @@ private fun createNavigationGraph(
                         )
                     )
                 },
+                onNavigateToAgeVerification = {
+                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
+                        popOnAgeVerification = true
+                    ))
+                },
                 onNavigateToLogin = {
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
                 }
@@ -1078,6 +1088,11 @@ private fun createNavigationGraph(
                             email
                         )
                     )
+                },
+                onNavigateToAgeVerification = {
+                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
+                        popOnAgeVerification = true
+                    ))
                 },
                 onNavigateToLogin = {
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
@@ -1373,6 +1388,11 @@ private fun createNavigationGraph(
                             email
                         )
                     )
+                },
+                onNavigateToAgeVerification = {
+                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
+                        popOnAgeVerification = true
+                    ))
                 },
                 onNavigateToLogin = {
                     parentController.navigate(LandingScreens.LoginScreen.getPath())

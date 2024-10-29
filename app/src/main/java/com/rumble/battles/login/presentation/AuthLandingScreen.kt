@@ -66,9 +66,11 @@ fun AuthLandingScreen(
     activityHandler: RumbleActivityHandler,
     onEmailLogin: () -> Unit,
     onNavigateToHome: () -> Unit,
-    onNavigateToRegistration: (String, String, String, String) -> Unit
+    onNavigateToRegistration: (String, String, String, String) -> Unit,
+    onNavigateToAgeVerification: () -> Unit
 ) {
     val state by loginHandler.state
+    val authState by authHandler.state
     val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
     val googleResult =
@@ -121,6 +123,10 @@ fun AuthLandingScreen(
                 is AuthHandlerEvent.NavigateToHomeScreen -> {
                     activityHandler.loadNotificationState()
                     onNavigateToHome()
+                }
+
+                AuthHandlerEvent.NavigateToAgeVerification -> {
+                    onNavigateToAgeVerification()
                 }
             }
         }
@@ -228,7 +234,7 @@ fun AuthLandingScreen(
         }
     }
 
-    if (state.loading) {
+    if (state.loading || authState.loading) {
         RumbleProgressIndicatorWithDimmedBackground()
     }
 

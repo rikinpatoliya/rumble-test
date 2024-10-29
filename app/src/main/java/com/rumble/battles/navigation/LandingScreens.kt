@@ -21,8 +21,11 @@ sealed class LandingScreens(val screenName: String) {
 
     data object PasswordResetScreen : LandingScreens("PasswordResetScreen")
     data object AuthLandingScreen : LandingScreens("AuthLandingScreen")
-    data object AgeVerificationScreen : LandingScreens("AgeVerificationScreen?${LandingPath.ON_START.path}={${LandingPath.ON_START.path}}") {
-        fun getPath(onStart: Boolean = false) = "AgeVerificationScreen?${LandingPath.ON_START.path}=$onStart"
+    data object AgeVerificationScreen : LandingScreens(
+        "AgeVerificationScreen/{${LandingPath.POP_ON_AGE_VERIFICATION.path}}/{${LandingPath.POP_UP_TO_ROUTE.path}}"
+    ) {
+        fun getPath(popOnAgeVerification: Boolean = false, popUpToRoute: String? = null) =
+            "AgeVerificationScreen/${popOnAgeVerification}/${popUpToRoute}"
     }
 
     data object RumbleWebViewScreen : LandingScreens("webView/{${LandingPath.URL.path}}") {
@@ -39,5 +42,7 @@ enum class LandingPath(val path: String) {
     TOKEN("token"),
     EMAIL("email"),
     ON_START("onStart"),
+    POP_ON_AGE_VERIFICATION("popOnAgeVerification"),
+    POP_UP_TO_ROUTE("popUpToRoute"),
     URL("url"),
 }

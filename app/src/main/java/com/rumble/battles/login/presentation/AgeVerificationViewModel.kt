@@ -25,6 +25,7 @@ import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -56,7 +57,7 @@ interface AgeVerificationHandler {
 sealed class AgeVerificationScreenVmEvent {
     data class Error(val errorMessage: String? = null) : AgeVerificationScreenVmEvent()
     object NavigateToHomeScreen : AgeVerificationScreenVmEvent()
-    object NavigateBack : AgeVerificationScreenVmEvent()
+    data class NavigateBack(val popUpToRoute: String?) : AgeVerificationScreenVmEvent()
     data class NavigateToWebView(val url: String) : AgeVerificationScreenVmEvent()
 }
 
@@ -89,7 +90,9 @@ class AgeVerificationViewModel @Inject constructor(
     stateHandle: SavedStateHandle
 ) : ViewModel(), AgeVerificationHandler {
 
-    private val onStartLogin = stateHandle.get<Boolean>(LandingPath.ON_START.path) ?: true
+    private val popOnAgeVerification =
+        stateHandle.get<Boolean>(LandingPath.POP_ON_AGE_VERIFICATION.path) ?: false
+    private val popUpToRoute = stateHandle.get<String?>(LandingPath.POP_UP_TO_ROUTE.path)
 
     private var userProfileEntity: UserProfileEntity =
         UserProfileEntity(
@@ -202,13 +205,14 @@ class AgeVerificationViewModel @Inject constructor(
         if (validInput(userProfileEntity)) {
             viewModelScope.launch(errorHandler) {
                 uiState.update { it.copy(loading = true) }
+
                 when (val updateUserProfileResult = updateUserProfileUseCase(userProfileEntity)) {
                     is UpdateUserProfileResult.Success -> {
                         uiState.update { it.copy(loading = false) }
-                        if (onStartLogin) {
-                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
+                        if (popOnAgeVerification) {
+                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack(popUpToRoute))
                         } else {
-                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateBack)
+                            emitVmEvent(AgeVerificationScreenVmEvent.NavigateToHomeScreen)
                         }
                     }
 

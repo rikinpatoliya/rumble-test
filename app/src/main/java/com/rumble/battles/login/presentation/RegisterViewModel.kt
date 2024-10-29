@@ -124,7 +124,6 @@ class RegisterViewModel @Inject constructor(
     private val birthdayValidationUseCase: BirthdayValidationUseCase,
     private val sendEmailUseCase: SendEmailUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
-    private val getUserProfileUseCase: GetUserProfileUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
     stateHandle: SavedStateHandle
 ) : ViewModel(), RegisterHandler {
@@ -281,22 +280,7 @@ class RegisterViewModel @Inject constructor(
                                     loading = false
                                 )
                             }
-                            if (userRegistrationEntity.loginType == LoginType.RUMBLE) {
-                                emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
-                            } else {
-                                /*TODO uncomment once age verification is added back*/
-//                                // for sso login, verify age restrictions
-//                                val profileResult = getUserProfileUseCase()
-//                                if (profileResult.success) {
-//                                    val birthday =
-//                                        profileResult.userProfileEntity?.birthday?.toUtcLong()
-//                                    if (birthday == null || birthdayValidationUseCase(birthday).first) {
-//                                        emitVmEvent(RegistrationScreenVmEvent.NavigateToAgeVerification)
-//                                        return@launch
-//                                    }
-//                                }
-                                emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
-                            }
+                            emitVmEvent(RegistrationScreenVmEvent.NavigateToHomeScreen)
                         } else {
                             emitVmEvent(RegistrationScreenVmEvent.Error(errorMessage = loginResult.error))
                         }

@@ -7,10 +7,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.battles.navigation.LandingPath
+import com.rumble.battles.navigation.LandingScreens
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
+import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
@@ -28,7 +30,11 @@ sealed class LoginScreenVmEvent {
     data class Error(val errorMessage: String? = null) : LoginScreenVmEvent()
     data object UserNamePasswordError : LoginScreenVmEvent()
     data object NavigateToHomeScreen : LoginScreenVmEvent()
-    data class NavigateToAgeVerification(val onStartLogin: Boolean) : LoginScreenVmEvent()
+    data class NavigateToAgeVerification(
+        val popOnAgeVerification: Boolean,
+        val popUpToRoute: String?
+    ) : LoginScreenVmEvent()
+
     data object NavigateBack : LoginScreenVmEvent()
 }
 
@@ -109,7 +115,16 @@ class LoginViewModel @Inject constructor(
 //                    if (profileResult.success) {
 //                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
 //                        if (birthday == null || birthdayValidationUseCase(birthday).first) {
-//                            emitVmEvent(LoginScreenVmEvent.NavigateToAgeVerification(onStartLogin))
+//                            emitVmEvent(
+//                                LoginScreenVmEvent.NavigateToAgeVerification(
+//                                    !onStartLogin,
+//                                    if (!onStartLogin) {
+//                                        LandingScreens.LoginScreen.getPath(false)
+//                                    } else {
+//                                        null
+//                                    }
+//                                )
+//                            )
 //                            return@launch
 //                        }
 //                    }

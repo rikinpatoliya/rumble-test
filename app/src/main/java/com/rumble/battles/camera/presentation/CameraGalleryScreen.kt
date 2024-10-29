@@ -78,6 +78,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.login.presentation.AuthHandler
+import com.rumble.battles.login.presentation.AuthHandlerEvent
 import com.rumble.battles.login.presentation.AuthPlaceholderScreen
 import com.rumble.domain.camera.GalleryVideoEntity
 import com.rumble.theme.RumbleTypography.h6Heavy
@@ -102,6 +103,7 @@ import com.rumble.theme.videoPreviewWidth
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.getCameraProvider
 import com.rumble.utils.extension.videoTrimTimerTime
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val SCROLL_TRIGGER = 200
@@ -116,6 +118,7 @@ fun CameraGalleryScreen(
     onOpenCameraMode: () -> Unit,
     onPreviewRecording: (uri: String) -> Unit,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
+    onNavigateToAgeVerification: () -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
     BackHandler {
@@ -205,6 +208,18 @@ fun CameraGalleryScreen(
                 is CameraHandlerVmEvent.PreviewRecording -> onPreviewRecording(event.uri)
                 is CameraHandlerVmEvent.ResetClickHandled -> clickHandled = false
                 else -> {}
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        authHandler.eventFlow.collectLatest { event ->
+            when (event) {
+                is AuthHandlerEvent.NavigateToAgeVerification -> {
+                    onNavigateToAgeVerification()
+                }
+
+                else -> return@collectLatest
             }
         }
     }
