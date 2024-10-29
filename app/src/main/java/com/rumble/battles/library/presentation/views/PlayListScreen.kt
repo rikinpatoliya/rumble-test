@@ -25,7 +25,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Divider
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,8 +71,6 @@ import com.rumble.battles.commonViews.RoundIconButton
 import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
 import com.rumble.battles.commonViews.UserInfoView
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.content.presentation.RestrictedContentDialog
@@ -131,8 +128,6 @@ fun PlayListScreen(
         playListHandler.playListVideosFlow.collectAndHandleState(handleLoadStates = playListHandler::handleLoadState)
     val alertDialogState by playListHandler.alertDialogState
     val listState by playListHandler.listState
-    val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     var isTopBarTitleVisible by remember { mutableStateOf(false) }
 
     val listConnection = object : NestedScrollConnection {
@@ -179,18 +174,13 @@ fun PlayListScreen(
                 }
 
                 is PlayListScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = it.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(it.errorMessage)
                 }
 
                 is PlayListScreenVmEvent.FollowPLayList -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(
-                            if (it.following) R.string.playlist_added_to_library
-                            else R.string.playlist_removed_from_library
-                        )
+                    contentHandler.onShowSnackBar(
+                        if (it.following) R.string.playlist_added_to_library
+                        else R.string.playlist_removed_from_library
                     )
                 }
 
@@ -435,8 +425,6 @@ fun PlayListScreen(
             handler = playListHandler
         )
     }
-
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 @Composable

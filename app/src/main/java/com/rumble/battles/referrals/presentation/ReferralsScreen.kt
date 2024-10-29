@@ -12,11 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,25 +31,21 @@ import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.referrals.presentation.views.ReferralDetailsView
 import com.rumble.battles.referrals.presentation.views.ReferralShareView
 import com.rumble.battles.referrals.presentation.views.ReferralView
 import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.paddingMedium
-import kotlinx.coroutines.launch
 
 @Composable
 fun ReferralsScreen(
     handler: ReferralsHandler,
+    contentHandler: ContentHandler,
     onBackClick: () -> Unit,
     onChannelClick: (channelId: String) -> Unit
 ) {
     val state by handler.state.collectAsStateWithLifecycle()
-    val snackBarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
-    val linkCopiedToClipboard = stringResource(R.string.link_copied_to_clipboard)
 
     ConstraintLayout(
         modifier = Modifier
@@ -60,7 +53,7 @@ fun ReferralsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
-        val (topAppBar, listGroup, shareGroup, snackBarHost) = createRefs()
+        val (topAppBar, listGroup, shareGroup) = createRefs()
 
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.referrals),
@@ -137,11 +130,6 @@ fun ReferralsScreen(
             }
         }
 
-        RumbleSnackbarHost(
-            modifier = Modifier.constrainAs(snackBarHost) { bottom.linkTo(shareGroup.top) },
-            snackBarHostState = snackBarHostState
-        )
-
         Box(modifier = Modifier
             .systemBarsPadding()
             .constrainAs(shareGroup) {
@@ -153,9 +141,7 @@ fun ReferralsScreen(
                 referralUrl = state.referralUrl,
                 onShare = (handler::share),
                 onCopy = {
-                    coroutineScope.launch {
-                        snackBarHostState.showRumbleSnackbar(message = linkCopiedToClipboard)
-                    }
+                    contentHandler.onShowSnackBar(messageId = R.string.link_copied_to_clipboard)
                 }
             )
         }

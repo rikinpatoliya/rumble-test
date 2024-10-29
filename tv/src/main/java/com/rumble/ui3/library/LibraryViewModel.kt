@@ -31,6 +31,7 @@ data class LibraryUiState(
     val focusedVideo: VideoEntity? = null,
     val playLists: Flow<PagingData<PlayListEntity>> = emptyFlow(),
     val videoList: Flow<PagingData<Feed>> = emptyFlow(),
+    val fetchingLoggedInState: Boolean
 )
 
 sealed class ListSelectionType {
@@ -58,7 +59,7 @@ class LibraryViewModel @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
 ) : ViewModel(), LibraryHandler {
 
-    override val state = MutableStateFlow(LibraryUiState())
+    override val state = MutableStateFlow(LibraryUiState(fetchingLoggedInState = true))
     override val eventFlow: MutableSharedFlow<LibraryVmEvent> = MutableSharedFlow()
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
@@ -74,7 +75,10 @@ class LibraryViewModel @Inject constructor(
     private fun initLoggedInState() {
         viewModelScope.launch(errorHandler) {
             sessionManager.cookiesFlow.collectLatest { cookies ->
-                state.value = state.value.copy(loggedIn = cookies.isEmpty().not())
+                state.value = state.value.copy(
+                    loggedIn = cookies.isEmpty().not(),
+                    fetchingLoggedInState = false
+                )
             }
         }
     }
