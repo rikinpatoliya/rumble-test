@@ -743,11 +743,15 @@ class RumblePlayer(
     private fun resumePremiumCountDown(currentValue: Long) {
         if (countDownType.value == CountDownType.FreePreview) {
             val durationToEnd = player.duration - currentValue
-            if (durationToEnd > 0)
-                startPremiumCountDown(
-                    TimeUnit.MILLISECONDS.toSeconds(durationToEnd),
-                    countDownType.value
-                )
+            if (durationToEnd > 0) {
+                _currentCountDownValue.value = TimeUnit.MILLISECONDS.toSeconds(durationToEnd)
+                if (isPlaying()) {
+                    startPremiumCountDown(
+                        _currentCountDownValue.value,
+                        countDownType.value
+                    )
+                }
+            }
             else stopPremiumCountDown()
         }
     }
