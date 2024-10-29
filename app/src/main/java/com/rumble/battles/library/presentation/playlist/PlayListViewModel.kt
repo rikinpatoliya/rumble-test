@@ -81,7 +81,7 @@ interface PlayListHandler : RestrictedVideoHandler, EditPlayListHandler, LazyLis
 sealed class PlayListScreenVmEvent {
     data class FollowPLayList(val following: Boolean) : PlayListScreenVmEvent()
     data class Error(val errorMessage: String? = null) : PlayListScreenVmEvent()
-    object WatchHistoryCleared : PlayListScreenVmEvent()
+    data object WatchHistoryCleared : PlayListScreenVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : PlayListScreenVmEvent()
     data class UpdateChannelSubscription(
         val channelDetailsEntity: ChannelDetailsEntity,
