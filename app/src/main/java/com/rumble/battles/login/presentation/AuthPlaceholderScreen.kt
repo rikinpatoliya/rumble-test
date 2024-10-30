@@ -20,12 +20,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,10 +39,8 @@ import com.rumble.battles.commonViews.IsTablet
 import com.rumble.battles.commonViews.ProviderButton
 import com.rumble.battles.commonViews.RumbleLogoView
 import com.rumble.battles.commonViews.RumbleProgressIndicatorWithDimmedBackground
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.theme.RumbleCustomTheme
-import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography.body1
 import com.rumble.theme.RumbleTypography.h1
 import com.rumble.theme.followingHeaderIconSize
@@ -63,6 +59,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun AuthPlaceholderScreen(
     authHandler: AuthHandler,
+    contentHandler: ContentHandler,
     modifier: Modifier = Modifier,
     onNavigateToRegistration: (String, String, String, String) -> Unit,
     onEmailLogin: () -> Unit,
@@ -70,7 +67,6 @@ fun AuthPlaceholderScreen(
 ) {
     val state by authHandler.state
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     val googleResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK)
@@ -92,10 +88,7 @@ fun AuthPlaceholderScreen(
                 }
 
                 is AuthHandlerEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage)
                 }
 
                 else -> return@collectLatest
@@ -205,9 +198,5 @@ fun AuthPlaceholderScreen(
 
     if (state.loading) {
         RumbleProgressIndicatorWithDimmedBackground()
-    }
-
-    RumbleTheme(darkTheme = true) {
-        RumbleSnackbarHost(snackBarHostState)
     }
 }

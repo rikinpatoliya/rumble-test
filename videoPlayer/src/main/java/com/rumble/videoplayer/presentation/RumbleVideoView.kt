@@ -90,7 +90,7 @@ fun RumbleVideoView(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val exoPlayer = rumblePlayer.getPlayerInstance()
+    val exoPlayer = remember { rumblePlayer.getPlayerInstance() }
     val playbackState by rumblePlayer.playbackState
     val adPlaybackState by rumblePlayer.adPlaybackState
     var showControls by rememberSaveable { mutableStateOf(false) }
@@ -104,6 +104,17 @@ fun RumbleVideoView(
     val hasRelatedVideos by rumblePlayer.hasRelatedVideos
     val currentCountDownValue by rumblePlayer.currentCountDownValue
     val countdownType by rumblePlayer.countDownType
+    val playerView = remember {
+        PlayerView(context).apply {
+            player = exoPlayer
+            useController = false
+            resizeMode = aspectRatioMode
+            hideController()
+            setFullscreenButtonClickListener {
+                onChangeFullscreenMode(it)
+            }
+        }
+    }
 
     val observer = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_PAUSE) {
@@ -171,7 +182,7 @@ fun RumbleVideoView(
                         rumblePlayer.adPlayerView
                             .apply { resizeMode = aspectRatioMode }
                             .also {
-                                if (it.parent != null) {
+                                if (uiType != UiType.TV && it.parent != null) {
                                     (it.parent as? ViewGroup)?.removeView(it)
                                 }
                             }
@@ -209,15 +220,7 @@ fun RumbleVideoView(
                         false
                     },
                 factory = {
-                    PlayerView(context).apply {
-                        player = exoPlayer
-                        useController = false
-                        resizeMode = aspectRatioMode
-                        hideController()
-                        setFullscreenButtonClickListener {
-                            onChangeFullscreenMode(it)
-                        }
-                    }
+                    playerView
                 },
                 update = { playerView ->
                     if (isFullScreen)

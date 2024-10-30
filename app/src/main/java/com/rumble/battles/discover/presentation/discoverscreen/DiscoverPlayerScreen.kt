@@ -33,12 +33,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material3.Divider
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -49,7 +47,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -69,16 +66,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import com.rumble.battles.DiscoverPlayerTag
 import com.rumble.battles.R
-import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.CommentsPopupBottomSheet
 import com.rumble.battles.commonViews.DarkSystemNavigationBar
-import com.rumble.battles.commonViews.dialogs.DialogActionItem
-import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.IsTablet
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.ReportBottomSheet
-import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.SwipeDirection
@@ -86,8 +79,11 @@ import com.rumble.battles.commonViews.SwipeableLikeDislikeView
 import com.rumble.battles.commonViews.TransparentStatusBar
 import com.rumble.battles.commonViews.UploadDateView
 import com.rumble.battles.commonViews.UserNameViewSingleLine
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.commonViews.dialogs.AlertDialogReason
+import com.rumble.battles.commonViews.dialogs.DialogActionItem
+import com.rumble.battles.commonViews.dialogs.DialogActionType
+import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.feed.presentation.views.VerifyEmailBottomSheet
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.feed.domain.domainmodel.Feed
@@ -140,16 +136,15 @@ import kotlin.math.roundToInt
 fun DiscoverPlayerScreen(
     discoverPlayerHandler: DiscoverPlayerHandler,
     activityHandler: RumbleActivityHandler,
+    contentHandler: ContentHandler,
     onBackClick: () -> Unit,
     onVideoClick: (VideoEntity) -> Unit,
     onChannelClick: (id: String) -> Unit = {},
 ) {
     val localView = LocalView.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val snackBarHostState = remember { SnackbarHostState() }
     val bottomSheetState =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
@@ -159,11 +154,14 @@ fun DiscoverPlayerScreen(
     val popupState by discoverPlayerHandler.popupState.collectAsStateWithLifecycle()
     val alertDialogState by discoverPlayerHandler.alertDialogState
     val userName by discoverPlayerHandler.userNameFlow.collectAsStateWithLifecycle(initialValue = "")
-    val userPicture by discoverPlayerHandler.userPictureFlow.collectAsStateWithLifecycle(initialValue = "")
+    val userPicture by discoverPlayerHandler.userPictureFlow.collectAsStateWithLifecycle(
+        initialValue = ""
+    )
     val listState = rememberLazyListState()
 
     val state by discoverPlayerHandler.uiState.collectAsStateWithLifecycle()
-    val videoPagingItems: LazyPagingItems<Feed> = state.videoList.collectAndHandleState(handleLoadStates = discoverPlayerHandler::handleLoadState)
+    val videoPagingItems: LazyPagingItems<Feed> =
+        state.videoList.collectAndHandleState(handleLoadStates = discoverPlayerHandler::handleLoadState)
 
     val pagerState = rememberPagerState {
         videoPagingItems.itemCount
@@ -249,44 +247,44 @@ fun DiscoverPlayerScreen(
         }
     }
 
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(Unit) {
         discoverPlayerHandler.vmEvents.collect { event ->
             when (event) {
                 is DiscoverPlayerVmEvent.DiscoverPlayerError -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
-                            ?: context.getString(R.string.generic_error_message_try_later)
-                    )
+                    contentHandler.onError(event.errorMessage)
                 }
+
                 is DiscoverPlayerVmEvent.ShowBottomSheetPopup -> {
                     coroutineScope.launch {
                         bottomSheetState.show()
                     }
                 }
+
                 is DiscoverPlayerVmEvent.DismissBottomSheetPopup -> {
                     coroutineScope.launch {
                         bottomSheetState.hide()
                     }
                 }
+
                 DiscoverPlayerVmEvent.ShowVideoReportedMessage -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.the_video_has_been_reported)
-                    )
+                    contentHandler.onShowSnackBar(R.string.the_video_has_been_reported)
                 }
+
                 is DiscoverPlayerVmEvent.OpenVideoDetails -> {
                     onVideoClick(event.videoEntity)
                 }
+
                 DiscoverPlayerVmEvent.ShowCommentReportedMessage -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.the_comment_has_been_reported)
-                    )
+                    contentHandler.onShowSnackBar(R.string.the_comment_has_been_reported)
                 }
+
                 DiscoverPlayerVmEvent.ShowEmailVerificationSuccess -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.email_successfully_verified_message),
-                        title = context.getString(R.string.сongratulations),
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.email_successfully_verified_message,
+                        titleId = R.string.сongratulations
                     )
                 }
+
                 DiscoverPlayerVmEvent.HideKeyboard -> focusManager.clearFocus()
                 DiscoverPlayerVmEvent.ShowKeyboard -> keyboardController?.show()
                 is DiscoverPlayerVmEvent.ScrollCommentToIndex -> listState.animateScrollToItem((event.index + 1))
@@ -345,7 +343,6 @@ fun DiscoverPlayerScreen(
                     onBackClick()
                 },
             )
-            RumbleSnackbarHost(snackBarHostState)
 
             if (alertDialogState.show) {
                 DiscoverPlayerDialog(
@@ -376,11 +373,13 @@ private fun DiscoverPlayerScreenDialog(
             rumblePlayer = dialogState.rumblePlayer,
             isTablet = IsTablet()
         )
+
         is DiscoverPlayerDialog.OpenReportVideoPopup -> ReportBottomSheet(
             subtitle = stringResource(id = R.string.why_report_video),
             coroutineScope = coroutineScope,
             bottomSheetState = bottomSheetState,
             onReport = { handler.reportVideo(dialogState.videoEntity, it) })
+
         DiscoverPlayerDialog.OpenCommentsPopup -> {
             CommentsPopupBottomSheet(
                 modifier = Modifier
@@ -396,6 +395,7 @@ private fun DiscoverPlayerScreenDialog(
                 }
             }
         }
+
         DiscoverPlayerDialog.OpenEmailVerificationComment -> {
             VerifyEmailBottomSheet(
                 subtitle = stringResource(id = R.string.verify_your_email_comments),
@@ -405,6 +405,7 @@ private fun DiscoverPlayerScreenDialog(
                 onCheckVerificationStatus = handler::onCheckVerificationStatus,
             )
         }
+
         is DiscoverPlayerDialog.OpenReportCommentPopup -> {
             ReportBottomSheet(
                 subtitle = stringResource(id = R.string.why_report_comment),
@@ -451,7 +452,7 @@ fun DiscoverPlayerItem(
         screenHeight = configuration.screenHeightDp.dp,
         screenWidth = configuration.screenWidthDp.dp,
         videoWidth = videoEntity.videoWidth,
-        videoHeight =videoEntity.videoHeight
+        videoHeight = videoEntity.videoHeight
     )
 
     ConstraintLayout(
@@ -467,7 +468,8 @@ fun DiscoverPlayerItem(
         Divider(modifier = Modifier
             .constrainAs(playerMidYGuideline) {
                 top.linkTo(spacer.bottom)
-            }, color = Color.Transparent, thickness = 1.dp)
+            }, color = Color.Transparent, thickness = 1.dp
+        )
         PlayerUIView(
             modifier = Modifier
                 .fillMaxWidth()
@@ -903,6 +905,7 @@ private fun DiscoverPlayerDialog(reason: AlertDialogReason, handler: DiscoverPla
                 )
             )
         }
+
         is DiscoverPlayerAlertReason.ShowEmailVerificationSent -> {
             RumbleAlertDialog(
                 onDismissRequest = { },
@@ -917,6 +920,7 @@ private fun DiscoverPlayerDialog(reason: AlertDialogReason, handler: DiscoverPla
                 )
             )
         }
+
         is DiscoverPlayerAlertReason.ErrorReason -> {
             RumbleAlertDialog(
                 onDismissRequest = { },
@@ -934,6 +938,7 @@ private fun DiscoverPlayerDialog(reason: AlertDialogReason, handler: DiscoverPla
                 )
             )
         }
+
         is DiscoverPlayerAlertReason.DeleteReason -> {
             RumbleAlertDialog(
                 onDismissRequest = { },
@@ -956,6 +961,7 @@ private fun DiscoverPlayerDialog(reason: AlertDialogReason, handler: DiscoverPla
                 )
             )
         }
+
         DiscoverPlayerAlertReason.ShowYourEmailNotVerifiedYet -> {
             RumbleAlertDialog(
                 onDismissRequest = { },

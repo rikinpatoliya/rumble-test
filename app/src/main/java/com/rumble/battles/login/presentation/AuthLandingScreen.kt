@@ -16,12 +16,10 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,10 +38,7 @@ import com.rumble.battles.commonViews.ProviderButton
 import com.rumble.battles.commonViews.RumbleLogoView
 import com.rumble.battles.commonViews.RumbleProgressIndicatorWithDimmedBackground
 import com.rumble.battles.commonViews.TransparentStatusBar
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.landing.RumbleActivityHandler
-import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.RumbleTypography.text26ExtraBold
 import com.rumble.theme.authContentWidthTablet
@@ -72,7 +67,6 @@ fun AuthLandingScreen(
     val state by loginHandler.state
     val authState by authHandler.state
     val context = LocalContext.current
-    val snackBarHostState = remember { SnackbarHostState() }
     val googleResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK)
@@ -90,8 +84,8 @@ fun AuthLandingScreen(
                 }
 
                 is LoginScreenVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
+                    activityHandler.showSnackbar(
+                        event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
                 }
@@ -114,8 +108,8 @@ fun AuthLandingScreen(
                 }
 
                 is AuthHandlerEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = event.errorMessage
+                    activityHandler.showSnackbar(
+                        event.errorMessage
                             ?: context.getString(R.string.generic_error_message_try_later)
                     )
                 }
@@ -236,9 +230,5 @@ fun AuthLandingScreen(
 
     if (state.loading || authState.loading) {
         RumbleProgressIndicatorWithDimmedBackground()
-    }
-
-    RumbleTheme(darkTheme = true) {
-        RumbleSnackbarHost(snackBarHostState)
     }
 }

@@ -401,6 +401,7 @@ fun ProfileScreen(
             AuthPlaceholderScreen(
                 modifier = Modifier.fillMaxSize(),
                 authHandler = authHandler,
+                contentHandler = contentHandler,
                 onNavigateToRegistration = onNavigateToRegistration,
                 onEmailLogin = onNavigateToLogin,
                 onSettings = onNavigateToSettings

@@ -392,6 +392,7 @@ fun CameraGalleryScreen(
                 .fillMaxSize()
                 .systemBarsPadding(),
             authHandler = authHandler,
+            contentHandler = contentHandler,
             onNavigateToRegistration = onNavigateToRegistration,
             onEmailLogin = onNavigateToLogin
         )

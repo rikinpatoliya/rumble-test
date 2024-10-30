@@ -1338,6 +1338,7 @@ private fun createNavigationGraph(
             DiscoverPlayerScreen(
                 discoverPlayerHandler = discoverPlayerViewModel,
                 activityHandler = activityHandler,
+                contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() },
                 onVideoClick = {
                     contentHandler.onOpenVideoDetails(videoId = it.id)

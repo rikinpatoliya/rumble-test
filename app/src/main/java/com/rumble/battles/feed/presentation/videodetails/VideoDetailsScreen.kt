@@ -49,7 +49,6 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -118,8 +117,6 @@ import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.keyboardAsState
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
@@ -237,7 +234,6 @@ fun VideoDetailsScreen(
         skipHalfExpanded = true
     )
     val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val systemUiController = rememberSystemUiController()
@@ -319,9 +315,9 @@ fun VideoDetailsScreen(
         handler.eventFlow.collectLatest {
             when (it) {
                 is VideoDetailsEvent.VideoDetailsError -> {
-                    snackbarHostState.showRumbleSnackbar(
-                        message = it.errorMessage
-                            ?: activity.getString(R.string.generic_error_message_try_later)
+                    contentHandler.onError(
+                        errorMessage = it.errorMessage,
+                        withPadding = false
                     )
                 }
 
@@ -338,21 +334,24 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowCommentReportedMessage -> {
-                    snackbarHostState.showRumbleSnackbar(
-                        message = activity.getString(R.string.the_comment_has_been_reported)
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.the_comment_has_been_reported,
+                        withPadding = false
                     )
                 }
 
                 is VideoDetailsEvent.ShowVideoReportedMessage -> {
-                    snackbarHostState.showRumbleSnackbar(
-                        message = activity.getString(R.string.the_video_has_been_reported)
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.the_video_has_been_reported,
+                        withPadding = false
                     )
                 }
 
                 is VideoDetailsEvent.ShowEmailVerificationSuccess -> {
-                    snackbarHostState.showRumbleSnackbar(
-                        message = activity.getString(R.string.email_successfully_verified_message),
-                        title = activity.getString(R.string.сongratulations),
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.email_successfully_verified_message,
+                        titleId = R.string.сongratulations,
+                        withPadding = false
                     )
                 }
 
@@ -588,8 +587,6 @@ fun VideoDetailsScreen(
             }
         }
     }
-
-    RumbleSnackbarHost(snackBarHostState = snackbarHostState)
 }
 
 @OptIn(ExperimentalMaterialApi::class)

@@ -983,6 +983,11 @@ class RumblePlayer(
             ) > ad.skipTimeOffset)
 
     private fun createAdsPlayer(context: Context): ExoPlayer {
+        adPlayerView = PlayerView(applicationContext)
+            .apply {
+                useController = false
+                hideController()
+            }
         val dataSourceFactory: DataSource.Factory = DefaultDataSource.Factory(context)
         val mediaSourceFactory: MediaSource.Factory = DefaultMediaSourceFactory(dataSourceFactory)
             .setLocalAdInsertionComponents({ _ -> adsLoader }, adPlayerView)
