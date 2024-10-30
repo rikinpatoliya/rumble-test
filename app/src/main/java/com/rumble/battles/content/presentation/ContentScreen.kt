@@ -207,6 +207,7 @@ fun ContentScreen(
     val context = LocalContext.current
     val alertDialogState by activityHandler.alertDialogState
     val videoDetailsState by contentHandler.videoDetailsState
+    val userUIState by contentHandler.userUIState.collectAsStateWithLifecycle()
     val videoDetailsViewModel: VideoDetailsViewModel = hiltViewModel()
     val liveChatViewModel: LiveChatViewModel = hiltViewModel()
 
@@ -337,6 +338,18 @@ fun ContentScreen(
                     selectedTabIndex = NAV_ITEM_INDEX_HOME
                 }
 
+                is ContentScreenVmEvent.NavigateHomeAfterSignOut -> {
+                    tabScreens.forEachIndexed { index, startDestinationId ->
+                        navControllers[index].popBackStack(startDestinationId, false)
+                    }
+                    selectedTabIndex = NAV_ITEM_INDEX_HOME
+                    navControllers[selectedTabIndex].navigate(tabScreens[selectedTabIndex]) {
+                        popUpTo(navControllers[selectedTabIndex].graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
+
                 is ContentScreenVmEvent.NavigateToChannelDetails -> {
                     activityHandler.onPauseVideo()
                     navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(event.channelId))
@@ -455,7 +468,7 @@ fun ContentScreen(
             bottomBar = {
                 AnimatedVisibility(
                     modifier = Modifier.systemBarsPadding(),
-                    visible = selectedTabIndex != NAV_ITEM_INDEX_CAMERA
+                    visible = (selectedTabIndex != NAV_ITEM_INDEX_CAMERA || userUIState.isLoggedIn.not())
                         && (videoDetailsState.visible.not() || videoDetailsState.collapsed),
                     enter = slideInVertically(initialOffsetY = { it / 2 }),
                     exit = slideOutVertically(
@@ -475,7 +488,7 @@ fun ContentScreen(
                                 }
                             }
                             selectedTabIndex = index
-                            if (index == NAV_ITEM_INDEX_CAMERA) {
+                            if (index == NAV_ITEM_INDEX_CAMERA && userUIState.isLoggedIn) {
                                 // pause video when camera tab is selected
                                 activityHandler.onPauseVideo()
                             }
@@ -542,7 +555,7 @@ fun ContentScreen(
                     }
                 }
             }
-            if (videoDetailsState.visible && selectedTabIndex != NAV_ITEM_INDEX_CAMERA) {
+            if (videoDetailsState.visible && (selectedTabIndex != NAV_ITEM_INDEX_CAMERA || userUIState.isLoggedIn.not())) {
                 VideoDetailsScreen(
                     activityHandler = activityHandler,
                     handler = videoDetailsViewModel,
@@ -945,6 +958,7 @@ private fun createNavigationGraph(
                     ))
                 },
                 onNavigateToLogin = {
+                    activityHandler.onPauseVideo()
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
                 }
             )
@@ -1095,6 +1109,7 @@ private fun createNavigationGraph(
                     ))
                 },
                 onNavigateToLogin = {
+                    activityHandler.onPauseVideo()
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
                 },
                 onNavigateToSettings = {
@@ -1395,6 +1410,7 @@ private fun createNavigationGraph(
                     ))
                 },
                 onNavigateToLogin = {
+                    activityHandler.onPauseVideo()
                     parentController.navigate(LandingScreens.LoginScreen.getPath())
                 }
             )
@@ -1404,6 +1420,7 @@ private fun createNavigationGraph(
         ) { navBackStackEntry ->
             CameraModeScreen(
                 cameraHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                contentHandler = contentHandler,
                 onPreviewRecording = { uri ->
                     currentNavController.navigate(RumbleScreens.VideoUploadPreview.getPath(uri))
                 },
@@ -1417,6 +1434,7 @@ private fun createNavigationGraph(
         ) { navBackStackEntry ->
             VideoPreviewScreen(
                 cameraHandler = getCameraUploadViewModel(navBackStackEntry, currentNavController),
+                contentHandler = contentHandler,
                 uri = navBackStackEntry.arguments?.getString(RumblePath.VIDEO_URL.path) ?: "",
                 onNextStep = { currentNavController.navigate(RumbleScreens.CameraUploadStepOne.rootName) },
             ) {

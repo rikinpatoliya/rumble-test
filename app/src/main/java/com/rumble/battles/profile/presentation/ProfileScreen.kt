@@ -131,7 +131,7 @@ fun ProfileScreen(
                 }
 
                 is ProfileScreenEvent.NavigateHome -> {
-                    contentHandler.onNavigateHome()
+                    contentHandler.onNavigateHomeAfterSignedOut()
                 }
             }
         }

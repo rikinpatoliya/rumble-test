@@ -145,6 +145,7 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun onOpenVideoDetails(videoId: Long, playListId: String? = null, shuffle: Boolean? = null)
     fun onCloseVideoDetails()
     fun onNavigateHome()
+    fun onNavigateHomeAfterSignedOut()
     fun scrollToTop(index: Int)
 }
 
@@ -214,6 +215,7 @@ sealed class ContentScreenVmEvent {
     ) : ContentScreenVmEvent()
 
     data object NavigateHome : ContentScreenVmEvent()
+    data object NavigateHomeAfterSignOut : ContentScreenVmEvent()
     data object ScrollToTop : ContentScreenVmEvent()
     data class NavigateToChannelDetails(val channelId: String) : ContentScreenVmEvent()
     data class Error(val errorMessage: String? = null, val withPadding: Boolean = false) : ContentScreenVmEvent()
@@ -1121,6 +1123,10 @@ class ContentViewModel @Inject constructor(
 
     override fun onNavigateHome() {
         emitVmEvent(ContentScreenVmEvent.NavigateHome)
+    }
+
+    override fun onNavigateHomeAfterSignedOut() {
+        emitVmEvent(ContentScreenVmEvent.NavigateHomeAfterSignOut)
     }
 
     override fun scrollToTop(index: Int) {

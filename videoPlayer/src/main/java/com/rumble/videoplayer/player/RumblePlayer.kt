@@ -250,7 +250,7 @@ class RumblePlayer(
 
     var targetChangeListener: PlayerTargetChangeListener? = null
     var rumbleVideoMode: RumbleVideoMode = RumbleVideoMode.Normal
-    var userIsPremium: Boolean = false
+    var userIsPremium: Boolean? = null
 
     val videoTitle: String
         get() = rumbleVideo?.title ?: ""

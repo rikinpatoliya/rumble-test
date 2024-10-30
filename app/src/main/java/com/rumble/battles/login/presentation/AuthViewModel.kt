@@ -54,7 +54,7 @@ data class AuthState(
 
 sealed class AuthHandlerEvent {
     data class Error(val errorMessage: String? = null) : AuthHandlerEvent()
-    object NavigateToHomeScreen : AuthHandlerEvent()
+    data object NavigateToHomeScreen : AuthHandlerEvent()
     data class NavigateToRegistration(
         val loginType: LoginType,
         val userId: String,
@@ -62,7 +62,7 @@ sealed class AuthHandlerEvent {
         val email: String
     ) : AuthHandlerEvent()
 
-    object NavigateToAgeVerification : AuthHandlerEvent()
+    data object NavigateToAgeVerification : AuthHandlerEvent()
 }
 
 @HiltViewModel

@@ -249,8 +249,9 @@ fun TvControlsView(
                     style = RumbleTypography.tvH2
                 )
 
-                if (rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true ||
-                    rumblePlayer.rumbleVideo?.hasLiveGate == true
+                if ((rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true ||
+                    rumblePlayer.rumbleVideo?.hasLiveGate == true) &&
+                    rumblePlayer.userIsPremium != null
                 ) {
                     Row(
                         modifier = Modifier
@@ -261,9 +262,19 @@ fun TvControlsView(
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        PremiumTag(modifier = Modifier.padding(bottom = paddingMedium))
+                        PremiumTag(
+                            modifier = Modifier
+                                .conditional(rumblePlayer.userIsPremium == true) {
+                                    padding(top = paddingXLarge)
+                                }
+                                .conditional(rumblePlayer.userIsPremium == false) {
+                                    padding(bottom = paddingMedium)
+                                }
+                        )
+
                         Spacer(modifier = Modifier.weight(1f))
-                        if (rumblePlayer.userIsPremium.not()) {
+
+                        if (rumblePlayer.userIsPremium == false) {
                             PremiumNoteView(
                                 text = if (rumblePlayer.rumbleVideo?.hasLiveGate == true) stringResource(R.string.preview_message)
                                 else stringResource(R.string.premium_only_content_message)

@@ -123,16 +123,16 @@ interface CameraUploadHandler {
 }
 
 sealed class CameraAlertDialogReason : AlertDialogReason {
-    object DisplaySettingsDialog : CameraAlertDialogReason()
+    data object DisplaySettingsDialog : CameraAlertDialogReason()
 }
 
 sealed class CameraHandlerVmEvent {
-    object ProceedToStepOne : CameraHandlerVmEvent()
+    data object ProceedToStepOne : CameraHandlerVmEvent()
     data class PreviewRecording(val uri: String) : CameraHandlerVmEvent()
-    object ResetClickHandled : CameraHandlerVmEvent()
-    object Error : CameraHandlerVmEvent()
-    object RecordingError : CameraHandlerVmEvent()
-    object RecordingStartError : CameraHandlerVmEvent()
+    data object ResetClickHandled : CameraHandlerVmEvent()
+    data object Error : CameraHandlerVmEvent()
+    data object RecordingError : CameraHandlerVmEvent()
+    data object RecordingStartError : CameraHandlerVmEvent()
 }
 
 data class CameraHandlerUIState(

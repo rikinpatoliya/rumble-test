@@ -49,8 +49,7 @@ import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
 import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.TransparentStatusBar
-import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
-import com.rumble.battles.commonViews.snackbar.showRumbleSnackbar
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.channelActionsButtonWidth
 import com.rumble.theme.enforcedBone
@@ -78,6 +77,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun VideoPreviewScreen(
     cameraHandler: CameraHandler,
+    contentHandler: ContentHandler,
     uri: String,
     onNextStep: () -> Unit,
     onBackClick: () -> Unit,
@@ -86,7 +86,6 @@ fun VideoPreviewScreen(
     val supervisorJob = SupervisorJob()
     val progressScope = CoroutineScope(Dispatchers.IO + supervisorJob)
 
-    val snackBarHostState = remember { androidx.compose.material3.SnackbarHostState() }
     val uiState by cameraHandler.cameraHandlerUiState.collectAsStateWithLifecycle()
 
     val isPlaying: MutableState<Boolean> = remember { mutableStateOf(true) }
@@ -106,6 +105,7 @@ fun VideoPreviewScreen(
                         Player.STATE_ENDED -> {
                             replay(this@apply, uiState)
                         }
+
                         Player.STATE_READY -> {
                             val endSlider =
                                 if (uiState.trimBarData.sliderPosition.endInclusive == 1F) duration.toFloat() else uiState.trimBarData.sliderPosition.endInclusive
@@ -115,6 +115,7 @@ fun VideoPreviewScreen(
                             )
                             initial = false
                         }
+
                         else -> return
                     }
                 }
@@ -134,15 +135,17 @@ fun VideoPreviewScreen(
         onBackClick()
     }
 
-    LaunchedEffect(cameraHandler.cameraHandlerEventFlow) {
+    LaunchedEffect(Unit) {
         cameraHandler.cameraHandlerEventFlow.collect { event ->
             when (event) {
                 CameraHandlerVmEvent.ProceedToStepOne -> onNextStep()
                 CameraHandlerVmEvent.Error -> {
-                    snackBarHostState.showRumbleSnackbar(
-                        message = context.getString(R.string.generic_error_message_try_later)
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.generic_error_message_try_later,
+                        withPadding = false
                     )
                 }
+
                 else -> {}
             }
         }
@@ -303,7 +306,6 @@ fun VideoPreviewScreen(
             RumbleProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
-    RumbleSnackbarHost(snackBarHostState)
 }
 
 private fun replay(exoPlayer: ExoPlayer, uiState: CameraHandlerUIState) {
