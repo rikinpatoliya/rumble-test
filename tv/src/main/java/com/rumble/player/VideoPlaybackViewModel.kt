@@ -141,9 +141,11 @@ class VideoPlaybackViewModel @Inject constructor(
                 videoEntity = updatedVideoEntity,
                 fromChannel = fromChannel,
                 channelDetailsEntity = fetchChannelDetails(updatedVideoEntity.channelId),
-                showPayWall = updatedVideoEntity.hasLiveGate.not() && hasPremiumRestrictionUseCase(
-                    updatedVideoEntity
-                )
+                showPayWall = (updatedVideoEntity.hasLiveGate.not() &&
+                    hasPremiumRestrictionUseCase(updatedVideoEntity)) ||
+                    (updatedVideoEntity.hasLiveGate &&
+                        hasPremiumRestrictionUseCase(updatedVideoEntity) &&
+                        updatedVideoEntity.livestreamStatus == LiveStreamStatus.LIVE)
             )
             if (videoPlayerState.value.showPayWall.not()) {
                 videoPlayerState.value.rumblePlayer?.playVideo()
@@ -367,7 +369,13 @@ class VideoPlaybackViewModel @Inject constructor(
                         autoplay = autoplay,
                         updatedRelatedVideoList = updatedRelatedVideoList,
                         requestLiveGateData = true,
-                        applyLastPosition = applyLastPosition
+                        applyLastPosition = applyLastPosition,
+                        onPremiumCountdownFinished = {
+                            enforceLiveGateRestriction()
+                        },
+                        onVideoReady = {
+                            handleLiveGate(videoEntity, it)
+                        }
                     )
                 }
                 if (videoPlayerState.value.showPayWall.not()) {

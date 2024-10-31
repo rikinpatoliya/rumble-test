@@ -325,7 +325,7 @@
     <dimen name="category_card_title_text_height_min">35dp</dimen>
     <dimen name="category_card_title_line_space">17sp</dimen>
     <dimen name="category_details_title_layout_padding_bottom">15dp</dimen>
-    <dimen name="category_collapse_top_layout_padding">-250dp</dimen>
+    <dimen name="category_collapse_top_layout_padding">-200dp</dimen>
     <dimen name="category_details_description_text_height_min">35dp</dimen>
     <dimen name="category_details_radio_button_viewed_start_margin">8dp</dimen>
     <dimen name="category_details_empty_view_description_margin">10dp</dimen>

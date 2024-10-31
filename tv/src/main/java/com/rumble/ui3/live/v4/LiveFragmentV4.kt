@@ -211,7 +211,13 @@ class LiveFragmentV4 : VerticalGridSupportFragment() {
     }
 
     private fun setupAdapter() {
-        val videoGridPresenter = RumbleVerticalGridPresenter(requireContext(),0, false, BaseGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED, Constant.VIEW_ALL_LIVE_OFFSET_PERCENT)
+        val videoGridPresenter = RumbleVerticalGridPresenter(
+            requireContext(),
+            0,
+            false,
+            BaseGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED,
+            Constant.VIEW_ALL_LIVE_OFFSET_PERCENT
+        )
         videoGridPresenter.numberOfColumns = NUMBER_OF_COLUMNS
         setGridPresenter(videoGridPresenter)
 
