@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Protocol
+import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -59,16 +60,22 @@ class ResponseInterceptor @Inject constructor(private val sessionManager: Sessio
             saveReportEventInfo(userState)
             response
         } catch (e: Throwable) {
-            val errorResponse = Response.Builder()
-                .request(chain.request())
-                .protocol(Protocol.HTTP_2)
-                .code(ERROR_RESPONSE_CODE)
-                .message(e.message ?: "An unknown error inside response interceptor")
-                .body("$e".toResponseBody(null))
-                .build()
-            return chain.proceed(errorResponse.request)
+            return buildErrorResponse(
+                request = chain.request(),
+                message = e.message,
+                body = "$e".toResponseBody(null)
+            )
         }
     }
+
+    private fun buildErrorResponse(request: Request, message: String?, body: ResponseBody?) =
+        Response.Builder()
+            .request(request)
+            .protocol(Protocol.HTTP_2)
+            .code(ERROR_RESPONSE_CODE)
+            .message(message ?: "An unknown error inside response interceptor")
+            .body(body)
+            .build()
 
     private fun shouldCheckLoginState(chain: Interceptor.Chain) =
         chain.request().headers[COOKIES_HEADER].isNullOrEmpty().not()
@@ -172,7 +179,9 @@ class ResponseInterceptor @Inject constructor(private val sessionManager: Sessio
                     }
                 }
             }
-            if (it.has(WATCH_PROGRESS_INTERVAL_KEY) && it.isNull(WATCH_PROGRESS_INTERVAL_KEY).not()) {
+            if (it.has(WATCH_PROGRESS_INTERVAL_KEY) && it.isNull(WATCH_PROGRESS_INTERVAL_KEY)
+                    .not()
+            ) {
                 val watchProgressInterval = it.getInt(WATCH_PROGRESS_INTERVAL_KEY)
                 runBlocking {
                     sessionManager.saveWatchProgressInterval(watchProgressInterval)

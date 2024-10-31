@@ -120,6 +120,7 @@ data class ChannelDetailsUIState(
     val userPicture: String = "",
     val shareAvailable: Boolean = false,
     val videoList: Flow<PagingData<Feed>> = emptyFlow(),
+    val showJoinButton: Boolean = false,
 )
 
 sealed class ChannelDetailsDialog {
@@ -147,6 +148,7 @@ sealed class ChannelDetailsVmEvent {
     data class Error(val errorMessage: String? = null) : ChannelDetailsVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : ChannelDetailsVmEvent()
     data object OpenAuthMenu : ChannelDetailsVmEvent()
+    data class OpenPremiumSubscriptionOptions(val creatorId: String) : ChannelDetailsVmEvent()
 }
 
 private const val TAG = "ChannelDetailsViewModel"
@@ -208,12 +210,13 @@ class ChannelDetailsViewModel @Inject constructor(
         observeSoundState()
         fetchVideoList()
         startObserveConnectionState()
+        observePremiumState()
     }
 
     private fun fetchVideoList() {
         uiState.update {
             uiState.value.copy(
-                videoList = getChannelVideosUseCase(uiState.value.channelId).cachedIn(viewModelScope)
+                videoList = getChannelVideosUseCase(uiState.value.channelId).cachedIn(viewModelScope),
             )
         }
     }
@@ -238,8 +241,10 @@ class ChannelDetailsViewModel @Inject constructor(
     private fun loadChannelDetails() {
         viewModelScope.launch(errorHandler) {
             uiState.update { it.copy(loading = true) }
+            val isPremium = sessionManager.isPremiumUserFlow.first()
             getChannelDataUseCase(uiState.value.channelId)
                 .onSuccess { channelDetailEntity ->
+                    val showPremiumFlow = channelDetailEntity.localsCommunityEntity?.showPremiumFlow ?: false
                     // Only log the view on the first load
                     if (uiState.value.channelDetailsEntity == null) {
                         logChannelViewUseCase(channelDetailEntity.channelId)
@@ -248,7 +253,8 @@ class ChannelDetailsViewModel @Inject constructor(
                         it.copy(
                             channelDetailsEntity = channelDetailEntity,
                             loading = false,
-                            shareAvailable = channelDetailEntity.channelUrl.isNullOrEmpty().not()
+                            shareAvailable = channelDetailEntity.channelUrl.isNullOrEmpty().not(),
+                            showJoinButton = (showPremiumFlow && isPremium.not()) || showPremiumFlow.not()
                         )
                     }
                 }
@@ -377,8 +383,14 @@ class ChannelDetailsViewModel @Inject constructor(
                 creatorId = uiState.value.channelId.getChannelId(),
             )
         )
-        popupState.value = ChannelDetailsDialog.LocalsPopupDialog(localsCommunityEntity)
-        emitVmEvent(ChannelDetailsVmEvent.ShowLocalsPopup)
+        if (uiState.value.channelDetailsEntity?.localsCommunityEntity?.showPremiumFlow == true) {
+            emitVmEvent(ChannelDetailsVmEvent.OpenPremiumSubscriptionOptions(
+                creatorId = uiState.value.channelId,
+            ))
+        } else {
+            popupState.value = ChannelDetailsDialog.LocalsPopupDialog(localsCommunityEntity)
+            emitVmEvent(ChannelDetailsVmEvent.ShowLocalsPopup)
+        }
     }
 
     override fun onActionMenuClicked() {
@@ -519,5 +531,16 @@ class ChannelDetailsViewModel @Inject constructor(
         currentPlayerState.value = null
         lastDisplayedFeed = null
         emitVmEvent(ChannelDetailsVmEvent.PlayVideo(videoEntity))
+    }
+
+    private fun observePremiumState() {
+        viewModelScope.launch {
+            sessionManager.isPremiumUserFlow.distinctUntilChanged().collectLatest { isPremiumUser ->
+                val showPremiumFlow = uiState.value.channelDetailsEntity?.localsCommunityEntity?.showPremiumFlow ?: false
+                uiState.value = uiState.value.copy(
+                    showJoinButton = (showPremiumFlow && isPremiumUser.not()) || showPremiumFlow.not()
+                )
+            }
+        }
     }
 }

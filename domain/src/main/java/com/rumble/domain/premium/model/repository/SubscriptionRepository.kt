@@ -10,6 +10,7 @@ interface SubscriptionRepository {
         appId: String,
         appsFlyerId: String,
         videoId: Long?,
+        creatorId: String?,
         source: SubscriptionSource?,
     ): SubscriptionResult
 }

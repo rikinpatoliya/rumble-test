@@ -79,7 +79,7 @@ class EventRepositoryImpl(
     override suspend fun sendAnalyticsEvent(
         userId: String,
         eventName: String,
-        eventParams: Map<String, String>
+        eventParams: Map<String, String?>
     ) {
         withContext(dispatcher) {
             eventRemoteDataSource.sendDebugAnalyticsEvent(userId, eventName, eventParams)

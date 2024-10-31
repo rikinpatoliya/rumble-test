@@ -22,6 +22,7 @@ class SubscriptionRepositoryImpl(
         appId: String,
         appsFlyerId: String,
         videoId: Long?,
+        creatorId: String?,
         source: SubscriptionSource?,
     ): SubscriptionResult = withContext(dispatcher) {
         val bodyData = SubscriptionBodyData(
@@ -30,7 +31,8 @@ class SubscriptionRepositoryImpl(
             packageName = appId,
             installationId = appsFlyerId,
             videoId = videoId,
-            source = source?.value
+            source = source?.value,
+            creatorId = creatorId,
         )
         val response = subscriptionRemoteDataSource.purchasePremiumSubscription(SubscriptionBody(data = bodyData))
         if (response.isSuccessful) {

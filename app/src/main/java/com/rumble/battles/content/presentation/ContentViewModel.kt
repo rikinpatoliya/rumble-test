@@ -999,14 +999,19 @@ class ContentViewModel @Inject constructor(
 
     override fun onGetPremium() {
         analyticsEventUseCase(PremiumPromoGetButtonTapEvent)
-        onShowSubscriptionOptions(currentSubscriptionParams.videoId, currentSubscriptionParams.source)
+        onShowSubscriptionOptions(
+            videoId = currentSubscriptionParams.videoId,
+            creatorId = currentSubscriptionParams.creatorId,
+            source = currentSubscriptionParams.source,
+        )
     }
 
-    override fun onShowSubscriptionOptions(videoId: Long?, source: SubscriptionSource?) {
+    override fun onShowSubscriptionOptions(videoId: Long?, creatorId: String?, source: SubscriptionSource?) {
         if (userUIState.value.isLoggedIn) {
             if (subscriptionList.isNotEmpty() or developModeUseCase()) {
                 currentSubscriptionParams = currentSubscriptionParams.copy(
                     videoId = videoId,
+                    creatorId = creatorId,
                     source = source
                 )
                 updateBottomSheetUiState(BottomSheetContent.PremiumSubscription)
@@ -1027,15 +1032,17 @@ class ContentViewModel @Inject constructor(
                 viewModelScope.launch(errorHandler) {
                     currentSubscriptionParams.subscriptionData?.let {
                         sendPremiumPurchasedEventUseCase(
-                            it.type,
-                            currentSubscriptionParams.videoId,
-                            currentSubscriptionParams.source,
+                            subscriptionType = it.type,
+                            videoId = currentSubscriptionParams.videoId,
+                            creatorId = currentSubscriptionParams.creatorId,
+                            source = currentSubscriptionParams.source,
                         )
                     }
                     when (val proofResult = postSubscriptionProofUseCase(
-                        result.purchaseToken,
-                        currentSubscriptionParams.videoId,
-                        currentSubscriptionParams.source
+                        purchaseToken =  result.purchaseToken,
+                        videoId = currentSubscriptionParams.videoId,
+                        creatorId = currentSubscriptionParams.creatorId,
+                        source = currentSubscriptionParams.source
                     )) {
                         is SubscriptionResult.Success -> {
                             sessionManager.saveIsPremiumUser(true)

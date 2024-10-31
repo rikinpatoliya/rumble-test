@@ -26,7 +26,7 @@ class EventRemoteDataSourceImpl(
     override suspend fun sendDebugAnalyticsEvent(
         userId: String,
         eventName: String,
-        eventParams: Map<String, String>
+        eventParams: Map<String, String?>
     ): Response<ResponseBody> =
         debugLogsApi.postAnalyticsEvent(
             userId = userId,

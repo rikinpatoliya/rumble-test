@@ -9,6 +9,6 @@ interface PremiumSubscriptionHandler {
     fun onShowPremiumPromo(videoId: Long?, source: SubscriptionSource?)
     fun onClosePremiumPromo()
     fun onGetPremium()
-    fun onShowSubscriptionOptions(videoId: Long? = null, source: SubscriptionSource?)
+    fun onShowSubscriptionOptions(videoId: Long? = null, creatorId: String? = null, source: SubscriptionSource?)
     fun onSubscribe(premiumSubscriptionData: PremiumSubscriptionData)
 }

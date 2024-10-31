@@ -88,7 +88,8 @@ internal fun ChannelDetailsHeader(
                     channelDetailsEntity = state.channelDetailsEntity,
                     onJoin = onJoin,
                     onUpdateSubscription = onUpdateSubscription,
-                    onChannelNotification = onChannelNotification
+                    onChannelNotification = onChannelNotification,
+                    showJoinButton = state.showJoinButton ,
                 )
             }
             Spacer(
@@ -148,6 +149,7 @@ private fun ChannelActionButtons(
     onJoin: (localsCommunityEntity: LocalsCommunityEntity) -> Unit,
     onUpdateSubscription: (action: UpdateChannelSubscriptionAction) -> Unit,
     onChannelNotification: (id: String) -> Unit,
+    showJoinButton: Boolean,
 ) {
     Column(modifier = modifier) {
         Spacer(Modifier.height(paddingSmall))
@@ -164,6 +166,7 @@ private fun ChannelActionButtons(
             onJoin = onJoin,
             onUpdateSubscription = onUpdateSubscription,
             onChannelNotification = onChannelNotification,
+            showJoinButton = showJoinButton,
         )
     }
 }

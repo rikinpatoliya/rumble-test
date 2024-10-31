@@ -5,5 +5,5 @@ import android.os.Bundle
 sealed interface AnalyticEvent {
     val eventName: String
     val firebaseOps: Bundle
-    val appsFlyOps: Map<String, String>
+    val appsFlyOps: Map<String, String?>
 }

@@ -14,5 +14,7 @@ data class LocalsCommunity(
     @SerializedName("urls")
     val urls: Urls,
     @SerializedName("counts")
-    val counts: Counts
+    val counts: Counts,
+    @SerializedName("show_premium")
+    val showPremium: Boolean
 )

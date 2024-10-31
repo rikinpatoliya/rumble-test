@@ -15,7 +15,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
     private val analyticsEventUseCase: AnalyticsEventUseCase,
     private val sessionManager: SessionManager
 ) {
-    suspend operator fun invoke(subscriptionType: SubscriptionType, videoId: Long?, source: SubscriptionSource?) {
+    suspend operator fun invoke(subscriptionType: SubscriptionType, videoId: Long?, creatorId: String?, source: SubscriptionSource?) {
         val userId = sessionManager.userIdFlow.first()
         if (subscriptionType == SubscriptionType.Annually) {
             analyticsEventUseCase(
@@ -24,6 +24,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.ANNUAL_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    creatorId,
                     source,
                 ), true
             )
@@ -33,6 +34,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.ANNUAL_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    creatorId,
                     source,
                 ), true
             )
@@ -43,6 +45,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.MONTHLY_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    creatorId,
                     source,
                 ), true
             )
@@ -52,6 +55,7 @@ class SendPremiumPurchasedEventUseCase @Inject constructor(
                     PremiumSubscription.MONTHLY_PRICE_CENT,
                     userId,
                     videoId?.toString(),
+                    creatorId,
                     source,
                 ), true
             )

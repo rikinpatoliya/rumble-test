@@ -706,8 +706,12 @@ class VideoDetailsViewModel @Inject constructor(
                 creatorId = state.value.channelDetailsEntity?.channelId?.getChannelId() ?: 0
             )
         )
-        state.value = state.value.copy(bottomSheetReason = BottomSheetReason.JoinOnLocals)
-        emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
+        if ( state.value.channelDetailsEntity?.localsCommunityEntity?.showPremiumFlow == true) {
+            emitVmEvent(VideoDetailsEvent.OpenPremiumSubscriptionOptions)
+        } else {
+            state.value = state.value.copy(bottomSheetReason = BottomSheetReason.JoinOnLocals)
+            emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
+        }
     }
 
     override fun onVideoSettings() {

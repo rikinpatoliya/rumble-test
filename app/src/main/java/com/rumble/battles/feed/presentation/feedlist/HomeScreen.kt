@@ -354,8 +354,8 @@ fun HomeScreen(
                                     ),
                                     onClick = {
                                         contentHandler.onShowSubscriptionOptions(
-                                            null,
-                                            SubscriptionSource.Home
+                                            videoId = null,
+                                            source = SubscriptionSource.Home
                                         )
                                     },
                                     onDismiss = homeHandler::onDismissPremiumBanner

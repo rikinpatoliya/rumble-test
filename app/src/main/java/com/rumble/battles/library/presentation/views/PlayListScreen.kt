@@ -277,7 +277,7 @@ fun PlayListScreen(
                                     onUpdateSubscription = {
                                         playListHandler.onUpdateSubscription(it)
                                     },
-                                    onChannelClick = { onChannelClick(state.playListEntity.channelId) }
+                                    onChannelClick = { onChannelClick(state.playListEntity.channelId) },
                                 )
                             }
                             Spacer(modifier = Modifier.height(paddingSmall))

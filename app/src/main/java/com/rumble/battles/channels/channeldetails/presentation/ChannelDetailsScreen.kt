@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -86,6 +85,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChanne
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
+import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.theme.bottomBarHeight
 import com.rumble.theme.collapsedSpacerPadding
 import com.rumble.theme.commentActionButtonWidth
@@ -119,7 +119,6 @@ fun ChannelDetailsScreen(
     )
     val popupState by channelDetailsHandler.popupState.collectAsStateWithLifecycle()
     val alertDialogState by channelDetailsHandler.alertDialogState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     val bottomSheetState =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
@@ -183,7 +182,7 @@ fun ChannelDetailsScreen(
         }
     }
 
-    LaunchedEffect(key1 = context) {
+    LaunchedEffect(Unit) {
         lifecycleOwner.lifecycle.addObserver(observer)
         channelDetailsHandler.vmEvents.collect { event ->
             when (event) {
@@ -210,6 +209,13 @@ fun ChannelDetailsScreen(
 
                 is ChannelDetailsVmEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
+                }
+
+                is ChannelDetailsVmEvent.OpenPremiumSubscriptionOptions -> {
+                    contentHandler.onShowSubscriptionOptions(
+                        creatorId = event.creatorId,
+                        source = SubscriptionSource.ChannelDetails,
+                    )
                 }
 
                 else -> {}

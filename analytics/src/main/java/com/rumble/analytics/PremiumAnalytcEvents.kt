@@ -9,6 +9,7 @@ data class PremiumIAPSucceededEvent(
     private val priceCents: String,
     private val userId: String,
     private val contentId: String?,
+    private val creatorId: String?,
     private val source: SubscriptionSource?,
 ) : AnalyticEvent {
     override val eventName: String = "Premium_IapSucceeded"
@@ -19,22 +20,16 @@ data class PremiumIAPSucceededEvent(
         USER_ID to userId,
         CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
+        CREATOR_ID to creatorId,
     )
-    override val appsFlyOps: Map<String, String> = contentId?.let {
-        mapOf(
-            APPSFLYER_PRICE to price.toString(),
-            APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
-            PRICE to priceCents,
-            USER_ID to userId,
-            CONTENT_ID to it,
-            SOURCE to (source?.value ?: ""),
-        )
-    } ?: mapOf(
+    override val appsFlyOps: Map<String, String?> =  mapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
+        CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
+        CREATOR_ID to creatorId,
     )
 }
 
@@ -43,6 +38,7 @@ data class PremiumMonthlyIAPSucceededEvent(
     private val priceCents: String,
     private val userId: String,
     private val contentId: String?,
+    private val creatorId: String?,
     private val source: SubscriptionSource?,
 ) : AnalyticEvent {
     override val eventName: String = "PremiumMonthly_IapSucceeded"
@@ -54,21 +50,14 @@ data class PremiumMonthlyIAPSucceededEvent(
         CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
     )
-    override val appsFlyOps: Map<String, String> = contentId?.let {
-        mapOf(
-            APPSFLYER_PRICE to price.toString(),
-            APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
-            PRICE to priceCents,
-            USER_ID to userId,
-            CONTENT_ID to it,
-            SOURCE to (source?.value ?: ""),
-        )
-    } ?: mapOf(
+    override val appsFlyOps: Map<String, String?> =  mapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
+        CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
+        CREATOR_ID to creatorId
     )
 }
 
@@ -77,6 +66,7 @@ data class PremiumAnnualIAPSucceededEvent(
     private val priceCents: String,
     private val userId: String,
     private val contentId: String?,
+    private val creatorId: String?,
     private val source: SubscriptionSource?,
 ) : AnalyticEvent {
     override val eventName: String = "PremiumAnnual_IapSucceeded"
@@ -88,21 +78,14 @@ data class PremiumAnnualIAPSucceededEvent(
         CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
     )
-    override val appsFlyOps: Map<String, String> = contentId?.let {
-        mapOf(
-            APPSFLYER_PRICE to price.toString(),
-            APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
-            PRICE to priceCents,
-            USER_ID to userId,
-            CONTENT_ID to it,
-            SOURCE to (source?.value ?: ""),
-        )
-    } ?: mapOf(
+    override val appsFlyOps: Map<String, String?> =  mapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
+        CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
+        CREATOR_ID to creatorId
     )
 }
 

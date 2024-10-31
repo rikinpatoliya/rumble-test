@@ -43,4 +43,5 @@ data class LocalsCommunityEntity(
     val likes: Int,
     val videoUrl: String,
     val channelUrl: String,
+    val showPremiumFlow: Boolean,
 ) : Parcelable

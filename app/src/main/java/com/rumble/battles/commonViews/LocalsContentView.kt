@@ -2,12 +2,25 @@ package com.rumble.battles.commonViews
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -26,7 +39,19 @@ import androidx.constraintlayout.compose.Dimension
 import com.rumble.battles.LocalsPopupTag
 import com.rumble.battles.R
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
-import com.rumble.theme.*
+import com.rumble.theme.RumbleTypography
+import com.rumble.theme.brandedLocalsLogoBackground
+import com.rumble.theme.brandedLocalsRed
+import com.rumble.theme.enforcedWhite
+import com.rumble.theme.imageXXLarge
+import com.rumble.theme.overlapPadding
+import com.rumble.theme.paddingLarge
+import com.rumble.theme.paddingMedium
+import com.rumble.theme.paddingXLarge
+import com.rumble.theme.paddingXSmall
+import com.rumble.theme.paddingXXXLarge
+import com.rumble.theme.paddingXXXSmall
+import com.rumble.theme.radiusMedium
 import com.rumble.utils.extension.toLocalizedString
 
 private const val TAG = "LocalsPopupBottomSheet"
@@ -308,6 +333,7 @@ fun PreviewLocalsPopupBottomSheet() {
             likes = 190211,
             videoUrl = "",
             channelUrl = "",
+            showPremiumFlow = false,
         ),
         withNavigationBar = true,
         onSupport = {},

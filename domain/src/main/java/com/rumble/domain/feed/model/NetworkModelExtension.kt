@@ -296,6 +296,7 @@ fun Channel.getChannelDetailsEntity(): ChannelDetailsEntity =
                 likes = it.counts.likes,
                 videoUrl = it.urls.videoUrl,
                 channelUrl = it.urls.channelUrl,
+                showPremiumFlow = it.showPremium,
             )
         },
         latestVideo = latestVideo?.getVideoEntity(),

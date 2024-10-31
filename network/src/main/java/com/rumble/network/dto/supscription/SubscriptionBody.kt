@@ -21,5 +21,7 @@ data class SubscriptionBodyData(
     @SerializedName("video_id")
     val videoId: Long?,
     @SerializedName("source")
-    val source: String?
+    val source: String?,
+    @SerializedName("creator_id")
+    val creatorId: String?
 )

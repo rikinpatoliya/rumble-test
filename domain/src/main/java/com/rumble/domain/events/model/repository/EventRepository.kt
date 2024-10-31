@@ -19,6 +19,6 @@ interface EventRepository {
     suspend fun sendAnalyticsEvent(
         userId: String,
         eventName: String,
-        eventParams: Map<String, String>
+        eventParams: Map<String, String?>
     )
 }

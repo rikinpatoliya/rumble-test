@@ -22,6 +22,7 @@ class PostSubscriptionProofUseCase @Inject constructor(
     suspend operator fun invoke(
         purchaseToken: String,
         videoId: Long?,
+        creatorId: String?,
         source: SubscriptionSource?
     ): SubscriptionResult {
         val result = subscriptionRepository.purchaseSubscription(
@@ -30,6 +31,7 @@ class PostSubscriptionProofUseCase @Inject constructor(
             purchaseToken = purchaseToken,
             appsFlyerId = AppsFlyerLib.getInstance().getAppsFlyerUID(context) ?: "",
             videoId = videoId,
+            creatorId = creatorId,
             source = source,
         )
         if (result is SubscriptionResult.Failure) {

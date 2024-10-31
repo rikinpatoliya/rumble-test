@@ -48,6 +48,7 @@ fun ChannelDetailsActionButtonsView(
     onUpdateSubscription: (action: UpdateChannelSubscriptionAction) -> Unit,
     onChannelNotification: (id: String) -> Unit,
     showDrawable: Boolean = true,
+    showJoinButton: Boolean = true,
 ) {
     Row(
         modifier = modifier
@@ -56,15 +57,17 @@ fun ChannelDetailsActionButtonsView(
         verticalAlignment = Alignment.CenterVertically
     ) {
         channelDetailsEntity?.localsCommunityEntity?.let {
-            ActionButton(
-                modifier = Modifier
-                    .width(channelActionsButtonWidth)
-                    .padding(start = paddingXXXSmall),
-                text = stringResource(id = R.string.join),
-                backgroundColor = brandedLocalsRed,
-                borderColor = brandedLocalsRed,
-                textColor = enforcedWhite
-            ) { onJoin(it) }
+            if (showJoinButton) {
+                ActionButton(
+                    modifier = Modifier
+                        .width(channelActionsButtonWidth)
+                        .padding(start = paddingXXXSmall),
+                    text = stringResource(id = R.string.join),
+                    backgroundColor = brandedLocalsRed,
+                    borderColor = brandedLocalsRed,
+                    textColor = enforcedWhite
+                ) { onJoin(it) }
+            }
         }
         SubscriptionStatusActionButton(
             modifier = Modifier

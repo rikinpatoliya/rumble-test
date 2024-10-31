@@ -396,8 +396,8 @@ fun VideoDetailsScreen(
 
                 is VideoDetailsEvent.OpenPremiumSubscriptionOptions -> {
                     contentHandler.onShowSubscriptionOptions(
-                        state.videoEntity?.id,
-                        SubscriptionSource.Video
+                        videoId = state.videoEntity?.id,
+                        source = SubscriptionSource.Video
                     )
                 }
 
@@ -713,8 +713,8 @@ fun VideoDetailsView(
                             onBack = { handler.onCloseVideoDetails() },
                             onSubscribeNow = {
                                 contentHandler.onShowSubscriptionOptions(
-                                    state.videoEntity?.id,
-                                    SubscriptionSource.Video
+                                    videoId = state.videoEntity?.id,
+                                    source = SubscriptionSource.Video
                                 )
                             }
                         )
@@ -729,8 +729,8 @@ fun VideoDetailsView(
                             onBack = { handler.onCloseVideoDetails() },
                             onSubscribeNow = {
                                 contentHandler.onShowSubscriptionOptions(
-                                    state.videoEntity?.id,
-                                    SubscriptionSource.Video
+                                    videoId = state.videoEntity?.id,
+                                    source = SubscriptionSource.Video
                                 )
                             }
                         )
@@ -922,6 +922,7 @@ private fun ChannelContentView(
                     .clip(RoundedCornerShape(radiusMedium))
                     .background(color = MaterialTheme.colors.surface),
                 handler = handler,
+                contentHandler = contentHandler,
                 activityHandler = activityHandler,
                 coroutineScope = coroutineScope,
                 videoEntity = state.videoEntity,
@@ -1268,6 +1269,7 @@ private fun JoinOnLocalsView(
 private fun VideoDetailsInfoView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
+    contentHandler: ContentHandler,
     activityHandler: RumbleActivityHandler,
     coroutineScope: CoroutineScope,
     videoEntity: VideoEntity?,
@@ -1275,6 +1277,8 @@ private fun VideoDetailsInfoView(
     onTagClick: (String) -> Unit,
 ) {
     val state by handler.state
+    val contentSate by contentHandler.userUIState.collectAsStateWithLifecycle()
+
     Box(
         modifier = modifier
     ) {
@@ -1282,16 +1286,18 @@ private fun VideoDetailsInfoView(
             modifier = Modifier.padding(paddingSmall)
         ) {
             state.channelDetailsEntity?.localsCommunityEntity?.let {
-                JoinOnLocalsView(
-                    handler = handler,
-                    coroutineScope = coroutineScope
-                )
-                Divider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = paddingSmall),
-                    color = MaterialTheme.colors.secondaryVariant
-                )
+                if ((it.showPremiumFlow && contentSate.isPremiumUser.not()) || it.showPremiumFlow.not()) {
+                    JoinOnLocalsView(
+                        handler = handler,
+                        coroutineScope = coroutineScope
+                    )
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = paddingSmall),
+                        color = MaterialTheme.colors.secondaryVariant
+                    )
+                }
             }
             videoEntity?.let {
                 VideoSummaryView(
@@ -1345,6 +1351,7 @@ private fun VideoDetailsHeaderView(
     activityHandler: RumbleActivityHandler
 ) {
     val state by handler.state
+
     videoEntity?.let {
         Column(
             modifier = modifier
@@ -1402,7 +1409,7 @@ private fun VideoDetailsHeaderView(
                             action
                         )
                     },
-                    onChannelClick = onChannelClick
+                    onChannelClick = onChannelClick,
                 )
             }
 
