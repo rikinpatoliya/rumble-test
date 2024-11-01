@@ -343,11 +343,6 @@ fun ContentScreen(
                         navControllers[index].popBackStack(startDestinationId, false)
                     }
                     selectedTabIndex = NAV_ITEM_INDEX_HOME
-                    navControllers[selectedTabIndex].navigate(tabScreens[selectedTabIndex]) {
-                        popUpTo(navControllers[selectedTabIndex].graph.id) {
-                            inclusive = true
-                        }
-                    }
                 }
 
                 is ContentScreenVmEvent.NavigateToChannelDetails -> {
