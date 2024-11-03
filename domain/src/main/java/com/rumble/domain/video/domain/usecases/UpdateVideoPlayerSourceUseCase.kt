@@ -28,7 +28,7 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
         videoStartMethod: VideoStartMethod = VideoStartMethod.URL_PROVIDED,
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
         onPremiumCountdownFinished:  (() -> Unit)? = null,
-        onVideoReady: ((Long) -> Unit)? = null,
+        onVideoReady: ((Long, RumblePlayer) -> Unit)? = null,
     ): RumblePlayer {
         val relatedVideoList =
             if (updatedRelatedVideoList) fetchRelatedVideoUseCase(videoId = videoEntity.id).map {

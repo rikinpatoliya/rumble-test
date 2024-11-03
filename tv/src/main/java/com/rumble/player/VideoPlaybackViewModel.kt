@@ -134,8 +134,8 @@ class VideoPlaybackViewModel @Inject constructor(
                     onPremiumCountdownFinished = {
                         enforceLiveGateRestriction()
                     },
-                    onVideoReady = {
-                        handleLiveGate(updatedVideoEntity, it)
+                    onVideoReady = { duration, player ->
+                        handleLiveGate(updatedVideoEntity, duration, player)
                     }
                 ),
                 videoEntity = updatedVideoEntity,
@@ -186,8 +186,8 @@ class VideoPlaybackViewModel @Inject constructor(
                     onPremiumCountdownFinished = {
                         enforceLiveGateRestriction()
                     },
-                    onVideoReady = {
-                        handleLiveGate(updatedVideoEntity, it)
+                    onVideoReady = { duration, player ->
+                        handleLiveGate(updatedVideoEntity, duration, player)
                     }
                 ),
                 videoEntity = updatedVideoEntity,
@@ -292,7 +292,7 @@ class VideoPlaybackViewModel @Inject constructor(
         }
     }
 
-    private fun handleLiveGate(videoEntity: VideoEntity, actualDuration: Long) {
+    private fun handleLiveGate(videoEntity: VideoEntity, actualDuration: Long, player: RumblePlayer) {
         if (videoReady.not()) {
             videoReady = true
             viewModelScope.launch(errorHandler) {
@@ -300,12 +300,11 @@ class VideoPlaybackViewModel @Inject constructor(
                 if (hasRestriction) {
                     videoEntity.liveGateEntity?.let {
                         videoPlayerState.value = videoPlayerState.value.copy(
-                            videoEntity = videoPlayerState.value.videoEntity?.copy(hasLiveGate = true)
+                            videoEntity = videoEntity.copy(hasLiveGate = true),
+                            rumblePlayer = player,
                         )
                         if (videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
-                            videoPlayerState.value.rumblePlayer?.let {
-                                startPremiumPreviewCountdownUseCase(it, actualDuration)
-                            }
+                            startPremiumPreviewCountdownUseCase(player, actualDuration)
                         } else {
                             enforceLiveGateRestriction()
                         }
@@ -360,9 +359,9 @@ class VideoPlaybackViewModel @Inject constructor(
                     currentVote = getUserCurrentVote(videoEntity),
                     showPayWall = hasPremiumRestrictionUseCase(videoEntity)
                 )
-                videoPlayerState.value.rumblePlayer?.let { player ->
+                videoPlayerState.value.rumblePlayer?.let {
                     updateVideoPlayerSourceUseCase(
-                        player = player,
+                        player = it,
                         videoEntity = videoEntity,
                         saveLastPosition = saveLastPositionUseCase::invoke,
                         screenId = videoDetailsScreen,
@@ -373,8 +372,8 @@ class VideoPlaybackViewModel @Inject constructor(
                         onPremiumCountdownFinished = {
                             enforceLiveGateRestriction()
                         },
-                        onVideoReady = {
-                            handleLiveGate(videoEntity, it)
+                        onVideoReady = { duration, player ->
+                            handleLiveGate(videoEntity, duration, player)
                         }
                     )
                 }

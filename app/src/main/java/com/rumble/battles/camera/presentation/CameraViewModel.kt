@@ -227,13 +227,7 @@ class CameraViewModel @Inject constructor(
     }
     private val orientationEventListener: RumbleOrientationChangeHandler
 
-    private var uploadVideoData = UploadVideoData(
-        uploadUUID = UUID.randomUUID().toString(),
-        videoUri = "",
-        videoExtension = RUMBLE_VIDEO_EXTENSION,
-        licence = UploadLicense.RUMBLE_ONLY.apiValue,
-        visibility = UploadVisibility.PUBLIC.apiValue
-    )
+    private var uploadVideoData = createDefaultUploadVideoData()
 
     override val uiState = MutableStateFlow(
         UserUploadUIState(
@@ -668,6 +662,14 @@ class CameraViewModel @Inject constructor(
         }
     }
 
+    private fun createDefaultUploadVideoData() = UploadVideoData(
+        uploadUUID = UUID.randomUUID().toString(),
+        videoUri = "",
+        videoExtension = RUMBLE_VIDEO_EXTENSION,
+        licence = UploadLicense.RUMBLE_ONLY.apiValue,
+        visibility = UploadVisibility.PUBLIC.apiValue
+    )
+
     override fun onUploadChannelSelected(channelId: String) {
         uiState.update { state ->
             if (state.userUploadProfile.id == channelId) {
@@ -847,7 +849,7 @@ class CameraViewModel @Inject constructor(
                     saveDraftToDB()
                 }
             }
-            resetForm()
+            resetState()
             onPublish()
         } else {
             uiState.update {
@@ -946,7 +948,8 @@ class CameraViewModel @Inject constructor(
         }
     }
 
-    private fun resetForm() {
+    private fun resetState() {
+        uploadVideoData = createDefaultUploadVideoData()
         uiState.value = uiState.value.copy(
             uploadVideoUri = "",
             videoExtension = RUMBLE_VIDEO_EXTENSION,

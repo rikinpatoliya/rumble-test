@@ -175,6 +175,7 @@ import com.rumble.utils.replaceUrlParameter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
@@ -343,6 +344,15 @@ fun ContentScreen(
                         navControllers[index].popBackStack(startDestinationId, false)
                     }
                     selectedTabIndex = NAV_ITEM_INDEX_HOME
+                    try {
+                        navControllers[selectedTabIndex].navigate(tabScreens[selectedTabIndex]) {
+                            popUpTo(navControllers[selectedTabIndex].graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    } catch (e: IllegalStateException) {
+                        Timber.e("NavControllerError inclusive popUpTo failed with exception: ${e.message}")
+                    }
                 }
 
                 is ContentScreenVmEvent.NavigateToChannelDetails -> {

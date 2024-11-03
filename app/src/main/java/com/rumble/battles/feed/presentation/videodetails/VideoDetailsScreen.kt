@@ -800,7 +800,7 @@ fun VideoDetailsView(
                                 liveChatHandler = liveChatHandler,
                                 activityHandler = activityHandler
                             )
-                        } else {
+                        } else if (state.lastBottomSheet == LastBottomSheet.COMMENTS) {
                             CommentsView(
                                 modifier = sheetContentModifier,
                                 handler = handler,

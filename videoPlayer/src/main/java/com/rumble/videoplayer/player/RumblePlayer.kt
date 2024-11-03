@@ -156,7 +156,7 @@ class RumblePlayer(
     private var reportAdEvent: (suspend (List<String>, Long) -> Unit)? = null
     private var sendInitialPlaybackEvent: (() -> Unit)? = null
     private var onPremiumCountdownFinished: (() -> Unit)? = null
-    private var onVideoReady: ((Long) -> Unit)? = null
+    private var onVideoReady: ((Long, RumblePlayer) -> Unit)? = null
 
     // Internal logic
     private val getCurrentDeviceVolumeUseCase: GetCurrentDeviceVolumeUseCase
@@ -462,7 +462,7 @@ class RumblePlayer(
         reportAdEvent: (suspend (List<String>, Long) -> Unit)?,
         sendInitialPlaybackEvent: (() -> Unit)?,
         onPremiumCountdownFinished: (() -> Unit)?,
-        onVideoReady: ((Long) -> Unit)?,
+        onVideoReady: ((Long, RumblePlayer) -> Unit)?,
     ) {
         initTime = System.currentTimeMillis()
         this.reportLiveVideo = reportLiveVideo
@@ -502,7 +502,7 @@ class RumblePlayer(
         updatedRelatedVideoList: Boolean,
         autoPlay: Boolean,
         onPremiumCountdownFinished: (() -> Unit)?,
-        onVideoReady: ((Long) -> Unit)?,
+        onVideoReady: ((Long, RumblePlayer) -> Unit)?,
     ) {
         this.autoPlay = autoPlay
         this.onPremiumCountdownFinished = onPremiumCountdownFinished
@@ -1033,7 +1033,7 @@ class RumblePlayer(
                     }
 
                     Player.STATE_READY -> {
-                        onVideoReady?.invoke(player.duration)
+                        onVideoReady?.invoke(player.duration, this@RumblePlayer)
                         val currentState = this@RumblePlayer.playbackState.value
                         if (currentState is PlayerPlaybackState.Fetching) {
                             sendInitialPlaybackEvent?.invoke()

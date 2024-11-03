@@ -22,15 +22,20 @@ data class PremiumIAPSucceededEvent(
         SOURCE to (source?.value ?: ""),
         CREATOR_ID to creatorId,
     )
-    override val appsFlyOps: Map<String, String?> =  mapOf(
+    override val appsFlyOps: MutableMap<String, String> =  mutableMapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
-        CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
-        CREATOR_ID to creatorId,
-    )
+    ).apply {
+        if (contentId != null) {
+            this[CONTENT_ID] = contentId
+        }
+        if (creatorId != null) {
+            this[CREATOR_ID] = creatorId
+        }
+    }
 }
 
 data class PremiumMonthlyIAPSucceededEvent(
@@ -50,15 +55,20 @@ data class PremiumMonthlyIAPSucceededEvent(
         CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
     )
-    override val appsFlyOps: Map<String, String?> =  mapOf(
+    override val appsFlyOps: MutableMap<String, String> =  mutableMapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
-        CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
-        CREATOR_ID to creatorId
-    )
+    ).apply {
+        if (contentId != null) {
+            this[CONTENT_ID] = contentId
+        }
+        if (creatorId != null) {
+            this[CREATOR_ID] = creatorId
+        }
+    }
 }
 
 data class PremiumAnnualIAPSucceededEvent(
@@ -78,15 +88,20 @@ data class PremiumAnnualIAPSucceededEvent(
         CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
     )
-    override val appsFlyOps: Map<String, String?> =  mapOf(
+    override val appsFlyOps: MutableMap<String, String> =  mutableMapOf(
         APPSFLYER_PRICE to price.toString(),
         APPSFLYER_CURRENCY to DEFAULT_CURRENCY,
         PRICE to priceCents,
         USER_ID to userId,
-        CONTENT_ID to contentId,
         SOURCE to (source?.value ?: ""),
-        CREATOR_ID to creatorId
-    )
+    ).apply {
+        if (contentId != null) {
+            this[CONTENT_ID] = contentId
+        }
+        if (creatorId != null) {
+            this[CREATOR_ID] = creatorId
+        }
+    }
 }
 
 data object PremiumPromoViewEvent : AnalyticEvent {

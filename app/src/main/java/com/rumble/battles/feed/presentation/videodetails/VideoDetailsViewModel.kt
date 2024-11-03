@@ -1280,8 +1280,8 @@ class VideoDetailsViewModel @Inject constructor(
             onPremiumCountdownFinished = {
                 onEnforceLiveGatePremiumRestriction()
             },
-            onVideoReady = {
-               getPremiumRestriction(videoEntity, it)
+            onVideoReady = { duration, _ ->
+               getPremiumRestriction(videoEntity, duration)
             }
         )
         if (hasPremiumRestrictionUseCase(videoEntity).not())
@@ -1315,9 +1315,9 @@ class VideoDetailsViewModel @Inject constructor(
                         onPremiumCountdownFinished = {
                             onEnforceLiveGatePremiumRestriction()
                         },
-                        onVideoReady = {
+                        onVideoReady = { duration, _ ->
                             state.value.videoEntity?.let { videoEntity ->
-                                getPremiumRestriction(videoEntity, it)
+                                getPremiumRestriction(videoEntity, duration)
                             }
                         }
                     )
