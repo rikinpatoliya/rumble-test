@@ -14,5 +14,6 @@ data class LiveChatResult(
     val unpinnedMessageId: Long? = null,
     val canModerate: Boolean? = null,
     val liveGate: LiveGateEntity? = null,
+    val raidEntity: RaidEntity? = null,
     override val rumbleError: RumbleError? = null
 ) : RumbleResult

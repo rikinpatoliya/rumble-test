@@ -104,6 +104,8 @@ val miniPlayerBottomPadding = paddingXXSmall + bottomBarHeight + paddingXXXSmall
 val miniPlayerBottomThreshold = miniPlayerBottomPadding + miniPlayerHeight
 val miniPlayerActionSize = 24.dp
 val commentViewHeight = 48.dp
+val raidMessageHeight = 48.dp
+val raidMessageContainerHeight = 62.dp
 
 val imageXXMini = 2.dp
 val imageMini = 4.dp

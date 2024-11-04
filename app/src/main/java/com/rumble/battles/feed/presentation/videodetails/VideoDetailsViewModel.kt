@@ -181,6 +181,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onEnforceLiveGatePremiumRestriction(liveGateEntity: LiveGateEntity? = null)
     fun onLiveGateEvent(liveGateEntity: LiveGateEntity)
     fun getVideoAspectRatio(): Int
+    fun onLoadNewVideo(videoUrl: String)
 }
 
 data class PlayListState(
@@ -354,6 +355,15 @@ class VideoDetailsViewModel @Inject constructor(
         }
 
         observeLoginState()
+    }
+
+    override fun onLoadNewVideo(videoUrl: String) {
+        viewModelScope.launch(errorHandler) {
+            getVideoDetailsUseCase(videoUrl)?.let {
+                state.value = state.value.copy(videoEntity = getVideoDetailsUseCase(it.id))
+                updateVideoSource(videoId = it.id, updatedRelatedVideoList = true, autoplay = true)
+            }
+        }
     }
 
     override fun onLoadContent(videoId: Long, playListId: String?, shufflePlayList: Boolean?) {

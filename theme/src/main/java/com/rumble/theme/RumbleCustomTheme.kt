@@ -29,6 +29,8 @@ class RumbleColors {
     private val backgroundHighlightLight = gray50
     private val primaryDark = Color.White
     private val primaryLight = Color.Black
+    private val primaryVariantDark = gray100
+    private val primaryVariantLight = gray400
     private val secondaryDark = gray25
     private val secondaryLight = gray700
     private val onSecondaryDark = gray700
@@ -47,6 +49,9 @@ class RumbleColors {
 
     val primary: Color
         get() =  if (isLightMode) primaryLight else primaryDark
+
+    val primaryVariant: Color
+        get() = if (isLightMode) primaryVariantLight else primaryVariantDark
 
     val secondary: Color
         get() =  if (isLightMode) secondaryLight else secondaryDark

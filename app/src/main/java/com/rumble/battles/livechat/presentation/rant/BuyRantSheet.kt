@@ -1,4 +1,4 @@
-package com.rumble.battles.livechat.presentation
+package com.rumble.battles.livechat.presentation.rant
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Canvas
@@ -65,6 +65,8 @@ import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.keyboardAsState
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
 import com.rumble.battles.landing.RumbleActivityHandler
+import com.rumble.battles.livechat.presentation.LiveChatHandler
+import com.rumble.battles.livechat.presentation.content.LiveChatUserNameView
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.RantConfig
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel

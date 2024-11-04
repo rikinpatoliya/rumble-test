@@ -1,4 +1,4 @@
-package com.rumble.battles.livechat.presentation
+package com.rumble.battles.livechat.presentation.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

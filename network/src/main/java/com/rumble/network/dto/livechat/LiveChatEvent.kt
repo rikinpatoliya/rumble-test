@@ -59,6 +59,13 @@ sealed class LiveChatEvent {
         val data: CanModerateData
     ) : LiveChatEvent()
 
+    data class RaidConfirmedEvent(
+        @SerializedName("type")
+        val eventType: LiveChatEventType,
+        @SerializedName("data")
+        val data: Raid
+    ) : LiveChatEvent()
+    
     data class LiveGateEvent(
         @SerializedName("type")
         val eventType: LiveChatEventType,

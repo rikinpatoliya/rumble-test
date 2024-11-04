@@ -1,4 +1,4 @@
-package com.rumble.battles.livechat.presentation
+package com.rumble.battles.livechat.presentation.content
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
@@ -44,6 +44,15 @@ import com.rumble.battles.commonViews.RoundTextButton
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
 import com.rumble.battles.feed.presentation.views.GoPremiumToCharOrCommentView
 import com.rumble.battles.landing.RumbleActivityHandler
+import com.rumble.battles.livechat.presentation.LiveChatEvent
+import com.rumble.battles.livechat.presentation.LiveChatHandler
+import com.rumble.battles.livechat.presentation.pinnedmessage.PinnedMessageView
+import com.rumble.battles.livechat.presentation.raid.RaidInProgressView
+import com.rumble.battles.livechat.presentation.raid.RaidMessageView
+import com.rumble.battles.livechat.presentation.raid.RaidPopupView
+import com.rumble.battles.livechat.presentation.rant.RantMessageView
+import com.rumble.battles.livechat.presentation.rant.RantView
+import com.rumble.domain.livechat.domain.domainmodel.RaidMessageType
 import com.rumble.domain.livechat.domain.domainmodel.ChatMode
 import com.rumble.theme.RumbleTypography.h4Underlined
 import com.rumble.theme.darkGreen
@@ -234,6 +243,12 @@ fun LiveChatViewContent(
                                     badges = liveChatState.badges,
                                     liveChatConfig = liveChatState.liveChatConfig
                                 )
+                            } else if (message.isRaidMessage) {
+                                RaidMessageView(
+                                    type = message.raidMessageType ?: RaidMessageType.getRandomType(),
+                                    channelName = message.userName,
+                                    channelAvatar = message.userThumbnail,
+                                )
                             } else {
                                 LiveChatMessageView(
                                     modifier = Modifier.padding(
@@ -313,6 +328,34 @@ fun LiveChatViewContent(
                     onHide = liveChatHandler::onHidePinnedMessage,
                     onLinkClick = activityHandler::onOpenWebView
                 )
+            }
+        }
+
+        liveChatState.raidEntity?.let {
+            AnimatedVisibility(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .constrainAs(pinned) {
+                        top.linkTo(header.bottom)
+                    },
+                visible = liveChatState.pinnedMessageHidden.not(),
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                if (liveChatState.streamRaided) {
+                    RaidInProgressView(
+                        modifier = Modifier.padding(horizontal = paddingXXXSmall),
+                        raidEntity = it,
+                        onJoin = liveChatHandler::onJoinRaid,
+                    )
+                } else {
+                    RaidPopupView(
+                        modifier = Modifier.padding(horizontal = paddingXXXSmall),
+                        raidEntity = it,
+                        onJoin = liveChatHandler::onJoinRaid,
+                        onOptOut = liveChatHandler::onOptOutRaid,
+                    )
+                }
             }
         }
 

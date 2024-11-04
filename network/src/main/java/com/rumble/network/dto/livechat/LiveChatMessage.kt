@@ -18,5 +18,7 @@ data class LiveChatMessage(
     @SerializedName("notification")
     val notification: LiveChatNotification?,
     @SerializedName("channel_id")
-    val channelId: Long?
+    val channelId: Long?,
+    @SerializedName("raid_notification")
+    val raidNotification: RaidNotification?,
 )

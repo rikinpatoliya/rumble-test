@@ -7,6 +7,8 @@ import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatResult
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
+import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
+import com.rumble.domain.livechat.domain.domainmodel.RaidMessageType
 import com.rumble.domain.livechat.domain.domainmodel.RantConfig
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.network.dto.livechat.LiveChatChannel
@@ -14,6 +16,7 @@ import com.rumble.network.dto.livechat.LiveChatConfigRant
 import com.rumble.network.dto.livechat.LiveChatEvent
 import com.rumble.network.dto.livechat.LiveChatMessage
 import com.rumble.network.dto.livechat.LiveChatUser
+import com.rumble.network.dto.livechat.Raid
 import com.rumble.utils.extension.convertUtcToLocal
 import com.rumble.utils.extension.getComposeColor
 import com.rumble.utils.extension.getUserId
@@ -65,6 +68,7 @@ object LiveChatNetworkModelMapper {
                             chatMode = ChatMode.getByValue(it.chatMode),
                         )
                     },
+                    raidEntity = mapToRaidEntity(event.data.raid)
                 )
             }
 
@@ -111,10 +115,20 @@ object LiveChatNetworkModelMapper {
                 )
             }
 
+            is LiveChatEvent.RaidConfirmedEvent -> {
+                LiveChatResult(
+                    raidEntity = mapToRaidEntity(event.data)
+                )
+            }
+
             else -> LiveChatResult(success = false)
         }
 
-    private fun createEntity(message: LiveChatMessage, user: LiveChatUser?, channel: LiveChatChannel?) = LiveChatMessageEntity(
+    private fun createEntity(
+        message: LiveChatMessage,
+        user: LiveChatUser?,
+        channel: LiveChatChannel?
+    ) = LiveChatMessageEntity(
         messageId = message.id,
         userId = user?.id ?: 0,
         channelId = message.channelId,
@@ -130,7 +144,9 @@ object LiveChatNetworkModelMapper {
         isNotification = message.notification != null,
         notification = message.notification?.text,
         notificationBadge = message.notification?.badge,
-        userNameColor = user?.userNameColor?.getComposeColor()
+        userNameColor = user?.userNameColor?.getComposeColor(),
+        isRaidMessage = message.raidNotification != null,
+        raidMessageType = if (message.raidNotification != null) RaidMessageType.getRandomType() else null,
     )
 
     private fun mapToRantConfig(rants: LiveChatConfigRant): RantConfig =
@@ -156,4 +172,26 @@ object LiveChatNetworkModelMapper {
                 image = it.image ?: ""
             )
         }
+
+    private fun mapToRaidEntity(raid: Raid?) = raid?.let {
+        RaidEntity(
+            currentChannelName = raid.currentChannelName,
+            currentChannelAvatar = raid.currentChannelAvatar,
+            targetUrl = raid.targetUrl,
+            targetChannelName = raid.targetChannelName,
+            targetChannelAvatar = raid.targetChannelAvatar,
+            targetVideoTitle = raid.targetVideoTitle,
+            timeOut = calculateRaidTimeout(it.redirectionSteps),
+        )
+    }
+
+    private fun calculateRaidTimeout(redirectionSteps: Map<Float, List<Int>>): Long {
+        val defaultDelay = 10
+        val defaultSpread = 50
+        val random = Math.random() * 100
+        val (delay, spread) = redirectionSteps.keys.firstOrNull { random < it }?.let { key ->
+            redirectionSteps[key]
+        } ?: listOf(defaultDelay, defaultSpread)
+        return (delay + Math.random() * spread).toLong()
+    }
 }

@@ -198,6 +198,11 @@ class LiveChatRemoteDataSourceImpl(
                 LiveChatEvent.LiveGateEvent::class.java
             )
 
+            LiveChatEventType.RAID_CONFIRMED -> gson.fromJson(
+                jsonString,
+                LiveChatEvent.RaidConfirmedEvent::class.java
+            )
+
             else -> LiveChatEvent.LiveChatError("Unsupported live chat event type")
         }
     }

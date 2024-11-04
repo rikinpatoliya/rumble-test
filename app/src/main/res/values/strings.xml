@@ -407,6 +407,10 @@
     <string name="forever">Forever</string>
     <string name="sign_in_to_comment">Sign in to join comments</string>
     <string name="sign_in_to_live_chat">Sign in to join live chat</string>
+    <string name="is_raiding">is raiding</string>
+    <string name="raid_starting_in">Raid starting in %ds</string>
+    <string name="opt_out">Opt Out</string>
+    <string name="has_raided">has raided this stream!</string>
 
     <!-- Search -->
     <string name="search_rumble">Search Rumble</string>

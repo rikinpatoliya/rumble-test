@@ -17,6 +17,8 @@ data class LiveChatInitData(
     val pinnedMessage: LiveChatMessage?,
     @SerializedName("can_moderate")
     val canModerate: Boolean?,
+    @SerializedName("raid")
+    val raid: Raid?,
     @SerializedName("live_gate")
     val liveGate: LiveGate?,
 )

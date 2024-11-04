@@ -1,4 +1,4 @@
-package com.rumble.battles.livechat.presentation
+package com.rumble.battles.livechat.presentation.pinnedmessage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
+import com.rumble.battles.livechat.presentation.content.LiveChatContentView
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.theme.RumbleTheme

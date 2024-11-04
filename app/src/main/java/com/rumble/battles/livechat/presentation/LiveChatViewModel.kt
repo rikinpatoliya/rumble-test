@@ -12,6 +12,7 @@ import com.rumble.analytics.RantBuyButtonTapEvent
 import com.rumble.analytics.RantTermsLinkTapEvent
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
+import com.rumble.battles.livechat.presentation.content.ModerationMenuType
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.RumbleErrorUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
@@ -32,6 +33,7 @@ import com.rumble.domain.livechat.domain.domainmodel.MutePeriod
 import com.rumble.domain.livechat.domain.domainmodel.MuteUserResult
 import com.rumble.domain.livechat.domain.domainmodel.PaymentProofResult
 import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
+import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.domain.livechat.domain.usecases.DeleteMessageUseCase
@@ -92,6 +94,8 @@ interface LiveChatHandler {
     fun onDeleteMessage()
     fun onConfirmDeleteMessage()
     fun onMuteUserConfirmed(videoId: Long, mutePeriod: MutePeriod)
+    fun onJoinRaid()
+    fun onOptOutRaid()
 }
 
 data class LiveChatState(
@@ -109,7 +113,9 @@ data class LiveChatState(
     val pinnedMessageHidden: Boolean = false,
     val canModerate: Boolean = false,
     val selectedMessage: LiveChatMessageEntity? = null,
-    val moderationMenuType: ModerationMenuType = ModerationMenuType.Generic
+    val moderationMenuType: ModerationMenuType = ModerationMenuType.Generic,
+    val raidEntity: RaidEntity? = null,
+    val streamRaided: Boolean = false,
 )
 
 sealed class LiveChatEvent {
@@ -126,6 +132,7 @@ sealed class LiveChatEvent {
     data object HideModerationMenu : LiveChatEvent()
     data class EnforceLiveGatePremiumRestriction(val liveGateEntity: LiveGateEntity) : LiveChatEvent()
     data class LiveGateStarted(val liveGateEntity: LiveGateEntity) : LiveChatEvent()
+    data class RedirectTo(val videoUrl: String) : LiveChatEvent()
 }
 
 sealed class LiveChatAlertReason : AlertDialogReason {
@@ -157,6 +164,7 @@ class LiveChatViewModel @Inject constructor(
 ) : ViewModel(), LiveChatHandler, PurchaseHandler {
 
     private var eventsJob: Job = Job()
+    private var countDownJob: Job = Job()
     private var currentUserid: Long? = null
     private var purchaseInProgress: Boolean = false
     private var liveChatConfig: LiveChatConfig? = null
@@ -388,6 +396,28 @@ class LiveChatViewModel @Inject constructor(
         }
     }
 
+    override fun onJoinRaid() {
+        if (state.value.streamRaided) {
+            state.value.raidEntity?.targetUrl?.let { videoUrl ->
+                emitEvent(LiveChatEvent.RedirectTo(videoUrl))
+            }
+            state.value = state.value.copy(
+                streamRaided = false,
+                raidEntity = null,
+            )
+        } else {
+            state.value = state.value.copy(
+                raidEntity = state.value.raidEntity?.copy(optedOut = false)
+            )
+        }
+    }
+
+    override fun onOptOutRaid() {
+        state.value = state.value.copy(
+            raidEntity = state.value.raidEntity?.copy(optedOut = true)
+        )
+    }
+
     private fun emitEvent(event: LiveChatEvent) {
         viewModelScope.launch { eventFlow.emit(event) }
     }
@@ -422,7 +452,8 @@ class LiveChatViewModel @Inject constructor(
                                 config.channels
                             )
                         )
-                    val messageCount = state.value.unreadMessageCount + updatedResult.messageList.size
+                    val messageCount =
+                        state.value.unreadMessageCount + updatedResult.messageList.size
                     val currentSelection = state.value.rantSelected
 
                     if (messageList.size > LIVE_CHAT_MAX_MESSAGE_COUNT) {
@@ -439,8 +470,10 @@ class LiveChatViewModel @Inject constructor(
                         unreadMessageCountText = getUnreadMessageCountTextUseCase(messageCount),
                         pinnedMessage = getPinnedMessage(updatedResult),
                         canModerate = (if (updatedResult.canModerate != null) updatedResult.canModerate else state.value.canModerate)
-                            ?: false
+                            ?: false,
+                        raidEntity = result.raidEntity,
                     )
+                    startUpdateRaidTimeOut()
                     delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
                     emitEvent(LiveChatEvent.ScrollLiveChat(max(messageList.size - 1, 0)))
                 }
@@ -507,6 +540,35 @@ class LiveChatViewModel @Inject constructor(
                     )
                     if (state.value.rantList.isNotEmpty()) {
                         emitEvent(LiveChatEvent.ScrollRant(state.value.rantList.size - 1))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun startUpdateRaidTimeOut() {
+        if (state.value.raidEntity != null) {
+            countDownJob.cancel()
+            countDownJob = viewModelScope.launch(Dispatchers.IO + errorHandler) {
+                while (isActive) {
+                    delay(RANT_STATE_UPDATE_RATIO)
+                    state.value.raidEntity?.let {
+                        if (it.timePassed < it.timeOut - 1) {
+                            state.value = state.value.copy(
+                                raidEntity = it.copy(timePassed = it.timePassed + 1)
+                            )
+                        } else {
+                            countDownJob.cancel()
+                            if (state.value.raidEntity?.optedOut == false) {
+                                state.value.raidEntity?.targetUrl?.let { videoUrl ->
+                                    emitEvent(LiveChatEvent.RedirectTo(videoUrl))
+                                }
+                            } else {
+                                state.value = state.value.copy(
+                                    streamRaided = true
+                                )
+                            }
+                        }
                     }
                 }
             }

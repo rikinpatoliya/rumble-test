@@ -134,12 +134,12 @@ import com.rumble.battles.feed.presentation.views.VideoTagListView
 import com.rumble.battles.feed.presentation.views.WatchingNowView
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.landing.RumbleEvent
-import com.rumble.battles.livechat.presentation.BuyRantSheet
 import com.rumble.battles.livechat.presentation.LiveChatEvent
 import com.rumble.battles.livechat.presentation.LiveChatHandler
-import com.rumble.battles.livechat.presentation.LiveChatModerationMenu
 import com.rumble.battles.livechat.presentation.LiveChatView
-import com.rumble.battles.livechat.presentation.MuteUserBottomSheet
+import com.rumble.battles.livechat.presentation.content.LiveChatModerationMenu
+import com.rumble.battles.livechat.presentation.content.MuteUserBottomSheet
+import com.rumble.battles.livechat.presentation.rant.BuyRantSheet
 import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -439,6 +439,10 @@ fun VideoDetailsScreen(
 
                 is LiveChatEvent.LiveGateStarted -> {
                     handler.onLiveGateEvent(it.liveGateEntity)
+                }
+
+                is LiveChatEvent.RedirectTo -> {
+                    handler.onLoadNewVideo(it.videoUrl)
                 }
 
                 else -> return@collectLatest

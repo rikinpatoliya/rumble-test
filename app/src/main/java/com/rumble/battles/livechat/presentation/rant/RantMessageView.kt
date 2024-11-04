@@ -1,4 +1,4 @@
-package com.rumble.battles.livechat.presentation
+package com.rumble.battles.livechat.presentation.rant
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,6 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
+import com.rumble.battles.livechat.presentation.content.LiveChatUserNameView
+import com.rumble.battles.livechat.presentation.content.MessageContentView
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity

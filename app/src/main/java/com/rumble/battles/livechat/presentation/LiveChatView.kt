@@ -11,6 +11,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
 import com.rumble.battles.landing.RumbleActivityHandler
+import com.rumble.battles.livechat.presentation.content.LiveChatViewContent
 import com.rumble.theme.commentActionButtonWidth
 import kotlinx.coroutines.flow.collectLatest
 
