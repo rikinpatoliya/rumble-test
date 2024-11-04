@@ -64,6 +64,7 @@ import com.rumble.domain.feed.domain.usecase.UpdateCommentVoteUseCase
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.library.domain.usecase.GetPlayListUseCase
 import com.rumble.domain.library.domain.usecase.GetPlayListVideosUseCase
+import com.rumble.domain.livechat.domain.domainmodel.ChatMode
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageResult
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
@@ -177,7 +178,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
 
     fun onUpdateLayoutState(layoutState: CollapsableLayoutState)
     fun onClearVideo()
-    fun onEnforceLiveGatePremiumRestriction()
+    fun onEnforceLiveGatePremiumRestriction(liveGateEntity: LiveGateEntity? = null)
     fun onLiveGateEvent(liveGateEntity: LiveGateEntity)
     fun getVideoAspectRatio(): Int
 }
@@ -218,10 +219,12 @@ data class VideoDetailsState(
     val userProfile: UserProfileEntity? = null,
     val selectedLiveChatAuthor: CommentAuthorEntity? = null,
     val hasPremiumRestriction: Boolean = false,
+    val hasLiveGateRestriction: Boolean = false,
     val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
     val displayPremiumOnlyContent: Boolean = false,
+    val chatMode: ChatMode = ChatMode.Free,
 )
 
 sealed class BottomSheetReason {
@@ -380,7 +383,7 @@ class VideoDetailsViewModel @Inject constructor(
                 state.value = state.value.copy(screenOrientationLocked = false)
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
             }
-            if (state.value.hasPremiumRestriction) onCloseVideoDetails()
+            if (state.value.hasPremiumRestriction || state.value.hasLiveGateRestriction) onCloseVideoDetails()
         }
     }
 
@@ -656,14 +659,15 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onEnforceLiveGatePremiumRestriction() {
+    override fun onEnforceLiveGatePremiumRestriction(liveGateEntity: LiveGateEntity?) {
         state.value.videoEntity?.let {
             viewModelScope.launch(errorHandler + Dispatchers.Main) {
                 if (hasPremiumRestrictionUseCase(it)) {
                     state.value.rumblePlayer?.pauseVideo()
                     state.value = state.value.copy(
                         videoEntity = state.value.videoEntity?.copy(hasLiveGate = true),
-                        hasPremiumRestriction = true,
+                        hasLiveGateRestriction = true,
+                        chatMode = liveGateEntity?.chatMode ?: state.value.chatMode,
                     )
                     onFullScreen(false)
                 }
@@ -673,7 +677,8 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onLiveGateEvent(liveGateEntity: LiveGateEntity) {
         state.value = state.value.copy(
-            videoEntity = state.value.videoEntity?.copy(hasLiveGate = true)
+            videoEntity = state.value.videoEntity?.copy(hasLiveGate = true),
+            chatMode = liveGateEntity.chatMode,
         )
         state.value.videoEntity?.let {
             val countdown = calculateLiveGateCountdownValueUseCase(
@@ -706,7 +711,7 @@ class VideoDetailsViewModel @Inject constructor(
                 creatorId = state.value.channelDetailsEntity?.channelId?.getChannelId() ?: 0
             )
         )
-        if ( state.value.channelDetailsEntity?.localsCommunityEntity?.showPremiumFlow == true) {
+        if (state.value.channelDetailsEntity?.localsCommunityEntity?.showPremiumFlow == true) {
             emitVmEvent(VideoDetailsEvent.OpenPremiumSubscriptionOptions)
         } else {
             state.value = state.value.copy(bottomSheetReason = BottomSheetReason.JoinOnLocals)
@@ -1251,6 +1256,7 @@ class VideoDetailsViewModel @Inject constructor(
             inComments = false,
             displayPremiumOnlyContent = false,
             hasPremiumRestriction = false,
+            hasLiveGateRestriction = false,
         )
         orientationEventListener.disable()
         viewModelScope.launch { sessionManager.saveVideoDetailsCollapsed(true) }
@@ -1281,7 +1287,7 @@ class VideoDetailsViewModel @Inject constructor(
                 onEnforceLiveGatePremiumRestriction()
             },
             onVideoReady = { duration, _ ->
-               getPremiumRestriction(videoEntity, duration)
+                checkLiveGateRestrictions(videoEntity, duration)
             }
         )
         if (hasPremiumRestrictionUseCase(videoEntity).not())
@@ -1317,7 +1323,7 @@ class VideoDetailsViewModel @Inject constructor(
                         },
                         onVideoReady = { duration, _ ->
                             state.value.videoEntity?.let { videoEntity ->
-                                getPremiumRestriction(videoEntity, duration)
+                                checkLiveGateRestrictions(videoEntity, duration)
                             }
                         }
                     )
@@ -1410,6 +1416,8 @@ class VideoDetailsViewModel @Inject constructor(
                 isLoading = false,
                 commentsDisabled = it.commentsDisabled,
                 watchingNow = it.watchingNow,
+                hasPremiumRestriction = hasPremiumRestrictionUseCase(it) && it.hasLiveGate.not(),
+                chatMode = it.liveGateEntity?.chatMode ?: ChatMode.Free,
             )
             onVideoPlayerImpression()
             initLiveChat(it)
@@ -1421,23 +1429,29 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun getPremiumRestriction(videoEntity: VideoEntity, actualDuration: Long) {
+    private fun checkLiveGateRestrictions(videoEntity: VideoEntity, actualDuration: Long) {
         viewModelScope.launch(errorHandler) {
             if (hasPremiumRestrictionUseCase(videoEntity)) {
                 if (videoEntity.hasLiveGate && videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
-                    state.value = state.value.copy(displayPremiumOnlyContent = true)
+                    state.value = state.value.copy(
+                        displayPremiumOnlyContent = true,
+                        chatMode = videoEntity.liveGateEntity?.chatMode ?: ChatMode.Free,
+                    )
                     state.value.rumblePlayer?.playVideo()
                     videoEntity.liveGateEntity?.let {
                         state.value.rumblePlayer?.let { rumblePlayer ->
                             startPremiumPreviewCountdownUseCase(rumblePlayer, actualDuration)
                         }
                     }
-                } else {
-                    state.value = state.value.copy(hasPremiumRestriction = true)
+                } else if (videoEntity.hasLiveGate) {
+                    state.value = state.value.copy(
+                        hasLiveGateRestriction = true,
+                        chatMode = videoEntity.liveGateEntity?.chatMode ?: ChatMode.Free,
+                    )
                 }
             } else {
                 state.value = state.value.copy(
-                    hasPremiumRestriction = false,
+                    hasLiveGateRestriction = false,
                     displayPremiumOnlyContent = false
                 )
             }

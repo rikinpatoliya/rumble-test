@@ -7,4 +7,6 @@ data class LiveGate(
     val timeCode: Long,
     @SerializedName("countdown_seconds")
     val countdown: Int,
+    @SerializedName("chat_mode")
+    val chatMode: Int,
 )

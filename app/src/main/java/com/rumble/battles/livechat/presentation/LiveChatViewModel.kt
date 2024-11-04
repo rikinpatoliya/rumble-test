@@ -124,7 +124,7 @@ sealed class LiveChatEvent {
     data class RantPurchaseSucceeded(val rantLevel: RantLevel) : LiveChatEvent()
     data object OpenModerationMenu : LiveChatEvent()
     data object HideModerationMenu : LiveChatEvent()
-    data object EnforceLiveGatePremiumRestriction : LiveChatEvent()
+    data class EnforceLiveGatePremiumRestriction(val liveGateEntity: LiveGateEntity) : LiveChatEvent()
     data class LiveGateStarted(val liveGateEntity: LiveGateEntity) : LiveChatEvent()
 }
 
@@ -401,8 +401,8 @@ class LiveChatViewModel @Inject constructor(
                     result.liveChatConfig?.let {
                         initLiveChatConfig(it)
                     }
-                    if (result.liveGate != null) {
-                        emitEvent(LiveChatEvent.EnforceLiveGatePremiumRestriction)
+                    result.liveGate?.let {
+                        emitEvent(LiveChatEvent.EnforceLiveGatePremiumRestriction(it))
                     }
                     state.value = state.value.copy(liveChatConfig = liveChatConfig)
                     startUpdateRantList()

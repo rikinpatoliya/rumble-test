@@ -1,6 +1,7 @@
 package com.rumble.domain.livechat.model
 
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
+import com.rumble.domain.livechat.domain.domainmodel.ChatMode
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
@@ -60,7 +61,8 @@ object LiveChatNetworkModelMapper {
                     liveGate = event.data.liveGate?.let {
                         LiveGateEntity(
                             videoTimeCode = it.timeCode,
-                            countDownValue = it.countdown
+                            countDownValue = it.countdown,
+                            chatMode = ChatMode.getByValue(it.chatMode),
                         )
                     },
                 )
@@ -103,7 +105,8 @@ object LiveChatNetworkModelMapper {
                 LiveChatResult(
                     liveGate = LiveGateEntity(
                         videoTimeCode = event.data.timeCode,
-                        countDownValue = event.data.countdown
+                        countDownValue = event.data.countdown,
+                        chatMode = ChatMode.getByValue(event.data.chatMode),
                     )
                 )
             }
