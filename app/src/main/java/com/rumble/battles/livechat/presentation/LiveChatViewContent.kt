@@ -44,6 +44,7 @@ import com.rumble.battles.commonViews.RoundTextButton
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
 import com.rumble.battles.feed.presentation.views.GoPremiumToCharOrCommentView
 import com.rumble.battles.landing.RumbleActivityHandler
+import com.rumble.domain.livechat.domain.domainmodel.ChatMode
 import com.rumble.theme.RumbleTypography.h4Underlined
 import com.rumble.theme.darkGreen
 import com.rumble.theme.enforcedDarkmo
@@ -354,7 +355,7 @@ private fun ContentFooter(
             )
         } else {
             state.userProfile?.let { userProfile ->
-                if (userProfile.validated && state.hasPremiumRestriction) {
+                if ((userProfile.validated && state.hasPremiumRestriction) || state.chatMode == ChatMode.PremiumOrSubscribedOnly) {
                     GoPremiumToCharOrCommentView(
                         modifier = modifier
                             .imePadding()

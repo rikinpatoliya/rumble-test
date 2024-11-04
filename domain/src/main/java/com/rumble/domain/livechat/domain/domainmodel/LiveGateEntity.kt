@@ -7,4 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class LiveGateEntity(
     val videoTimeCode: Long,
     val countDownValue: Int,
+    val chatMode: ChatMode,
 ) : Parcelable

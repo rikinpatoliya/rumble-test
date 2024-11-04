@@ -52,7 +52,8 @@ class ReportLiveVideoUseCase @Inject constructor(
                     isLive = it.data.liveStatus == LiveStreamStatus.LIVE.value || it.data.liveStatus == LiveStreamStatus.OFFLINE.value,
                     hasLiveGate = it.data.liveGate != null,
                     videoTimeCode = it.data.liveGate?.timeCode,
-                    countDownValue = it.data.liveGate?.countdown
+                    countDownValue = it.data.liveGate?.countdown,
+                    chatMode = it.data.liveGate?.chatMode ?: 0,
                 )
             }
         } else {

@@ -702,39 +702,37 @@ fun VideoDetailsView(
                         .height(actualHeight)
 
                 if (state.hasPremiumRestriction) {
-                    if (state.videoEntity?.hasLiveGate == true) {
-                        PremiumOnlyThumbnailView(
-                            modifier = sizeModifier
-                                .aspectRatio(
-                                    ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
-                                ),
-                            text = stringResource(id = R.string.rest_video_premium_only),
-                            url = state.videoEntity?.videoThumbnail ?: "",
-                            onBack = { handler.onCloseVideoDetails() },
-                            onSubscribeNow = {
-                                contentHandler.onShowSubscriptionOptions(
-                                    videoId = state.videoEntity?.id,
-                                    source = SubscriptionSource.Video
-                                )
-                            }
-                        )
-                    } else {
-                        PremiumOnlyThumbnailView(
-                            modifier = sizeModifier
-                                .aspectRatio(
-                                    ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
-                                ),
-                            text = stringResource(id = R.string.this_video_only_rumble_premium),
-                            url = state.videoEntity?.videoThumbnail ?: "",
-                            onBack = { handler.onCloseVideoDetails() },
-                            onSubscribeNow = {
-                                contentHandler.onShowSubscriptionOptions(
-                                    videoId = state.videoEntity?.id,
-                                    source = SubscriptionSource.Video
-                                )
-                            }
-                        )
-                    }
+                    PremiumOnlyThumbnailView(
+                        modifier = sizeModifier
+                            .aspectRatio(
+                                ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
+                            ),
+                        text = stringResource(id = R.string.this_video_only_rumble_premium),
+                        url = state.videoEntity?.videoThumbnail ?: "",
+                        onBack = { handler.onCloseVideoDetails() },
+                        onSubscribeNow = {
+                            contentHandler.onShowSubscriptionOptions(
+                                videoId = state.videoEntity?.id,
+                                source = SubscriptionSource.Video
+                            )
+                        }
+                    )
+                } else if (state.hasLiveGateRestriction){
+                    PremiumOnlyThumbnailView(
+                        modifier = sizeModifier
+                            .aspectRatio(
+                                ratio = RumbleConstants.VIDEO_CARD_THUMBNAIL_ASPECT_RATION,
+                            ),
+                        text = stringResource(id = R.string.rest_video_premium_only),
+                        url = state.videoEntity?.videoThumbnail ?: "",
+                        onBack = { handler.onCloseVideoDetails() },
+                        onSubscribeNow = {
+                            contentHandler.onShowSubscriptionOptions(
+                                videoId = state.videoEntity?.id,
+                                source = SubscriptionSource.Video
+                            )
+                        }
+                    )
                 } else {
                     VideoPlayerView(
                         modifier = sizeModifier

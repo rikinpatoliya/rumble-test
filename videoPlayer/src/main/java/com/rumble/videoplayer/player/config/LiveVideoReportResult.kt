@@ -7,4 +7,5 @@ data class LiveVideoReportResult(
     val hasLiveGate: Boolean = false,
     val videoTimeCode: Long? = null,
     val countDownValue: Int? = null,
+    val chatMode: Int,
 )

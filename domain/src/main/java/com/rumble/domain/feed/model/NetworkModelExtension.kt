@@ -23,6 +23,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.VideoSource
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
 import com.rumble.domain.feed.domain.domainmodel.video.WatchingNowEntity
 import com.rumble.domain.library.domain.model.PlayListVisibility
+import com.rumble.domain.livechat.domain.domainmodel.ChatMode
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
 import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
@@ -104,7 +105,7 @@ fun PlayList.getPlayListEntity(): PlayListEntity =
         videos = items.map { it.video.getPlaylistVideoEntity() }.toMutableList()
     )
 
-fun PlayListUser.getPlayListUserEntity() : PlayListUserEntity =
+fun PlayListUser.getPlayListUserEntity(): PlayListUserEntity =
     PlayListUserEntity(
         id = id.toUserIdString(),
         username = username,
@@ -117,7 +118,7 @@ fun PlayListUser.getPlayListUserEntity() : PlayListUserEntity =
         )
     )
 
-fun PlayListChannel.getPlayListChannelEntity() : PlayListChannelEntity =
+fun PlayListChannel.getPlayListChannelEntity(): PlayListChannelEntity =
     PlayListChannelEntity(
         channelId = channelId.toChannelIdString(),
         url = url,
@@ -166,7 +167,10 @@ fun Video.getVideoEntity(): VideoEntity =
         commentNumber = comments?.count?.toLong() ?: 0L,
         viewsNumber = numberOfView.toLong(),
         likeNumber = getLikesNumberWithUserVote(rumbleVotes.numVotesUp, rumbleVotes.userVote),
-        dislikeNumber = getDisLikesNumberWithUserVote(rumbleVotes.numVotesDown, rumbleVotes.userVote),
+        dislikeNumber = getDisLikesNumberWithUserVote(
+            rumbleVotes.numVotesDown,
+            rumbleVotes.userVote
+        ),
         userVote = UserVote.getByVote(rumbleVotes.userVote),
         videoSourceList = videos.map {
             VideoSource(
@@ -191,7 +195,9 @@ fun Video.getVideoEntity(): VideoEntity =
         videoLogView = VideoLogView(log.view),
         commentList = comments?.items?.map { it.getCommentEntity() },
         commentsDisabled = areCommentsDisabled ?: false,
-        relatedVideoList = related?.mapIndexed { index, video -> video.getVideoEntity().copy(index = index) },
+        relatedVideoList = related?.mapIndexed { index, video ->
+            video.getVideoEntity().copy(index = index)
+        },
         tagList = tags,
         categoriesList = categories?.getVideoCategories(),
         verifiedBadge = videoSource?.verifiedBadge ?: false,
@@ -206,7 +212,13 @@ fun Video.getVideoEntity(): VideoEntity =
         ) ?: false,
         subscribedToCurrentChannel = videoSource?.subscribed == true,
         hasLiveGate = liveGate != null,
-        liveGateEntity = liveGate?.let { LiveGateEntity(it.timeCode, it.countdown) },
+        liveGateEntity = liveGate?.let {
+            LiveGateEntity(
+                videoTimeCode = it.timeCode,
+                countDownValue = it.countdown,
+                chatMode = ChatMode.getByValue(it.chatMode)
+            )
+        },
     )
 
 private fun Categories.getVideoCategories(): List<VideoCategoryEntity> {
