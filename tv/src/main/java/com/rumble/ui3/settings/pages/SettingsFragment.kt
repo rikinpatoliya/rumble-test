@@ -48,7 +48,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import com.rumble.R
-import com.rumble.commonViews.ActionButton
 import com.rumble.commonViews.dialogs.DialogActionItem
 import com.rumble.commonViews.dialogs.DialogActionType
 import com.rumble.commonViews.dialogs.RumbleAlertDialog
@@ -229,14 +228,12 @@ fun ChangeSubdomainInputField(
                 style = labelRegularTv.copy(enforcedWhite.copy(alpha = 0.5f))
             )
         },
-        trailingIcon = {
-            ActionButton(text = "Save", onClick = onSave)
-        },
         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(
             onDone = {
                 hideKeyboard(context)
                 focusManager.clearFocus()
+                onSave()
             },
             onPrevious = {
                 // required for FireTV to hide keyboard on back pressed
