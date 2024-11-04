@@ -138,7 +138,7 @@ class SettingsMainFragmentV4 : BrowseSupportFragment(), BrowseSupportFragment.Ma
 
         settingsFragmentRow = SettingsFragmentRow(
             HeaderItem(
-                getString(R.string.settings_fragment_settings_label)
+                getString(R.string.settings_fragment_debug_label)
             )
         )
 

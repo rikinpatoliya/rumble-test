@@ -160,7 +160,7 @@
     <string name="settings_fragment_privacy_policy_label">Privacy Policy</string>
     <string name="settings_fragment_copyright_label">Copyright &amp; DMCA</string>
     <string name="settings_fragment_credits_label">Credits</string>
-    <string name="settings_fragment_settings_label">Settings</string>
+    <string name="settings_fragment_debug_label">Debug</string>
     <string name="settings_fragment_app_version">App Version</string>
     <string name="settings_fragment_terms_conditions_content_label">To read Rumble’s terms and conditions, visit</string>
     <string name="settings_fragment_terms_conditions_content_label2">rumble.com/s/terms</string>
