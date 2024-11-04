@@ -2,6 +2,7 @@ package com.rumble.network.di
 
 import com.rumble.network.api.LoginApi
 import com.rumble.network.interceptors.ApiVersionInterceptor
+import com.rumble.network.interceptors.PerformanceInterceptor
 import com.rumble.network.interceptors.QueryInterceptor
 import com.rumble.network.interceptors.ResponseInterceptor
 import com.rumble.network.interceptors.UrlEncodedInterceptor
@@ -33,6 +34,7 @@ object LoginModule {
         responseInterceptor: ResponseInterceptor,
         userAgentInterceptor: UserAgentInterceptor,
         curlLoggingInterceptor: RetrofitCurlPrinterInterceptor,
+        performanceInterceptor: PerformanceInterceptor,
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient.Builder()
             .addInterceptor(urlEncodedInterceptor)
@@ -42,6 +44,7 @@ object LoginModule {
             .addInterceptor(responseInterceptor)
             .addInterceptor(loggingInterceptor)
             .addInterceptor(curlLoggingInterceptor)
+            .addInterceptor(performanceInterceptor)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .connectTimeout(60, TimeUnit.SECONDS)

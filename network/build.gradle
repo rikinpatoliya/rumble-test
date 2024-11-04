@@ -78,5 +78,11 @@ dependencies {
     // Backward support for time classes
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
+    // Curl logs
     api 'com.github.tomasharkema:RetrofitCurlPrinter:0.0.1'
+
+    //Firebase performance
+    api platform('com.google.firebase:firebase-bom:32.8.1')
+    api 'com.google.firebase:firebase-perf-ktx'
+
 }

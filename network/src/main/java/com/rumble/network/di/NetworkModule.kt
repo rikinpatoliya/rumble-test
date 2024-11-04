@@ -12,6 +12,7 @@ import com.rumble.network.api.VideoApi
 import com.rumble.network.interceptors.AcceptJsonHeadersInterceptor
 import com.rumble.network.interceptors.ApiVersionInterceptor
 import com.rumble.network.interceptors.HeadersInterceptor
+import com.rumble.network.interceptors.PerformanceInterceptor
 import com.rumble.network.interceptors.QueryInterceptor
 import com.rumble.network.interceptors.ResponseInterceptor
 import com.rumble.network.interceptors.UserAgentInterceptor
@@ -75,6 +76,7 @@ object NetworkModule {
         responseInterceptor: ResponseInterceptor,
         userAgentInterceptor: UserAgentInterceptor,
         curlLoggingInterceptor: RetrofitCurlPrinterInterceptor,
+        performanceInterceptor: PerformanceInterceptor,
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient.Builder()
             .addInterceptor(headersInterceptor)
@@ -85,6 +87,7 @@ object NetworkModule {
             .addInterceptor(responseInterceptor)
             .addInterceptor(loggingInterceptor)
             .addInterceptor(curlLoggingInterceptor)
+            .addInterceptor(performanceInterceptor)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .connectTimeout(60, TimeUnit.SECONDS)

@@ -7,6 +7,7 @@ import com.rumble.domain.livechat.model.datasource.LiveChatRemoteDataSource
 import com.rumble.domain.livechat.model.datasource.LiveChatRemoteDataSourceImpl
 import com.rumble.domain.livechat.model.repository.LiveChatRepository
 import com.rumble.domain.livechat.model.repository.LiveChatRepositoryImpl
+import com.rumble.domain.performance.domain.usecase.CreateLiveStreamMetricUseCase
 import com.rumble.network.api.EmoteApi
 import com.rumble.network.api.LiveChatApi
 import com.rumble.network.api.LiveChatEventsApi
@@ -60,6 +61,7 @@ object LiveChatModule {
         @AppVersion appVersion: String,
         @OsVersion osVersion: String,
         @IoDispatcher dispatcher: CoroutineDispatcher,
+        createLiveStreamMetricUseCase: CreateLiveStreamMetricUseCase,
     ): LiveChatRemoteDataSource {
         val chatEndpoint = runBlocking { sessionManager.chatEndPointFlow.first() }
         val cookies = runBlocking { sessionManager.cookiesFlow.first() }
@@ -74,7 +76,8 @@ object LiveChatModule {
             packageName = packageName,
             appVersion = appVersion,
             osVersion = osVersion,
-            dispatcher = dispatcher
+            dispatcher = dispatcher,
+            createLiveStreamMetricUseCase = createLiveStreamMetricUseCase,
         )
     }
 

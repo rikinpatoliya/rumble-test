@@ -4,6 +4,7 @@ import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
+import com.rumble.domain.performance.domain.usecase.CreateLiveStreamMetricUseCase
 import com.rumble.network.NetworkRumbleConstants.ACCEPT_HEADER
 import com.rumble.network.NetworkRumbleConstants.API
 import com.rumble.network.NetworkRumbleConstants.APP_REQUEST_NAME
@@ -64,11 +65,13 @@ class LiveChatRemoteDataSourceImpl(
     private val appVersion: String,
     private val osVersion: String,
     private val dispatcher: CoroutineDispatcher,
+    private val createLiveStreamMetricUseCase: CreateLiveStreamMetricUseCase,
 ) : LiveChatRemoteDataSource {
 
     private val dataElement = "data:"
     private val typeElement = "type"
     private val dataOffset = dataElement.length
+    private var measured: Boolean = false
 
     override suspend fun fetchChatEvents(videoId: Long): Flow<LiveChatEvent> = channelFlow {
         val userAgent = "${appName}/${versionCode} okhttp/${okhttp3.OkHttp.VERSION}"
@@ -95,9 +98,16 @@ class LiveChatRemoteDataSourceImpl(
             }
             val input = connection.inputStream.bufferedReader()
             try {
+                val metric = createLiveStreamMetricUseCase()
+                metric.start()
                 connection.connect()
                 while (isActive) {
                     val line = input.readLine()
+                    if (measured.not()) {
+                        measured = true
+                        metric.setHttpResponseCode(connection.responseCode)
+                        metric.stop()
+                    }
                     if (line.isNullOrEmpty() and stringBuffer.isEmpty().not()) {
                         val jsonString = stringBuffer.toString()
                         getLiveChatEvent(jsonString)?.let {
