@@ -28,6 +28,7 @@ android {
         applicationId "com.rumble.battles"
         buildConfigField "String", "REQUEST_PARAM_APP_NAME", '"com.rumble.androidtv.app"'
         buildConfigField "String", "METADATA_BUNDLE_ID", '"com.rumble.battles"'
+        buildConfigField "String", "APPS_FLYER_API_ID", '""'
     }
     signingConfigs {
         debugKey {
