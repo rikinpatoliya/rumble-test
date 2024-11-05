@@ -12,6 +12,7 @@ import com.rumble.network.NetworkRumbleConstants.TOO_MANY_REQUESTS
 import com.rumble.network.api.LoginApi
 import com.rumble.network.dto.login.FacebookLoginResponse
 import com.rumble.network.dto.login.GoogleAppleResponse
+import com.rumble.network.dto.login.RegisterErrorResponse
 import com.rumble.network.dto.login.RumbleLoginResponse
 import com.rumble.network.dto.login.TvPairingCodeVerificationDataStatus
 import com.rumble.network.dto.login.TvPairingCodeVerificationResponse
@@ -20,6 +21,8 @@ import com.rumble.utils.HashCalculator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -30,6 +33,7 @@ class LoginRepositoryImpl @Inject constructor(
     private val loginRemoteDataSource: LoginRemoteDataSource,
     private val dispatcher: CoroutineDispatcher,
     private val hashCalculator: HashCalculator,
+    private val registerErrorConverter: Converter<ResponseBody, RegisterErrorResponse>?,
 ) : LoginRepository {
 
     override suspend fun rumbleLogin(username: String, password: String): LoginResult =
@@ -87,7 +91,7 @@ class LoginRepositoryImpl @Inject constructor(
                     provider = loginType.provider
                 )
             }
-            val responseResult = response.getResponseResult()
+            val responseResult = response.getResponseResult(registerErrorConverter)
             if (responseResult.first) RegisterResult.Success
             else if (response.code() == TOO_MANY_REQUESTS) {
                 RegisterResult.DuplicatedRequest(RumbleError(TAG, response.raw()))
