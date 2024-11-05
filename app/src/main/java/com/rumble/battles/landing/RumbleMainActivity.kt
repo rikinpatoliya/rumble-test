@@ -56,6 +56,7 @@ import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
 import com.rumble.domain.timerange.model.TimeRangeService
+import com.rumble.network.NetworkRumbleConstants.RETROFIT_STACK_TRACE
 import com.rumble.network.connection.ConnectivityError
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
@@ -63,6 +64,8 @@ import com.rumble.videoplayer.player.RumblePlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -434,11 +437,15 @@ class RumbleMainActivity : FragmentActivity() {
         // https://console.firebase.google.com/project/rumble-video-battles/crashlytics/app/android:com.rumble.battles/issues/5f226fb3ff527a8e470edbe0766bdd6d?time=last-seven-days&versions=3.0.14%20(296)&sessionEventKey=6470B0E803C9000133221D0C1A6A1590_1815924810619436179
         // https://console.firebase.google.com/project/rumble-video-battles/crashlytics/app/android:com.rumble.battles/issues/d967c556dc68c01bcb36939e149fa1ae?time=last-seven-days&versions=3.0.14%20(296)&sessionEventKey=6470AAE70207000124F88FB31E29C43E_1815919325278786672
         // https://console.firebase.google.com/project/rumble-video-battles/crashlytics/app/android:com.rumble.battles/issues/71415c33811b96943b6f6f68470a732c?time=last-seven-days&types=crash&versions=3.1.6%20(361);3.1.6%20(360)&sessionEventKey=6564B8CB028E0001474C74467CE861AE_1884613282571260807
+        // https://console.firebase.google.com/project/rumble-video-battles/crashlytics/app/android:com.rumble.battles/issues/ba791233eb1c0b22af78a0294385cb9c?time=last-seven-days&sessionEventKey=672A36F701630001206125C6575BB974_2012260266694775671
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             if ((e is ConnectException)
                 || (e is UnknownHostException)
                 || (e is SocketTimeoutException)
                 || (e is ConnectivityError)
+                || (e is IOException)
+                || (e is HttpException)
+                || (e.stackTrace.any { it.className.contains(RETROFIT_STACK_TRACE)})
             ) {
                 viewModel.onError(e)
             } else {
