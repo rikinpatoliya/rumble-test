@@ -77,6 +77,10 @@ interface RumbleActivityHandler {
     fun onAppPaused()
     fun onEnterPipMode()
     fun onExitPipMode()
+    fun onEnterBackgroundSoundOnlyMode()
+    fun onExitBackgroundSoundOnlyMode()
+    fun onEnterBackgroundPausedMode()
+    fun onExitBackgroundPausedMode()
     fun clearNotifications()
     fun loadNotificationState()
     fun disableDynamicOrientationChangeBasedOnDeviceType()
@@ -290,6 +294,9 @@ class RumbleActivityViewModel @Inject constructor(
             val screenOff = getApplication<Application>().isScreenOn().not()
             if (backgroundSoundIsAvailable().not() && screenOff) {
                 currentPlayer?.pauseVideo()
+                onEnterBackgroundPausedMode()
+            } else {
+                onEnterBackgroundSoundOnlyMode()
             }
         }
     }
@@ -303,12 +310,28 @@ class RumbleActivityViewModel @Inject constructor(
             )
         }
         currentPlayer?.hideControls()
-        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Pip
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.Pip)
         emitVmEvent(RumbleEvent.PipModeEntered)
     }
 
     override fun onExitPipMode() {
-        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Normal
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
+    }
+
+    override fun onEnterBackgroundSoundOnlyMode() {
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundSoundOnly)
+    }
+
+    override fun onExitBackgroundSoundOnlyMode() {
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
+    }
+
+    override fun onEnterBackgroundPausedMode() {
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundPaused)
+    }
+
+    override fun onExitBackgroundPausedMode() {
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
     }
 
     private fun emitVmEvent(event: RumbleEvent) =

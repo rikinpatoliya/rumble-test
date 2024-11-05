@@ -9,6 +9,7 @@ import android.os.IBinder
 import androidx.annotation.OptIn
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -234,6 +235,10 @@ class RumblePlayer(
     private var _countDownType: MutableState<CountDownType> = mutableStateOf(CountDownType.Ad)
     val countDownType: State<CountDownType> = _countDownType
 
+    private var _rumbleVideoMode: MutableState<RumbleVideoMode> =
+        mutableStateOf(RumbleVideoMode.Normal)
+    val rumbleVideoMode: State<RumbleVideoMode> = _rumbleVideoMode
+
     internal var rumbleVideo: RumbleVideo? = null
     internal var autoPlayEnabled: Boolean = false
     internal var castLastPosition = 0L
@@ -249,7 +254,6 @@ class RumblePlayer(
     internal var playNextCurrentCount = playNextCount
 
     var targetChangeListener: PlayerTargetChangeListener? = null
-    var rumbleVideoMode: RumbleVideoMode = RumbleVideoMode.Normal
     var userIsPremium: Boolean? = null
 
     val videoTitle: String
@@ -299,6 +303,12 @@ class RumblePlayer(
 
     val nextRelatedVideo: RumbleVideo?
         get() = getNextRelatedVideoUseCase(relatedVideoList, rumbleVideo)
+
+    val showUpNext: State<Boolean>
+        get() = derivedStateOf {
+            _playbackSate.value is PlayerPlaybackState.Finished && _hasRelatedVideos.value &&
+                nextRelatedVideo != null
+        }
 
     init {
         player = createPlayer(applicationContext)
@@ -728,6 +738,10 @@ class RumblePlayer(
         }
     }
 
+    fun setRumbleVideoMode(videoMode: RumbleVideoMode) {
+        _rumbleVideoMode.value = videoMode
+    }
+
     private fun stopPremiumCountDown() {
         onPremiumCountdownFinished?.invoke()
         _currentCountDownValue.value = 0
@@ -751,8 +765,7 @@ class RumblePlayer(
                         countDownType.value
                     )
                 }
-            }
-            else stopPremiumCountDown()
+            } else stopPremiumCountDown()
         }
     }
 
@@ -1211,7 +1224,7 @@ class RumblePlayer(
     private fun loadAd(isMidRoll: Boolean = false) {
         if (_adPlaybackState.value !is AdPlaybackState.Buffering
             && viewResumed
-            && rumbleVideoMode == RumbleVideoMode.Normal
+            && rumbleVideoMode.value == RumbleVideoMode.Normal
         ) {
             _adPlaybackState.value = AdPlaybackState.Buffering
             adsPlayer?.stop()

@@ -60,6 +60,7 @@ import com.rumble.network.connection.ConnectivityError
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
 import com.rumble.videoplayer.player.RumblePlayerService
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -107,17 +108,27 @@ class RumbleMainActivity : FragmentActivity() {
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         lifecycleScope.launch(Dispatchers.Main) {
-            if (viewModel.pipIsAvailable(packageManager) &&
-                this@RumbleMainActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-            ) {
-                try {
-                    enterPictureInPictureMode(PictureInPictureParams.Builder().build())
-                } catch (e: Exception) {
+            val showUpNext = viewModel.currentPlayer?.showUpNext?.value ?: false
+
+            if (showUpNext) {
+                // Autoplay UI is shown
+                viewModel.onEnterBackgroundPausedMode()
+            } else {
+                if (viewModel.pipIsAvailable(packageManager) &&
+                    this@RumbleMainActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                ) {
+                    try {
+                        enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+                    } catch (e: Exception) {
+                        viewModel.currentPlayer?.pauseVideo()
+                        viewModel.onLogException(e)
+                    }
+                } else if (viewModel.backgroundSoundIsAvailable().not()) {
                     viewModel.currentPlayer?.pauseVideo()
-                    viewModel.onLogException(e)
+                    viewModel.onEnterBackgroundPausedMode()
+                } else {
+                    viewModel.onEnterBackgroundSoundOnlyMode()
                 }
-            } else if (viewModel.backgroundSoundIsAvailable().not()) {
-                viewModel.currentPlayer?.pauseVideo()
             }
         }
 
@@ -139,6 +150,11 @@ class RumbleMainActivity : FragmentActivity() {
     }
 
     override fun onResume() {
+        if (viewModel.currentPlayer?.rumbleVideoMode?.value == RumbleVideoMode.BackgroundSoundOnly) {
+            viewModel.onExitBackgroundSoundOnlyMode()
+        } else if (viewModel.currentPlayer?.rumbleVideoMode?.value == RumbleVideoMode.BackgroundPaused) {
+            viewModel.onExitBackgroundPausedMode()
+        }
         viewModel.currentPlayer?.enableControls()
         super.onResume()
     }

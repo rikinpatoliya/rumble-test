@@ -189,6 +189,7 @@ import com.rumble.utils.extension.capitalizeWords
 import com.rumble.utils.extension.conditional
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerTarget
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.presentation.RumbleVideoView
 import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.views.MiniControllerView
