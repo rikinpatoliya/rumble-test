@@ -38,8 +38,10 @@ import com.rumble.theme.radiusXXXXMedium
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.videoplayer.R
 import com.rumble.videoplayer.player.RumblePlayer
+import com.rumble.videoplayer.player.config.PlayerPlaybackState
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.presentation.RumbleVideoView
+import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.internal.defaults.miniPlayerSeekBarHeight
 import com.rumble.videoplayer.presentation.internal.views.EmbeddedSeekBar
 
@@ -50,6 +52,7 @@ fun MiniPlayerView(
     onClose: () -> Unit = {},
     onClick: () -> Unit = {},
 ) {
+    val showUpNext by rumblePlayer.showUpNext
     Surface(
         modifier = modifier
             .clickable { onClick() }
@@ -78,13 +81,15 @@ fun MiniPlayerView(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = paddingMedium),
-                    rumblePlayer = rumblePlayer
+                    rumblePlayer = rumblePlayer,
+                    showUpNext = showUpNext
                 )
 
                 MiniPlayerControlsView(
                     modifier = Modifier.padding(end = paddingMedium),
                     playerTarget = rumblePlayer.playerTarget.value,
                     isPlaying = rumblePlayer.isPlaying(),
+                    showPlayPause = !showUpNext,
                     onPause = { rumblePlayer.pauseVideo() },
                     onPlay = { rumblePlayer.playVideo() },
                     onClose = onClose
@@ -107,12 +112,26 @@ fun MiniPlayerView(
 fun MiniPlayerInfoView(
     modifier: Modifier = Modifier,
     rumblePlayer: RumblePlayer,
+    showUpNext: Boolean = false
 ) {
+    val nextRelatedVideo = rumblePlayer.nextRelatedVideo
     val playerTarget by remember { rumblePlayer.playerTarget }
-    val title = if (playerTarget == PlayerTarget.AD) stringResource(R.string.video_play_after_ad)
-    else rumblePlayer.videoTitle
-    val subTitle = if (playerTarget == PlayerTarget.AD) stringResource(R.string.sponsored)
-    else rumblePlayer.channelName
+    val title: String
+    val subTitle: String
+    when  {
+        playerTarget == PlayerTarget.AD -> {
+            title = stringResource(R.string.video_play_after_ad)
+            subTitle = stringResource(R.string.sponsored)
+        }
+        showUpNext && nextRelatedVideo != null -> {
+            title = nextRelatedVideo.title
+            subTitle = stringResource(R.string.up_next)
+        }
+        else -> {
+            title = rumblePlayer.videoTitle
+            subTitle = rumblePlayer.channelName
+        }
+    }
 
     Column(
         modifier = modifier,
@@ -141,6 +160,7 @@ fun MiniPlayerControlsView(
     modifier: Modifier = Modifier,
     playerTarget: PlayerTarget?,
     isPlaying: Boolean,
+    showPlayPause: Boolean = true,
     onPause: () -> Unit = {},
     onPlay: () -> Unit = {},
     onClose: () -> Unit = {},
@@ -150,7 +170,7 @@ fun MiniPlayerControlsView(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(paddingMedium)
     ) {
-        if (playerTarget != PlayerTarget.AD) {
+        if (showPlayPause && playerTarget != PlayerTarget.AD) {
             if (isPlaying) {
                 Icon(
                     modifier = Modifier

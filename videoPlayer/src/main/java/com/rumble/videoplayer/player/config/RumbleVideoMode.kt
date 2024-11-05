@@ -3,5 +3,7 @@ package com.rumble.videoplayer.player.config
 enum class RumbleVideoMode {
     Normal,
     Pip,
-    Minimized
+    Minimized,
+    BackgroundSoundOnly,
+    BackgroundPaused
 }

@@ -1,7 +1,6 @@
 package com.rumble.battles.landing
 
 import android.app.Application
-import android.content.pm.PackageManager
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
@@ -66,7 +65,7 @@ interface RumbleActivityHandler {
     val isLaunchedFromNotification: Boolean
 
     fun onAppLaunchedFromNotification()
-    suspend fun pipIsAvailable(packageManager: PackageManager): Boolean
+    suspend fun pipIsAvailable(): Boolean
     suspend fun backgroundSoundIsAvailable(): Boolean
     suspend fun getCookies(): String
     fun getVideoDetails(rumbleNotificationData: RumbleNotificationData)
@@ -75,6 +74,8 @@ interface RumbleActivityHandler {
     fun initMediaSession(session: MediaSessionCompat)
     fun onError(e: Throwable)
     fun onAppPaused()
+    fun onAppResumed()
+    fun onUserLeaveHint(lifecycleStateAtLeastStarted: Boolean)
     fun onEnterPipMode()
     fun onExitPipMode()
     fun clearNotifications()
@@ -111,6 +112,7 @@ sealed class RumbleEvent {
     data object DisableDynamicOrientationChangeBasedOnDeviceType : RumbleEvent()
     data object CloseApp : RumbleEvent()
     data object PremiumPurchased : RumbleEvent()
+    data object EnterPipMode : RumbleEvent()
     data class OpenWebView(val url: String) : RumbleEvent()
     data class ShowSnackbar(
         val message: String,
@@ -204,7 +206,7 @@ class RumbleActivityViewModel @Inject constructor(
         isLaunchedFromNotification = true
     }
 
-    override suspend fun pipIsAvailable(packageManager: PackageManager): Boolean =
+    override suspend fun pipIsAvailable(): Boolean =
         pipIsAvailableUseCase()
             && currentPlayer != null
 
@@ -290,8 +292,41 @@ class RumbleActivityViewModel @Inject constructor(
             val screenOff = getApplication<Application>().isScreenOn().not()
             if (backgroundSoundIsAvailable().not() && screenOff) {
                 currentPlayer?.pauseVideo()
+                currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundPaused)
+            } else {
+                currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundSoundOnly)
             }
         }
+    }
+
+    override fun onAppResumed() {
+        val rumbleVideoMode = currentPlayer?.rumbleVideoMode?.value
+        if (rumbleVideoMode == RumbleVideoMode.BackgroundSoundOnly ||
+            rumbleVideoMode == RumbleVideoMode.BackgroundPaused
+        ) {
+            currentPlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
+        }
+    }
+
+    override fun onUserLeaveHint(lifecycleStateAtLeastStarted: Boolean) {
+        viewModelScope.launch {
+            val showUpNext = currentPlayer?.showUpNext?.value ?: false
+
+            if (showUpNext) {
+                // Autoplay UI is shown
+                currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundPaused)
+            } else {
+                if (pipIsAvailable() && lifecycleStateAtLeastStarted) {
+                    emitVmEvent(RumbleEvent.EnterPipMode)
+                } else if (backgroundSoundIsAvailable().not()) {
+                    currentPlayer?.pauseVideo()
+                    currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundPaused)
+                } else {
+                    currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundSoundOnly)
+                }
+            }
+        }
+
     }
 
     override fun onEnterPipMode() {
@@ -303,12 +338,12 @@ class RumbleActivityViewModel @Inject constructor(
             )
         }
         currentPlayer?.hideControls()
-        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Pip
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.Pip)
         emitVmEvent(RumbleEvent.PipModeEntered)
     }
 
     override fun onExitPipMode() {
-        currentPlayer?.rumbleVideoMode = RumbleVideoMode.Normal
+        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
     }
 
     private fun emitVmEvent(event: RumbleEvent) =
