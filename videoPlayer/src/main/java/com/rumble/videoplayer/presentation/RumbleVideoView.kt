@@ -47,7 +47,6 @@ import com.rumble.videoplayer.player.config.AdPlaybackState
 import com.rumble.videoplayer.player.config.PlayerPlaybackState
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.ReportType
-import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.presentation.internal.controlViews.CastControlView
 import com.rumble.videoplayer.presentation.internal.controlViews.EmbeddedControlsView
 import com.rumble.videoplayer.presentation.internal.controlViews.FullScreenLandscapeControlsView
@@ -245,27 +244,15 @@ fun RumbleVideoView(
             if (playbackState !is PlayerPlaybackState.Fetching || uiType == UiType.TV) {
                 if (playbackState is PlayerPlaybackState.Finished && hasRelatedVideos) {
                     rumblePlayer.nextRelatedVideo?.let {
-                        LaunchedEffect(Unit) {
-                            if (rumbleVideoMode == RumbleVideoMode.Pip ||
-                                rumbleVideoMode == RumbleVideoMode.BackgroundSoundOnly
-                            ) {
-                                // skip timer and play next video immediately
-                                rumblePlayer.onPlayNextVideo()
-                            }
-                        }
-                        if (rumbleVideoMode != RumbleVideoMode.Pip &&
-                            rumbleVideoMode != RumbleVideoMode.BackgroundSoundOnly
-                        ) {
-                            PlayNextView(
-                                uiType = uiType,
-                                rumbleVideo = it,
-                                rumbleVideoMode = rumbleVideoMode,
-                                delayInitialCount = rumblePlayer.playNextCurrentCount,
-                                onPlayNextCountChanged = rumblePlayer::onPlayNextCountChanged,
-                                onCancel = rumblePlayer::onCancelNextVideo,
-                                onPlayNow = rumblePlayer::onPlayNextVideo
-                            )
-                        }
+                        PlayNextView(
+                            uiType = uiType,
+                            rumbleVideo = it,
+                            rumbleVideoMode = rumbleVideoMode,
+                            delayInitialCount = rumblePlayer.playNextCurrentCount,
+                            onPlayNextCountChanged = rumblePlayer::onPlayNextCountChanged,
+                            onCancel = rumblePlayer::onCancelNextVideo,
+                            onPlayNow = rumblePlayer::onPlayNextVideo
+                        )
                     }
                 } else if (playbackState is PlayerPlaybackState.Error) {
                     rumblePlayer.rumbleVideo?.let {
