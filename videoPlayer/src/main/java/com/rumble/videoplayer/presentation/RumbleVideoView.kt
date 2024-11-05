@@ -104,6 +104,7 @@ fun RumbleVideoView(
     val hasRelatedVideos by rumblePlayer.hasRelatedVideos
     val currentCountDownValue by rumblePlayer.currentCountDownValue
     val countdownType by rumblePlayer.countDownType
+    val rumbleVideoMode by rumblePlayer.rumbleVideoMode
     val playerView = remember {
         PlayerView(context).apply {
             player = exoPlayer
@@ -246,6 +247,7 @@ fun RumbleVideoView(
                         PlayNextView(
                             uiType = uiType,
                             rumbleVideo = it,
+                            rumbleVideoMode = rumbleVideoMode,
                             delayInitialCount = rumblePlayer.playNextCurrentCount,
                             onPlayNextCountChanged = rumblePlayer::onPlayNextCountChanged,
                             onCancel = rumblePlayer::onCancelNextVideo,
@@ -371,7 +373,10 @@ fun RumbleVideoView(
                             CountDownView(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .padding(horizontal = paddingMedium, vertical = paddingXXXXLarge),
+                                    .padding(
+                                        horizontal = paddingMedium,
+                                        vertical = paddingXXXXLarge
+                                    ),
                                 countDownValue = currentCountDownValue,
                                 type = countdownType,
                                 uiType = uiType

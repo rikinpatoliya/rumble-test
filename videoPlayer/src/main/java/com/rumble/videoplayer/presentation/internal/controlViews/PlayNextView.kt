@@ -78,6 +78,7 @@ import com.rumble.utils.extension.parsedTime
 import com.rumble.utils.extension.shortString
 import com.rumble.videoplayer.R
 import com.rumble.videoplayer.player.RumbleVideo
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.player.config.StreamStatus
 import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.internal.defaults.playNexTvHeight
@@ -100,107 +101,139 @@ private enum class FocusedAction {
 fun PlayNextView(
     uiType: UiType,
     rumbleVideo: RumbleVideo,
+    rumbleVideoMode: RumbleVideoMode,
     delayInitialCount: Int,
     onPlayNextCountChanged: (Int) -> Unit,
     onCancel: () -> Unit,
-    onPlayNow: () -> Unit,
+    onPlayNow: () -> Unit
 ) {
-    var delayCount by rememberSaveable { mutableIntStateOf(delayInitialCount) }
-    val isLiveVideo = remember {
-        rumbleVideo.streamStatus == StreamStatus.LiveStream
-            || rumbleVideo.streamStatus == StreamStatus.OfflineStream
-    }
-    var contentIsVisible by rememberSaveable { mutableStateOf(false) }
-    var cancelNow by rememberSaveable { mutableStateOf(false) }
-    var playNow by rememberSaveable { mutableStateOf(false) }
-
     LaunchedEffect(Unit) {
-        delay(playNextAppearanceDelay)
-        contentIsVisible = true
-        while (delayCount > 0) {
-            delay(playNextDelay)
-            delayCount--
-            onPlayNextCountChanged(delayCount)
-        }
-        playNow = true
-    }
-
-    LaunchedEffect(cancelNow) {
-        if (cancelNow) {
-            contentIsVisible = false
-            delay(playNextAppearanceDelay)
-            onCancel()
-        }
-    }
-
-    LaunchedEffect(playNow) {
-        if (playNow) {
-            contentIsVisible = false
-            delay(playNextAppearanceDelay)
+        if (rumbleVideoMode == RumbleVideoMode.Pip ||
+            rumbleVideoMode == RumbleVideoMode.BackgroundSoundOnly
+        ) {
+            // skip timer and play next video immediately
             onPlayNow()
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(brandedPlayerBackground.copy(0.7f))
+    if (rumbleVideoMode != RumbleVideoMode.Pip &&
+        rumbleVideoMode != RumbleVideoMode.BackgroundSoundOnly
     ) {
-        AnimatedVisibility(
-            modifier = Modifier.fillMaxSize(),
-            visible = contentIsVisible,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .conditional(uiType != UiType.TV) {
-                            widthIn(max = playNextWidthFrame)
-                        }
-                        .conditional(uiType == UiType.TV) {
-                            wrapContentSize()
-                        }
-                        .align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(if (uiType == UiType.TV) paddingXXLarge else paddingMedium)
-                ) {
-                    Text(
-                        modifier = Modifier.focusable(enabled = false),
-                        text = stringResource(id = R.string.up_next_in) + " $delayCount",
-                        style = if (uiType == UiType.TV) RumbleTypography.tvH2 else RumbleTypography.h3,
-                        color = enforcedWhite
-                    )
+        var delayCount by rememberSaveable { mutableIntStateOf(delayInitialCount) }
+        val isLiveVideo = remember {
+            rumbleVideo.streamStatus == StreamStatus.LiveStream
+                || rumbleVideo.streamStatus == StreamStatus.OfflineStream
+        }
+        var contentIsVisible by rememberSaveable { mutableStateOf(false) }
+        var cancelNow by rememberSaveable { mutableStateOf(false) }
+        var playNow by rememberSaveable { mutableStateOf(false) }
+        var currentVideoMode by remember { mutableStateOf(rumbleVideoMode) }
 
-                    VideoInfoView(
-                        modifier = Modifier.focusable(enabled = false),
-                        uiType = uiType,
-                        rumbleVideo = rumbleVideo,
-                        isLiveVideo = isLiveVideo
-                    )
+        LaunchedEffect(rumbleVideoMode) {
+            currentVideoMode = rumbleVideoMode
+        }
 
-                    ActionsView(
-                        uiType = uiType,
-                        onCancel = { cancelNow = true },
-                        onPlayNow = { playNow = true }
-                    )
+        LaunchedEffect(Unit) {
+            delay(playNextAppearanceDelay)
+            contentIsVisible = true
+            while (delayCount > 0) {
+                delay(playNextDelay)
+                if (currentVideoMode != RumbleVideoMode.BackgroundPaused) {
+                    delayCount--
+                    onPlayNextCountChanged(delayCount)
                 }
+            }
+            playNow = true
+        }
 
-                if (uiType != UiType.TV) {
-                    IconButton(
-                        modifier = Modifier
-                            .padding(paddingMedium)
-                            .size(playNextCloseSize)
-                            .align(Alignment.TopEnd),
-                        onClick = { cancelNow = true }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_close),
-                            contentDescription = stringResource(id = R.string.close),
-                            tint = enforcedWhite
+        LaunchedEffect(cancelNow) {
+            if (cancelNow) {
+                contentIsVisible = false
+                delay(playNextAppearanceDelay)
+                onCancel()
+            }
+        }
+
+        LaunchedEffect(playNow) {
+            if (playNow) {
+                contentIsVisible = false
+                delay(playNextAppearanceDelay)
+                onPlayNow()
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brandedPlayerBackground.copy(0.7f))
+        ) {
+            AnimatedVisibility(
+                modifier = Modifier.fillMaxSize(),
+                visible = contentIsVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (currentVideoMode == RumbleVideoMode.Minimized) {
+                        Text(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .focusable(enabled = false),
+                            text = "$delayCount",
+                            style = RumbleTypography.h1,
+                            color = enforcedWhite
                         )
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .conditional(uiType != UiType.TV) {
+                                    widthIn(max = playNextWidthFrame)
+                                }
+                                .conditional(uiType == UiType.TV) {
+                                    wrapContentSize()
+                                }
+                                .align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(if (uiType == UiType.TV) paddingXXLarge else paddingMedium)
+                        ) {
+                            Text(
+                                modifier = Modifier.focusable(enabled = false),
+                                text = stringResource(id = R.string.up_next_in) + " $delayCount",
+                                style = if (uiType == UiType.TV) RumbleTypography.tvH2 else RumbleTypography.h3,
+                                color = enforcedWhite
+                            )
+
+                            VideoInfoView(
+                                modifier = Modifier.focusable(enabled = false),
+                                uiType = uiType,
+                                rumbleVideo = rumbleVideo,
+                                isLiveVideo = isLiveVideo
+                            )
+
+                            ActionsView(
+                                uiType = uiType,
+                                onCancel = { cancelNow = true },
+                                onPlayNow = { playNow = true }
+                            )
+                        }
+
+                        if (uiType != UiType.TV) {
+                            IconButton(
+                                modifier = Modifier
+                                    .padding(paddingMedium)
+                                    .size(playNextCloseSize)
+                                    .align(Alignment.TopEnd),
+                                onClick = { cancelNow = true }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_close),
+                                    contentDescription = stringResource(id = R.string.close),
+                                    tint = enforcedWhite
+                                )
+                            }
+                        }
                     }
                 }
             }

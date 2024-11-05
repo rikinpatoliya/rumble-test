@@ -385,10 +385,10 @@ class VideoDetailsViewModel @Inject constructor(
     override fun onUpdateLayoutState(layoutState: CollapsableLayoutState) {
         state.value = state.value.copy(layoutState = layoutState)
         if (layoutState == CollapsableLayoutState.EXPENDED) {
-            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Normal
+            state.value.rumblePlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
         } else {
-            state.value.rumblePlayer?.rumbleVideoMode = RumbleVideoMode.Minimized
+            state.value.rumblePlayer?.setRumbleVideoMode(RumbleVideoMode.Minimized)
             if (deviceType != DeviceType.Tablet) {
                 state.value = state.value.copy(screenOrientationLocked = false)
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))

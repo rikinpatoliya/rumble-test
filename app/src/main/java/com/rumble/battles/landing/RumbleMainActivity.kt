@@ -106,21 +106,9 @@ class RumbleMainActivity : FragmentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        lifecycleScope.launch(Dispatchers.Main) {
-            if (viewModel.pipIsAvailable(packageManager) &&
-                this@RumbleMainActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-            ) {
-                try {
-                    enterPictureInPictureMode(PictureInPictureParams.Builder().build())
-                } catch (e: Exception) {
-                    viewModel.currentPlayer?.pauseVideo()
-                    viewModel.onLogException(e)
-                }
-            } else if (viewModel.backgroundSoundIsAvailable().not()) {
-                viewModel.currentPlayer?.pauseVideo()
-            }
-        }
-
+        viewModel.onUserLeaveHint(
+            this@RumbleMainActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
     }
 
     override fun onPictureInPictureModeChanged(
@@ -139,6 +127,7 @@ class RumbleMainActivity : FragmentActivity() {
     }
 
     override fun onResume() {
+        viewModel.onAppResumed()
         viewModel.currentPlayer?.enableControls()
         super.onResume()
     }
@@ -188,6 +177,17 @@ class RumbleMainActivity : FragmentActivity() {
                             title = it.title,
                             duration = it.duration
                         )
+                    }
+
+                    is RumbleEvent.EnterPipMode -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            try {
+                                enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+                            } catch (e: Exception) {
+                                viewModel.currentPlayer?.pauseVideo()
+                                viewModel.onLogException(e)
+                            }
+                        }
                     }
 
                     else -> {}
