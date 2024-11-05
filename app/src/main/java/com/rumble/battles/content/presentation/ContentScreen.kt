@@ -582,7 +582,7 @@ fun ContentScreen(
                     },
                     onTagClick = {
                         videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                        navControllers[selectedTabIndex].navigate(RumbleScreens.Search.getPath(it))
+                        navControllers[selectedTabIndex].navigate(RumbleScreens.CombinedSearchResult.getPath(it))
                     },
                     onNavigateBack = {
                         navControllers[selectedTabIndex].navigateUp()
