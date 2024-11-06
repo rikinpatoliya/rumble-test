@@ -1443,7 +1443,7 @@ private fun VideoDetailsHeaderView(
                         }
                     }
                 }
-                if (!it.commentsDisabled) {
+                if (it.commentsDisabled.not()) {
                     item {
                         VideoDetailsActionButton(
                             text = stringResource(id = R.string.comments),
