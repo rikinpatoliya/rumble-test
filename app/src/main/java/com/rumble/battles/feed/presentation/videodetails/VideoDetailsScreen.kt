@@ -1443,12 +1443,14 @@ private fun VideoDetailsHeaderView(
                         }
                     }
                 }
-                item {
-                    VideoDetailsActionButton(
-                        text = stringResource(id = R.string.comments),
-                        leadingIconPainter = painterResource(id = R.drawable.ic_comments),
-                    ) {
-                        handler.onOpenComments()
+                if (!it.commentsDisabled) {
+                    item {
+                        VideoDetailsActionButton(
+                            text = stringResource(id = R.string.comments),
+                            leadingIconPainter = painterResource(id = R.drawable.ic_comments),
+                        ) {
+                            handler.onOpenComments()
+                        }
                     }
                 }
 
