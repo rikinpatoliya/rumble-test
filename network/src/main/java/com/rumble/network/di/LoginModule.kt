@@ -1,6 +1,7 @@
 package com.rumble.network.di
 
 import com.rumble.network.api.LoginApi
+import com.rumble.network.dto.login.RegisterErrorResponse
 import com.rumble.network.interceptors.ApiVersionInterceptor
 import com.rumble.network.interceptors.PerformanceInterceptor
 import com.rumble.network.interceptors.QueryInterceptor
@@ -13,7 +14,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.harkema.retrofitcurlprinter.RetrofitCurlPrinterInterceptor
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -69,4 +72,8 @@ object LoginModule {
     @Provides
     fun provideLoginApi(@LoginRetrofit retrofit: Retrofit): LoginApi =
         retrofit.create(LoginApi::class.java)
+
+    @Provides
+    fun provideRegisterErrorBodyConverter(@LoginRetrofit retrofit: Retrofit?): Converter<ResponseBody, RegisterErrorResponse>? =
+        retrofit?.responseBodyConverter(RegisterErrorResponse::class.java, emptyArray())
 }

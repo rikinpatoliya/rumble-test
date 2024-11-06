@@ -55,6 +55,7 @@ import com.rumble.domain.videolist.model.datasource.VideoListRemoteDataSourceImp
 import com.rumble.domain.videolist.model.repository.VideoListRepository
 import com.rumble.domain.videolist.model.repository.VideoListRepositoryImpl
 import com.rumble.network.api.*
+import com.rumble.network.dto.login.RegisterErrorResponse
 import com.rumble.utils.HashCalculator
 import dagger.Module
 import dagger.Provides
@@ -62,6 +63,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import javax.inject.Singleton
 
 
@@ -153,13 +156,15 @@ class TvSingletonModule {
     @Singleton
     fun provideLoginRepository(
         loginApi: LoginApi,
-        loginRemoteDataSource: LoginRemoteDataSource
+        loginRemoteDataSource: LoginRemoteDataSource,
+        registerErrorConverter: Converter<ResponseBody, RegisterErrorResponse>?,
     ): LoginRepository =
         LoginRepositoryImpl(
             loginApi = loginApi,
             loginRemoteDataSource = loginRemoteDataSource,
             dispatcher = Dispatchers.IO,
-            hashCalculator = HashCalculator
+            hashCalculator = HashCalculator,
+            registerErrorConverter = registerErrorConverter
         )
 
     @Provides
