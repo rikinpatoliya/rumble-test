@@ -128,6 +128,7 @@ class RumblePlayer(
     private var defaultBitrate: Int? = null,
     private val onVideoQualityChanged: (PlayerVideoSource, Boolean) -> Unit = { _, _ -> },
     private val livePingIntervalFlow: Flow<Long>,
+    private val livePingEndpointFlow: Flow<String>,
     private val watchedTimeInterval: Long,
     private val useAutoQualityForLiveVideo: Boolean,
     private val getAutoplayValue: () -> Boolean,
@@ -149,7 +150,7 @@ class RumblePlayer(
     private val errorHandler: CoroutineExceptionHandler
 
     // External callbacks
-    private var reportLiveVideo: (suspend (Long, String, Boolean) -> LiveVideoReportResult?)? = null
+    private var reportLiveVideo: (suspend (Long, String, String, Boolean) -> LiveVideoReportResult?)? = null
     private var fetchPreRollData: (suspend (Long, Float, Long, PublisherId, Boolean) -> VideoAdDataEntity)? =
         null
     private var onLiveVideoReport: ((Long, LiveVideoReportResult) -> Unit)? = null
@@ -201,6 +202,7 @@ class RumblePlayer(
     private var playListIdList: List<Long> = emptyList()
     private var uiType: UiType = UiType.IN_LIST
     private var livePingInterval: Long = RumbleConstants.PLAYER_LIVE_PING
+    private var livePingEndpoint: String = ""
 
     private var _adPlaybackState: MutableState<AdPlaybackState> =
         mutableStateOf(AdPlaybackState.None)
@@ -355,7 +357,7 @@ class RumblePlayer(
             override fun onServiceDisconnected(arg0: ComponentName) {
             }
         }
-        observeLivePingInterval()
+        observeLivePing()
     }
 
     internal fun getPlayerInstance(): ExoPlayer = player
@@ -467,7 +469,7 @@ class RumblePlayer(
     fun setVideo(
         video: RumbleVideo,
         playList: RumblePlayList?,
-        reportLiveVideo: (suspend (Long, String, Boolean) -> LiveVideoReportResult?)?,
+        reportLiveVideo: (suspend (Long, String, String, Boolean) -> LiveVideoReportResult?)?,
         onLiveVideoReport: ((Long, LiveVideoReportResult) -> Unit)?,
         saveLastPosition: ((Long, Long) -> Unit)?,
         onVideoSizeDefined: ((Int, Int) -> Unit)?,
@@ -869,11 +871,16 @@ class RumblePlayer(
         else null
     }
 
-    private fun observeLivePingInterval() {
+    private fun observeLivePing() {
         backgroundScope.launch {
             livePingIntervalFlow.distinctUntilChanged().collectLatest { interval ->
                 livePingInterval = if (interval > 0) TimeUnit.SECONDS.toMillis(interval)
                 else RumbleConstants.PLAYER_LIVE_PING
+            }
+        }
+        backgroundScope.launch {
+            livePingEndpointFlow.distinctUntilChanged().collectLatest { endpoint ->
+                livePingEndpoint = endpoint
             }
         }
     }
@@ -1305,6 +1312,7 @@ class RumblePlayer(
                                     reportLiveVideo?.invoke(
                                         videoId,
                                         viewerId,
+                                        livePingEndpoint,
                                         rumbleVideo?.requestLiveGateData == true
                                     )
                                         ?.let { reportResult ->

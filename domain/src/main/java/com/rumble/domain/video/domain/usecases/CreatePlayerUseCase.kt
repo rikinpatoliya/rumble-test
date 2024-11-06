@@ -6,13 +6,11 @@ import com.rumble.domain.analytics.domain.usecases.SendMediaErrorReportUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.network.session.SessionManager
-import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.WATCHED_TIME_INTERVAL
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerVideoSource
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class CreatePlayerUseCase @Inject constructor(
@@ -47,6 +45,7 @@ class CreatePlayerUseCase @Inject constructor(
             defaultBitrate = bitrate,
             onVideoQualityChanged = saveVideoQuality,
             livePingIntervalFlow = sessionManager.livePingIntervalFlow,
+            livePingEndpointFlow = sessionManager.livePingEndpointFlow,
             watchedTimeInterval = WATCHED_TIME_INTERVAL,
             useAutoQualityForLiveVideo = useAutoQualityForLiveVideo,
             getAutoplayValue = { runBlocking { userPreferenceManager.autoplayFlow.first() } },

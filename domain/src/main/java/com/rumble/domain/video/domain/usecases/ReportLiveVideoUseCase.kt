@@ -11,10 +11,7 @@ import com.rumble.network.api.LiveVideoApi
 import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.network.dto.livevideo.LiveReportBody
 import com.rumble.network.dto.livevideo.LiveReportBodyData
-import com.rumble.network.session.SessionManager
 import com.rumble.videoplayer.player.config.LiveVideoReportResult
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 private const val TAG = "ReportLiveVideoUseCase"
@@ -22,15 +19,15 @@ private const val TAG = "ReportLiveVideoUseCase"
 class ReportLiveVideoUseCase @Inject constructor(
     private val liveVideoApi: LiveVideoApi,
     private val analyticsEventUseCase: AnalyticsEventUseCase,
-    private val sessionManager: SessionManager,
     override val rumbleErrorUseCase: RumbleErrorUseCase
 ) : RumbleUseCase {
     suspend operator fun invoke(
         videoId: Long,
         viewerId: String,
+        livePingEndpoint: String,
         requestLiveGateData: Boolean = false,
     ): LiveVideoReportResult? {
-        val result = buildReportUrl()?.let {
+        val result = buildReportUrl(livePingEndpoint)?.let {
             liveVideoApi.reportLiveVideo(
                 url = it,
                 LiveReportBody(
@@ -65,8 +62,8 @@ class ReportLiveVideoUseCase @Inject constructor(
         }
     }
 
-    private fun buildReportUrl(): String? {
-        val url = "${runBlocking { sessionManager.livePingEndpointFlow.first() }}/service.php"
+    private fun buildReportUrl(livePingEndpoint: String): String? {
+        val url = "$livePingEndpoint/service.php"
         return if (URLUtil.isValidUrl(url)) url
         else null
     }
