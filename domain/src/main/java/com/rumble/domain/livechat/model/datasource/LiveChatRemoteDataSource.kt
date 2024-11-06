@@ -103,14 +103,14 @@ class LiveChatRemoteDataSourceImpl(
                 connection.connect()
                 while (isActive) {
                     val line = input.readLine()
-                    if (measured.not()) {
-                        measured = true
-                        metric.setHttpResponseCode(connection.responseCode)
-                        metric.stop()
-                    }
                     if (line.isNullOrEmpty() and stringBuffer.isEmpty().not()) {
                         val jsonString = stringBuffer.toString()
                         getLiveChatEvent(jsonString)?.let {
+                            if (measured.not()) {
+                                measured = true
+                                metric.setHttpResponseCode(connection.responseCode)
+                                metric.stop()
+                            }
                             trySend(it)
                         }
                         stringBuffer.clear()

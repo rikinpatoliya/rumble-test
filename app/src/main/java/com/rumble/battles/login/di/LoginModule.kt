@@ -10,12 +10,15 @@ import com.rumble.domain.login.model.LoginRepositoryImpl
 import com.rumble.domain.login.model.datasource.LoginRemoteDataSource
 import com.rumble.domain.login.model.datasource.LoginRemoteDataSourceImpl
 import com.rumble.network.api.LoginApi
+import com.rumble.network.dto.login.RegisterErrorResponse
 import com.rumble.utils.HashCalculator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import javax.inject.Singleton
 
 @Module
@@ -32,12 +35,14 @@ object LoginModule {
     fun provideLoginRepository(
         loginApi: LoginApi,
         loginRemoteDataSource: LoginRemoteDataSource,
+        registerErrorConverter: Converter<ResponseBody, RegisterErrorResponse>?,
     ): LoginRepository =
         LoginRepositoryImpl(
             loginApi = loginApi,
             loginRemoteDataSource = loginRemoteDataSource,
             dispatcher = Dispatchers.IO,
-            hashCalculator = HashCalculator
+            hashCalculator = HashCalculator,
+            registerErrorConverter = registerErrorConverter
         )
 
     @Provides

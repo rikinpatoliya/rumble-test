@@ -108,8 +108,8 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         Timber.tag(TAG).e(it)
         emit("")
     }
-    val livePingIntervalFlow: Flow<Int> = context.dataStore.data.map { prefs ->
-        prefs[livePingIntervalKey] ?: 0
+    val livePingIntervalFlow: Flow<Long> = context.dataStore.data.map { prefs ->
+        prefs[livePingIntervalKey]?.toLong() ?: 0
     }.catch {
         Timber.tag(TAG).e(it)
         emit(0)

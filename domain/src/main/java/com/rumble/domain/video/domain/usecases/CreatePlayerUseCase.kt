@@ -24,11 +24,6 @@ class CreatePlayerUseCase @Inject constructor(
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
 ) {
     operator fun invoke(): RumblePlayer {
-        val livePingInterval = runBlocking {
-            val interval = sessionManager.livePingIntervalFlow.first().toLong()
-            if (interval > 0) TimeUnit.SECONDS.toMillis(interval)
-            else RumbleConstants.PLAYER_LIVE_PING
-        }
         val viewerId = runBlocking { sessionManager.viewerIdFlow.first() }
         val quality = runBlocking { userPreferenceManager.videoQuality.first() }
         val bitrate = runBlocking { userPreferenceManager.videoBitrate.first() }
@@ -51,7 +46,7 @@ class CreatePlayerUseCase @Inject constructor(
             defaultVideoResolution = quality,
             defaultBitrate = bitrate,
             onVideoQualityChanged = saveVideoQuality,
-            livePingInterval = livePingInterval,
+            livePingIntervalFlow = sessionManager.livePingIntervalFlow,
             watchedTimeInterval = WATCHED_TIME_INTERVAL,
             useAutoQualityForLiveVideo = useAutoQualityForLiveVideo,
             getAutoplayValue = { runBlocking { userPreferenceManager.autoplayFlow.first() } },

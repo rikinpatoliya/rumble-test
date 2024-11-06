@@ -49,6 +49,7 @@ import com.rumble.analytics.PRE_ROLL_FAILED
 import com.rumble.network.connection.NetworkTypeResolver
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.PLAYER_STATE_UPDATE_RATIO
 import com.rumble.videoplayer.R
 import com.rumble.videoplayer.domain.ads.PlayerAdsHelper
@@ -93,6 +94,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -123,7 +127,7 @@ class RumblePlayer(
     private var defaultVideoResolution: Int? = null,
     private var defaultBitrate: Int? = null,
     private val onVideoQualityChanged: (PlayerVideoSource, Boolean) -> Unit = { _, _ -> },
-    private val livePingInterval: Long,
+    private val livePingIntervalFlow: Flow<Long>,
     private val watchedTimeInterval: Long,
     private val useAutoQualityForLiveVideo: Boolean,
     private val getAutoplayValue: () -> Boolean,
@@ -196,6 +200,7 @@ class RumblePlayer(
     private var lastResume: Long = System.currentTimeMillis()
     private var playListIdList: List<Long> = emptyList()
     private var uiType: UiType = UiType.IN_LIST
+    private var livePingInterval: Long = RumbleConstants.PLAYER_LIVE_PING
 
     private var _adPlaybackState: MutableState<AdPlaybackState> =
         mutableStateOf(AdPlaybackState.None)
@@ -350,6 +355,7 @@ class RumblePlayer(
             override fun onServiceDisconnected(arg0: ComponentName) {
             }
         }
+        observeLivePingInterval()
     }
 
     internal fun getPlayerInstance(): ExoPlayer = player
@@ -861,6 +867,15 @@ class RumblePlayer(
                 type = PlayListType.UpNext
             )
         else null
+    }
+
+    private fun observeLivePingInterval() {
+        backgroundScope.launch {
+            livePingIntervalFlow.distinctUntilChanged().collectLatest { interval ->
+                livePingInterval = if (interval > 0) TimeUnit.SECONDS.toMillis(interval)
+                else RumbleConstants.PLAYER_LIVE_PING
+            }
+        }
     }
 
     private fun initTimeRangeUpdateInterval() = runBlocking {
