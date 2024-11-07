@@ -583,7 +583,8 @@ private fun ChannelDetailsScreenDialog(
                     .padding(bottom = bottomBarHeight),
                 coroutineScope,
                 bottomSheetState,
-                channelDetailsHandler
+                channelDetailsHandler,
+                contentHandler
             )
         }
 
@@ -643,6 +644,7 @@ private fun ActionsMenuBottomSheet(
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
     channelDetailsHandler: ChannelDetailsHandler,
+    contentHandler: ContentHandler
 ) {
     val state by channelDetailsHandler.uiState.collectAsStateWithLifecycle()
     val sheetItems = mutableListOf(
@@ -656,7 +658,23 @@ private fun ActionsMenuBottomSheet(
             }
         },
     )
-    if (state.channelDetailsEntity?.blocked != true) {
+    if (state.channelDetailsEntity?.blocked == true) {
+        sheetItems.add(
+            index = 0,
+            element = BottomSheetItem(
+                imageResource = R.drawable.ic_block,
+                text = stringResource(id = R.string.unblock)
+            ) {
+                coroutineScope.launch {
+                    bottomSheetState.hide()
+                    contentHandler.onUpdateSubscription(
+                        channel = state.channelDetailsEntity,
+                        action = UpdateChannelSubscriptionAction.UNBLOCK
+                    )
+                }
+            }
+        )
+    } else {
         sheetItems.add(
             index = 0,
             element = BottomSheetItem(
