@@ -47,6 +47,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         sendInitialPlaybackEvent: (() -> Unit)? = null,
         onPremiumCountdownFinished:  (() -> Unit)? = null,
         onVideoReady: ((Long, RumblePlayer) -> Unit)? = null,
+        preRollAdLoadingEvent: (() -> Unit)? = null,
+        preRollAdStartedEvent: (() -> Unit)? = null
     ): RumblePlayer {
         val videoEntity = getVideoDetailsUseCase(videoId)
         val relatedVideoList =
@@ -95,6 +97,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 onNextVideo = onNextVideo,
                 fetchPreRollList = if (showAds) fetchVideoAdListUseCase::invoke else null,
                 reportAdEvent = if (showAds) sendAdEventUseCase::invoke else null,
+                preRollAdLoadingEvent = preRollAdLoadingEvent,
+                preRollAdStartedEvent = preRollAdStartedEvent,
                 playList = null,
                 sendInitialPlaybackEvent = sendInitialPlaybackEvent,
                 onPremiumCountdownFinished = onPremiumCountdownFinished,
@@ -115,6 +119,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         sendInitialPlaybackEvent: (() -> Unit)? = null,
         onPremiumCountdownFinished:  (() -> Unit)? = null,
         onVideoReady: ((Long, RumblePlayer) -> Unit)? = null,
+        preRollAdLoadingEvent: (() -> Unit)? = null,
+        preRollAdStartedEvent: (() -> Unit)? = null
     ): RumblePlayer {
         val initialVideo = playList.videoList.first()
         return createPlayerUseCase().apply {
@@ -138,6 +144,8 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                 sendInitialPlaybackEvent = sendInitialPlaybackEvent,
                 onPremiumCountdownFinished = onPremiumCountdownFinished,
                 onVideoReady = onVideoReady,
+                preRollAdLoadingEvent = preRollAdLoadingEvent,
+                preRollAdStartedEvent = preRollAdStartedEvent
             )
         }
     }
