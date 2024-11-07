@@ -62,9 +62,9 @@ interface RumbleActivityHandler {
     val activityHandlerState: StateFlow<ActivityHandlerState>
     var currentPlayer: RumblePlayer?
     val colorMode: Flow<ColorMode>
-    val isLaunchedFromNotification: Boolean
+    val isLaunchedFromNotification: State<Boolean>
 
-    fun onAppLaunchedFromNotification()
+    fun onToggleAppLaunchedFromNotification(fromNotification: Boolean)
     suspend fun pipIsAvailable(): Boolean
     suspend fun backgroundSoundIsAvailable(): Boolean
     suspend fun getCookies(): String
@@ -159,7 +159,7 @@ class RumbleActivityViewModel @Inject constructor(
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
-    override var isLaunchedFromNotification: Boolean = false
+    override val isLaunchedFromNotification: MutableState<Boolean> = mutableStateOf(false)
     override val colorMode: Flow<ColorMode> = userPreferenceManager.colorMode
     override val eventFlow: MutableSharedFlow<RumbleEvent> = MutableSharedFlow()
     override val alertDialogState: MutableState<AlertDialogState> =
@@ -202,8 +202,8 @@ class RumbleActivityViewModel @Inject constructor(
         }
     }
 
-    override fun onAppLaunchedFromNotification() {
-        isLaunchedFromNotification = true
+    override fun onToggleAppLaunchedFromNotification(fromNotification: Boolean) {
+        isLaunchedFromNotification.value = fromNotification
     }
 
     override suspend fun pipIsAvailable(): Boolean =

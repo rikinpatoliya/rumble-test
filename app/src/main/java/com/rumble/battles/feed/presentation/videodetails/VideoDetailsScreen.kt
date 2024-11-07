@@ -408,6 +408,11 @@ fun VideoDetailsScreen(
                 is VideoDetailsEvent.OpenAuthMenu -> {
                     contentHandler.onOpenAuthMenu()
                 }
+
+                is VideoDetailsEvent.VideoModeMinimized -> {
+                    if (activityHandler.isLaunchedFromNotification.value)
+                        activityHandler.onToggleAppLaunchedFromNotification(false)
+                }
             }
         }
     }

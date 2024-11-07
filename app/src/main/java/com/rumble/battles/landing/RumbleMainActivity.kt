@@ -402,7 +402,7 @@ class RumbleMainActivity : FragmentActivity() {
             bundle?.getParcelable(KEY_NOTIFICATION_VIDEO_DETAILS)
         }
         if (notificationData != null) {
-            viewModel.onAppLaunchedFromNotification()
+            viewModel.onToggleAppLaunchedFromNotification(true)
             viewModel.getVideoDetails(notificationData)
         } else {
             viewModel.enableContentLoad()
