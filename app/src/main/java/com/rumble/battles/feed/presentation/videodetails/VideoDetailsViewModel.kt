@@ -906,6 +906,7 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onCloseComments() {
         if (state.value.currentComment.isEmpty()) {
+            state.value = state.value.copy(inComments = false)
             emitVmEvent(VideoDetailsEvent.HideKeyboard)
             emitVmEvent(VideoDetailsEvent.CloseComments)
         } else {
