@@ -73,6 +73,8 @@ import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValueUseCase
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.SendRantPurchasedEventUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTracePlayedPreRollUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTracePreRollUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStartUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStopUseCase
 import com.rumble.domain.premium.domain.usecases.ShouldShowPremiumPromoUseCase
@@ -318,6 +320,8 @@ class VideoDetailsViewModel @Inject constructor(
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase,
     private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
+    private val videoLoadTimeTracePreRollUseCase: VideoLoadTimeTracePreRollUseCase,
+    private val videoLoadTimeTracePlayedPreRollUseCase: VideoLoadTimeTracePlayedPreRollUseCase,
     private val deviceType: DeviceType,
     private val calculateLiveGateCountdownValueUseCase: CalculateLiveGateCountdownValueUseCase,
     private val startPremiumPreviewCountdownUseCase: StartPremiumPreviewCountdownUseCase,
@@ -330,6 +334,8 @@ class VideoDetailsViewModel @Inject constructor(
     private var lockPortraitVertical = false
     private var playerImpressionLogged = false
     private var videoLoadTimeTrace: Trace? = null
+    private var videoStarted: Boolean = false
+    private var preRollAdStarted: Boolean = false
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
@@ -1235,7 +1241,7 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private suspend fun loadContent(videoId: Long) {
-        videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(videoId.toString())
+        startVideoLoadTimeTrace(videoId)
         if (state.value.isPlayListPlayBackMode)
             fetchPlayListWithVideos(playListId, shouldShufflePlayList, userIdFlow.first())
         fetchDetails(videoId)
@@ -1247,6 +1253,26 @@ class VideoDetailsViewModel @Inject constructor(
         fetchChannelDetails(state.value.videoEntity?.channelId)
         getRumbleAd()
         showPremiumPromo()
+    }
+
+    private fun startVideoLoadTimeTrace(videoId: Long) {
+        videoStarted = false
+        preRollAdStarted = false
+        videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(videoId.toString())
+    }
+
+    private fun stopVideoLoadTimeTrace() {
+        videoLoadTimeTrace?.let {
+            videoLoadTimeTraceStopUseCase(it)
+        }
+        videoLoadTimeTrace = null
+    }
+
+    private fun stopVideoLoadTimeTracePlayedPreRoll() {
+        videoLoadTimeTrace?.let {
+            videoLoadTimeTracePlayedPreRollUseCase(it)
+        }
+        videoLoadTimeTrace = null
     }
 
     private fun showDiscardDialog(navigate: Boolean) {
@@ -1288,16 +1314,22 @@ class VideoDetailsViewModel @Inject constructor(
             onNextVideo = ::onNextVideo,
             showAds = sessionManager.isPremiumUserFlow.first().not(),
             sendInitialPlaybackEvent = {
-                videoLoadTimeTrace?.let {
-                    videoLoadTimeTraceStopUseCase(it)
+                videoStarted = true
+                if (!preRollAdStarted) {
+                    stopVideoLoadTimeTrace()
                 }
-                videoLoadTimeTrace = null
             },
             onPremiumCountdownFinished = {
                 onEnforceLiveGatePremiumRestriction()
             },
             onVideoReady = { duration, _ ->
                 checkLiveGateRestrictions(videoEntity, duration)
+            },
+            preRollAdStartedEvent = {
+                preRollAdStarted = true
+                if (!videoStarted) {
+                    stopVideoLoadTimeTracePlayedPreRoll()
+                }
             }
         )
         if (hasPremiumRestrictionUseCase(videoEntity).not())
@@ -1316,7 +1348,7 @@ class VideoDetailsViewModel @Inject constructor(
     ) {
         viewModelScope.launch(errorHandler) {
             state.value = state.value.copy(isLoading = true)
-            videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(videoId.toString())
+            startVideoLoadTimeTrace(videoId)
             state.value.rumblePlayer?.pauseVideo()
             fetchDetails(videoId)
             state.value.rumblePlayer?.let { player ->
