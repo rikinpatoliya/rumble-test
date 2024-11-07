@@ -160,6 +160,7 @@ class RumblePlayer(
     private var onTimeRange: ((TimeRangeData) -> Unit)? = null
     private var onVideoSizeDefined: ((Int, Int) -> Unit)? = null
     private var reportAdEvent: (suspend (List<String>, Long) -> Unit)? = null
+    private var preRollAdLoadingEvent: (() -> Unit)? = null
     private var preRollAdStartedEvent: (() -> Unit)? = null
     private var sendInitialPlaybackEvent: (() -> Unit)? = null
     private var onPremiumCountdownFinished: (() -> Unit)? = null
@@ -479,6 +480,7 @@ class RumblePlayer(
         onNextVideo: ((Long, String, Boolean) -> Unit)?,
         fetchPreRollList: (suspend (Long, Float, Long, PublisherId, Boolean) -> VideoAdDataEntity)?,
         reportAdEvent: (suspend (List<String>, Long) -> Unit)?,
+        preRollAdLoadingEvent: (() -> Unit)?,
         preRollAdStartedEvent: (() -> Unit)?,
         sendInitialPlaybackEvent: (() -> Unit)?,
         onPremiumCountdownFinished: (() -> Unit)?,
@@ -494,6 +496,7 @@ class RumblePlayer(
         this.onNextVideo = onNextVideo
         this.fetchPreRollData = fetchPreRollList
         this.reportAdEvent = reportAdEvent
+        this.preRollAdLoadingEvent = preRollAdLoadingEvent
         this.preRollAdStartedEvent = preRollAdStartedEvent
         this.sendInitialPlaybackEvent = sendInitialPlaybackEvent
         this.onPremiumCountdownFinished = onPremiumCountdownFinished
@@ -1258,6 +1261,7 @@ class RumblePlayer(
             adsPlayer?.stop()
             playerAdsHelper.getNextPreRollUrl()?.let {
                 try {
+                    preRollAdLoadingEvent?.invoke()
                     reportAdEvent(it.requestedUrlList)
                     rumbleVideo?.let { video ->
                         sendAnalyticsEvent(

@@ -4,7 +4,7 @@ import com.google.firebase.perf.metrics.Trace
 import javax.inject.Inject
 
 
-class VideoLoadTimeTracePreRollUseCase @Inject constructor() {
+class VideoLoadTimeTraceHasPreRollUseCase @Inject constructor() {
 
     operator fun invoke(videoLoadTimeTrace: Trace, hasPreRoll: Boolean) {
         videoLoadTimeTrace.putAttribute("has_preroll", hasPreRoll.toString())

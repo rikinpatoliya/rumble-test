@@ -74,7 +74,7 @@ import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValu
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.SendRantPurchasedEventUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTracePlayedPreRollUseCase
-import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTracePreRollUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceHasPreRollUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStartUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStopUseCase
 import com.rumble.domain.premium.domain.usecases.ShouldShowPremiumPromoUseCase
@@ -320,7 +320,7 @@ class VideoDetailsViewModel @Inject constructor(
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase,
     private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
-    private val videoLoadTimeTracePreRollUseCase: VideoLoadTimeTracePreRollUseCase,
+    private val videoLoadTimeTraceHasPreRollUseCase: VideoLoadTimeTraceHasPreRollUseCase,
     private val videoLoadTimeTracePlayedPreRollUseCase: VideoLoadTimeTracePlayedPreRollUseCase,
     private val deviceType: DeviceType,
     private val calculateLiveGateCountdownValueUseCase: CalculateLiveGateCountdownValueUseCase,
@@ -1259,6 +1259,9 @@ class VideoDetailsViewModel @Inject constructor(
         videoStarted = false
         preRollAdStarted = false
         videoLoadTimeTrace = videoLoadTimeTraceStartUseCase(videoId.toString())
+        videoLoadTimeTrace?.let {
+            videoLoadTimeTraceHasPreRollUseCase(it, false)
+        }
     }
 
     private fun stopVideoLoadTimeTrace() {
@@ -1324,6 +1327,11 @@ class VideoDetailsViewModel @Inject constructor(
             },
             onVideoReady = { duration, _ ->
                 checkLiveGateRestrictions(videoEntity, duration)
+            },
+            preRollAdLoadingEvent = {
+                videoLoadTimeTrace?.let {
+                    videoLoadTimeTraceHasPreRollUseCase(it, true)
+                }
             },
             preRollAdStartedEvent = {
                 preRollAdStarted = true
