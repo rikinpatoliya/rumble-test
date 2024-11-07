@@ -241,7 +241,7 @@ fun RumbleVideoView(
                     || (playbackState is PlayerPlaybackState.Paused && uiType == UiType.IN_LIST)
             )
 
-            if (playbackState !is PlayerPlaybackState.Fetching || uiType == UiType.TV) {
+            if (playbackState !is PlayerPlaybackState.Fetching) {
                 if (playbackState is PlayerPlaybackState.Finished && hasRelatedVideos) {
                     rumblePlayer.nextRelatedVideo?.let {
                         PlayNextView(
