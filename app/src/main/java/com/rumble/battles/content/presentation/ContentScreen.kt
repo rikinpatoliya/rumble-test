@@ -471,34 +471,37 @@ fun ContentScreen(
             modifier = Modifier
                 .semantics { testTagsAsResourceId = true },
             bottomBar = {
-                AnimatedVisibility(
-                    modifier = Modifier.systemBarsPadding(),
-                    visible = (selectedTabIndex != NAV_ITEM_INDEX_CAMERA || userUIState.isLoggedIn.not())
-                        && (videoDetailsState.visible.not() || videoDetailsState.collapsed),
-                    enter = slideInVertically(initialOffsetY = { it / 2 }),
-                    exit = slideOutVertically(
-                        targetOffsetY = { it },
-                        animationSpec = tween(NAV_BAR_ANIMATION_DURATION)
-                    )
-                ) {
-                    BottomNavigationBar(
-                        contentHandler = contentHandler,
-                        selectedTabIndex = selectedTabIndex,
-                        onNavigationItemClicked = { _, index ->
-                            if (selectedTabIndex == index) {
-                                if (navControllers[index].isAtTopOfNavStack()) {
-                                    contentHandler.scrollToTop(index)
-                                } else {
-                                    navControllers[index].popBackStack(tabScreens[index], false)
+                if (activityHandler.isLaunchedFromNotification.value.not()) {
+                    AnimatedVisibility(
+                        modifier = Modifier.systemBarsPadding(),
+                        visible = (selectedTabIndex != NAV_ITEM_INDEX_CAMERA || userUIState.isLoggedIn.not())
+                                && (videoDetailsState.visible.not() || videoDetailsState.collapsed),
+                        enter = slideInVertically(
+                            initialOffsetY = { it / 2 }),
+                        exit = slideOutVertically(
+                            targetOffsetY = { it },
+                            animationSpec = tween(NAV_BAR_ANIMATION_DURATION)
+                        )
+                    ) {
+                        BottomNavigationBar(
+                            contentHandler = contentHandler,
+                            selectedTabIndex = selectedTabIndex,
+                            onNavigationItemClicked = { _, index ->
+                                if (selectedTabIndex == index) {
+                                    if (navControllers[index].isAtTopOfNavStack()) {
+                                        contentHandler.scrollToTop(index)
+                                    } else {
+                                        navControllers[index].popBackStack(tabScreens[index], false)
+                                    }
                                 }
-                            }
-                            selectedTabIndex = index
-                            if (index == NAV_ITEM_INDEX_CAMERA && userUIState.isLoggedIn) {
-                                // pause video when camera tab is selected
-                                activityHandler.onPauseVideo()
-                            }
-                        },
-                    )
+                                selectedTabIndex = index
+                                if (index == NAV_ITEM_INDEX_CAMERA && userUIState.isLoggedIn) {
+                                    // pause video when camera tab is selected
+                                    activityHandler.onPauseVideo()
+                                }
+                            },
+                        )
+                    }
                 }
             }
         ) {
@@ -592,7 +595,7 @@ fun ContentScreen(
         }
     }
 
-    if (activityHandler.isLaunchedFromNotification.not()) {
+    if (activityHandler.isLaunchedFromNotification.value.not()) {
         if (onboardingViewState.value is ShowOnboardingPopups) {
             val popupsList = (onboardingViewState.value as ShowOnboardingPopups).list
             if (popupsList.isNotEmpty()) {

@@ -276,6 +276,7 @@ sealed class VideoDetailsEvent {
     data object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
     data object OpenAuthMenu : VideoDetailsEvent()
+    data object VideoModeMinimized : VideoDetailsEvent()
 }
 
 private const val TAG = "VideoDetailsViewModel"
@@ -395,6 +396,7 @@ class VideoDetailsViewModel @Inject constructor(
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
         } else {
             state.value.rumblePlayer?.setRumbleVideoMode(RumbleVideoMode.Minimized)
+            emitVmEvent(VideoDetailsEvent.VideoModeMinimized)
             if (deviceType != DeviceType.Tablet) {
                 state.value = state.value.copy(screenOrientationLocked = false)
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
