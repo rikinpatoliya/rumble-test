@@ -94,9 +94,7 @@ class RumbleMainActivity : FragmentActivity() {
         initializeMediaSession()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         handleNotifications(intent.extras)
-        viewModel.logUserProperties()
-        viewModel.logOneSignalUserTags()
-        viewModel.logAppFlyerUserId()
+        viewModel.logFirstAppLaunchProperties()
 
         setContent {
             val colorMode by viewModel.colorMode.collectAsStateWithLifecycle(initialValue = ColorMode.SYSTEM_DEFAULT)

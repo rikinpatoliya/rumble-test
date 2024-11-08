@@ -74,9 +74,7 @@ interface RumbleActivityHandler {
     fun getVideoDetails(rumbleNotificationData: RumbleNotificationData)
     fun startObserveCookies()
     fun initLogging()
-    fun logUserProperties()
-    fun logOneSignalUserTags()
-    fun logAppFlyerUserId()
+    fun logFirstAppLaunchProperties()
     fun initMediaSession(session: MediaSessionCompat)
     fun onError(e: Throwable)
     fun onAppPaused()
@@ -283,25 +281,17 @@ class RumbleActivityViewModel @Inject constructor(
         }
     }
 
-    override fun logUserProperties() {
+    override fun logFirstAppLaunchProperties() {
         viewModelScope.launch {
-            val userId = sessionManager.userIdFlow.first()
-            val loggedIn = sessionManager.cookiesFlow.first().isNotEmpty()
-            setUserPropertiesUseCase(userId, loggedIn)
-        }
-    }
-
-    override fun logOneSignalUserTags() {
-        viewModelScope.launch {
-            val loggedIn = sessionManager.cookiesFlow.first().isNotEmpty()
-            setOneSignalUserTagsUseCase(loggedIn)
-        }
-    }
-
-    override fun logAppFlyerUserId() {
-        viewModelScope.launch {
-            val userId = sessionManager.userIdFlow.first()
-            appsFlySetUserIdUseCase(userId)
+            val firstAppLaunch = sessionManager.firstAppLaunchFlow.first()
+            if (firstAppLaunch) {
+                val userId = sessionManager.userIdFlow.first()
+                val loggedIn = sessionManager.cookiesFlow.first().isNotEmpty()
+                setUserPropertiesUseCase(userId, loggedIn)
+                setOneSignalUserTagsUseCase(loggedIn)
+                appsFlySetUserIdUseCase(userId)
+                sessionManager.saveFirstAppLaunch(false)
+            }
         }
     }
 
