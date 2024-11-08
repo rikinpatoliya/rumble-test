@@ -21,7 +21,7 @@ class FirstAppLaunchSetPropertiesUseCase @Inject constructor(
         scope.launch {
             val firstAppLaunch = sessionManager.firstAppLaunchFlow.first()
             if (firstAppLaunch) {
-                setUserPropertiesUseCase("", false)
+                setUserPropertiesUseCase(null, false)
                 setOneSignalUserTagsUseCase(false)
                 appsFlySetUserIdUseCase("")
                 sessionManager.saveFirstAppLaunch(false)
