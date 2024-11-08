@@ -20,4 +20,5 @@ interface OnboardingHandler {
     fun onDiscoverIconMeasured(center: Offset)
     fun onFollowingIconMeasured(center: Offset)
     fun onLibraryIconMeasured(center: Offset)
+    fun onDoNotShowOnboarding()
 }

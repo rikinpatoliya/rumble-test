@@ -962,6 +962,10 @@ class ContentViewModel @Inject constructor(
         libraryIconLocationState.value = center
     }
 
+    override fun onDoNotShowOnboarding() {
+        onboardingViewState.value = DoNotShow
+    }
+
     private suspend fun updateOnboardingState(popupsList: List<OnboardingPopupType>) {
         when (onboardingViewState.value) {
             ShowOnboarding -> saveFeedOnboardingUseCase(OnboardingType.FeedScreen)
@@ -980,7 +984,7 @@ class ContentViewModel @Inject constructor(
 
             None, DoNotShow -> {}
         }
-        onboardingViewState.value = DoNotShow
+        onDoNotShowOnboarding()
     }
     // endregion
 
@@ -1190,7 +1194,7 @@ class ContentViewModel @Inject constructor(
             notificationDataManager.deepLinkChannelId.distinctUntilChanged().collect {
                 if (it.isNotEmpty()) {
                     emitVmEvent(ContentScreenVmEvent.NavigateToChannelDetails(it))
-                    onboardingViewState.value = DoNotShow
+                    onDoNotShowOnboarding()
                 } else if (onboardingViewState.value != DoNotShow) {
                     onboardingViewState.value =
                         feedOnboardingViewUseCase()
