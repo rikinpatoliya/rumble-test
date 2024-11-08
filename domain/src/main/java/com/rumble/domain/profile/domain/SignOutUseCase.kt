@@ -27,7 +27,7 @@ class SignOutUseCase @Inject constructor(
         sessionManager.clearUserData()
         profileRepository.signOut()
         appsFlySetUserIdUseCase("")
-        setUserPropertiesUseCase(null)
+        setUserPropertiesUseCase(null, false)
         oemConfig()
     }
 }

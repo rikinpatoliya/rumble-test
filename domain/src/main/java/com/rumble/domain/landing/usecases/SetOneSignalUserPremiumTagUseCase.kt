@@ -23,5 +23,9 @@ class SetOneSignalUserPremiumTagUseCase @Inject constructor(
         } else {
             OneSignal.User.addTag(UserTag.Premium.value, UserTagValue.NonApplicable.value)
         }
+        OneSignal.User.addTag(
+            UserTag.SignedIn.value,
+            if (loggedIn) UserTagValue.True.value else UserTagValue.False.value
+        )
     }
 }

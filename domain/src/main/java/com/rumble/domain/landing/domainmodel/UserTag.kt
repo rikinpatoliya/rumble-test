@@ -1,5 +1,6 @@
 package com.rumble.domain.landing.domainmodel
 
 enum class UserTag(val value: String) {
-    Premium("PREMIUM")
+    Premium("PREMIUM"),
+    SignedIn("SIGNED_IN")
 }
