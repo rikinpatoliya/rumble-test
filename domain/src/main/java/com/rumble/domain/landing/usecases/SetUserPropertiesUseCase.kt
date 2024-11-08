@@ -12,9 +12,9 @@ class SetUserPropertiesUseCase @Inject constructor(
     private val analyticsManager: AnalyticsManager
 ) {
 
-    operator fun invoke(userId: String?, signedIn: Boolean) {
+    operator fun invoke(userId: String?) {
         analyticsManager.setUserProperty(UIDUserProperty(userId))
         analyticsManager.setUserProperty(IIDUserProperty(appsFlyerId))
-        analyticsManager.setUserProperty(SignedInUserProperty(signedIn))
+        analyticsManager.setUserProperty(SignedInUserProperty(userId != null))
     }
 }

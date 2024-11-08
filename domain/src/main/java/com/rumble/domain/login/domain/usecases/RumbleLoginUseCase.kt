@@ -36,7 +36,7 @@ class RumbleLoginUseCase @Inject constructor(
                 sessionManager.saveUserId(base36UserId)
                 oneSignalExternalUserIdUseCase(it)
                 appsFlySetUserIdUseCase(base36UserId)
-                setUserPropertiesUseCase(base36UserId, true)
+                setUserPropertiesUseCase(base36UserId)
             }
             result.userName?.let { sessionManager.saveUserName(it) }
             result.userPicture?.let { sessionManager.saveUserPicture(it) }
