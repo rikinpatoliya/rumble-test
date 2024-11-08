@@ -410,8 +410,10 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.VideoModeMinimized -> {
-                    if (activityHandler.isLaunchedFromNotification.value)
+                    if (activityHandler.isLaunchedFromNotification.value) {
+                        contentHandler.onDoNotShowOnboarding()
                         activityHandler.onToggleAppLaunchedFromNotification(false)
+                    }
                 }
             }
         }
