@@ -27,6 +27,7 @@ import com.rumble.battles.deeplinks.RumbleDeepLinkListener
 import com.rumble.battles.notifications.pushnotifications.RumbleNotificationOpenedHandler
 import com.rumble.domain.analytics.domain.usecases.LogConversionUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
+import com.rumble.domain.landing.usecases.FirstAppLaunchSetPropertiesUseCase
 import com.rumble.domain.logging.domain.FileLoggingTree
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_PROD
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV
@@ -57,6 +58,9 @@ class RumbleApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var logConversionUseCase: LogConversionUseCase
 
+    @Inject
+    lateinit var firstAppLaunchSetPropertiesUseCase: FirstAppLaunchSetPropertiesUseCase
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -70,6 +74,7 @@ class RumbleApplication : Application(), Configuration.Provider {
         initFirebaseConfig()
         initLogging()
         setupCoil()
+        firstAppLaunchSetPropertiesUseCase()
     }
 
     private fun initAppsFlyer() {
