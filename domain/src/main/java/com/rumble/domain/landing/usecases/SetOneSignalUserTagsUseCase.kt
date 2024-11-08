@@ -8,7 +8,7 @@ import com.rumble.network.session.SessionManager
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class SetOneSignalUserPremiumTagUseCase @Inject constructor(
+class SetOneSignalUserTagsUseCase @Inject constructor(
     private val sessionManager: SessionManager,
     private val fetchUserInfoUseCase: FetchUserInfoUseCase,
 ) {

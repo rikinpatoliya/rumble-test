@@ -17,8 +17,11 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetai
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
+import com.rumble.domain.landing.usecases.AppsFlySetUserIdUseCase
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
 import com.rumble.domain.landing.usecases.PipIsAvailableUseCase
+import com.rumble.domain.landing.usecases.SetOneSignalUserTagsUseCase
+import com.rumble.domain.landing.usecases.SetUserPropertiesUseCase
 import com.rumble.domain.landing.usecases.SilentLoginUseCase
 import com.rumble.domain.landing.usecases.TransferUserDataUseCase
 import com.rumble.domain.landing.usecases.UpdateMediaSessionUseCase
@@ -71,6 +74,9 @@ interface RumbleActivityHandler {
     fun getVideoDetails(rumbleNotificationData: RumbleNotificationData)
     fun startObserveCookies()
     fun initLogging()
+    fun logUserProperties()
+    fun logOneSignalUserTags()
+    fun logAppFlyerUserId()
     fun initMediaSession(session: MediaSessionCompat)
     fun onError(e: Throwable)
     fun onAppPaused()
@@ -156,6 +162,9 @@ class RumbleActivityViewModel @Inject constructor(
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
     private val getClearSessionOnAppStartUseCase: GetClearSessionOnAppStartUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
+    private val setUserPropertiesUseCase: SetUserPropertiesUseCase,
+    private val setOneSignalUserTagsUseCase: SetOneSignalUserTagsUseCase,
+    private val appsFlySetUserIdUseCase: AppsFlySetUserIdUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
@@ -271,6 +280,28 @@ class RumbleActivityViewModel @Inject constructor(
             sessionManager.canSubmitLogs.distinctUntilChanged().collect {
                 initProductionLoggingUseCase(canSubmitLogs = it)
             }
+        }
+    }
+
+    override fun logUserProperties() {
+        viewModelScope.launch {
+            val userId = sessionManager.userIdFlow.first()
+            val loggedIn = sessionManager.cookiesFlow.first().isNotEmpty()
+            setUserPropertiesUseCase(userId, loggedIn)
+        }
+    }
+
+    override fun logOneSignalUserTags() {
+        viewModelScope.launch {
+            val loggedIn = sessionManager.cookiesFlow.first().isNotEmpty()
+            setOneSignalUserTagsUseCase(loggedIn)
+        }
+    }
+
+    override fun logAppFlyerUserId() {
+        viewModelScope.launch {
+            val userId = sessionManager.userIdFlow.first()
+            appsFlySetUserIdUseCase(userId)
         }
     }
 
