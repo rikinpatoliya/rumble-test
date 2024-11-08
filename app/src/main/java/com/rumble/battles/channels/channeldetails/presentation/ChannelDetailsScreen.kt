@@ -648,20 +648,8 @@ private fun ActionsMenuBottomSheet(
 ) {
     val state by channelDetailsHandler.uiState.collectAsStateWithLifecycle()
     val sheetItems = mutableListOf(
-        BottomSheetItem(
-            imageResource = R.drawable.ic_flag,
-            text = stringResource(id = R.string.report)
-        ) {
-            coroutineScope.launch {
-                bottomSheetState.hide()
-                channelDetailsHandler.onReportMenuClicked()
-            }
-        },
-    )
-    if (state.channelDetailsEntity?.blocked == true) {
-        sheetItems.add(
-            index = 0,
-            element = BottomSheetItem(
+        if (state.channelDetailsEntity?.blocked == true) {
+            BottomSheetItem(
                 imageResource = R.drawable.ic_block,
                 text = stringResource(id = R.string.unblock)
             ) {
@@ -673,11 +661,8 @@ private fun ActionsMenuBottomSheet(
                     )
                 }
             }
-        )
-    } else {
-        sheetItems.add(
-            index = 0,
-            element = BottomSheetItem(
+        } else {
+            BottomSheetItem(
                 imageResource = R.drawable.ic_block,
                 text = stringResource(id = R.string.block)
             ) {
@@ -686,8 +671,17 @@ private fun ActionsMenuBottomSheet(
                     channelDetailsHandler.onBlockMenuClicked()
                 }
             }
-        )
-    }
+        },
+        BottomSheetItem(
+            imageResource = R.drawable.ic_flag,
+            text = stringResource(id = R.string.report)
+        ) {
+            coroutineScope.launch {
+                bottomSheetState.hide()
+                channelDetailsHandler.onReportMenuClicked()
+            }
+        },
+    )
     if (state.shareAvailable) {
         sheetItems.add(
             index = 0,
