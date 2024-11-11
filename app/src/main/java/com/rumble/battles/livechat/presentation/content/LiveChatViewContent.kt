@@ -347,6 +347,7 @@ fun LiveChatViewContent(
             AnimatedVisibility(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(top = paddingXXXSmall)
                     .constrainAs(pinned) {
                         top.linkTo(header.bottom)
                     },

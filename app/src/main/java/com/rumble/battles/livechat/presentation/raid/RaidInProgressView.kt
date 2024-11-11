@@ -3,7 +3,6 @@ package com.rumble.battles.livechat.presentation.raid
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
@@ -16,11 +15,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
-import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.borderXXSmall
 import com.rumble.theme.enforcedBlack
 import com.rumble.theme.paddingSmall
+import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusSmall
 import com.rumble.utils.extension.consumeClick
 
@@ -44,12 +43,12 @@ fun RaidInProgressView(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RaidTitleView(
+            modifier = Modifier.weight(1f),
             raidEntity = raidEntity,
         )
 
-        Spacer(modifier = Modifier.weight(1f))
-
         ActionButton(
+            modifier = Modifier.padding(start = paddingXSmall),
             text = stringResource(R.string.join),
             onClick = onJoin,
             textColor = enforcedBlack,
@@ -70,6 +69,7 @@ private fun Preview() {
     )
 
     RumbleTheme {
-        RaidInProgressView(raidEntity = raidEntity)
+        RaidInProgressView(
+            raidEntity = raidEntity)
     }
 }

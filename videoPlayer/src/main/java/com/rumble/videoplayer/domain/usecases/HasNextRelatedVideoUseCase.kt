@@ -10,7 +10,5 @@ class HasNextRelatedVideoUseCase @Inject constructor() {
         autoPlay: Boolean
     ): Boolean =
         relatedVideoList.isNotEmpty() &&
-            (relatedVideoList.last().videoId != currentVideo?.videoId) &&
-            autoPlay &&
-            currentVideo?.hasLiveGate == false
+            (relatedVideoList.last().videoId != currentVideo?.videoId) && autoPlay
 }

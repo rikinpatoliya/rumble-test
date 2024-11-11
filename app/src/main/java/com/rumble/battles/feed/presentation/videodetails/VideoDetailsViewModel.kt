@@ -555,8 +555,9 @@ class VideoDetailsViewModel @Inject constructor(
             if (fullScreen && state.value.videoEntity?.portraitMode == false) {
                 state.value =
                     state.value.copy(
-                        screenOrientationLocked = true
+                        screenOrientationLocked = true,
                     )
+                emoteState.value = EmoteState()
                 emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE))
             } else if (fullScreen && state.value.videoEntity?.portraitMode == true) {
                 lockPortraitVertical = true
@@ -663,6 +664,9 @@ class VideoDetailsViewModel @Inject constructor(
                 isFullScreen = isLandscape,
                 screenOrientation = orientation
             )
+            if (isLandscape) {
+                emoteState.value = EmoteState()
+            }
             onDismissDialog()
             emitVmEvent(VideoDetailsEvent.HideKeyboard)
         }
@@ -1451,7 +1455,7 @@ class VideoDetailsViewModel @Inject constructor(
             },
             screenId = videoDetailsScreen,
             onVideoSizeDefined = ::onVideoSizeDefined,
-            autoplay = true,
+            autoplay = videoEntity.hasLiveGate.not() || hasPremiumRestrictionUseCase(videoEntity).not(),
             onNextVideo = ::onNextVideo,
             showAds = sessionManager.isPremiumUserFlow.first().not(),
             sendInitialPlaybackEvent = {
@@ -1604,7 +1608,7 @@ class VideoDetailsViewModel @Inject constructor(
                 isLoading = false,
                 commentsDisabled = it.commentsDisabled,
                 watchingNow = it.watchingNow,
-                hasPremiumRestriction = hasPremiumRestrictionUseCase(it),
+                hasPremiumRestriction = hasPremiumRestrictionUseCase(it) && (it.hasLiveGate.not() || it.livestreamStatus == LiveStreamStatus.LIVE),
                 chatMode = defineLiveChatModeUseCase(it, it.liveGateEntity?.chatMode ?: ChatMode.Free),
             )
             onVideoPlayerImpression()
