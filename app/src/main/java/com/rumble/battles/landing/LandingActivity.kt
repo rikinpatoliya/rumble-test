@@ -108,7 +108,7 @@ class LandingActivity : ComponentActivity() {
         }
     }
 
-    private fun handleLaunchAttributesForTesting(bundle: Bundle?) {
+    private suspend fun handleLaunchAttributesForTesting(bundle: Bundle?) {
         val uitFlag: Any? = bundle?.get(TESTING_LAUNCH_UIT_FLAG)
         if (uitFlag != null) {
             val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)

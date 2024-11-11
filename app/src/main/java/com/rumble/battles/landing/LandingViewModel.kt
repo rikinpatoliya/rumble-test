@@ -23,7 +23,7 @@ interface LandingHandler {
     val sensorBasedOrientationChangeEnabled: Boolean
 
     suspend fun shouldLogin(): Boolean
-    fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
+    suspend fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
     fun onSaveAppVersion()
 }
 
@@ -56,13 +56,11 @@ class LandingViewModel @Inject constructor(
         }
     }
 
-    override fun onPrepareAppForTesting(
+    override suspend fun onPrepareAppForTesting(
         uitUserName: String?,
         uitPassword: String?
     ) {
-        viewModelScope.launch(errorHandler) {
-            prepareAppForTestingUseCase(uitUserName, uitPassword)
-        }
+        prepareAppForTestingUseCase(uitUserName, uitPassword)
     }
 
     override fun onSaveAppVersion() {
