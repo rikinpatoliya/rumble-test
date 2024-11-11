@@ -27,6 +27,7 @@ import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.borderXXSmall
+import com.rumble.theme.enforcedBlack
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.progressBarHeight
@@ -83,7 +84,7 @@ fun RaidPopupView(
                     ActionButton(
                         text = stringResource(R.string.join),
                         onClick = onJoin,
-                        textColor = RumbleCustomTheme.colors.primary,
+                        textColor = enforcedBlack,
                         showBorder = false,
                     )
                 } else {
