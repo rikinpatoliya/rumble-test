@@ -222,7 +222,7 @@
     <string name="please_select_your_country">Please select your country.</string>
     <string name="please_provide_valid_paypal">Please provide a valid PayPal email address.</string>
     <string name="check_email_to_confirm_details">Please check your e-mail to confirm updated details.</string>
-    <string name="profile_details_update_success_message">Your profile details have been update successfully.</string>
+    <string name="profile_details_update_success_message">Your profile details have been updated successfully.</string>
     <string name="profile_picture_update_success_message">Your profile picture has been updated successfully.</string>
 
     <!-- Channel Details -->
