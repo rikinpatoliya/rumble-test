@@ -37,8 +37,8 @@ fun RaidTitleView(
     ) {
         ProfileImageComponent(
             profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
-            userName = raidEntity.targetChannelName,
-            userPicture = raidEntity.targetChannelAvatar ?: ""
+            userName = raidEntity.currentChannelName,
+            userPicture = raidEntity.currentChannelAvatar ?: ""
         )
 
         Icon(
@@ -50,19 +50,19 @@ fun RaidTitleView(
 
         ProfileImageComponent(
             profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
-            userName = raidEntity.currentChannelName,
-            userPicture = raidEntity.currentChannelAvatar ?: ""
+            userName = raidEntity.targetChannelName,
+            userPicture = raidEntity.targetChannelAvatar ?: ""
         )
 
         Column(modifier = Modifier.padding(start = paddingXSmall)) {
             Text(
-                text = raidEntity.targetChannelName + " " + stringResource(R.string.is_raiding),
+                text = raidEntity.currentChannelName + " " + stringResource(R.string.is_raiding),
                 color = RumbleCustomTheme.colors.primary,
                 style = h5Medium
             )
 
             Text(
-                text = raidEntity.currentChannelName,
+                text = raidEntity.targetChannelName,
                 color = RumbleCustomTheme.colors.primary,
                 style = h4
             )
