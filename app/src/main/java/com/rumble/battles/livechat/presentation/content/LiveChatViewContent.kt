@@ -457,7 +457,8 @@ private fun ContentFooter(
             )
         } else {
             state.userProfile?.let { userProfile ->
-                if ((userProfile.validated && state.hasPremiumRestriction) || state.chatMode == ChatMode.PremiumOrSubscribedOnly) {
+                if ((userProfile.validated && state.hasPremiumRestriction && state.hasLiveGateRestriction.not())
+                    || state.chatMode == ChatMode.PremiumOrSubscribedOnly) {
                     GoPremiumToCharOrCommentView(
                         modifier = modifier
                             .fillMaxWidth(),

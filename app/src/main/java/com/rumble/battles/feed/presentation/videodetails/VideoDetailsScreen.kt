@@ -725,7 +725,7 @@ fun VideoDetailsView(
                         }
                         .height(actualHeight)
 
-                if (state.hasPremiumRestriction) {
+                if (state.hasPremiumRestriction && state.hasLiveGateRestriction.not()) {
                     PremiumOnlyThumbnailView(
                         modifier = sizeModifier
                             .aspectRatio(

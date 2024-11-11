@@ -75,13 +75,14 @@ import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValueUseCase
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.SendRantPurchasedEventUseCase
-import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTracePlayedPreRollUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceHasPreRollUseCase
+import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTracePlayedPreRollUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStartUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceStopUseCase
 import com.rumble.domain.premium.domain.usecases.ShouldShowPremiumPromoUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
+import com.rumble.domain.settings.domain.usecase.DefineLiveChatModeUseCase
 import com.rumble.domain.settings.domain.usecase.HasPremiumRestrictionUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.sort.CommentSortOrder
@@ -350,6 +351,7 @@ class VideoDetailsViewModel @Inject constructor(
     private val deviceType: DeviceType,
     private val calculateLiveGateCountdownValueUseCase: CalculateLiveGateCountdownValueUseCase,
     private val startPremiumPreviewCountdownUseCase: StartPremiumPreviewCountdownUseCase,
+    private val defineLiveChatModeUseCase: DefineLiveChatModeUseCase,
 ) : ViewModel(), VideoDetailsHandler, DefaultLifecycleObserver {
     private var playListId: String = ""
     private var shouldShufflePlayList = false
@@ -791,7 +793,7 @@ class VideoDetailsViewModel @Inject constructor(
                     state.value = state.value.copy(
                         videoEntity = state.value.videoEntity?.copy(hasLiveGate = true),
                         hasLiveGateRestriction = true,
-                        chatMode = liveGateEntity?.chatMode ?: state.value.chatMode,
+                        chatMode = defineLiveChatModeUseCase(it, liveGateEntity?.chatMode ?: state.value.chatMode),
                     )
                     onFullScreen(false)
                 }
@@ -800,17 +802,21 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onLiveGateEvent(liveGateEntity: LiveGateEntity) {
-        state.value = state.value.copy(
-            videoEntity = state.value.videoEntity?.copy(hasLiveGate = true),
-            chatMode = liveGateEntity.chatMode,
-        )
-        state.value.videoEntity?.let {
-            val countdown = calculateLiveGateCountdownValueUseCase(
-                it,
-                liveGateEntity.videoTimeCode,
-                liveGateEntity.countDownValue
-            )
-            state.value.rumblePlayer?.startPremiumCountDown(countdown.toLong())
+        viewModelScope.launch {
+            state.value.videoEntity?.copy(hasLiveGate = true)?.let { videoEntity ->
+                state.value = state.value.copy(
+                    videoEntity = videoEntity,
+                    chatMode = defineLiveChatModeUseCase(videoEntity, liveGateEntity.chatMode),
+                )
+                state.value.videoEntity?.let {
+                    val countdown = calculateLiveGateCountdownValueUseCase(
+                        videoEntity,
+                        liveGateEntity.videoTimeCode,
+                        liveGateEntity.countDownValue
+                    )
+                    state.value.rumblePlayer?.startPremiumCountDown(countdown.toLong())
+                }
+            }
         }
     }
 
@@ -1598,8 +1604,8 @@ class VideoDetailsViewModel @Inject constructor(
                 isLoading = false,
                 commentsDisabled = it.commentsDisabled,
                 watchingNow = it.watchingNow,
-                hasPremiumRestriction = hasPremiumRestrictionUseCase(it) && it.hasLiveGate.not(),
-                chatMode = it.liveGateEntity?.chatMode ?: ChatMode.Free,
+                hasPremiumRestriction = hasPremiumRestrictionUseCase(it),
+                chatMode = defineLiveChatModeUseCase(it, it.liveGateEntity?.chatMode ?: ChatMode.Free),
             )
             onVideoPlayerImpression()
             initLiveChat(it)
@@ -1617,7 +1623,10 @@ class VideoDetailsViewModel @Inject constructor(
                 if (videoEntity.hasLiveGate && videoEntity.livestreamStatus != LiveStreamStatus.LIVE) {
                     state.value = state.value.copy(
                         displayPremiumOnlyContent = true,
-                        chatMode = videoEntity.liveGateEntity?.chatMode ?: ChatMode.Free,
+                        chatMode = defineLiveChatModeUseCase(
+                            videoEntity,
+                            videoEntity.liveGateEntity?.chatMode ?: ChatMode.Free
+                        )
                     )
                     state.value.rumblePlayer?.playVideo()
                     videoEntity.liveGateEntity?.let {
@@ -1628,7 +1637,10 @@ class VideoDetailsViewModel @Inject constructor(
                 } else if (videoEntity.hasLiveGate) {
                     state.value = state.value.copy(
                         hasLiveGateRestriction = true,
-                        chatMode = videoEntity.liveGateEntity?.chatMode ?: ChatMode.Free,
+                        chatMode = defineLiveChatModeUseCase(
+                            videoEntity,
+                            videoEntity.liveGateEntity?.chatMode ?: ChatMode.Free
+                        )
                     )
                 }
             } else {
