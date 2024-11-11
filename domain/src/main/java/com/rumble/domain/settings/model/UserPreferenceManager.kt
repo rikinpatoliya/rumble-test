@@ -57,12 +57,12 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
 
     val backgroundPlayFlow: Flow<BackgroundPlay> = context.dataStore.data
         .map { prefs ->
-            val intValue: Int = prefs[backgroundPlayKey] ?: BackgroundPlay.SOUND.value
+            val intValue: Int = prefs[backgroundPlayKey] ?: BackgroundPlay.PICTURE_IN_PICTURE.value
             BackgroundPlay.getByValue(intValue)
         }
         .catch {
             Timber.tag(TAG).e(it)
-            emit(BackgroundPlay.getByValue(BackgroundPlay.SOUND.value))
+            emit(BackgroundPlay.getByValue(BackgroundPlay.PICTURE_IN_PICTURE.value))
         }
     val uploadOverWifiFLow: Flow<Boolean> = context.dataStore.data
         .map { prefs -> prefs[uploadOverWifiKey] ?: false }
