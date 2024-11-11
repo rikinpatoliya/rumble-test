@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit
 
 object RumbleConstants {
     const val SCREEN_OFF_DELAY = 100L
-    const val SPLASH_DELAY = 1000L
     const val RETRY_DELAY_USER_UPLOAD_CHANNELS = 3000L
 
     const val PAGINATION_MAX_ITEMS_PER_REQUEST = 100

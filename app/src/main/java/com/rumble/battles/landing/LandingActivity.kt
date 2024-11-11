@@ -34,13 +34,11 @@ import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
 import com.rumble.network.Environment
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.rumbleGreen
-import com.rumble.utils.RumbleConstants.SPLASH_DELAY
 import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
 import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
 import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.utils.extension.conditional
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @UnstableApi
@@ -97,7 +95,6 @@ class LandingActivity : ComponentActivity() {
                 handleLaunchAttributesForTesting(intent.extras)
             }
             val shouldLogin = viewModel.shouldLogin()
-            delay(SPLASH_DELAY)
             startActivity(Intent(this@LandingActivity, RumbleMainActivity::class.java).apply {
                 intent.extras?.let {
                     putExtras(it)
