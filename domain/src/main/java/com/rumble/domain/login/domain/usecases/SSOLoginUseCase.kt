@@ -5,7 +5,7 @@ import com.rumble.domain.common.domain.usecase.RumbleUseCase
 import com.rumble.domain.landing.usecases.AppsFlySetUserIdUseCase
 import com.rumble.domain.landing.usecases.ExtractCookiesUseCase
 import com.rumble.domain.landing.usecases.OneSignalExternalUserIdUseCase
-import com.rumble.domain.landing.usecases.SetOneSignalUserPremiumTagUseCase
+import com.rumble.domain.landing.usecases.SetOneSignalUserTagsUseCase
 import com.rumble.domain.landing.usecases.SetUserPropertiesUseCase
 import com.rumble.domain.login.domain.domainmodel.LoginResult
 import com.rumble.domain.login.domain.domainmodel.LoginType
@@ -19,7 +19,7 @@ class SSOLoginUseCase @Inject constructor(
     private val sessionManager: SessionManager,
     private val extractCookiesUseCase: ExtractCookiesUseCase,
     private val oneSignalExternalUserIdUseCase: OneSignalExternalUserIdUseCase,
-    private val setOneSignalUserPremiumTagUseCase: SetOneSignalUserPremiumTagUseCase,
+    private val setOneSignalUserTagsUseCase: SetOneSignalUserTagsUseCase,
     private val appsFlySetUserIdUseCase: AppsFlySetUserIdUseCase,
     override val rumbleErrorUseCase: RumbleErrorUseCase,
     private val setUserPropertiesUseCase: SetUserPropertiesUseCase,
@@ -43,7 +43,7 @@ class SSOLoginUseCase @Inject constructor(
             if (loginType == LoginType.GOOGLE)
                 result.userPicture?.let { sessionManager.saveUserPicture(it) }
             sessionManager.saveLoginType(loginType.value)
-            setOneSignalUserPremiumTagUseCase(true)
+            setOneSignalUserTagsUseCase(true)
         } else {
             result.rumbleError?.let {
                 rumbleErrorUseCase(it)
