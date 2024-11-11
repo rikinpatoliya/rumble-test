@@ -106,6 +106,10 @@ val miniPlayerActionSize = 24.dp
 val commentViewHeight = 48.dp
 val raidMessageHeight = 48.dp
 val raidMessageContainerHeight = 62.dp
+val emojiTabSelectorHeight = 36.dp
+val emojiTabHeight = 30.dp
+val emojiTabWidth = 42.dp
+val emotePickerHeight = 220.dp
 
 val imageXXMini = 2.dp
 val imageMini = 4.dp

@@ -71,7 +71,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -234,7 +233,6 @@ fun VideoDetailsScreen(
         skipHalfExpanded = true
     )
     val coroutineScope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val systemUiController = rememberSystemUiController()
     val playerTarget = state.rumblePlayer?.playerTarget
@@ -321,7 +319,7 @@ fun VideoDetailsScreen(
                     )
                 }
 
-                is VideoDetailsEvent.HideKeyboard -> focusManager.clearFocus()
+                is VideoDetailsEvent.HideKeyboard -> keyboardController?.hide()
                 is VideoDetailsEvent.ShowKeyboard -> keyboardController?.show()
                 is VideoDetailsEvent.ShowBottomSheet -> {
                     coroutineScope.launch { bottomSheetState.show() }
@@ -366,7 +364,7 @@ fun VideoDetailsScreen(
                 is VideoDetailsEvent.CloseComments -> liveChatBottomSheetState.hide()
 
                 is VideoDetailsEvent.InitLiveChat -> {
-                    liveChatHandler.onInitLiveChat(it.videoId)
+                    liveChatHandler.onInitLiveChat(it.videoEntity)
                     if (state.hasPremiumRestriction.not() && state.inComments.not() && state.inLiveChat)
                         liveChatBottomSheetState.show()
                 }
@@ -409,12 +407,25 @@ fun VideoDetailsScreen(
                     contentHandler.onOpenAuthMenu()
                 }
 
+                is VideoDetailsEvent.StartFollowChannel -> {
+                    contentHandler.onUpdateSubscription(
+                        it.channelDetailsEntity,
+                        it.action
+                    )
+                }
+
+                is VideoDetailsEvent.EmoteUsed -> {
+                    liveChatHandler.onEmoteUsed(it.emote)
+                }
+
                 is VideoDetailsEvent.VideoModeMinimized -> {
                     if (activityHandler.isLaunchedFromNotification.value) {
                         contentHandler.onDoNotShowOnboarding()
                         activityHandler.onToggleAppLaunchedFromNotification(false)
                     }
                 }
+
+                else -> return@collectLatest
             }
         }
     }
@@ -433,6 +444,7 @@ fun VideoDetailsScreen(
         contentHandler.eventFlow.collectLatest {
             if (it is ContentScreenVmEvent.ChannelSubscriptionUpdated) {
                 handler.updateChannelDetailsEntity(it.channelDetailsEntity)
+                liveChatHandler.updateChannelDetailsEntity(it.channelDetailsEntity)
             }
         }
     }
@@ -463,7 +475,7 @@ fun VideoDetailsScreen(
         } else if (contentBottomSheetState.isVisible) {
             coroutineScope.launch { contentBottomSheetState.hide() }
         } else if (state.layoutState == CollapsableLayoutState.EXPENDED) {
-            handler.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+            handler.onBackPressed()
         } else {
             onNavigateBack()
         }
@@ -622,6 +634,7 @@ fun VideoDetailsView(
     onEnforceCollapse: () -> Unit,
 ) {
     val state by handler.state
+    val emoteSate by handler.emoteState
     val alertDialogState by handler.alertDialogState
     val coroutineScope = rememberCoroutineScope()
     var minimalHeightReached by rememberSaveable { mutableStateOf(collapsePercentage > 0f) }
@@ -682,7 +695,7 @@ fun VideoDetailsView(
                 val isKeyboardVisible by keyboardAsState()
                 val width =
                     if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
-                val height = if (isKeyboardVisible) videoHeightReduced else {
+                val height = if (isKeyboardVisible || emoteSate.showEmoteSelector) videoHeightReduced else {
                     if (state.isFullScreen) boxMxHeight
                     else if (state.videoEntity?.portraitMode == true && state.hasPremiumRestriction.not()) {
                         if (isTablet) {

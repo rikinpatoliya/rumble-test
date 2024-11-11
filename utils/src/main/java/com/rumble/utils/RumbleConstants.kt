@@ -114,6 +114,11 @@ object RumbleConstants {
     const val HIDE_MINIPLAYER_DURATION = 50L
     const val FULLSCREEN_VIDEO_DRAG_THRESHOLD = 0.33f
     const val VIDEO_DRAG_CANCEL_ANIMATION_DURATION = 200
+    const val EMOTES_ROW_NUMBER = 4
+    const val EMOTES_CONTROL_VISIBILITY_THRESHOLD = 1
+    const val RUMBLE_EMOTE_PACK_ID = 1881816L
+    const val MAX_VISIBLE_RECENT_EMOTE = 12
+    const val RECENT_MAX_NUMBER = 100
 
     @Language("JSON")
     val countriesList = """

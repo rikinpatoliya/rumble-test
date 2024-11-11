@@ -47,7 +47,7 @@ fun MessageContentView(
                 append(word)
                 inlineEmotes.removeFirstOrNull()?.let { emote ->
                     liveChatConfig?.emoteList?.find { it.name == emote.getEmoteName() }?.let {
-                        if (it.followersOnly) {
+                        if (it.subscribersOnly) {
                             if (messageEntity.badges.any { badge -> EMOTE_BADGES.contains(badge) }) {
                                 appendInlineContent(emote, emote)
                             } else {

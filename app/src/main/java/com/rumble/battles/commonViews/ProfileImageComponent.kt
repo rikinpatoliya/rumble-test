@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography.h1
 import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.RumbleTypography.h4
@@ -52,87 +53,98 @@ import com.rumble.utils.extension.conditional
 sealed class ProfileImageComponentStyle(
     open val modifier: Modifier,
     open val textStyle: TextStyle,
-    open val borderColor: Color?
+    open val borderColor: Color?,
+    open val imageBackground: Color?
 ) {
     data class CircleImageNavBarIconSelectedStyle(
         override val modifier: Modifier = Modifier
             .size(imageSmall)
             .clip(CircleShape),
         override val textStyle: TextStyle = h4,
-        override val borderColor: Color = rumbleGreen
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color = rumbleGreen,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageXSmallStyle(
         override val modifier: Modifier = Modifier
             .size(imageXSmall)
             .clip(CircleShape),
         override val textStyle: TextStyle = h6,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageSmallStyle(
         override val modifier: Modifier = Modifier
             .size(imageSmall)
             .clip(CircleShape),
         override val textStyle: TextStyle = h4,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageMediumStyle(
         override val modifier: Modifier = Modifier
             .size(imageMedium)
             .clip(CircleShape),
         override val textStyle: TextStyle = h3,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageXMediumStyle(
         override val modifier: Modifier = Modifier
             .size(imageXMedium)
             .clip(CircleShape),
         override val textStyle: TextStyle = h3,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageXXMediumStyle(
         override val modifier: Modifier = Modifier
             .size(imageXXMedium)
             .clip(CircleShape),
         override val textStyle: TextStyle = h3,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageXXXMediumStyle(
         override val modifier: Modifier = Modifier
             .size(imageXXXMedium)
             .clip(CircleShape),
         override val textStyle: TextStyle = h3,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageLargeStyle(
         override val modifier: Modifier = Modifier
             .size(imageLarge)
             .clip(CircleShape),
         override val textStyle: TextStyle = h1,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageXLargeStyle(
         override val modifier: Modifier = Modifier
             .size(imageXLarge)
             .clip(CircleShape),
         override val textStyle: TextStyle = h1,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class CircleImageXXLargeStyle(
         override val modifier: Modifier = Modifier
             .size(imageXXLarge)
             .clip(CircleShape),
         override val textStyle: TextStyle = h1,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class OvalImageLargeStyle(
         override val modifier: Modifier = Modifier
@@ -142,8 +154,9 @@ sealed class ProfileImageComponentStyle(
             .width(imageWidthLarge)
             .clip(RoundedCornerShape(radiusXLarge)),
         override val textStyle: TextStyle = h1,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 
     data class OvalImageXXLargeStyle(
         override val modifier: Modifier = Modifier
@@ -153,8 +166,9 @@ sealed class ProfileImageComponentStyle(
             .width(imageWidthXXLarge)
             .clip(RoundedCornerShape(radiusXLarge)),
         override val textStyle: TextStyle = h1,
-        override val borderColor: Color? = null
-    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor)
+        override val borderColor: Color? = null,
+        override val imageBackground: Color? = null,
+    ) : ProfileImageComponentStyle(modifier, textStyle, borderColor, imageBackground)
 }
 
 @Composable
@@ -162,7 +176,7 @@ fun ProfileImageComponent(
     modifier: Modifier = Modifier,
     profileImageComponentStyle: ProfileImageComponentStyle,
     userName: String = "",
-    userPicture: String = ""
+    userPicture: String = "",
 ) {
     Box(modifier = modifier
         .conditional(profileImageComponentStyle.borderColor != null) {
@@ -182,6 +196,9 @@ fun ProfileImageComponent(
                 .build(),
             contentDescription = userName,
             modifier = profileImageComponentStyle.modifier
+                .conditional(profileImageComponentStyle.imageBackground != null) {
+                    background(profileImageComponentStyle.imageBackground ?: RumbleCustomTheme.colors.background)
+                }
                 .conditional(profileImageComponentStyle.borderColor != null) {
                     border(
                         width = borderWidth,

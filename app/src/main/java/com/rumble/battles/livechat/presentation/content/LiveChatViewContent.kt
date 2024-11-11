@@ -4,6 +4,8 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,11 +31,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -41,19 +46,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.RoundTextButton
+import com.rumble.battles.commonViews.keyboardAsState
+import com.rumble.battles.feed.presentation.videodetails.VideoDetailsEvent
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
 import com.rumble.battles.feed.presentation.views.GoPremiumToCharOrCommentView
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.livechat.presentation.LiveChatEvent
 import com.rumble.battles.livechat.presentation.LiveChatHandler
+import com.rumble.battles.livechat.presentation.emoji.EmotePickerState
+import com.rumble.battles.livechat.presentation.emoji.EmotePickerView
 import com.rumble.battles.livechat.presentation.pinnedmessage.PinnedMessageView
 import com.rumble.battles.livechat.presentation.raid.RaidInProgressView
 import com.rumble.battles.livechat.presentation.raid.RaidMessageView
 import com.rumble.battles.livechat.presentation.raid.RaidPopupView
 import com.rumble.battles.livechat.presentation.rant.RantMessageView
 import com.rumble.battles.livechat.presentation.rant.RantView
-import com.rumble.domain.livechat.domain.domainmodel.RaidMessageType
 import com.rumble.domain.livechat.domain.domainmodel.ChatMode
+import com.rumble.domain.livechat.domain.domainmodel.RaidMessageType
 import com.rumble.theme.RumbleTypography.h4Underlined
 import com.rumble.theme.darkGreen
 import com.rumble.theme.enforcedDarkmo
@@ -76,6 +85,7 @@ fun LiveChatViewContent(
     activityHandler: RumbleActivityHandler
 ) {
     val state by remember { handler.state }
+    val emoteSate by remember { handler.emoteState }
     val liveChatState by liveChatHandler.state
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -83,6 +93,7 @@ fun LiveChatViewContent(
     var hasInvisibleItems by rememberSaveable { mutableStateOf(false) }
     var messagesScrolledToBottom by rememberSaveable { mutableStateOf(true) }
     var rantScrolledToLeft by rememberSaveable { mutableStateOf(true) }
+    val isKeyboardVisible by keyboardAsState()
     val messagesConnection = remember {
         object : NestedScrollConnection {
             override fun onPostScroll(
@@ -146,7 +157,7 @@ fun LiveChatViewContent(
     ConstraintLayout(modifier = modifier
         .background(MaterialTheme.colors.surface)
         .clickableNoRipple { liveChatHandler.onDismissBottomSheet() }) {
-        val (header, content, footer, pinned) = createRefs()
+        val (header, content, footer, pinned, emotes) = createRefs()
 
         CloseLiveChatView(
             modifier = Modifier
@@ -245,7 +256,8 @@ fun LiveChatViewContent(
                                 )
                             } else if (message.isRaidMessage) {
                                 RaidMessageView(
-                                    type = message.raidMessageType ?: RaidMessageType.getRandomType(),
+                                    type = message.raidMessageType
+                                        ?: RaidMessageType.getRandomType(),
                                     channelName = message.userName,
                                     channelAvatar = message.userThumbnail,
                                 )
@@ -361,13 +373,42 @@ fun LiveChatViewContent(
 
         ContentFooter(
             modifier = Modifier
+                .conditional(emoteSate.showEmoteSelector.not()) {
+                    imePadding()
+                }
                 .fillMaxWidth()
                 .constrainAs(footer) {
-                    bottom.linkTo(parent.bottom)
+                    if (emoteSate.showEmoteSelector && isKeyboardVisible.not()) {
+                        bottom.linkTo(emotes.top)
+                    } else {
+                        bottom.linkTo(parent.bottom)
+                    }
                 },
             handler = handler,
             liveChatHandler = liveChatHandler
         )
+
+        AnimatedVisibility(
+            visible = emoteSate.showEmoteSelector,
+            modifier = Modifier
+                .wrapContentHeight()
+                .constrainAs(emotes) {
+                    bottom.linkTo(parent.bottom)
+                },
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it }),
+        ) {
+            EmotePickerView(
+                modifier = Modifier.wrapContentHeight(),
+                emoteState = handler.emoteState,
+                liveChatHandler = liveChatHandler,
+                onSwitchToKeyboard = handler::onSwitchToKeyboard,
+                onSelectEmote = handler::onEmoteSelected,
+                onDelete = handler::onDeleteSymbol,
+                onDismissRemoteRequest = handler::onDismissEmoteRequest,
+                onFollow = handler::onFollowChannel
+            )
+        }
     }
 }
 
@@ -378,10 +419,28 @@ private fun ContentFooter(
     liveChatHandler: LiveChatHandler
 ) {
     val state by remember { handler.state }
+    val emoteSate by remember { handler.emoteState }
     val liveChatState by liveChatHandler.state
     val userName by handler.userNameFlow.collectAsStateWithLifecycle(initialValue = "")
     val userPicture by handler.userPictureFlow.collectAsStateWithLifecycle(initialValue = "")
     val currentComment = state.currentComment
+    val selectedPosition = state.currentCursorPosition
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        handler.eventFlow.collectLatest {
+            when (it) {
+
+                is VideoDetailsEvent.RequestMessageFocus -> {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+
+                else -> return@collectLatest
+            }
+        }
+    }
 
     if (state.isFullScreen.not()) {
         if (state.isLoggedIn.not()) {
@@ -401,7 +460,6 @@ private fun ContentFooter(
                 if ((userProfile.validated && state.hasPremiumRestriction) || state.chatMode == ChatMode.PremiumOrSubscribedOnly) {
                     GoPremiumToCharOrCommentView(
                         modifier = modifier
-                            .imePadding()
                             .fillMaxWidth(),
                         text = stringResource(id = R.string.go_premium_to_chat),
                         onClick = { handler.onSubscribeToPremium() }
@@ -410,9 +468,9 @@ private fun ContentFooter(
                     if (state.uiType == UiType.EMBEDDED) {
                         AddMessageView(
                             modifier = modifier
-                                .imePadding()
                                 .fillMaxWidth(),
                             message = currentComment,
+                            selectedPosition = selectedPosition,
                             placeHolder = stringResource(id = R.string.add_message),
                             userName = if (state.selectedLiveChatAuthor == null) userName else state.selectedLiveChatAuthor?.title
                                 ?: "",
@@ -420,8 +478,11 @@ private fun ContentFooter(
                                 ?: "",
                             rantsEnabled = liveChatState.liveChatConfig?.rantConfig?.rantsEnabled
                                 ?: false,
+                            displayEmotes = liveChatState.liveChatConfig?.emoteGroups.isNullOrEmpty().not(),
+                            focusRequester = focusRequester,
                             onChange = handler::onCommentChanged,
                             onBuyRant = handler::onOpenBuyRantSheet,
+                            emotePickerState = if(emoteSate.showEmoteSelector) EmotePickerState.Selected else EmotePickerState.None,
                             onProfileImageClick = {
                                 handler.onLiveChatThumbnailTap(
                                     liveChatState.liveChatConfig?.channels ?: emptyList()
@@ -431,7 +492,11 @@ private fun ContentFooter(
                                 liveChatState.liveChatConfig?.chatId?.let {
                                     handler.onPostLiveChatMessage(it)
                                 }
-                            }
+                            },
+                            onSelectEmote = handler::onShowEmoteSelector,
+                            onTextFieldClicked = {
+                                if (emoteSate.showEmoteSelector) handler.onSwitchToKeyboard()
+                            },
                         )
                     }
                 } else {

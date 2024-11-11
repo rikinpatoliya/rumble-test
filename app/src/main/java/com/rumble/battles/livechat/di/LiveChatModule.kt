@@ -3,10 +3,14 @@ package com.rumble.battles.livechat.di
 import android.content.Context
 import com.android.billingclient.api.BillingClient
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
-import com.rumble.domain.livechat.model.datasource.LiveChatRemoteDataSource
-import com.rumble.domain.livechat.model.datasource.LiveChatRemoteDataSourceImpl
+import com.rumble.domain.database.RumbleDatabase
+import com.rumble.domain.livechat.model.datasource.local.EmoteDao
+import com.rumble.domain.livechat.model.datasource.remote.LiveChatRemoteDataSource
+import com.rumble.domain.livechat.model.datasource.remote.LiveChatRemoteDataSourceImpl
 import com.rumble.domain.livechat.model.repository.LiveChatRepository
 import com.rumble.domain.livechat.model.repository.LiveChatRepositoryImpl
+import com.rumble.domain.livechat.model.repository.RecentEmoteRepository
+import com.rumble.domain.livechat.model.repository.RecentEmoteRepositoryImpl
 import com.rumble.domain.performance.domain.usecase.CreateLiveStreamMetricUseCase
 import com.rumble.network.api.EmoteApi
 import com.rumble.network.api.LiveChatApi
@@ -82,6 +86,7 @@ object LiveChatModule {
     }
 
     @Provides
+    @Singleton
     fun provideLiveChatRepository(
         liveChatRemoteDataSource: LiveChatRemoteDataSource,
         errorConverter: Converter<ResponseBody, LiveChatErrorResponse>?,
@@ -90,6 +95,25 @@ object LiveChatModule {
         @IoDispatcher dispatcher: CoroutineDispatcher,
     ): LiveChatRepository {
         val userId = runBlocking { sessionManager.userIdFlow.first() }
-        return LiveChatRepositoryImpl(liveChatRemoteDataSource, errorConverter, baseUrl, userId, dispatcher)
+        return LiveChatRepositoryImpl(
+            liveChatRemoteDataSource,
+            errorConverter,
+            baseUrl,
+            userId,
+            dispatcher
+        )
     }
+
+    @Provides
+    @Singleton
+    fun provideEmoteDao(
+        rumbleDatabase: RumbleDatabase
+    ): EmoteDao = rumbleDatabase.emoteDao()
+
+    @Provides
+    @Singleton
+    fun provideRecentEmoteRepository(
+        emoteDao: EmoteDao,
+        @IoDispatcher dispatcher: CoroutineDispatcher,
+    ): RecentEmoteRepository = RecentEmoteRepositoryImpl(emoteDao, dispatcher)
 }

@@ -43,9 +43,9 @@ import com.rumble.theme.radiusXSmall
 import com.rumble.theme.rumbleGreen
 import com.rumble.theme.wokeGreen
 import com.rumble.utils.RumbleConstants
-import com.rumble.utils.getUrlAnnotatedString
 import com.rumble.utils.extension.getBoundingBoxes
 import com.rumble.utils.extension.getEmoteName
+import com.rumble.utils.getUrlAnnotatedString
 
 
 @Composable
@@ -92,7 +92,7 @@ fun LiveChatContentView(
         words.forEach { word ->
             if (emotes.contains(word)) {
                 liveChatConfig?.emoteList?.find { it.name == word.getEmoteName() }?.let {
-                    if (it.followersOnly) {
+                    if (it.subscribersOnly) {
                         if (userBadges?.any { badge -> RumbleConstants.EMOTE_BADGES.contains(badge) } == true) {
                             appendInlineContent(word, word)
                         } else {

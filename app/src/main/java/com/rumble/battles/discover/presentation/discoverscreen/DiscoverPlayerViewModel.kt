@@ -20,8 +20,8 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAutho
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelSubscriptionUseCase
-import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.common.domain.domainmodel.EmptyResult
+import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.discover.domain.usecase.GetDiscoverPlayerVideoListUseCase
 import com.rumble.domain.discover.model.DiscoverPlayerVideoListSource
 import com.rumble.domain.feed.domain.domainmodel.Feed
@@ -96,19 +96,19 @@ sealed class DiscoverPlayerAlertReason : AlertDialogReason {
     data class DeleteReason(val commentEntity: CommentEntity) : DiscoverPlayerAlertReason()
     data class ErrorReason(val errorMessage: String?, val messageToShort: Boolean = false) :
         DiscoverPlayerAlertReason()
-    object ShowYourEmailNotVerifiedYet : DiscoverPlayerAlertReason()
-    object DiscardReason : DiscoverPlayerAlertReason()
+    data object ShowYourEmailNotVerifiedYet : DiscoverPlayerAlertReason()
+    data object DiscardReason : DiscoverPlayerAlertReason()
 }
 
 sealed class DiscoverPlayerVmEvent {
     data class DiscoverPlayerError(val errorMessage: String? = null) : DiscoverPlayerVmEvent()
-    object ShowBottomSheetPopup : DiscoverPlayerVmEvent()
-    object DismissBottomSheetPopup : DiscoverPlayerVmEvent()
-    object ShowVideoReportedMessage : DiscoverPlayerVmEvent()
-    object ShowCommentReportedMessage : DiscoverPlayerVmEvent()
-    object ShowEmailVerificationSuccess : DiscoverPlayerVmEvent()
-    object HideKeyboard : DiscoverPlayerVmEvent()
-    object ShowKeyboard : DiscoverPlayerVmEvent()
+    data object ShowBottomSheetPopup : DiscoverPlayerVmEvent()
+    data object DismissBottomSheetPopup : DiscoverPlayerVmEvent()
+    data object ShowVideoReportedMessage : DiscoverPlayerVmEvent()
+    data object ShowCommentReportedMessage : DiscoverPlayerVmEvent()
+    data object ShowEmailVerificationSuccess : DiscoverPlayerVmEvent()
+    data object HideKeyboard : DiscoverPlayerVmEvent()
+    data object ShowKeyboard : DiscoverPlayerVmEvent()
     data class OpenVideoDetails(val videoEntity: VideoEntity) : DiscoverPlayerVmEvent()
     data class ScrollCommentToIndex(val index: Int) : DiscoverPlayerVmEvent()
 }
@@ -125,9 +125,9 @@ data class DiscoverPlayerUIState(
 sealed class DiscoverPlayerDialog {
     data class VideoSettingsDialog(val rumblePlayer: RumblePlayer) : DiscoverPlayerDialog()
     data class OpenReportVideoPopup(val videoEntity: VideoEntity) : DiscoverPlayerDialog()
-    object DefaultPopupState : DiscoverPlayerDialog()
-    object OpenCommentsPopup : DiscoverPlayerDialog()
-    object OpenEmailVerificationComment : DiscoverPlayerDialog()
+    data object DefaultPopupState : DiscoverPlayerDialog()
+    data object OpenCommentsPopup : DiscoverPlayerDialog()
+    data object OpenEmailVerificationComment : DiscoverPlayerDialog()
     data class OpenReportCommentPopup(val commentEntity: CommentEntity) : DiscoverPlayerDialog()
 }
 
@@ -484,7 +484,7 @@ class DiscoverPlayerViewModel @Inject constructor(
         }
     }
 
-    override fun onCommentChanged(comment: String) {
+    override fun onCommentChanged(comment: String, position: Int) {
         commentsUIState.update {
             it.copy(
                 currentComment = comment

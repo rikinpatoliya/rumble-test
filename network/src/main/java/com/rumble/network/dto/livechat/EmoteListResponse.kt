@@ -17,7 +17,11 @@ data class EmoteListData(
 
 data class EmoteItem(
     @SerializedName("id")
-    val id: Int,
+    val id: Long,
+    @SerializedName("title")
+    val title: String,
+    @SerializedName("channel_picture")
+    val channelPicture: String?,
     @SerializedName("emotes")
     val emotes: List<Emote>
 )

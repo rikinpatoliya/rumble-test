@@ -11,6 +11,8 @@ import com.rumble.domain.feed.model.datasource.local.ChannelViewDao
 import com.rumble.domain.feed.model.datasource.local.HomeCategoryViewDao
 import com.rumble.domain.feed.model.datasource.local.RoomChannelView
 import com.rumble.domain.feed.model.datasource.local.RoomVideoCollectionView
+import com.rumble.domain.livechat.model.datasource.local.EmoteDao
+import com.rumble.domain.livechat.model.datasource.local.RoomEmote
 import com.rumble.domain.onboarding.domain.domainmodel.RoomOnboardingView
 import com.rumble.domain.onboarding.model.datasource.local.OnboardingViewDao
 import com.rumble.domain.search.model.datasource.local.QueryDao
@@ -24,7 +26,7 @@ import com.rumble.domain.video.model.datasource.local.RoomLastPosition
 
 
 @Database(
-    version = 17,
+    version = 18,
     entities = [
         RoomQuery::class,
         RoomChannelView::class,
@@ -34,7 +36,8 @@ import com.rumble.domain.video.model.datasource.local.RoomLastPosition
         RoomVideo::class,
         RoomChannelFollow::class,
         RoomTimeRange::class,
-        RoomWatchProgress::class
+        RoomWatchProgress::class,
+        RoomEmote::class,
     ],
     exportSchema = true,
     autoMigrations = [
@@ -63,6 +66,7 @@ import com.rumble.domain.video.model.datasource.local.RoomLastPosition
             from = 16, to = 17,
             spec = RumbleDatabaseMigration.MigrationSpec16_17::class
         ),
+        AutoMigration(from = 17, to = 18),
     ]
 )
 abstract class RumbleDatabase : RoomDatabase() {
@@ -76,4 +80,5 @@ abstract class RumbleDatabase : RoomDatabase() {
     abstract fun channelFollowDao(): ChannelFollowDao
     abstract fun timeRangeDao(): TimeRangeDao
     abstract fun watchProgressDao(): WatchProgressDao
+    abstract fun emoteDao(): EmoteDao
 }

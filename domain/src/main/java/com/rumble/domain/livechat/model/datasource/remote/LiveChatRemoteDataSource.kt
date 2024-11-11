@@ -1,4 +1,4 @@
-package com.rumble.domain.livechat.model.datasource
+package com.rumble.domain.livechat.model.datasource.remote
 
 import android.net.Uri
 import com.google.gson.Gson

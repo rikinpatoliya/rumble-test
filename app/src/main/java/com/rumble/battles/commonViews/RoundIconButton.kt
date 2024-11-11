@@ -27,19 +27,21 @@ fun RoundIconButton(
     painter: Painter,
     size: Dp = imageMedium,
     contentDescription: String = "",
+    enabled: Boolean = true,
     backgroundColor: Color = MaterialTheme.colors.background,
     tintColor: Color =  MaterialTheme.colors.primaryVariant,
     onClick: () -> Unit = {}
 ) {
     IconButton(
         modifier = modifier,
-        onClick = onClick
+        onClick = onClick,
+        enabled = enabled,
     ) {
         Box(
             modifier = Modifier
                 .size(size)
                 .clip(CircleShape)
-                .background(backgroundColor)
+                .background(if (enabled) backgroundColor else backgroundColor.copy(alpha = 0.5f))
         ) {
             Icon(
                 modifier = Modifier.align(Alignment.Center),
@@ -58,5 +60,16 @@ fun PreviewRoundIconButton() {
         painter = painterResource(id = R.drawable.ic_settings),
         backgroundColor = rumbleGreen,
         tintColor = enforcedWhite,
+    )
+}
+
+@Preview
+@Composable
+fun PreviewRoundIconButtonDisabled() {
+    RoundIconButton(
+        painter = painterResource(id = R.drawable.ic_settings),
+        backgroundColor = rumbleGreen,
+        tintColor = enforcedWhite,
+        enabled = false,
     )
 }

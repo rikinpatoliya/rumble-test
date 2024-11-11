@@ -19,7 +19,7 @@ interface CommentsHandler {
     fun onReplyToComment(commentEntity: CommentEntity)
     fun onLikeComment(commentEntity: CommentEntity)
     fun onDeleteAction(commentEntity: CommentEntity)
-    fun onCommentChanged(comment: String)
+    fun onCommentChanged(comment: String, position: Int = 0)
     fun onSubmitComment()
     fun onKeepWriting()
     fun onDiscard(navigate: Boolean)

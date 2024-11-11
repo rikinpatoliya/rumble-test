@@ -37,14 +37,16 @@ fun String.getChannelId(): Long = this.getNumericId()
 
 fun String.getUserId(): Long = this.getNumericId()
 
-fun String.getNumericId(): Long  {
+fun String.getNumericId(): Long {
     return try {
         when {
             this.startsWith("_u") -> this.substring(2).toLong(36)
             this.startsWith("_") -> this.substring(2).toLong(10)
             else -> this.toLong(10)
         }
-    } catch (e: NumberFormatException) { -1 }
+    } catch (e: NumberFormatException) {
+        -1
+    }
 }
 
 fun String.capitalizeWords(): String =
@@ -63,3 +65,17 @@ fun String.toDate(): LocalDate? {
         null
     }
 }
+
+fun String.insertTextAtPosition(text: String, position: Int) =
+    if (position >= 0 && position <= this.length) {
+        val buffer = StringBuffer(this)
+        buffer.insert(position, text)
+        buffer.toString()
+    } else this
+
+fun String.removeCharacterAtPosition(position: Int) =
+    if (position >= 0 && position < this.length) {
+        val buffer = StringBuffer(this)
+        buffer.deleteCharAt(position)
+        buffer.toString()
+    } else this

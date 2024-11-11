@@ -152,7 +152,7 @@ fun BuyRantSheet(
                 rantSelection = liveChatState.rantSelected,
                 liveChatConfig = liveChatState.liveChatConfig,
                 onChange = {
-                    handler.onCommentChanged(it)
+                    handler.onCommentChanged(comment = it)
                 }
             )
             RantDescriptionView(

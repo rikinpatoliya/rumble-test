@@ -21,9 +21,12 @@ import com.rumble.domain.billing.domain.usecase.FetchRantProductDetailsUseCase
 import com.rumble.domain.billing.model.PurchaseHandler
 import com.rumble.domain.billing.model.PurchaseResult
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.common.model.RumbleError
+import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.DeleteMessageResult
+import com.rumble.domain.livechat.domain.domainmodel.EmoteEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatResult
@@ -36,7 +39,9 @@ import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
 import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
+import com.rumble.domain.livechat.domain.usecases.AddRecentEmoteListUseCase
 import com.rumble.domain.livechat.domain.usecases.DeleteMessageUseCase
+import com.rumble.domain.livechat.domain.usecases.FetchRecentEmoteListUseCase
 import com.rumble.domain.livechat.domain.usecases.GetLiveChatEventsUseCase
 import com.rumble.domain.livechat.domain.usecases.GetRantListUseCase
 import com.rumble.domain.livechat.domain.usecases.GetUnreadMessageCountTextUseCase
@@ -44,7 +49,9 @@ import com.rumble.domain.livechat.domain.usecases.InitAtMentionUseCase
 import com.rumble.domain.livechat.domain.usecases.MuteUserUseCase
 import com.rumble.domain.livechat.domain.usecases.PinMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.PostPaymentProofUseCase
+import com.rumble.domain.livechat.domain.usecases.SaveRecentEmoteUseCase
 import com.rumble.domain.livechat.domain.usecases.UnpinMessageUseCase
+import com.rumble.domain.livechat.domain.usecases.UpdateChannelEmoteLockStateUseCase
 import com.rumble.network.connection.InternetConnectionObserver
 import com.rumble.network.connection.InternetConnectionState
 import com.rumble.network.session.SessionManager
@@ -75,7 +82,7 @@ interface LiveChatHandler {
     val eventFlow: SharedFlow<LiveChatEvent>
     val alertDialogState: State<AlertDialogState>
 
-    fun onInitLiveChat(videoId: Long)
+    fun onInitLiveChat(videoEntity: VideoEntity)
     fun onRantClicked(rantEntity: RantEntity)
     fun onDismissBottomSheet()
     fun onReportRantTermsEvent()
@@ -96,6 +103,9 @@ interface LiveChatHandler {
     fun onMuteUserConfirmed(videoId: Long, mutePeriod: MutePeriod)
     fun onJoinRaid()
     fun onOptOutRaid()
+    fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
+    fun getEmoteCountInSameGroup(emoteEntity: EmoteEntity?): Int
+    fun onEmoteUsed(emoteEntity: EmoteEntity)
 }
 
 data class LiveChatState(
@@ -116,6 +126,7 @@ data class LiveChatState(
     val moderationMenuType: ModerationMenuType = ModerationMenuType.Generic,
     val raidEntity: RaidEntity? = null,
     val streamRaided: Boolean = false,
+    val recentEmoteList: List<EmoteEntity> = emptyList(),
 )
 
 sealed class LiveChatEvent {
@@ -130,7 +141,9 @@ sealed class LiveChatEvent {
     data class RantPurchaseSucceeded(val rantLevel: RantLevel) : LiveChatEvent()
     data object OpenModerationMenu : LiveChatEvent()
     data object HideModerationMenu : LiveChatEvent()
-    data class EnforceLiveGatePremiumRestriction(val liveGateEntity: LiveGateEntity) : LiveChatEvent()
+    data class EnforceLiveGatePremiumRestriction(val liveGateEntity: LiveGateEntity) :
+        LiveChatEvent()
+
     data class LiveGateStarted(val liveGateEntity: LiveGateEntity) : LiveChatEvent()
     data class RedirectTo(val videoUrl: String) : LiveChatEvent()
 }
@@ -161,13 +174,17 @@ class LiveChatViewModel @Inject constructor(
     private val muteUseCase: MuteUserUseCase,
     private val sessionManager: SessionManager,
     private val rumbleErrorUseCase: RumbleErrorUseCase,
+    private val updateChannelEmoteLockStateUseCase: UpdateChannelEmoteLockStateUseCase,
+    private val addRecentEmoteListUseCase: AddRecentEmoteListUseCase,
+    private val saveRecentEmoteUseCase: SaveRecentEmoteUseCase,
+    private val fetchRecentEmoteListUseCase: FetchRecentEmoteListUseCase,
 ) : ViewModel(), LiveChatHandler, PurchaseHandler {
 
+    private var currentVideo: VideoEntity? = null
     private var eventsJob: Job = Job()
     private var countDownJob: Job = Job()
     private var currentUserid: Long? = null
     private var purchaseInProgress: Boolean = false
-    private var liveChatConfig: LiveChatConfig? = null
     private var messageList = listOf<LiveChatMessageEntity>()
     private var rantUpdateJob: Job = Job()
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
@@ -214,12 +231,12 @@ class LiveChatViewModel @Inject constructor(
         }
     }
 
-    override fun onInitLiveChat(videoId: Long) {
+    override fun onInitLiveChat(videoEntity: VideoEntity) {
+        currentVideo = videoEntity
         messageList = emptyList()
-        liveChatConfig = null
         state.value = LiveChatState()
-        observeEventFlow(videoId)
-        observeConnectionState(videoId)
+        observeEventFlow(videoEntity.id)
+        observeConnectionState(videoEntity.id)
     }
 
     override fun onRantClicked(rantEntity: RantEntity) {
@@ -418,6 +435,37 @@ class LiveChatViewModel @Inject constructor(
         )
     }
 
+    override fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity) {
+        val liveChatConfig = state.value.liveChatConfig
+        state.value = state.value.copy(
+            liveChatConfig = liveChatConfig?.copy(
+                emoteGroups = updateChannelEmoteLockStateUseCase(
+                    emoteGroups = liveChatConfig.emoteGroups,
+                    followsCurrentChannel = channelDetailsEntity.followed,
+                    subscribedToChannel = currentVideo?.subscribedToCurrentChannel == true,
+                )
+            )
+        )
+    }
+
+    override fun getEmoteCountInSameGroup(emoteEntity: EmoteEntity?): Int {
+        val count = state.value.liveChatConfig?.emoteGroups?.find { group ->
+            group.emoteList.find { it.url == emoteEntity?.url } != null
+        }?.emoteList?.size ?: 0
+        return if (count > 1) {
+            count - 1
+        } else 0
+    }
+
+    override fun onEmoteUsed(emoteEntity: EmoteEntity) {
+        state.value = state.value.copy(
+            recentEmoteList = addRecentEmoteListUseCase(state.value.recentEmoteList, emoteEntity)
+        )
+        viewModelScope.launch(errorHandler) {
+            saveRecentEmoteUseCase(emoteEntity)
+        }
+    }
+
     private fun emitEvent(event: LiveChatEvent) {
         viewModelScope.launch { eventFlow.emit(event) }
     }
@@ -434,14 +482,13 @@ class LiveChatViewModel @Inject constructor(
                     result.liveGate?.let {
                         emitEvent(LiveChatEvent.EnforceLiveGatePremiumRestriction(it))
                     }
-                    state.value = state.value.copy(liveChatConfig = liveChatConfig)
                     startUpdateRantList()
                 } else {
                     result.liveGate?.let {
                         emitEvent(LiveChatEvent.LiveGateStarted(it))
                     }
                 }
-                liveChatConfig?.let { config ->
+                state.value.liveChatConfig?.let { config ->
                     val updatedResult =
                         filterExistingMessages(result, messageList.map { it.messageId }.toSet())
                     messageList = handleDeletedMessages(updatedResult)
@@ -483,10 +530,18 @@ class LiveChatViewModel @Inject constructor(
 
     private suspend fun initLiveChatConfig(config: LiveChatConfig) {
         val rantConfig = config.rantConfig
-        liveChatConfig = config.copy(
-            rantConfig = rantConfig.copy(
-                levelList = fetchRantProductDetailsUseCase(rantConfig.levelList)
-            )
+        state.value = state.value.copy(
+            liveChatConfig = config.copy(
+                rantConfig = rantConfig.copy(
+                    levelList = fetchRantProductDetailsUseCase(rantConfig.levelList),
+                ),
+                emoteGroups = updateChannelEmoteLockStateUseCase(
+                    emoteGroups = config.emoteGroups,
+                    followsCurrentChannel = currentVideo?.channelFollowed == true,
+                    subscribedToChannel = currentVideo?.subscribedToCurrentChannel == true,
+                )
+            ),
+            recentEmoteList = fetchRecentEmoteListUseCase(config.emoteGroups ?: emptyList())
         )
     }
 
@@ -520,7 +575,7 @@ class LiveChatViewModel @Inject constructor(
 
     private fun updateRantColor(entities: List<LiveChatMessageEntity>) =
         entities.map { entity ->
-            val rant = liveChatConfig?.rantConfig?.levelList?.find {
+            val rant = state.value.liveChatConfig?.rantConfig?.levelList?.find {
                 it.rantPrice.compareTo(entity.rantPrice ?: BigDecimal.ZERO) == 0
             }
             entity.copy(
@@ -534,7 +589,7 @@ class LiveChatViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO + errorHandler) {
             while (isActive) {
                 delay(RANT_STATE_UPDATE_RATIO)
-                liveChatConfig?.let { config ->
+                state.value.liveChatConfig?.let { config ->
                     state.value = state.value.copy(
                         rantList = getRantListUseCase(messageList, config.rantConfig)
                     )

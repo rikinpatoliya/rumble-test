@@ -42,8 +42,8 @@ object LiveChatNetworkModelMapper {
                 }
                 val config =
                     LiveChatConfig(
-                        event.data.chat.id,
-                        mapToRantConfig(event.data.config.rants),
+                        chatId = event.data.chat.id,
+                        rantConfig = mapToRantConfig(event.data.config.rants),
                         badges = event.data.config.badges?.mapValues {
                             BadgeEntity(
                                 url = baseUrl + it.value.icons.imageUrl,

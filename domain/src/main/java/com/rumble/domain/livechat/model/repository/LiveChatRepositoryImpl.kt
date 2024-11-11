@@ -13,8 +13,9 @@ import com.rumble.domain.livechat.domain.domainmodel.PaymentProofResult
 import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.domain.livechat.model.LiveChatNetworkModelMapper
-import com.rumble.domain.livechat.model.datasource.LiveChatRemoteDataSource
+import com.rumble.domain.livechat.model.datasource.remote.LiveChatRemoteDataSource
 import com.rumble.domain.livechat.model.toEmoteEntityList
+import com.rumble.domain.livechat.model.toEmoteGroupList
 import com.rumble.network.dto.livechat.LiveChatBodyData
 import com.rumble.network.dto.livechat.LiveChatErrorResponse
 import com.rumble.network.dto.livechat.LiveChatMessageBody
@@ -54,7 +55,10 @@ class LiveChatRepositoryImpl(
                     if (emoteListResult.isSuccessful) {
                         emoteListResult.body()?.let { response ->
                             liveChatResult = liveChatResult
-                                .copy(liveChatConfig = config.copy(emoteList = response.data.toEmoteEntityList()))
+                                .copy(liveChatConfig = config.copy(
+                                    emoteList = response.data.toEmoteEntityList(),
+                                    emoteGroups = response.data.toEmoteGroupList(),
+                                ))
                         }
                     }
                 }

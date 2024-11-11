@@ -36,6 +36,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetai
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorsResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserCommentAuthorsUseCase
 import com.rumble.domain.common.domain.domainmodel.DeviceType
@@ -65,6 +66,7 @@ import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.library.domain.usecase.GetPlayListUseCase
 import com.rumble.domain.library.domain.usecase.GetPlayListVideosUseCase
 import com.rumble.domain.livechat.domain.domainmodel.ChatMode
+import com.rumble.domain.livechat.domain.domainmodel.EmoteEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageResult
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
@@ -94,6 +96,8 @@ import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS
 import com.rumble.utils.extension.getChannelId
+import com.rumble.utils.extension.insertTextAtPosition
+import com.rumble.utils.extension.removeCharacterAtPosition
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.ReportType
@@ -121,6 +125,7 @@ import javax.inject.Inject
 interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     val state: State<VideoDetailsState>
     val playListState: StateFlow<PlayListState?>
+    val emoteState: State<EmoteState>
     val eventFlow: Flow<VideoDetailsEvent>
     val userNameFlow: Flow<String>
     val userPictureFlow: Flow<String>
@@ -184,6 +189,13 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onLiveGateEvent(liveGateEntity: LiveGateEntity)
     fun getVideoAspectRatio(): Int
     fun onLoadNewVideo(videoUrl: String)
+    fun onShowEmoteSelector()
+    fun onSwitchToKeyboard()
+    fun onEmoteSelected(emoteEntity: EmoteEntity)
+    fun onDeleteSymbol()
+    fun onBackPressed()
+    fun onDismissEmoteRequest()
+    fun onFollowChannel()
 }
 
 data class PlayListState(
@@ -212,6 +224,7 @@ data class VideoDetailsState(
     val uiType: UiType = UiType.EMBEDDED,
     val bottomSheetReason: BottomSheetReason? = null,
     val currentComment: String = "",
+    val currentCursorPosition: Int = 0,
     val commentToReply: CommentEntity? = null,
     val commentsDisabled: Boolean = false,
     val commentsSortOrder: CommentSortOrder = CommentSortOrder.POPULAR,
@@ -228,6 +241,14 @@ data class VideoDetailsState(
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
     val displayPremiumOnlyContent: Boolean = false,
     val chatMode: ChatMode = ChatMode.Free,
+)
+
+data class EmoteState(
+    val showEmoteSelector: Boolean = false,
+    val requestFollow: Boolean = false,
+    val requestSubscribe: Boolean = false,
+    val requestedEmote: EmoteEntity? = null,
+    val channelName: String = "",
 )
 
 sealed class BottomSheetReason {
@@ -267,7 +288,7 @@ sealed class VideoDetailsEvent {
     data object CloseLiveChat : VideoDetailsEvent()
     data object OpenComments : VideoDetailsEvent()
     data object CloseComments : VideoDetailsEvent()
-    data class InitLiveChat(val videoId: Long) : VideoDetailsEvent()
+    data class InitLiveChat(val videoEntity: VideoEntity) : VideoDetailsEvent()
     data class StartBuyRantFlow(val pendingMessageInfo: PendingMessageInfo) : VideoDetailsEvent()
     data object ScrollToTop : VideoDetailsEvent()
     data object ShowPremiumPromo : VideoDetailsEvent()
@@ -276,6 +297,9 @@ sealed class VideoDetailsEvent {
     data object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
     data object OpenAuthMenu : VideoDetailsEvent()
+    data object RequestMessageFocus : VideoDetailsEvent()
+    data class StartFollowChannel(val channelDetailsEntity: ChannelDetailsEntity?, val action: UpdateChannelSubscriptionAction) : VideoDetailsEvent()
+    data class EmoteUsed(val emote: EmoteEntity) : VideoDetailsEvent()
     data object VideoModeMinimized : VideoDetailsEvent()
 }
 
@@ -345,6 +369,7 @@ class VideoDetailsViewModel @Inject constructor(
 
     override val state: MutableState<VideoDetailsState> = mutableStateOf(VideoDetailsState())
     override val playListState = MutableStateFlow<PlayListState?>(null)
+    override val emoteState: MutableState<EmoteState> = mutableStateOf(EmoteState())
     private val userIdFlow: Flow<String> = sessionManager.userIdFlow
     private val isPremiumUserFlow: Flow<Boolean> = sessionManager.isPremiumUserFlow
     override val userNameFlow: Flow<String> = sessionManager.userNameFlow
@@ -362,6 +387,80 @@ class VideoDetailsViewModel @Inject constructor(
         }
 
         observeLoginState()
+    }
+
+    override fun onShowEmoteSelector() {
+        emoteState.value = emoteState.value.copy(showEmoteSelector = true)
+        emitVmEvent(VideoDetailsEvent.HideKeyboard)
+    }
+
+    override fun onSwitchToKeyboard() {
+        emoteState.value = emoteState.value.copy(showEmoteSelector = false)
+        emitVmEvent(VideoDetailsEvent.RequestMessageFocus)
+    }
+
+    override fun onEmoteSelected(emoteEntity: EmoteEntity) {
+        if (emoteEntity.locked) {
+            if (state.value.channelDetailsEntity?.followed != true) {
+                emoteState.value = emoteState.value.copy(
+                    requestFollow = true,
+                    requestedEmote = emoteEntity.copy(locked = false),
+                    channelName = state.value.channelDetailsEntity?.name ?: ""
+                )
+            } else {
+                emoteState.value = emoteState.value.copy(
+                    requestSubscribe = true,
+                    requestedEmote = emoteEntity.copy(locked = false),
+                    channelName = state.value.channelDetailsEntity?.name ?: ""
+                )
+            }
+        } else {
+            val emoteText = " :${emoteEntity.name}: "
+            val updated = state.value.currentComment
+                .insertTextAtPosition(emoteText, state.value.currentCursorPosition)
+            state.value = state.value.copy(
+                currentComment = updated,
+                currentCursorPosition = state.value.currentCursorPosition + emoteText.length
+            )
+            emitVmEvent(VideoDetailsEvent.EmoteUsed(emoteEntity))
+        }
+    }
+
+    override fun onDeleteSymbol() {
+        if (state.value.currentComment.isNotEmpty()) {
+            val deletePosition = state.value.currentCursorPosition - 1
+            val updated = state.value.currentComment.removeCharacterAtPosition(deletePosition)
+            state.value = state.value.copy(
+                currentComment = updated,
+                currentCursorPosition = deletePosition
+            )
+        }
+    }
+
+    override fun onBackPressed() {
+        if (emoteState.value.showEmoteSelector) {
+            emoteState.value = EmoteState()
+        } else {
+            onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+        }
+    }
+
+    override fun onDismissEmoteRequest() {
+        emoteState.value = emoteState.value.copy(
+            requestFollow = false,
+            requestSubscribe = false,
+            requestedEmote = null,
+        )
+    }
+
+    override fun onFollowChannel() {
+        emitVmEvent(VideoDetailsEvent.StartFollowChannel(
+            channelDetailsEntity = state.value.channelDetailsEntity,
+            action = UpdateChannelSubscriptionAction.SUBSCRIBE,
+        ))
+        emoteState.value = emoteState.value.copy(
+            requestFollow = false,
+        )
     }
 
     override fun onLoadNewVideo(videoUrl: String) {
@@ -390,7 +489,11 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onUpdateLayoutState(layoutState: CollapsableLayoutState) {
-        state.value = state.value.copy(layoutState = layoutState)
+        state.value = state.value.copy(
+            layoutState = layoutState,
+        )
+        emoteState.value =
+            emoteState.value.copy(showEmoteSelector = emoteState.value.showEmoteSelector && layoutState != CollapsableLayoutState.COLLAPSED)
         if (layoutState == CollapsableLayoutState.EXPENDED) {
             state.value.rumblePlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
@@ -597,8 +700,11 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onCommentChanged(comment: String) {
-        state.value = state.value.copy(currentComment = comment)
+    override fun onCommentChanged(comment: String, position: Int) {
+        state.value = state.value.copy(
+            currentComment = comment,
+            currentCursorPosition = position,
+        )
     }
 
     override fun onSubmitComment() {
@@ -822,7 +928,13 @@ class VideoDetailsViewModel @Inject constructor(
         state.value = state.value.copy(
             currentComment = "",
             commentToReply = null,
-            inLiveChat = false
+            inLiveChat = false,
+            currentCursorPosition = 0,
+        )
+        emoteState.value = emoteState.value.copy(
+            showEmoteSelector = false,
+            requestSubscribe = false,
+            requestFollow = false,
         )
         emitVmEvent(VideoDetailsEvent.HideKeyboard)
         emitVmEvent(VideoDetailsEvent.CloseLiveChat)
@@ -849,7 +961,8 @@ class VideoDetailsViewModel @Inject constructor(
         state.value = state.value.copy(
             inLiveChat = true,
             lastBottomSheet = LastBottomSheet.LIVECHAT,
-            currentComment = ""
+            currentComment = "",
+            currentCursorPosition = 0,
         )
         emitVmEvent(VideoDetailsEvent.OpenLiveChat)
     }
@@ -862,7 +975,14 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onCloseLiveChat() {
         if (state.value.currentComment.isEmpty()) {
-            state.value = state.value.copy(inLiveChat = false)
+            state.value = state.value.copy(
+                inLiveChat = false,
+            )
+            emoteState.value = emoteState.value.copy(
+                showEmoteSelector = false,
+                requestSubscribe = false,
+                requestFollow = false,
+            )
             emitVmEvent(VideoDetailsEvent.HideKeyboard)
             emitVmEvent(VideoDetailsEvent.CloseLiveChat)
         } else {
@@ -881,7 +1001,15 @@ class VideoDetailsViewModel @Inject constructor(
                     authorChannelId = channelId,
                     rantLevel = rantLevel
                 )
-            state.value = state.value.copy(currentComment = "")
+            state.value = state.value.copy(
+                currentComment = "",
+                currentCursorPosition = 0,
+            )
+            emoteState.value = emoteState.value.copy(
+                showEmoteSelector = false,
+                requestSubscribe = false,
+                requestFollow = false,
+            )
             emitVmEvent(VideoDetailsEvent.HideKeyboard)
             when (result) {
                 is LiveChatMessageResult.Failure -> {
@@ -1239,7 +1367,8 @@ class VideoDetailsViewModel @Inject constructor(
         state.value = state.value.copy(
             isLoading = false,
             currentComment = "",
-            commentToReply = null
+            commentToReply = null,
+            currentCursorPosition = 0,
         )
     }
 
@@ -1618,9 +1747,10 @@ class VideoDetailsViewModel @Inject constructor(
             state.value = state.value.copy(
                 inLiveChat = (isPremiumUserFlow.first() || videoEntity.isPremiumExclusiveContent.not()) && state.value.inComments.not(),
                 lastBottomSheet = if (state.value.inComments) LastBottomSheet.COMMENTS else LastBottomSheet.LIVECHAT,
-                currentComment = ""
+                currentComment = "",
+                currentCursorPosition = 0,
             )
-            emitVmEvent(VideoDetailsEvent.InitLiveChat(videoEntity.id))
+            emitVmEvent(VideoDetailsEvent.InitLiveChat(videoEntity))
         } else {
             emitVmEvent(VideoDetailsEvent.CloseLiveChat)
         }
