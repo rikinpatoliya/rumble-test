@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -223,6 +224,7 @@ fun VideoPreviewScreen(
         }
         Column(
             modifier = Modifier
+                .systemGestureExclusion()
                 .fillMaxWidth()
                 .padding(
                     start = paddingLarge,
