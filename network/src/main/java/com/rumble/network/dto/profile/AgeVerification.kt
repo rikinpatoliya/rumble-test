@@ -6,5 +6,5 @@ data class AgeVerification(
     @SerializedName("required")
     val required: Boolean,
     @SerializedName("min_eligible")
-    val min_eligible: Int
+    val minEligible: Int
 )

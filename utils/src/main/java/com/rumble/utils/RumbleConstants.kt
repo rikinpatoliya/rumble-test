@@ -116,6 +116,7 @@ object RumbleConstants {
     const val RUMBLE_EMOTE_PACK_ID = 1881816L
     const val MAX_VISIBLE_RECENT_EMOTE = 12
     const val RECENT_MAX_NUMBER = 100
+    const val MIN_USERNAME_LENGTH = 3
 
     @Language("JSON")
     val countriesList = """

@@ -280,7 +280,7 @@ fun UserProfile.getUserProfileEntity(): UserProfileEntity =
         gender = Gender.getByValue(gender),
         birthday = birthday?.toDate(),
         ageVerificationRequired = ageVerification.required,
-        minEligibleAge = ageVerification.min_eligible
+        minEligibleAge = ageVerification.minEligible
     )
 
 fun Channel.getChannelDetailsEntity(): ChannelDetailsEntity =
