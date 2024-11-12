@@ -7,7 +7,7 @@ import com.google.gson.Gson
 import com.onesignal.notifications.INotificationClickEvent
 import com.onesignal.notifications.INotificationClickListener
 import com.rumble.analytics.PushNotificationInteractionEvent
-import com.rumble.battles.landing.LandingActivity
+import com.rumble.battles.landing.RumbleMainActivity
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.notifications.domain.domainmodel.KEY_NOTIFICATION_VIDEO_DETAILS
@@ -56,7 +56,7 @@ class RumbleNotificationOpenedHandler @Inject constructor(
     private fun openVideoDetails(notificationData: RumbleOneSignalNotificationData) {
         runBlocking { sessionManager.allowContentLoadFlow(false) }
         context.startActivity(
-            Intent(context, LandingActivity::class.java).apply {
+            Intent(context, RumbleMainActivity::class.java).apply {
                 putExtra(
                     KEY_NOTIFICATION_VIDEO_DETAILS,
                     RumbleNotificationData(

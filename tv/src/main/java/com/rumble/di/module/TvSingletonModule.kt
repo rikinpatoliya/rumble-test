@@ -14,14 +14,23 @@ import com.rumble.domain.common.model.datasource.UserRemoteDataSourceImpl
 import com.rumble.domain.common.model.datasource.VideoRemoteDataSource
 import com.rumble.domain.common.model.datasource.VideoRemoteDataSourceImpl
 import com.rumble.domain.database.RumbleDatabase
-import com.rumble.domain.feed.model.datasource.local.*
-import com.rumble.domain.feed.model.datasource.remote.*
+import com.rumble.domain.feed.model.datasource.local.ChannelViewDao
+import com.rumble.domain.feed.model.datasource.local.HomeCategoryViewDao
+import com.rumble.domain.feed.model.datasource.local.RoomChannelView
+import com.rumble.domain.feed.model.datasource.local.RoomVideoCollectionView
+import com.rumble.domain.feed.model.datasource.local.RoomVideoCollectionViewCount
+import com.rumble.domain.feed.model.datasource.remote.CommentRemoteDataSource
+import com.rumble.domain.feed.model.datasource.remote.CommentRemoteDataSourceImpl
+import com.rumble.domain.feed.model.datasource.remote.LiveVideoPlaylistDataSource
+import com.rumble.domain.feed.model.datasource.remote.LiveVideoPlaylistDataSourceImpl
 import com.rumble.domain.feed.model.repository.FeedRepository
 import com.rumble.domain.feed.model.repository.FeedRepositoryImpl
 import com.rumble.domain.library.model.datasource.PlayListRemoteDataSource
 import com.rumble.domain.library.model.datasource.PlayListRemoteDataSourceImpl
 import com.rumble.domain.library.model.repository.PlayListRepository
 import com.rumble.domain.library.model.repository.PlayListRepositoryImpl
+import com.rumble.domain.livechat.model.repository.RecentEmoteRepository
+import com.rumble.domain.livechat.model.repository.RecentEmoteRepositoryImpl
 import com.rumble.domain.login.model.LoginRepository
 import com.rumble.domain.login.model.LoginRepositoryImpl
 import com.rumble.domain.login.model.datasource.LoginRemoteDataSource
@@ -54,7 +63,15 @@ import com.rumble.domain.videolist.model.datasource.VideoListRemoteDataSource
 import com.rumble.domain.videolist.model.datasource.VideoListRemoteDataSourceImpl
 import com.rumble.domain.videolist.model.repository.VideoListRepository
 import com.rumble.domain.videolist.model.repository.VideoListRepositoryImpl
-import com.rumble.network.api.*
+import com.rumble.network.api.ChannelApi
+import com.rumble.network.api.LoginApi
+import com.rumble.network.api.PreRollApi
+import com.rumble.network.api.ReportApi
+import com.rumble.network.api.RumbleAdsApi
+import com.rumble.network.api.RumbleBannerApi
+import com.rumble.network.api.SearchApi
+import com.rumble.network.api.UserApi
+import com.rumble.network.api.VideoApi
 import com.rumble.network.dto.login.RegisterErrorResponse
 import com.rumble.utils.HashCalculator
 import dagger.Module
@@ -323,5 +340,7 @@ class TvSingletonModule {
             videoListRemoteDataSource = videoListRemoteDataSource
         )
 
-
+    @Provides
+    fun provideEmoteRepository(database: RumbleDatabase): RecentEmoteRepository =
+        RecentEmoteRepositoryImpl(database.emoteDao(),  Dispatchers.IO)
 }

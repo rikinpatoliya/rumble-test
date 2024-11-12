@@ -14,7 +14,7 @@ sealed class LandingScreens(val screenName: String) {
             "registration/${type}/${userId}/${token}?email=${email}"
     }
 
-    object RumbleRegisterScreen :
+    data object RumbleRegisterScreen :
         LandingScreens("registration/{${LandingPath.LOGINTYPE.path}}") {
         fun getPath(type: String): String = "registration/${type}"
     }

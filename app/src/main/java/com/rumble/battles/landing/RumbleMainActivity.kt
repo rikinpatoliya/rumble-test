@@ -17,7 +17,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,6 +63,9 @@ import com.rumble.network.NetworkRumbleConstants.RETROFIT_STACK_TRACE
 import com.rumble.network.connection.ConnectivityError
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.videoplayer.player.RumblePlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -82,8 +88,11 @@ class RumbleMainActivity : FragmentActivity() {
 
     private val viewModel: RumbleActivityViewModel by viewModels()
     private lateinit var session: MediaSessionCompat
+    private var isReady by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { !isReady }
         super.onCreate(savedInstanceState)
         if (DeviceProperties.isTablet(resources)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -93,13 +102,18 @@ class RumbleMainActivity : FragmentActivity() {
         initializeTimeRangeService(savedInstanceState)
         initializeMediaSession()
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        handleLaunchAttributesForTesting(intent.extras)
         handleNotifications(intent.extras)
 
         setContent {
+            val state by viewModel.activityHandlerState.collectAsStateWithLifecycle()
             val colorMode by viewModel.colorMode.collectAsStateWithLifecycle(initialValue = ColorMode.SYSTEM_DEFAULT)
             val isDarkTheme = colorMode.isDarkTheme(isSystemInDarkTheme())
             RumbleCustomTheme.isLightMode = isDarkTheme.not()
             RumbleTheme(isDarkTheme) {
+                LaunchedEffect(state.readyToStart) {
+                    isReady = state.readyToStart
+                }
                 RumbleApp()
             }
         }
@@ -193,6 +207,10 @@ class RumbleMainActivity : FragmentActivity() {
                         }
                     }
 
+                    is RumbleEvent.NavigateToAuth -> {
+                        navController.navigate(LandingScreens.AuthLandingScreen.screenName)
+                    }
+
                     else -> {}
                 }
 
@@ -207,7 +225,7 @@ class RumbleMainActivity : FragmentActivity() {
     }
 
     private fun createNavigationGraph(navController: NavController) =
-        navController.createGraph(startDestination = getStartDestination().screenName) {
+        navController.createGraph(startDestination = LandingScreens.ContentScreen.screenName) {
             composable(
                 LandingScreens.RumbleWebViewScreen.screenName,
                 arguments = listOf(navArgument(LandingPath.URL.path) { type = NavType.StringType })
@@ -386,11 +404,6 @@ class RumbleMainActivity : FragmentActivity() {
             }
         }
 
-    private fun getStartDestination(): LandingScreens =
-        if (intent.getBooleanExtra(SHOULD_LOGIN, false)) LandingScreens.AuthLandingScreen
-        else LandingScreens.ContentScreen
-
-
     @Suppress("DEPRECATION")
     private fun handleNotifications(bundle: Bundle?) {
         val notificationData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -431,6 +444,17 @@ class RumbleMainActivity : FragmentActivity() {
         viewModel.initMediaSession(session)
     }
 
+    private fun handleLaunchAttributesForTesting(bundle: Bundle?) {
+        if (viewModel.isDevelopmentMode()) {
+            val uitFlag: Any? = bundle?.get(TESTING_LAUNCH_UIT_FLAG)
+            if (uitFlag != null) {
+                val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)
+                val uitPassword: String? = bundle.getString(TESTING_LAUNCH_UIT_PASSWORD)
+                viewModel.onPrepareAppForTesting(uitUserName, uitPassword)
+            }
+        }
+    }
+
     private fun initGeneralErrorHandler() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         // To handle http3 library error: https://console.firebase.google.com/project/rumble-video-battles/crashlytics/app/android:com.rumble.battles/issues/432c396f8b9d2f26cb1dd11990431b99?time=last-seven-days&versions=3.0.14%20(296)&sessionEventKey=646E4DC1030F00014FDD77AC98279683_1815934342455396617
@@ -445,7 +469,7 @@ class RumbleMainActivity : FragmentActivity() {
                 || (e is ConnectivityError)
                 || (e is IOException)
                 || (e is HttpException)
-                || (e.stackTrace.any { it.className.contains(RETROFIT_STACK_TRACE)})
+                || (e.stackTrace.any { it.className.contains(RETROFIT_STACK_TRACE) })
             ) {
                 viewModel.onError(e)
             } else {

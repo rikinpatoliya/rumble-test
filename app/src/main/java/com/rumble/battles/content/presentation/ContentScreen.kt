@@ -250,19 +250,27 @@ fun ContentScreen(
 
     LaunchedEffect(activityHandler.eventFlow) {
         activityHandler.eventFlow.collectLatest {
-            if (it is RumbleEvent.NavigateToVideoDetailsFromNotification) {
-                contentHandler.onOpenVideoDetails(it.videoEntity.id)
-            } else if (it is RumbleEvent.UnexpectedError) {
-                snackBarHostState.showRumbleSnackbar(
-                    context.getString(R.string.generic_error_message_try_later)
-                )
-            } else if (it is RumbleEvent.NavigateToMyVideos) {
-                navControllers[selectedTabIndex].popBackStack(
-                    navControllers[selectedTabIndex].graph.startDestinationId,
-                    inclusive = false
-                )
-                navigateToMyVideos = true
-                selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
+            when (it) {
+                is RumbleEvent.NavigateToVideoDetailsFromNotification -> {
+                    contentHandler.onOpenVideoDetails(it.videoEntity.id)
+                }
+
+                is RumbleEvent.UnexpectedError -> {
+                    snackBarHostState.showRumbleSnackbar(
+                        context.getString(R.string.generic_error_message_try_later)
+                    )
+                }
+
+                is RumbleEvent.NavigateToMyVideos -> {
+                    navControllers[selectedTabIndex].popBackStack(
+                        navControllers[selectedTabIndex].graph.startDestinationId,
+                        inclusive = false
+                    )
+                    navigateToMyVideos = true
+                    selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
+                }
+
+                else -> return@collectLatest
             }
         }
     }
