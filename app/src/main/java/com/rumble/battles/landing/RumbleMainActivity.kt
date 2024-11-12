@@ -417,10 +417,12 @@ class RumbleMainActivity : FragmentActivity() {
         if (notificationData != null) {
             viewModel.onToggleAppLaunchedFromNotification(true)
             viewModel.getVideoDetails(notificationData)
+            bundle?.let {
+                viewModel.clearBundleKeys(it, listOf(KEY_NOTIFICATION_VIDEO_DETAILS))
+            }
         } else {
             viewModel.enableContentLoad()
         }
-        bundle?.clear()
     }
 
     private fun initializePlayService(savedInstanceState: Bundle?) {
@@ -451,6 +453,14 @@ class RumbleMainActivity : FragmentActivity() {
                 val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)
                 val uitPassword: String? = bundle.getString(TESTING_LAUNCH_UIT_PASSWORD)
                 viewModel.onPrepareAppForTesting(uitUserName, uitPassword)
+                viewModel.clearBundleKeys(
+                    bundle,
+                    listOf(
+                        KEY_NOTIFICATION_VIDEO_DETAILS,
+                        TESTING_LAUNCH_UIT_USERNAME,
+                        TESTING_LAUNCH_UIT_PASSWORD
+                    )
+                )
             }
         }
     }

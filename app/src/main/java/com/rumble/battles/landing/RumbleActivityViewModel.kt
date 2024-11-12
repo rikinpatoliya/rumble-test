@@ -1,6 +1,7 @@
 package com.rumble.battles.landing
 
 import android.app.Application
+import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
@@ -108,6 +109,7 @@ interface RumbleActivityHandler {
     fun onLogException(e: Exception)
     fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
     fun isDevelopmentMode(): Boolean
+    fun clearBundleKeys(bundle: Bundle, keys: List<String>)
 }
 
 
@@ -439,6 +441,12 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     override fun isDevelopmentMode(): Boolean = developModeUseCase()
+
+    override fun clearBundleKeys(bundle: Bundle, keys: List<String>) {
+        keys.forEach { key ->
+            bundle.remove(key)
+        }
+    }
 
     private fun observeTestParams() {
         if (developModeUseCase()) {
