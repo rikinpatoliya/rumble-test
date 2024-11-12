@@ -11,7 +11,7 @@ class FetchRecentEmoteListUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(remoteEmoteGroups: List<EmoteGroupEntity>): List<EmoteEntity> {
         val recentEmoteList = recentEmoteRepository.fetchRecentEmoteList().filter { recentEmote ->
-            remoteEmoteGroups.any { emoteGroup -> emoteGroup.emoteList.find { it.url == recentEmote.url} != null }
+            remoteEmoteGroups.any { emoteGroup -> emoteGroup.emoteList.find { it.url == recentEmote.url } != null }
         }
         return sortRecentEmoteListUseCase(recentEmoteList)
     }

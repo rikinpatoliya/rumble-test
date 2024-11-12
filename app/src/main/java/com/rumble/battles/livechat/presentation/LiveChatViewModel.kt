@@ -39,7 +39,6 @@ import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
 import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
-import com.rumble.domain.livechat.domain.usecases.AddRecentEmoteListUseCase
 import com.rumble.domain.livechat.domain.usecases.DeleteMessageUseCase
 import com.rumble.domain.livechat.domain.usecases.FetchRecentEmoteListUseCase
 import com.rumble.domain.livechat.domain.usecases.GetLiveChatEventsUseCase
@@ -175,7 +174,6 @@ class LiveChatViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val rumbleErrorUseCase: RumbleErrorUseCase,
     private val updateChannelEmoteLockStateUseCase: UpdateChannelEmoteLockStateUseCase,
-    private val addRecentEmoteListUseCase: AddRecentEmoteListUseCase,
     private val saveRecentEmoteUseCase: SaveRecentEmoteUseCase,
     private val fetchRecentEmoteListUseCase: FetchRecentEmoteListUseCase,
 ) : ViewModel(), LiveChatHandler, PurchaseHandler {
@@ -458,11 +456,11 @@ class LiveChatViewModel @Inject constructor(
     }
 
     override fun onEmoteUsed(emoteEntity: EmoteEntity) {
-        state.value = state.value.copy(
-            recentEmoteList = addRecentEmoteListUseCase(state.value.recentEmoteList, emoteEntity)
-        )
         viewModelScope.launch(errorHandler) {
             saveRecentEmoteUseCase(emoteEntity)
+            state.value = state.value.copy(
+                recentEmoteList = fetchRecentEmoteListUseCase(state.value.liveChatConfig?.emoteGroups ?: emptyList())
+            )
         }
     }
 
