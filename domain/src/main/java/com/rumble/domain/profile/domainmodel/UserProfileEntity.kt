@@ -18,5 +18,7 @@ data class UserProfileEntity(
     val followedChannelCount: Int,
     val isPremium: Boolean,
     val gender: Gender,
-    val birthday: LocalDate?
+    val birthday: LocalDate?,
+    val ageVerificationRequired: Boolean,
+    val minEligibleAge: Int
 )

@@ -83,8 +83,11 @@ import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusXMedium
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.RumbleConstants.ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE
+import com.rumble.utils.RumbleConstants.BIRTHDAY_DATE_PATTERN
 import com.rumble.utils.RumbleConstants.PROFILE_IMAGE_BITMAP_MAX_WIDTH
+import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.clickableNoRipple
+import com.rumble.utils.extension.convertToDate
 import com.rumble.utils.extension.scaleToMaxWidth
 import com.rumble.utils.extension.toUtcLocalDate
 import com.rumble.utils.extension.toUtcLong
@@ -433,34 +436,34 @@ private fun EditProfileContent(
                 .height(paddingMedium)
         )
 
-        /*TODO uncomment once age verification is added back*/
-//        RumbleInputSelectorFieldView(
-//            label = stringResource(id = R.string.birthday).uppercase(),
-//            labelColor = MaterialTheme.colors.primary,
-//            errorMessageColor = MaterialTheme.colors.secondary,
-//            value = if (state.userProfileEntity.birthday == null) "" else state.userProfileEntity.birthday?.toUtcLong()
-//                ?.convertToDate(
-//                    pattern = BIRTHDAY_DATE_PATTERN, useUtc = true
-//                ) ?: "",
-//            hasError = state.birthdayError.first,
-//            errorMessage = when (state.birthdayError.second) {
-//                InputValidationError.Empty -> stringResource(id = R.string.birthday_empty_error_message)
-//                InputValidationError.MinCharacters -> stringResource(
-//                    id = R.string.birthday_at_least_13_error_message
-//                )
-//
-//                is InputValidationError.Custom -> (state.birthdayError.second as InputValidationError.Custom).message
-//
-//                else -> ""
-//            }
-//        ) {
-//            editProfileHandler.onSelectBirthday()
-//        }
-//
-//        Spacer(
-//            Modifier
-//                .height(paddingMedium)
-//        )
+        RumbleInputSelectorFieldView(
+            label = stringResource(id = R.string.birthday).uppercase(),
+            labelColor = MaterialTheme.colors.primary,
+            errorMessageColor = MaterialTheme.colors.secondary,
+            value = if (state.userProfileEntity.birthday == null) "" else state.userProfileEntity.birthday?.toUtcLong()
+                ?.convertToDate(
+                    pattern = BIRTHDAY_DATE_PATTERN, useUtc = true
+                ) ?: "",
+            hasError = state.birthdayError.first,
+            errorMessage = when (state.birthdayError.second) {
+                InputValidationError.Empty -> stringResource(id = R.string.birthday_empty_error_message)
+                is InputValidationError.MinCharacters -> stringResource(
+                    id = R.string.birthday_at_least_error_message,
+                    (state.birthdayError.second as InputValidationError.MinCharacters).count
+                )
+
+                is InputValidationError.Custom -> (state.birthdayError.second as InputValidationError.Custom).message
+
+                else -> ""
+            }
+        ) {
+            editProfileHandler.onSelectBirthday()
+        }
+
+        Spacer(
+            Modifier
+                .height(paddingMedium)
+        )
 
         RumbleDropDownMenu(
             modifier = Modifier.fillMaxWidth(),

@@ -60,6 +60,7 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     private val videoDetailsCollapsedKey = booleanPreferencesKey("videoDetailsCollapsedKey")
     private val conversionLoggedKey = booleanPreferencesKey("conversionLoggedKey")
     private val firstAppLaunchKey = booleanPreferencesKey("firstAppLaunchKey")
+    private val minEligibleAgeKey = intPreferencesKey("minEligibleAgeKey")
 
     val cookiesFlow: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[cookiesKey] ?: ""
@@ -228,6 +229,12 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     }.catch {
         Timber.tag(TAG).e(it)
         emit(value = true)
+    }
+    val minEligibleAgeFlow: Flow<Int?> = context.dataStore.data.map { prefs ->
+        prefs[minEligibleAgeKey]
+    }.catch {
+        Timber.tag(TAG).e(it)
+        emit(value = null)
     }
 
 
@@ -582,6 +589,16 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         try {
             context.dataStore.edit { prefs ->
                 prefs[firstAppLaunchKey] = firstAppLaunch
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveMinEligibleAge(minEligibleAge: Int) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[minEligibleAgeKey] = minEligibleAge
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)

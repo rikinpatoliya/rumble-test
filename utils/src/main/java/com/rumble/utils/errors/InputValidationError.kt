@@ -5,6 +5,6 @@ sealed class InputValidationError {
     object Empty : InputValidationError()
     object NotLetterOrDigit : InputValidationError()
     object NotLetterOrDigitOrUnderscore : InputValidationError()
-    object MinCharacters : InputValidationError()
+    data class MinCharacters(val count: Int) : InputValidationError()
     data class Custom(val message: String) : InputValidationError()
 }

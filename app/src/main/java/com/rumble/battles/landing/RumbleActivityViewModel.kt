@@ -179,12 +179,11 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
-        /*TODO uncomment once age verification is added back*/
-//        viewModelScope.launch {
-//            if (getClearSessionOnAppStartUseCase()) {
-//                signOutUseCase()
-//            }
-//        }
+        viewModelScope.launch {
+            if (getClearSessionOnAppStartUseCase()) {
+                signOutUseCase()
+            }
+        }
         viewModelScope.launch(errorHandler) {
             generateViewerIdUseCase()
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())

@@ -17,7 +17,6 @@ import com.rumble.domain.login.domain.usecases.RumbleFormBodyBuilderUseCase
 import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
 import com.rumble.domain.login.domain.usecases.SSOFormBodyBuilderUseCase
 import com.rumble.domain.login.domain.usecases.SSOLoginUseCase
-import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -25,11 +24,11 @@ import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
 import com.rumble.domain.validation.usecases.EmailValidationUseCase
 import com.rumble.domain.validation.usecases.PasswordValidationUseCase
 import com.rumble.domain.validation.usecases.UserNameValidationUseCase
+import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.API_FORMAT_DATE_PATTERN
 import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.convertToDate
-import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
@@ -37,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -125,10 +125,12 @@ class RegisterViewModel @Inject constructor(
     private val sendEmailUseCase: SendEmailUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
+    private val sessionManager: SessionManager,
     stateHandle: SavedStateHandle
 ) : ViewModel(), RegisterHandler {
 
     private var userRegistrationEntity = UserRegistrationEntity()
+    private var minEligibleAge: Int? = null
 
     override val uiState = MutableStateFlow(createDefaultUiState(stateHandle))
     override val alertDialogState = MutableStateFlow(AlertDialogState())
@@ -145,6 +147,7 @@ class RegisterViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             userPreferenceManager.saveColorMode(ColorMode.DARK_MODE)
+            minEligibleAge = sessionManager.minEligibleAgeFlow.first()
         }
     }
 
@@ -375,7 +378,10 @@ class RegisterViewModel @Inject constructor(
             }
             validInput = false
         }
-        val birthdayError = birthdayValidationUseCase(userRegistrationEntity.birthday)
+        val birthdayError = birthdayValidationUseCase(
+            userRegistrationEntity.birthday,
+            minEligibleAge ?: RumbleConstants.MINIMUM_AGE_REQUIREMENT
+        )
         if (birthdayError.first) {
             uiState.update {
                 it.copy(

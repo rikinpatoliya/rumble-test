@@ -39,5 +39,7 @@ data class UserProfile(
     @SerializedName("is_premium")
     val isPremium: Boolean,
     @SerializedName("gender")
-    val gender: String?
+    val gender: String?,
+    @SerializedName("age_verification")
+    val ageVerification: AgeVerification
 )

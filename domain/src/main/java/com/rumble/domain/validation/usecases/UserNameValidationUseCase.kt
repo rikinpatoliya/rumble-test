@@ -10,7 +10,7 @@ class UserNameValidationUseCase @Inject constructor() {
         return when {
             userName.isEmpty() || userName.length < 3 -> Pair(
                 true,
-                InputValidationError.MinCharacters
+                InputValidationError.MinCharacters(3)
             )
             userName.first().isLetterOrDigit().not() -> Pair(
                 true,

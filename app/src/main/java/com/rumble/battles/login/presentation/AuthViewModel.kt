@@ -102,20 +102,22 @@ class AuthViewModel @Inject constructor(
             viewModelScope.launch(errorHandler) {
                 val result = ssoLoginUseCase(LoginType.GOOGLE, userId = userId, token = token)
                 if (result.success) {
-                    /*TODO uncomment once age verification is added back*/
-//                    // for sso login, verify age restrictions
-//                    val profileResult = getUserProfileUseCase()
-//                    if (profileResult.success) {
-//                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
-//                        if (birthdayValidationUseCase(birthday).first) {
-//                            state.value = state.value.copy(loading = false)
-//                            emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
-//                            return@launch
-//                        }
-//                    }
+                    // for sso login, verify age restrictions
+                    val profileResult = getUserProfileUseCase()
+                    if (profileResult.success) {
+                        val userProfile = profileResult.userProfileEntity
+                        val birthday = userProfile?.birthday?.toUtcLong()
+                        if (userProfile?.ageVerificationRequired == true &&
+                            birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first) {
+                            state.value = state.value.copy(loading = false)
+                            emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
+                            return@launch
+                        }
+                    }
                     state.value = state.value.copy(loading = false)
                     emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
                 } else if (result.error == UNABLE_TO_FIND_USER_ERROR) {
+                    state.value = state.value.copy(loading = false)
                     emitEvent(
                         AuthHandlerEvent.NavigateToRegistration(
                             LoginType.GOOGLE,
@@ -125,6 +127,7 @@ class AuthViewModel @Inject constructor(
                         )
                     )
                 } else {
+                    state.value = state.value.copy(loading = false)
                     emitEvent(AuthHandlerEvent.Error(result.error))
                 }
             }
@@ -159,17 +162,18 @@ class AuthViewModel @Inject constructor(
                     token = accessToken.token
                 ).success
             ) {
-                /*TODO uncomment once age verification is added back*/
-//                // for sso login, verify age restrictions
-//                val profileResult = getUserProfileUseCase()
-//                if (profileResult.success) {
-//                    val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
-//                    if (birthdayValidationUseCase(birthday).first) {
-//                        state.value = state.value.copy(loading = false)
-//                        emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
-//                        return@launch
-//                    }
-//                }
+                // for sso login, verify age restrictions
+                val profileResult = getUserProfileUseCase()
+                if (profileResult.success) {
+                    val userProfile = profileResult.userProfileEntity
+                    val birthday = userProfile?.birthday?.toUtcLong()
+                    if (userProfile?.ageVerificationRequired == true &&
+                        birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first) {
+                        state.value = state.value.copy(loading = false)
+                        emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
+                        return@launch
+                    }
+                }
                 state.value = state.value.copy(loading = false)
                 emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
             } else {

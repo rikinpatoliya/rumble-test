@@ -16,7 +16,9 @@ import com.rumble.domain.settings.domain.domainmodel.UpdateUserProfileResult
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
 import com.rumble.domain.validation.usecases.EmailValidationUseCase
 import com.rumble.network.session.SessionManager
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.errors.InputValidationError
+import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
@@ -119,7 +121,9 @@ class EditProfileViewModel @Inject constructor(
             0,
             false,
             Gender.Unspecified,
-            null
+            null,
+             false,
+             RumbleConstants.MINIMUM_AGE_REQUIREMENT
         )
 
     override val uiState = MutableStateFlow(UserProfileUIState(userProfileEntity))
@@ -366,16 +370,18 @@ class EditProfileViewModel @Inject constructor(
             validInput = false
         }
 
-        /*TODO uncomment once age verification is added back*/
-//        val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday?.toUtcLong())
-//        if (birthdayError.first) {
-//            uiState.update {
-//                it.copy(
-//                    birthdayError = birthdayError
-//                )
-//            }
-//            validInput = false
-//        }
+        val birthdayError = birthdayValidationUseCase(
+            userProfileEntity.birthday?.toUtcLong(),
+            userProfileEntity.minEligibleAge
+        )
+        if (birthdayError.first) {
+            uiState.update {
+                it.copy(
+                    birthdayError = birthdayError
+                )
+            }
+            validInput = false
+        }
 
         return validInput
     }
