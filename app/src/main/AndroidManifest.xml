@@ -62,9 +62,13 @@
             android:value="com.rumble.battles.cast.RumbleCastProvider" />
 
         <activity
-            android:name=".landing.LandingActivity"
+            android:name=".landing.RumbleMainActivity"
+            android:launchMode="singleTask"
             android:exported="true"
-            android:screenOrientation="locked">
+            android:windowSoftInputMode="adjustResize"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:screenOrientation="locked" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -82,14 +86,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".landing.RumbleMainActivity"
-            android:launchMode="singleTask"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            android:supportsPictureInPicture="true"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:screenOrientation="locked" />
-        <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"/>
         <activity
@@ -101,7 +97,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".landing.LandingActivity" />
+                android:value=".landing.RumbleMainActivity" />
         </activity>
 
         <service

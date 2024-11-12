@@ -282,6 +282,9 @@ dependencies {
 
     // Date picker wheel style
     implementation 'com.github.commandiron:WheelPickerCompose:1.1.11'
+
+    //Splash screen
+    implementation "androidx.core:core-splashscreen:1.0.1"
 }
 
 /*

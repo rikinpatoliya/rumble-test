@@ -16,9 +16,12 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
+import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
+import com.rumble.domain.landing.usecases.LoginRequiredUseCase
 import com.rumble.domain.landing.usecases.PipIsAvailableUseCase
+import com.rumble.domain.landing.usecases.SaveVersionCodeUseCase
 import com.rumble.domain.landing.usecases.SilentLoginUseCase
 import com.rumble.domain.landing.usecases.TransferUserDataUseCase
 import com.rumble.domain.landing.usecases.UpdateMediaSessionUseCase
@@ -31,6 +34,7 @@ import com.rumble.domain.profile.domain.GetUserHasUnreadNotificationsUseCase
 import com.rumble.domain.profile.domain.SignOutUseCase
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
+import com.rumble.domain.settings.domain.usecase.PrepareAppForTestingUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GenerateViewerIdUseCase
 import com.rumble.network.session.SessionManager
@@ -49,6 +53,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
@@ -101,6 +106,8 @@ interface RumbleActivityHandler {
 
     fun onNavigateToMyVideos()
     fun onLogException(e: Exception)
+    fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
+    fun isDevelopmentMode(): Boolean
 }
 
 
@@ -119,6 +126,8 @@ sealed class RumbleEvent {
         val title: String? = null,
         val duration: SnackbarDuration = SnackbarDuration.Long
     ) : RumbleEvent()
+
+    data object NavigateToAuth : RumbleEvent()
 }
 
 sealed class RumbleActivityAlertReason : AlertDialogReason {
@@ -135,7 +144,9 @@ sealed class RumbleActivityAlertReason : AlertDialogReason {
 }
 
 data class ActivityHandlerState(
-    val hasUnreadNotifications: Boolean = false
+    val hasUnreadNotifications: Boolean = false,
+    val readyToStart: Boolean = false,
+    val needLogin: Boolean = false,
 )
 
 @HiltViewModel
@@ -156,6 +167,10 @@ class RumbleActivityViewModel @Inject constructor(
     private val getUserHasUnreadNotificationsUseCase: GetUserHasUnreadNotificationsUseCase,
     private val getClearSessionOnAppStartUseCase: GetClearSessionOnAppStartUseCase,
     private val annotatedStringUseCase: AnnotatedStringUseCase,
+    private val loginRequiredUseCase: LoginRequiredUseCase,
+    private val saveVersionCodeUseCase: SaveVersionCodeUseCase,
+    private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
+    private val developModeUseCase: IsDevelopModeUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
@@ -179,6 +194,8 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
+        initState()
+        observeTestParams()
         /*TODO uncomment once age verification is added back*/
 //        viewModelScope.launch {
 //            if (getClearSessionOnAppStartUseCase()) {
@@ -190,6 +207,7 @@ class RumbleActivityViewModel @Inject constructor(
             sessionManager.saveUniqueSession(UUID.randomUUID().toString())
         }
         loadNotificationState()
+        saveAppVersion()
     }
 
     override fun onLogException(e: Exception) {
@@ -412,5 +430,43 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onNavigateToMyVideos() {
         emitVmEvent(RumbleEvent.NavigateToMyVideos)
+    }
+
+    override fun onPrepareAppForTesting(
+        uitUserName: String?,
+        uitPassword: String?
+    ) {
+        viewModelScope.launch { prepareAppForTestingUseCase(uitUserName, uitPassword) }
+    }
+
+    override fun isDevelopmentMode(): Boolean = developModeUseCase()
+
+    private fun observeTestParams() {
+        if (developModeUseCase()) {
+            viewModelScope.launch {
+                userPreferenceManager.uitTestingModeFlow.distinctUntilChanged().collect {
+                    if (it) silentLoginUseCase()
+                }
+            }
+        }
+    }
+
+    private fun initState() {
+        viewModelScope.launch(errorHandler) {
+            val needLogin = loginRequiredUseCase()
+            if (needLogin) emitVmEvent(RumbleEvent.NavigateToAuth)
+            activityHandlerState.update {
+                it.copy(
+                    needLogin = needLogin,
+                    readyToStart = true,
+                )
+            }
+        }
+    }
+
+    private fun saveAppVersion() {
+        viewModelScope.launch(errorHandler) {
+            saveVersionCodeUseCase()
+        }
     }
 }
