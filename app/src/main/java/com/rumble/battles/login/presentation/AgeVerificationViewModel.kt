@@ -20,6 +20,7 @@ import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.UpdateUserProfileResult
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.errors.InputValidationError
 import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -111,7 +112,9 @@ class AgeVerificationViewModel @Inject constructor(
             0,
             false,
             Gender.Unspecified,
-            null
+            null,
+            false,
+            RumbleConstants.MINIMUM_AGE_REQUIREMENT
         )
 
 
@@ -247,7 +250,10 @@ class AgeVerificationViewModel @Inject constructor(
     private fun validInput(userProfileEntity: UserProfileEntity): Boolean {
         var validInput = true
 
-        val birthdayError = birthdayValidationUseCase(userProfileEntity.birthday?.toUtcLong())
+        val birthdayError = birthdayValidationUseCase(
+            userProfileEntity.birthday?.toUtcLong(),
+            userProfileEntity.minEligibleAge
+        )
         if (birthdayError.first) {
             uiState.update {
                 it.copy(

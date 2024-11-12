@@ -109,25 +109,26 @@ class LoginViewModel @Inject constructor(
                         password = password
                     ).success
                 ) {
-                    /*TODO uncomment once age verification is added back*/
-//                    // verify age restrictions
-//                    val profileResult = getUserProfileUseCase()
-//                    if (profileResult.success) {
-//                        val birthday = profileResult.userProfileEntity?.birthday?.toUtcLong()
-//                        if (birthday == null || birthdayValidationUseCase(birthday).first) {
-//                            emitVmEvent(
-//                                LoginScreenVmEvent.NavigateToAgeVerification(
-//                                    !onStartLogin,
-//                                    if (!onStartLogin) {
-//                                        LandingScreens.LoginScreen.getPath(false)
-//                                    } else {
-//                                        null
-//                                    }
-//                                )
-//                            )
-//                            return@launch
-//                        }
-//                    }
+                    // verify age restrictions
+                    val profileResult = getUserProfileUseCase()
+                    if (profileResult.success) {
+                        val userProfile = profileResult.userProfileEntity
+                        val birthday = userProfile?.birthday?.toUtcLong()
+                        if (userProfile?.ageVerificationRequired == true &&
+                            birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first) {
+                            emitVmEvent(
+                                LoginScreenVmEvent.NavigateToAgeVerification(
+                                    !onStartLogin,
+                                    if (!onStartLogin) {
+                                        LandingScreens.LoginScreen.getPath(false)
+                                    } else {
+                                        null
+                                    }
+                                )
+                            )
+                            return@launch
+                        }
+                    }
                     handleNavigation()
                 } else {
                     state.value = currentState.copy(loading = false)

@@ -87,7 +87,8 @@ fun PlayList.getPlayListEntity(): PlayListEntity =
         url = url,
         thumbnail = items.getOrNull(0)?.video?.thumbnail ?: "",
         updatedDate = updatedOn.convertUtcToLocal(),
-        playListOwnerId = channel?.getPlayListChannelEntity()?.channelId ?: user.getPlayListUserEntity().id,
+        playListOwnerId = channel?.getPlayListChannelEntity()?.channelId
+            ?: user.getPlayListUserEntity().id,
         playListUserEntity = user.getPlayListUserEntity(),
         playListChannelEntity = channel?.getPlayListChannelEntity(),
         videosQuantity = numberOfItems,
@@ -277,7 +278,9 @@ fun UserProfile.getUserProfileEntity(): UserProfileEntity =
         followedChannelCount = followingCount,
         isPremium = isPremium,
         gender = Gender.getByValue(gender),
-        birthday = birthday?.toDate()
+        birthday = birthday?.toDate(),
+        ageVerificationRequired = ageVerification.required,
+        minEligibleAge = ageVerification.minEligible
     )
 
 fun Channel.getChannelDetailsEntity(): ChannelDetailsEntity =
@@ -369,6 +372,7 @@ private fun Video.mapVideoStatus(): VideoStatus =
                 else VideoStatus.STARTING
             }
         }
+
         2 -> VideoStatus.LIVE
         else -> VideoStatus.UPLOADED
     }

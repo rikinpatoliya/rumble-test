@@ -187,8 +187,9 @@ fun AgeVerificationScreen(
                     hasError = state.birthdayError.first,
                     errorMessage = when (state.birthdayError.second) {
                         InputValidationError.Empty -> stringResource(id = R.string.birthday_empty_error_message)
-                        InputValidationError.MinCharacters -> stringResource(
-                            id = R.string.birthday_at_least_13_error_message
+                        is InputValidationError.MinCharacters -> stringResource(
+                            id = R.string.birthday_at_least_error_message,
+                            (state.birthdayError.second as InputValidationError.MinCharacters).count
                         )
 
                         else -> ""

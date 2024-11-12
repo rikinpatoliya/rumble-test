@@ -44,10 +44,9 @@ class UserProfileRemoteDataSourceImpl(
                 .add("city", userProfileEntity.city)
                 .add("stateprov", userProfileEntity.state)
                 .add("postalcode", userProfileEntity.postalCode)
-                /*TODO uncomment once age verification is added back*/
-//                .add("birthday_year", userProfileEntity.birthday?.year?.toString() ?: "")
-//                .add("birthday_month", userProfileEntity.birthday?.monthValue?.toString() ?: "")
-//                .add("birthday_day", userProfileEntity.birthday?.dayOfMonth?.toString() ?: "")
+                .add("birthday_year", userProfileEntity.birthday?.year?.toString() ?: "")
+                .add("birthday_month", userProfileEntity.birthday?.monthValue?.toString() ?: "")
+                .add("birthday_day", userProfileEntity.birthday?.dayOfMonth?.toString() ?: "")
                 .add("gender", userProfileEntity.gender.requestValue)
                 .add("countryID", userProfileEntity.country.countryID.toString())
                 .apply {
