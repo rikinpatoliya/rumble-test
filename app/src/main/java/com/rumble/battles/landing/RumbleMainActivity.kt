@@ -82,7 +82,6 @@ import java.net.UnknownHostException
 class RumbleMainActivity : FragmentActivity() {
 
     companion object {
-        const val SHOULD_LOGIN = "shouldLoginKey"
         private const val TAG = "RumbleMainActivity"
     }
 

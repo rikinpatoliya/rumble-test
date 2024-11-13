@@ -55,6 +55,7 @@ import com.rumble.network.connection.InternetConnectionObserver
 import com.rumble.network.connection.InternetConnectionState
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
+import com.rumble.utils.RumbleConstants.EMOTE_BADGES
 import com.rumble.utils.RumbleConstants.LIVE_CHAT_MAX_MESSAGE_COUNT
 import com.rumble.utils.RumbleConstants.RANT_STATE_UPDATE_RATIO
 import com.rumble.utils.extension.getComposeColor
@@ -440,7 +441,7 @@ class LiveChatViewModel @Inject constructor(
                 emoteGroups = updateChannelEmoteLockStateUseCase(
                     emoteGroups = liveChatConfig.emoteGroups,
                     followsCurrentChannel = channelDetailsEntity.followed,
-                    subscribedToChannel = currentVideo?.subscribedToCurrentChannel == true,
+                    subscribedToChannel = liveChatConfig.currentUserBadges.any { EMOTE_BADGES.contains(it) },
                 )
             )
         )
@@ -536,7 +537,7 @@ class LiveChatViewModel @Inject constructor(
                 emoteGroups = updateChannelEmoteLockStateUseCase(
                     emoteGroups = config.emoteGroups,
                     followsCurrentChannel = currentVideo?.channelFollowed == true,
-                    subscribedToChannel = currentVideo?.subscribedToCurrentChannel == true,
+                    subscribedToChannel = config.currentUserBadges.any { EMOTE_BADGES.contains(it) },
                 )
             ),
             recentEmoteList = fetchRecentEmoteListUseCase(config.emoteGroups ?: emptyList())
