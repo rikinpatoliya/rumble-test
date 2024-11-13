@@ -416,6 +416,7 @@
     <string name="follow_to_unlock_emotes">Follow %s to unlock this and %d other channel emotes.</string>
     <string name="subscriber_exclusive_emote">%s supporter exclusive emote</string>
     <string name="must_be_supporter">You must be a supporter to unlock this exclusive emotes.</string>
+    <string name="switch_to_keyboard">Switch to keyboard</string>
 
     <!-- Search -->
     <string name="search_rumble">Search Rumble</string>

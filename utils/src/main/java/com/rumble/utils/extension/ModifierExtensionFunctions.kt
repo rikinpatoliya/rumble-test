@@ -27,14 +27,14 @@ fun Modifier.conditional(condition: Boolean, modifier: Modifier.() -> Modifier):
 }
 
 fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier = composed {
-    clickable(indication = null,
+    this.clickable(indication = null,
         interactionSource = remember { MutableInteractionSource() }) {
         onClick()
     }
 }
 
 fun Modifier.consumeClick(): Modifier = composed {
-    clickable(indication = null,
+    this.clickable(indication = null,
         interactionSource = remember { MutableInteractionSource() }) {
     }
 }
