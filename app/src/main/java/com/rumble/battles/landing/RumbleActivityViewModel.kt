@@ -8,6 +8,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.rumble.analytics.PushNotificationHandlingFailedEvent
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
@@ -40,6 +41,9 @@ import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GenerateViewerIdUseCase
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.SCREEN_OFF_DELAY
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.utils.extension.isScreenOn
 import com.rumble.videoplayer.player.PlayerTargetChangeListener
 import com.rumble.videoplayer.player.RumblePlayer
@@ -107,8 +111,6 @@ interface RumbleActivityHandler {
 
     fun onNavigateToMyVideos()
     fun onLogException(e: Exception)
-    fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
-    fun isDevelopmentMode(): Boolean
     fun clearBundleKeys(bundle: Bundle, keys: List<String>)
 }
 
@@ -153,6 +155,7 @@ data class ActivityHandlerState(
 
 @HiltViewModel
 class RumbleActivityViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val userPreferenceManager: UserPreferenceManager,
     generateViewerIdUseCase: GenerateViewerIdUseCase,
     private val getUserCookiesUseCase: GetUserCookiesUseCase,
@@ -196,8 +199,7 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
-        initState()
-        observeTestParams()
+        initState(savedStateHandle)
         viewModelScope.launch {
             if (getClearSessionOnAppStartUseCase()) {
                 signOutUseCase()
@@ -433,34 +435,38 @@ class RumbleActivityViewModel @Inject constructor(
         emitVmEvent(RumbleEvent.NavigateToMyVideos)
     }
 
-    override fun onPrepareAppForTesting(
-        uitUserName: String?,
-        uitPassword: String?
-    ) {
-        viewModelScope.launch { prepareAppForTestingUseCase(uitUserName, uitPassword) }
-    }
-
-    override fun isDevelopmentMode(): Boolean = developModeUseCase()
-
     override fun clearBundleKeys(bundle: Bundle, keys: List<String>) {
         keys.forEach { key ->
             bundle.remove(key)
         }
     }
 
-    private fun observeTestParams() {
-        if (developModeUseCase()) {
-            viewModelScope.launch {
-                userPreferenceManager.uitTestingModeFlow.distinctUntilChanged().collect {
-                    if (it) silentLoginUseCase()
-                }
-            }
-        }
+    private fun handleLaunchAttributesForTesting(savedStateHandle: SavedStateHandle): Boolean {
+        return if (developModeUseCase()) {
+            val uitFlag: Any? = savedStateHandle[TESTING_LAUNCH_UIT_FLAG]
+            if (uitFlag != null) {
+                val uitUserName: String? = savedStateHandle[TESTING_LAUNCH_UIT_USERNAME]
+                val uitPassword: String? = savedStateHandle[TESTING_LAUNCH_UIT_PASSWORD]
+                onPrepareAppForTesting(uitUserName, uitPassword)
+                savedStateHandle.remove<String>(TESTING_LAUNCH_UIT_FLAG)
+                savedStateHandle.remove<String>(TESTING_LAUNCH_UIT_USERNAME)
+                savedStateHandle.remove<String>(TESTING_LAUNCH_UIT_PASSWORD)
+                true
+            } else false
+        } else false
     }
 
-    private fun initState() {
+    private fun onPrepareAppForTesting(
+        uitUserName: String?,
+        uitPassword: String?
+    ) {
+        viewModelScope.launch { prepareAppForTestingUseCase(uitUserName, uitPassword) }
+    }
+
+    private fun initState(savedStateHandle: SavedStateHandle) {
+        val isTesting = handleLaunchAttributesForTesting(savedStateHandle)
         viewModelScope.launch(errorHandler) {
-            val needLogin = loginRequiredUseCase()
+            val needLogin = loginRequiredUseCase() && isTesting.not()
             if (needLogin) emitVmEvent(RumbleEvent.NavigateToAuth)
             activityHandlerState.update {
                 it.copy(

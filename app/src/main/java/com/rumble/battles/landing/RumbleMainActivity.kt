@@ -63,9 +63,6 @@ import com.rumble.network.NetworkRumbleConstants.RETROFIT_STACK_TRACE
 import com.rumble.network.connection.ConnectivityError
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.videoplayer.player.RumblePlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -101,7 +98,6 @@ class RumbleMainActivity : FragmentActivity() {
         initializeTimeRangeService(savedInstanceState)
         initializeMediaSession()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        handleLaunchAttributesForTesting(intent.extras)
         handleNotifications(intent.extras)
 
         setContent {
@@ -443,25 +439,6 @@ class RumbleMainActivity : FragmentActivity() {
         session.isActive = true
         MediaControllerCompat.setMediaController(this, session.controller)
         viewModel.initMediaSession(session)
-    }
-
-    private fun handleLaunchAttributesForTesting(bundle: Bundle?) {
-        if (viewModel.isDevelopmentMode()) {
-            val uitFlag: Any? = bundle?.get(TESTING_LAUNCH_UIT_FLAG)
-            if (uitFlag != null) {
-                val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)
-                val uitPassword: String? = bundle.getString(TESTING_LAUNCH_UIT_PASSWORD)
-                viewModel.onPrepareAppForTesting(uitUserName, uitPassword)
-                viewModel.clearBundleKeys(
-                    bundle,
-                    listOf(
-                        KEY_NOTIFICATION_VIDEO_DETAILS,
-                        TESTING_LAUNCH_UIT_USERNAME,
-                        TESTING_LAUNCH_UIT_PASSWORD
-                    )
-                )
-            }
-        }
     }
 
     private fun initGeneralErrorHandler() {
