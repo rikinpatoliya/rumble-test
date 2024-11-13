@@ -26,7 +26,6 @@ import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusMedium
 import com.rumble.utils.RumbleConstants.BADGE_RECURRING_SUBSCRIPTION
-import com.rumble.utils.RumbleUrlAnnotation
 import com.rumble.utils.extension.conditional
 import java.time.LocalDateTime
 

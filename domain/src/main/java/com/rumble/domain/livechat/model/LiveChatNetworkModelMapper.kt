@@ -20,6 +20,7 @@ import com.rumble.network.dto.livechat.Raid
 import com.rumble.utils.extension.convertUtcToLocal
 import com.rumble.utils.extension.getComposeColor
 import com.rumble.utils.extension.getUserId
+import com.rumble.utils.extension.toUserIdString
 import java.math.BigDecimal
 
 object LiveChatNetworkModelMapper {
@@ -33,7 +34,7 @@ object LiveChatNetworkModelMapper {
     ): LiveChatResult =
         when (event) {
             is LiveChatEvent.LiveChatInitEvent -> {
-                val userBadges = event.data.users.find { it.id.toString() == currentUerId }?.badges
+                val userBadges = event.data.users.find { it.id.toUserIdString() == currentUerId }?.badges
                     ?: emptyList()
                 val entities = event.data.messages.map { message ->
                     val user = event.data.users.find { it.id == message.userId }
