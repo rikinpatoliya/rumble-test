@@ -104,7 +104,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
-
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface PlayerEntryPoint {
@@ -1014,8 +1013,9 @@ class RumblePlayer(
                 sendErrorReport(it.error.message)
                 sendAnalyticsEvent(ImaFailedEvent, true)
                 sendError(PRE_ROLL_FAILED, it.error)
-                loadAd()
+                handleAdFinish()
             }
+            .setDebugModeEnabled(true)
             .build()
     }
 
@@ -1027,16 +1027,12 @@ class RumblePlayer(
             ) > ad.skipTimeOffset)
 
     private fun createAdsPlayer(context: Context): ExoPlayer {
-        adPlayerView = PlayerView(applicationContext)
-            .apply {
-                useController = false
-                hideController()
-            }
         val dataSourceFactory: DataSource.Factory = DefaultDataSource.Factory(context)
         val mediaSourceFactory: MediaSource.Factory = DefaultMediaSourceFactory(dataSourceFactory)
             .setLocalAdInsertionComponents({ _ -> adsLoader }, adPlayerView)
         val exoPlayer = ExoPlayer.Builder(context)
             .setMediaSourceFactory(mediaSourceFactory)
+            .setRenderersFactory(DefaultRenderersFactory(context).setEnableDecoderFallback(true))
             .build()
             .apply { videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING }
         adsLoader?.setPlayer(exoPlayer)
@@ -1259,6 +1255,11 @@ class RumblePlayer(
         ) {
             _adPlaybackState.value = AdPlaybackState.Buffering
             adsPlayer?.stop()
+            adPlayerView = PlayerView(applicationContext)
+                .apply {
+                    useController = false
+                    hideController()
+                }
             playerAdsHelper.getNextPreRollUrl()?.let {
                 try {
                     preRollAdLoadingEvent?.invoke()
@@ -1273,6 +1274,7 @@ class RumblePlayer(
                     prepareAdPlayer(Uri.parse(it.url))
                 } catch (e: Exception) {
                     sendError(TAG, e)
+                    _adPlaybackState.value = AdPlaybackState.None
                     resumeVideo()
                 }
 
@@ -1466,6 +1468,7 @@ class RumblePlayer(
         adsLoader?.setPlayer(null)
         adsPlayer?.release()
         adsLoader?.release()
+        adPlayerView.player = null
         adsPlayer = null
         _adPlaybackState.value = AdPlaybackState.None
     }
