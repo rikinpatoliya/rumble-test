@@ -1,13 +1,13 @@
 package com.rumble.battles.landing
 
 import android.app.Application
-import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.rumble.analytics.PushNotificationHandlingFailedEvent
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
@@ -28,6 +28,7 @@ import com.rumble.domain.landing.usecases.TransferUserDataUseCase
 import com.rumble.domain.landing.usecases.UpdateMediaSessionUseCase
 import com.rumble.domain.logging.domain.usecase.InitProductionLoggingUseCase
 import com.rumble.domain.login.domain.usecases.GetClearSessionOnAppStartUseCase
+import com.rumble.domain.notifications.domain.domainmodel.KEY_NOTIFICATION_VIDEO_DETAILS
 import com.rumble.domain.notifications.domain.domainmodel.NotificationHandlerResult
 import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.notifications.domain.usecases.RumbleNotificationHandlerUseCase
@@ -40,6 +41,9 @@ import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GenerateViewerIdUseCase
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.SCREEN_OFF_DELAY
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.utils.extension.isScreenOn
 import com.rumble.videoplayer.player.PlayerTargetChangeListener
 import com.rumble.videoplayer.player.RumblePlayer
@@ -74,7 +78,6 @@ interface RumbleActivityHandler {
     suspend fun pipIsAvailable(): Boolean
     suspend fun backgroundSoundIsAvailable(): Boolean
     suspend fun getCookies(): String
-    fun getVideoDetails(rumbleNotificationData: RumbleNotificationData)
     fun startObserveCookies()
     fun initLogging()
     fun initMediaSession(session: MediaSessionCompat)
@@ -90,7 +93,6 @@ interface RumbleActivityHandler {
     fun onShowAlertDialog(reason: RumbleActivityAlertReason)
     fun onDismissDialog()
     fun onPauseVideo()
-    fun enableContentLoad()
     fun onPremiumPurchased()
     fun onOpenWebView(url: String)
     fun closeApp()
@@ -107,9 +109,6 @@ interface RumbleActivityHandler {
 
     fun onNavigateToMyVideos()
     fun onLogException(e: Exception)
-    fun onPrepareAppForTesting(uitUserName: String?, uitPassword: String?)
-    fun isDevelopmentMode(): Boolean
-    fun clearBundleKeys(bundle: Bundle, keys: List<String>)
 }
 
 
@@ -153,6 +152,7 @@ data class ActivityHandlerState(
 
 @HiltViewModel
 class RumbleActivityViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val userPreferenceManager: UserPreferenceManager,
     generateViewerIdUseCase: GenerateViewerIdUseCase,
     private val getUserCookiesUseCase: GetUserCookiesUseCase,
@@ -196,8 +196,7 @@ class RumbleActivityViewModel @Inject constructor(
     }
 
     init {
-        initState()
-        observeTestParams()
+        initState(savedStateHandle)
         viewModelScope.launch {
             if (getClearSessionOnAppStartUseCase()) {
                 signOutUseCase()
@@ -241,7 +240,7 @@ class RumbleActivityViewModel @Inject constructor(
         }
     }
 
-    override fun getVideoDetails(rumbleNotificationData: RumbleNotificationData) {
+    private fun getVideoDetails(rumbleNotificationData: RumbleNotificationData) {
         viewModelScope.launch(errorHandler) {
             when (val result = rumbleNotificationHandlerUseCase(rumbleNotificationData)) {
                 NotificationHandlerResult.UnhandledNotificationData -> {
@@ -402,10 +401,6 @@ class RumbleActivityViewModel @Inject constructor(
         currentPlayer?.pauseVideo()
     }
 
-    override fun enableContentLoad() {
-        viewModelScope.launch { sessionManager.allowContentLoadFlow(true) }
-    }
-
     override fun onPremiumPurchased() {
         emitVmEvent(RumbleEvent.PremiumPurchased)
     }
@@ -433,34 +428,59 @@ class RumbleActivityViewModel @Inject constructor(
         emitVmEvent(RumbleEvent.NavigateToMyVideos)
     }
 
-    override fun onPrepareAppForTesting(
+    private fun handleLaunchAttributesForTesting(savedStateHandle: SavedStateHandle): Boolean {
+        return if (developModeUseCase()) {
+            val uitFlag: Any? = savedStateHandle[TESTING_LAUNCH_UIT_FLAG]
+            if (uitFlag != null) {
+                val uitUserName: String? = savedStateHandle[TESTING_LAUNCH_UIT_USERNAME]
+                val uitPassword: String? = savedStateHandle[TESTING_LAUNCH_UIT_PASSWORD]
+                onPrepareAppForTesting(uitUserName, uitPassword)
+                clearBundleKeys(
+                    savedStateHandle,
+                    listOf(
+                        TESTING_LAUNCH_UIT_FLAG,
+                        TESTING_LAUNCH_UIT_USERNAME,
+                        TESTING_LAUNCH_UIT_PASSWORD
+                    )
+                )
+                true
+            } else false
+        } else false
+    }
+
+    private fun onPrepareAppForTesting(
         uitUserName: String?,
         uitPassword: String?
     ) {
         viewModelScope.launch { prepareAppForTestingUseCase(uitUserName, uitPassword) }
     }
 
-    override fun isDevelopmentMode(): Boolean = developModeUseCase()
-
-    override fun clearBundleKeys(bundle: Bundle, keys: List<String>) {
-        keys.forEach { key ->
-            bundle.remove(key)
+    private fun handleNotifications(savedStateHandle: SavedStateHandle) {
+        val notificationData = savedStateHandle.get<RumbleNotificationData>(KEY_NOTIFICATION_VIDEO_DETAILS)
+        if (notificationData != null) {
+            onToggleAppLaunchedFromNotification(true)
+            getVideoDetails(notificationData)
+            clearBundleKeys(savedStateHandle, listOf(KEY_NOTIFICATION_VIDEO_DETAILS))
+        } else {
+            enableContentLoad()
         }
     }
 
-    private fun observeTestParams() {
-        if (developModeUseCase()) {
-            viewModelScope.launch {
-                userPreferenceManager.uitTestingModeFlow.distinctUntilChanged().collect {
-                    if (it) silentLoginUseCase()
-                }
-            }
+    private fun enableContentLoad() {
+        viewModelScope.launch { sessionManager.allowContentLoadFlow(true) }
+    }
+
+    private fun clearBundleKeys(savedStateHandle: SavedStateHandle, keys: List<String>) {
+        savedStateHandle.keys().forEach { key ->
+            savedStateHandle.remove<String>(key)
         }
     }
 
-    private fun initState() {
+    private fun initState(savedStateHandle: SavedStateHandle) {
+        val isTesting = handleLaunchAttributesForTesting(savedStateHandle)
+        handleNotifications(savedStateHandle)
         viewModelScope.launch(errorHandler) {
-            val needLogin = loginRequiredUseCase()
+            val needLogin = loginRequiredUseCase() && isTesting.not()
             if (needLogin) emitVmEvent(RumbleEvent.NavigateToAuth)
             activityHandlerState.update {
                 it.copy(

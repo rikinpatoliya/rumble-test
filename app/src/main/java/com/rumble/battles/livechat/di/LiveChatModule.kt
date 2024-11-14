@@ -86,7 +86,6 @@ object LiveChatModule {
     }
 
     @Provides
-    @Singleton
     fun provideLiveChatRepository(
         liveChatRemoteDataSource: LiveChatRemoteDataSource,
         errorConverter: Converter<ResponseBody, LiveChatErrorResponse>?,

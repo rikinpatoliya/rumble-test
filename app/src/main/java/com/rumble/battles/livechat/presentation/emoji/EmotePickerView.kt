@@ -186,7 +186,7 @@ fun EmotePickerView(
                 painter = painterResource(id = R.drawable.ic_keyboard),
                 backgroundColor = RumbleCustomTheme.colors.backgroundHighlight,
                 tintColor = RumbleCustomTheme.colors.primary,
-                contentDescription = stringResource(id = R.string.send_rant),
+                contentDescription = stringResource(id = R.string.switch_to_keyboard),
                 onClick = onSwitchToKeyboard
             )
 
@@ -214,8 +214,9 @@ fun EmotePickerView(
                 painter = painterResource(id = R.drawable.ic_backspace),
                 backgroundColor = RumbleCustomTheme.colors.backgroundHighlight,
                 tintColor = RumbleCustomTheme.colors.primary,
-                contentDescription = stringResource(id = R.string.send_rant),
-                onClick = onDelete
+                contentDescription = stringResource(id = R.string.delete),
+                onClick = onDelete,
+                onLongClick = onDelete,
             )
         }
     }

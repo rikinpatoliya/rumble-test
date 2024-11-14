@@ -54,8 +54,6 @@ import com.rumble.battles.login.presentation.RegisterViewModel
 import com.rumble.battles.navigation.LandingPath
 import com.rumble.battles.navigation.LandingScreens
 import com.rumble.domain.login.domain.domainmodel.LoginType
-import com.rumble.domain.notifications.domain.domainmodel.KEY_NOTIFICATION_VIDEO_DETAILS
-import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
 import com.rumble.domain.timerange.model.TimeRangeService
@@ -63,9 +61,6 @@ import com.rumble.network.NetworkRumbleConstants.RETROFIT_STACK_TRACE
 import com.rumble.network.connection.ConnectivityError
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
-import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.videoplayer.player.RumblePlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -82,7 +77,6 @@ import java.net.UnknownHostException
 class RumbleMainActivity : FragmentActivity() {
 
     companion object {
-        const val SHOULD_LOGIN = "shouldLoginKey"
         private const val TAG = "RumbleMainActivity"
     }
 
@@ -102,8 +96,6 @@ class RumbleMainActivity : FragmentActivity() {
         initializeTimeRangeService(savedInstanceState)
         initializeMediaSession()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        handleLaunchAttributesForTesting(intent.extras)
-        handleNotifications(intent.extras)
 
         setContent {
             val state by viewModel.activityHandlerState.collectAsStateWithLifecycle()
@@ -404,27 +396,6 @@ class RumbleMainActivity : FragmentActivity() {
             }
         }
 
-    @Suppress("DEPRECATION")
-    private fun handleNotifications(bundle: Bundle?) {
-        val notificationData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            bundle?.getParcelable(
-                KEY_NOTIFICATION_VIDEO_DETAILS,
-                RumbleNotificationData::class.java
-            )
-        } else {
-            bundle?.getParcelable(KEY_NOTIFICATION_VIDEO_DETAILS)
-        }
-        if (notificationData != null) {
-            viewModel.onToggleAppLaunchedFromNotification(true)
-            viewModel.getVideoDetails(notificationData)
-            bundle?.let {
-                viewModel.clearBundleKeys(it, listOf(KEY_NOTIFICATION_VIDEO_DETAILS))
-            }
-        } else {
-            viewModel.enableContentLoad()
-        }
-    }
-
     private fun initializePlayService(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Main) {
@@ -444,25 +415,6 @@ class RumbleMainActivity : FragmentActivity() {
         session.isActive = true
         MediaControllerCompat.setMediaController(this, session.controller)
         viewModel.initMediaSession(session)
-    }
-
-    private fun handleLaunchAttributesForTesting(bundle: Bundle?) {
-        if (viewModel.isDevelopmentMode()) {
-            val uitFlag: Any? = bundle?.get(TESTING_LAUNCH_UIT_FLAG)
-            if (uitFlag != null) {
-                val uitUserName: String? = bundle.getString(TESTING_LAUNCH_UIT_USERNAME)
-                val uitPassword: String? = bundle.getString(TESTING_LAUNCH_UIT_PASSWORD)
-                viewModel.onPrepareAppForTesting(uitUserName, uitPassword)
-                viewModel.clearBundleKeys(
-                    bundle,
-                    listOf(
-                        KEY_NOTIFICATION_VIDEO_DETAILS,
-                        TESTING_LAUNCH_UIT_USERNAME,
-                        TESTING_LAUNCH_UIT_PASSWORD
-                    )
-                )
-            }
-        }
     }
 
     private fun initGeneralErrorHandler() {

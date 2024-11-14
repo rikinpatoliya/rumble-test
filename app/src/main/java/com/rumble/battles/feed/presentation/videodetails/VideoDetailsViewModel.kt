@@ -392,8 +392,12 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onShowEmoteSelector() {
-        emoteState.value = emoteState.value.copy(showEmoteSelector = true)
-        emitVmEvent(VideoDetailsEvent.HideKeyboard)
+        if (emoteState.value.showEmoteSelector) {
+            onSwitchToKeyboard()
+        } else {
+            emoteState.value = emoteState.value.copy(showEmoteSelector = true)
+            emitVmEvent(VideoDetailsEvent.HideKeyboard)
+        }
     }
 
     override fun onSwitchToKeyboard() {

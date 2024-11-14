@@ -32,6 +32,7 @@ import com.rumble.theme.imageXXSmall
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXSmall10
+import com.rumble.utils.extension.consumeClick
 
 @Composable
 fun EmoteRequestSubscribeView(
@@ -43,6 +44,7 @@ fun EmoteRequestSubscribeView(
     Column (
         modifier = modifier
             .background(RumbleCustomTheme.colors.background)
+            .consumeClick()
     ) {
         Row(
             modifier = Modifier
@@ -60,7 +62,8 @@ fun EmoteRequestSubscribeView(
 
             Text(
                 text = stringResource(id = R.string.back),
-                style = h6
+                style = h6,
+                color =  RumbleCustomTheme.colors.primary,
             )
         }
 
