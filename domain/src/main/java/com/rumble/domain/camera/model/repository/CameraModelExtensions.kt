@@ -4,7 +4,6 @@ import com.rumble.domain.camera.UploadStatus
 import com.rumble.domain.camera.model.datasource.local.RoomVideo
 import com.rumble.domain.settings.domain.domainmodel.UploadQuality
 import com.rumble.domain.uploadmanager.dto.UploadVideoData
-import java.time.Instant
 
 fun UploadVideoData.getRoomVideo() =
     RoomVideo(
@@ -33,7 +32,9 @@ fun UploadVideoData.getRoomVideo() =
         tempVideoUrl = tempVideoUrl,
         uploadedThumbRef = uploadedThumbRef,
         uploadedVideoRef = uploadedVideoRef,
-        userNotifiedAboutStatus = userWasNotifiedAboutStatus
+        userNotifiedAboutStatus = userWasNotifiedAboutStatus,
+        siteChannelId = siteChannelId,
+        mediaChannelId = mediaChannelId
     )
 
 fun RoomVideo.getUploadVideoData() =
@@ -63,5 +64,7 @@ fun RoomVideo.getUploadVideoData() =
         tempVideoUrl = tempVideoUrl,
         uploadedThumbRef = uploadedThumbRef,
         uploadedVideoRef = uploadedVideoRef,
-        userWasNotifiedAboutStatus = userNotifiedAboutStatus
+        userWasNotifiedAboutStatus = userNotifiedAboutStatus,
+        siteChannelId = siteChannelId,
+        mediaChannelId = mediaChannelId
     )

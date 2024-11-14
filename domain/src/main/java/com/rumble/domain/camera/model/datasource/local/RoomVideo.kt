@@ -59,4 +59,8 @@ data class RoomVideo(
     val uploadedThumbRef: String?,
     @ColumnInfo(name = "uploaded_video_ref")
     val uploadedVideoRef: String?,
+    @ColumnInfo(name = "site_channel_id")
+    val siteChannelId: Int?,
+    @ColumnInfo(name = "media_channel_id")
+    val mediaChannelId: Int?
 )

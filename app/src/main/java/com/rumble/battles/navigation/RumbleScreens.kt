@@ -96,6 +96,9 @@ sealed class RumbleScreens(val rootName: String) {
     object UploadLicenseSelection: RumbleScreens("uploadLicenseSelection")
     object UploadVisibilitySelection: RumbleScreens("UploadVisibilitySelection")
     object UploadScheduleSelection: RumbleScreens("UploadScheduleSelection")
+    object UploadCategorySelection: RumbleScreens("UploadCategorySelection/{${RumblePath.IS_PRIMARY_CATEGORY.path}}") {
+        fun getPath(isPrimaryCategory: Boolean): String = "UploadCategorySelection/$isPrimaryCategory"
+    }
     object CategoryScreen: RumbleScreens("browseCategory/{${RumblePath.VIDEO_CATEGORY.path}}/{${RumblePath.PARAMETER.path}}") {
         fun getPath(path: String, showLiveCategoryList: Boolean): String = "browseCategory/$path/$showLiveCategoryList"
     }
@@ -121,4 +124,5 @@ enum class RumblePath(val path: String) {
     TYPE("type"),
     PLAYLIST("playlist"),
     PLAYLIST_SHUFFLE("playlistShuffle"),
+    IS_PRIMARY_CATEGORY("isPrimaryCategory"),
 }

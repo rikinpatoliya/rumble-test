@@ -30,6 +30,9 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserUploadCha
 import com.rumble.domain.common.domain.usecase.CheckCurrentDateAndAdjustUseCase
 import com.rumble.domain.common.domain.usecase.CombineTimeWithDateUseCase
 import com.rumble.domain.common.domain.usecase.OpenPhoneSettingUseCase
+import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
+import com.rumble.domain.discover.domain.domainmodel.CategoryListResult
+import com.rumble.domain.discover.domain.usecase.GetLiveCategoryListUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -103,6 +106,8 @@ interface CameraUploadHandler {
     val uiState: StateFlow<UserUploadUIState>
     val eventFlow: Flow<CameraUploadVmEvent>
     fun onUploadChannelSelected(channelId: String)
+    fun onPrimaryCategorySelected(category: CategoryEntity)
+    fun onSecondaryCategorySelected(category: CategoryEntity)
     fun onTitleChanged(value: String)
     fun onDescriptionChanged(value: String)
     fun onExclusiveAgreementCheckedChanged(value: Boolean)
@@ -176,6 +181,7 @@ data class UserUploadUIState(
     val titleError: Boolean = false,
     val titleEmptyError: Boolean = false,
     val descriptionError: Boolean = false,
+    val primaryCategoryError: Boolean = false,
     val exclusiveAgreementChecked: Boolean = false,
     val termsOfServiceChecked: Boolean = false,
     val exclusiveAgreementError: Boolean = false,
@@ -183,10 +189,14 @@ data class UserUploadUIState(
     val userProfile: UserProfileEntity? = null,
     val userUploadProfile: UserUploadChannelEntity,
     val userUploadChannels: List<UserUploadChannelEntity>,
+    val primaryCategories: List<CategoryEntity>,
+    val secondaryCategories: List<CategoryEntity>,
     val selectedUploadChannel: UserUploadChannelEntity,
     val selectedUploadLicense: UploadLicense = UploadLicense.RUMBLE_ONLY,
     val selectedUploadVisibility: UploadVisibility = UploadVisibility.PUBLIC,
     val selectedUploadSchedule: UploadSchedule = UploadSchedule(option = UploadScheduleOption.NOW),
+    val selectedPrimaryCategory: CategoryEntity? = null,
+    val selectedSecondaryCategory: CategoryEntity? = null,
     val loading: Boolean = false,
 )
 
@@ -219,7 +229,8 @@ class CameraViewModel @Inject constructor(
     private val createTempThumbnailFileUseCase: CreateTempThumbnailFileUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase,
     private val combineTimeWithDateUseCase: CombineTimeWithDateUseCase,
-    private val checkCurrentDateAndAdjustUseCase: CheckCurrentDateAndAdjustUseCase
+    private val checkCurrentDateAndAdjustUseCase: CheckCurrentDateAndAdjustUseCase,
+    private val getLiveCategoryListUseCase: GetLiveCategoryListUseCase
 ) : ViewModel(), CameraUploadHandler, CameraHandler {
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
@@ -233,7 +244,9 @@ class CameraViewModel @Inject constructor(
         UserUploadUIState(
             userUploadProfile = createDefaultUserUploadChannelEntity(),
             userUploadChannels = emptyList(),
-            selectedUploadChannel = createDefaultUserUploadChannelEntity()
+            selectedUploadChannel = createDefaultUserUploadChannelEntity(),
+            primaryCategories = emptyList(),
+            secondaryCategories = emptyList()
         )
     )
 
@@ -261,6 +274,7 @@ class CameraViewModel @Inject constructor(
         }
         orientationEventListener.enable()
         fetchUserUploadChannels()
+        fetchCategories()
         viewModelScope.launch(errorHandler) {
             fetchUserProfile()
         }
@@ -690,6 +704,26 @@ class CameraViewModel @Inject constructor(
         saveDraftToDB()
     }
 
+    override fun onPrimaryCategorySelected(category: CategoryEntity) {
+        uiState.update {
+            it.copy(selectedPrimaryCategory = category)
+        }
+        uploadVideoData = uploadVideoData.copy(
+            siteChannelId = category.id
+        )
+        saveDraftToDB()
+    }
+
+    override fun onSecondaryCategorySelected(category: CategoryEntity) {
+        uiState.update {
+            it.copy(selectedSecondaryCategory = category)
+        }
+        uploadVideoData = uploadVideoData.copy(
+            mediaChannelId = category.id
+        )
+        saveDraftToDB()
+    }
+
     override fun onTitleChanged(value: String) {
         val existingTitleEmptyError = uiState.value.titleEmptyError
         val existingTitleError = uiState.value.titleError
@@ -864,18 +898,21 @@ class CameraViewModel @Inject constructor(
     override fun onNextClicked(onNext: () -> Unit) {
         val title = uiState.value.title
         val description = uiState.value.description
+        val selectedPrimaryCategory = uiState.value.selectedPrimaryCategory
         val titleEmptyError = title.isBlank()
         val titleError = title.count() > MAX_CHARACTERS_UPLOAD_TITLE
         val descriptionError = description.count() > MAX_CHARACTERS_UPLOAD_DESCRIPTION
+        val primaryCategoryError = selectedPrimaryCategory == null
         uiState.update {
             it.copy(
                 titleEmptyError = titleEmptyError,
                 titleError = titleError,
-                descriptionError = descriptionError
+                descriptionError = descriptionError,
+                primaryCategoryError = primaryCategoryError
             )
         }
 
-        if (titleEmptyError.not() && titleError.not() && descriptionError.not()) {
+        if (titleEmptyError.not() && titleError.not() && descriptionError.not() && primaryCategoryError.not()) {
             onNext()
         }
     }
@@ -919,6 +956,26 @@ class CameraViewModel @Inject constructor(
                 }
 
                 else -> {}
+            }
+        }
+    }
+
+    private fun fetchCategories() {
+        viewModelScope.launch(errorHandler) {
+            when (val result = getLiveCategoryListUseCase()) {
+                is CategoryListResult.Success -> {
+                    uiState.update { state ->
+                        state.copy(
+                            primaryCategories = result.categoryList.filter { it.isPrimary },
+                            secondaryCategories = result.categoryList.filter { !it.isPrimary }
+                        )
+                    }
+                }
+
+                is CategoryListResult.Failure -> {
+                    delay(RumbleConstants.RETRY_DELAY_USER_UPLOAD_CATEGORIES)
+                    fetchCategories()
+                }
             }
         }
     }
@@ -968,7 +1025,9 @@ class CameraViewModel @Inject constructor(
             termsOfServiceError = false,
             selectedUploadLicense = UploadLicense.RUMBLE_ONLY,
             selectedUploadVisibility = UploadVisibility.PUBLIC,
-            selectedUploadSchedule = UploadSchedule(option = UploadScheduleOption.NOW)
+            selectedUploadSchedule = UploadSchedule(option = UploadScheduleOption.NOW),
+            selectedPrimaryCategory = null,
+            selectedSecondaryCategory = null
         )
     }
 }

@@ -26,7 +26,7 @@ import com.rumble.domain.video.model.datasource.local.RoomLastPosition
 
 
 @Database(
-    version = 18,
+    version = 19,
     entities = [
         RoomQuery::class,
         RoomChannelView::class,
@@ -67,6 +67,7 @@ import com.rumble.domain.video.model.datasource.local.RoomLastPosition
             spec = RumbleDatabaseMigration.MigrationSpec16_17::class
         ),
         AutoMigration(from = 17, to = 18),
+        AutoMigration(from = 18, to = 19),
     ]
 )
 abstract class RumbleDatabase : RoomDatabase() {

@@ -30,4 +30,6 @@ data class UploadVideoData(
     val uploadedThumbRef: String? = null,
     val uploadedVideoRef: String? = null,
     val userWasNotifiedAboutStatus: Boolean = false,
+    val siteChannelId: Int? = null,
+    val mediaChannelId: Int? = null
 )

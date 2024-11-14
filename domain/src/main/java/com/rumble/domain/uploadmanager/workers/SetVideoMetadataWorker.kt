@@ -79,6 +79,15 @@ class SetVideoMetadataWorker @AssistedInject constructor(
                         .add("app[0]", "Rumble")
                         .add("app[1]", appVersion)
                         .add("channelId", "${uploadVideoData.channelId}")
+                        .add("siteChannelId", "${uploadVideoData.siteChannelId}")
+                        .also { builder ->
+                            uploadVideoData.mediaChannelId?.let {
+                                builder.add(
+                                    "mediaChannelId",
+                                    "$it"
+                                )
+                            }
+                        }
                         .also { builder ->
                             if (uploadVideoData.publishDate != null) {
                                 builder.add("visibility", "private")

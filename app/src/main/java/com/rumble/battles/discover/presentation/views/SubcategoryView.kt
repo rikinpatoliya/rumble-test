@@ -71,11 +71,13 @@ fun SubcategoryView(
 @Preview(showBackground = true)
 private fun Preview() {
     val category = CategoryEntity(
+        id = 1,
         title = "Test Subcategory",
         thumbnail = "",
         viewersNumber = 100,
         description = "Test description",
-        path = ""
+        path = "",
+        isPrimary = false
     )
 
     RumbleTheme {

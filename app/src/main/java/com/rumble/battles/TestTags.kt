@@ -104,6 +104,7 @@ const val UploadPreviewTag = "UploadPreview"
 const val UploadGalleryTag = "UploadGallery"
 const val UploadLicenseTag = "UploadLicense"
 const val UploadScheduleTag = "UploadSchedule"
+const val UploadCategorySelectionTag = "UploadCategorySelection"
 //Navigation
 const val TabBarTag = "TabBar"
 //Other

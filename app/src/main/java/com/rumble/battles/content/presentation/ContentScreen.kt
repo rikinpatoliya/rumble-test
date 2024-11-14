@@ -61,6 +61,7 @@ import com.rumble.battles.camera.presentation.CameraUploadStepOneScreen
 import com.rumble.battles.camera.presentation.CameraUploadStepTwoScreen
 import com.rumble.battles.camera.presentation.CameraUploadVisibilitySelectionScreen
 import com.rumble.battles.camera.presentation.CameraViewModel
+import com.rumble.battles.camera.presentation.UploadCategorySelectionScreen
 import com.rumble.battles.camera.presentation.UploadChannelSelectionScreen
 import com.rumble.battles.camera.presentation.VideoPreviewScreen
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsScreen
@@ -469,9 +470,11 @@ fun ContentScreen(
                     )
                 },
                 onNavigateToAgeVerification = {
-                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
-                        popOnAgeVerification = true
-                    ))
+                    parentController.navigate(
+                        LandingScreens.AgeVerificationScreen.getPath(
+                            popOnAgeVerification = true
+                        )
+                    )
                 }
             )
         }) {
@@ -483,7 +486,7 @@ fun ContentScreen(
                     AnimatedVisibility(
                         modifier = Modifier.systemBarsPadding(),
                         visible = (selectedTabIndex != NAV_ITEM_INDEX_CAMERA || userUIState.isLoggedIn.not())
-                                && (videoDetailsState.visible.not() || videoDetailsState.collapsed),
+                            && (videoDetailsState.visible.not() || videoDetailsState.collapsed),
                         enter = slideInVertically(
                             initialOffsetY = { it / 2 }),
                         exit = slideOutVertically(
@@ -593,7 +596,11 @@ fun ContentScreen(
                     },
                     onTagClick = {
                         videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
-                        navControllers[selectedTabIndex].navigate(RumbleScreens.CombinedSearchResult.getPath(it))
+                        navControllers[selectedTabIndex].navigate(
+                            RumbleScreens.CombinedSearchResult.getPath(
+                                it
+                            )
+                        )
                     },
                     onNavigateBack = {
                         navControllers[selectedTabIndex].navigateUp()
@@ -846,6 +853,11 @@ private fun createNavigationGraph(
                     currentNavController
                 ),
                 onSelectChannel = { currentNavController.navigate(RumbleScreens.UploadChannelSelection.rootName) },
+                onSelectCategory = {
+                    currentNavController.navigate(
+                        RumbleScreens.UploadCategorySelection.getPath(it)
+                    )
+                },
                 onNextStep = { currentNavController.navigate(RumbleScreens.CameraUploadStepTwo.rootName) },
                 onBackClick = { currentNavController.navigateUp() },
             )
@@ -896,6 +908,21 @@ private fun createNavigationGraph(
                     navBackStackEntry,
                     currentNavController
                 ),
+                onBackClick = { currentNavController.navigateUp() },
+            )
+        }
+        composable(
+            RumbleScreens.UploadCategorySelection.rootName,
+            arguments = listOf(
+                navArgument(RumblePath.IS_PRIMARY_CATEGORY.path) { type = NavType.BoolType }
+            )
+        ) { navBackStackEntry ->
+            UploadCategorySelectionScreen(
+                cameraUploadHandler = getCameraUploadViewModel(
+                    navBackStackEntry,
+                    currentNavController
+                ),
+                isPrimary = navBackStackEntry.arguments?.getBoolean(RumblePath.IS_PRIMARY_CATEGORY.path) ?: true,
                 onBackClick = { currentNavController.navigateUp() },
             )
         }
@@ -969,9 +996,11 @@ private fun createNavigationGraph(
                     )
                 },
                 onNavigateToAgeVerification = {
-                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
-                        popOnAgeVerification = true
-                    ))
+                    parentController.navigate(
+                        LandingScreens.AgeVerificationScreen.getPath(
+                            popOnAgeVerification = true
+                        )
+                    )
                 },
                 onNavigateToLogin = {
                     activityHandler.onPauseVideo()
@@ -1120,9 +1149,11 @@ private fun createNavigationGraph(
                     )
                 },
                 onNavigateToAgeVerification = {
-                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
-                        popOnAgeVerification = true
-                    ))
+                    parentController.navigate(
+                        LandingScreens.AgeVerificationScreen.getPath(
+                            popOnAgeVerification = true
+                        )
+                    )
                 },
                 onNavigateToLogin = {
                     activityHandler.onPauseVideo()
@@ -1422,9 +1453,11 @@ private fun createNavigationGraph(
                     )
                 },
                 onNavigateToAgeVerification = {
-                    parentController.navigate(LandingScreens.AgeVerificationScreen.getPath(
-                        popOnAgeVerification = true
-                    ))
+                    parentController.navigate(
+                        LandingScreens.AgeVerificationScreen.getPath(
+                            popOnAgeVerification = true
+                        )
+                    )
                 },
                 onNavigateToLogin = {
                     activityHandler.onPauseVideo()
