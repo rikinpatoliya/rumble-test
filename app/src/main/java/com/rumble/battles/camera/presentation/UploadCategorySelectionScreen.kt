@@ -47,6 +47,7 @@ import coil.request.ImageRequest
 import com.rumble.battles.R
 import com.rumble.battles.UploadCategorySelectionTag
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
+import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.borderXSmall
@@ -57,7 +58,6 @@ import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXXSmall
-import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusMedium
 import com.rumble.theme.radiusXLarge
 import com.rumble.theme.radiusXXSmall
@@ -126,15 +126,13 @@ fun UploadCategorySelectionScreen(
         ) {
             items(categories) { category ->
                 CategorySelectableRow(
-                    categoryTitle = category.title,
-                    categoryDescription = null,
-                    thumbnail = category.thumbnail,
+                    category = category,
                     selected = category.id == selectedCategoryId,
                     onSelectCategory = {
                         if (isPrimary) {
-                            cameraUploadHandler.onPrimaryCategorySelected(category)
+                            cameraUploadHandler.onPrimaryCategorySelected(it)
                         } else {
-                            cameraUploadHandler.onSecondaryCategorySelected(category)
+                            cameraUploadHandler.onSecondaryCategorySelected(it)
                         }
                     }
                 )
@@ -145,11 +143,9 @@ fun UploadCategorySelectionScreen(
 
 @Composable
 private fun CategorySelectableRow(
-    categoryTitle: String,
-    categoryDescription: String?,
-    thumbnail: String,
-    selected: Boolean = false,
-    onSelectCategory: () -> Unit
+    category: CategoryEntity,
+    selected: Boolean,
+    onSelectCategory: (CategoryEntity) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -162,7 +158,7 @@ private fun CategorySelectableRow(
             )
             .selectable(
                 selected = selected,
-                onClick = onSelectCategory
+                onClick = { onSelectCategory(category) }
             )
             .padding(
                 start = paddingSmall,
@@ -175,7 +171,7 @@ private fun CategorySelectableRow(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(thumbnail)
+                .data(category.thumbnail)
                 .crossfade(true)
                 .build(),
             contentDescription = null,
@@ -185,24 +181,12 @@ private fun CategorySelectableRow(
             contentScale = ContentScale.Crop
         )
 
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(paddingXXXSmall)
-        ) {
-            Text(
-                text = categoryTitle,
-                color = MaterialTheme.colors.primary,
-                style = RumbleTypography.h4
-            )
-
-            if (categoryDescription != null) {
-                Text(
-                    text = categoryDescription,
-                    color = MaterialTheme.colors.primary,
-                    style = RumbleTypography.h6Light
-                )
-            }
-        }
+        Text(
+            text = category.title,
+            color = MaterialTheme.colors.primary,
+            style = RumbleTypography.h4,
+            modifier = Modifier.weight(1f)
+        )
 
         if (selected) {
             Icon(

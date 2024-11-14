@@ -706,7 +706,10 @@ class CameraViewModel @Inject constructor(
 
     override fun onPrimaryCategorySelected(category: CategoryEntity) {
         uiState.update {
-            it.copy(selectedPrimaryCategory = category)
+            it.copy(
+                selectedPrimaryCategory = category,
+                primaryCategoryError = false
+            )
         }
         uploadVideoData = uploadVideoData.copy(
             siteChannelId = category.id
