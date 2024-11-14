@@ -44,6 +44,7 @@ import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.wokeGreen
+import com.rumble.utils.extension.rumbleUitTestTag
 
 @Composable
 fun SearchScreen(
@@ -88,8 +89,8 @@ fun SearchScreen(
 
                 RumbleTextActionButton(
                     modifier = Modifier
-                        .padding(end = paddingXSmall)
-                        .semantics { contentDescription = SearchQueryCancelButtonTag },
+                        .rumbleUitTestTag(SearchQueryCancelButtonTag)
+                        .padding(end = paddingXSmall),
                     text = stringResource(id = R.string.cancel)
                 ) {
                     keyboardController?.hide()
@@ -149,10 +150,11 @@ fun SearchScreen(
                     )
                 }
                 if (state.query.isNotEmpty()) {
-                    items(state.autoCompleteChannelsList) { autoCompleteChannel ->
+                    itemsIndexed(state.autoCompleteChannelsList) { index, autoCompleteChannel ->
                         AutoCompleteSearchChannelView(
                             channelDetailsEntity = autoCompleteChannel,
                             query = state.query,
+                            index = index,
                             onViewChannel = onViewChannel
                         )
                     }

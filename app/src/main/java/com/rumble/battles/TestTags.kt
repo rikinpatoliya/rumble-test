@@ -132,5 +132,7 @@ const val SearchQueryClearTextButtonTag = "SearchQuery_ClearTextButton"
 const val SearchQueryRecentSearchItemTag = "SearchQuery_RecentSearchItem_"
 const val SearchQueryRecentSearchItemTitleTag = "SearchQuery_RecentSearchItemTitle_"
 const val SearchQueryRecentSearchItemDeleteButtonTag = "SearchQuery_RecentSearchItemDeleteButton_"
+const val SearchQuerySearchSuggestChannelItemTag = "SearchQuery_SearchSuggestChannelItem_"
+const val SearchQuerySearchSuggestChannelItemTitleTag = "SearchQuery_SearchSuggestChannelItemTitle_"
 
 // endregion

@@ -33,9 +33,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.rumble.battles.R
 import com.rumble.battles.SearchQueryClearTextButtonTag
+import com.rumble.battles.SearchQuerySearchBarTag
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.radiusXLarge
 import com.rumble.utils.RumbleConstants
+import com.rumble.utils.extension.rumbleUitTestTag
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -61,7 +63,7 @@ fun SearchView(
 
     OutlinedTextField(
         modifier = modifier
-//            .semantics { contentDescription = SearchQuerySearchBarTag }
+            .rumbleUitTestTag(SearchQuerySearchBarTag)
             .focusRequester(focusRequester),
         shape = RoundedCornerShape(radiusXLarge),
         value = query,

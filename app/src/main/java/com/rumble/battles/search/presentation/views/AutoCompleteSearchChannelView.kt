@@ -14,6 +14,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.rumble.battles.R
+import com.rumble.battles.SearchQuerySearchSuggestChannelItemTag
+import com.rumble.battles.SearchQuerySearchSuggestChannelItemTitleTag
 import com.rumble.battles.common.buildDelimiterHighlightedAnnotatedString
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
@@ -27,15 +29,18 @@ import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.verifiedBadgeHeightMedium
+import com.rumble.utils.extension.rumbleUitTestTag
 
 @Composable
 fun AutoCompleteSearchChannelView(
     modifier: Modifier = Modifier,
     channelDetailsEntity: ChannelDetailsEntity,
     query: String,
+    index: Int,
     onViewChannel: (String) -> Unit,
 ) {
     Box(modifier = modifier
+        .rumbleUitTestTag("$SearchQuerySearchSuggestChannelItemTag$index")
         .clickable {
             onViewChannel(channelDetailsEntity.channelId)
         }
@@ -73,6 +78,7 @@ fun AutoCompleteSearchChannelView(
                 verifiedBadgeHeight = verifiedBadgeHeightMedium,
                 spacerWidth = paddingXXXSmall,
                 textStyle = h5,
+                testTag = "$SearchQuerySearchSuggestChannelItemTitleTag$index"
             )
             Spacer(modifier = Modifier.weight(1F))
             Icon(
