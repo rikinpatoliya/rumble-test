@@ -53,9 +53,8 @@ import com.rumble.battles.login.presentation.RegisterScreen
 import com.rumble.battles.login.presentation.RegisterViewModel
 import com.rumble.battles.navigation.LandingPath
 import com.rumble.battles.navigation.LandingScreens
+import com.rumble.domain.common.model.CleanupService
 import com.rumble.domain.login.domain.domainmodel.LoginType
-import com.rumble.domain.notifications.domain.domainmodel.KEY_NOTIFICATION_VIDEO_DETAILS
-import com.rumble.domain.notifications.domain.domainmodel.RumbleNotificationData
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
 import com.rumble.domain.timerange.model.TimeRangeService
@@ -96,9 +95,9 @@ class RumbleMainActivity : FragmentActivity() {
         initGeneralErrorHandler()
         initializePlayService(savedInstanceState)
         initializeTimeRangeService(savedInstanceState)
+        initializeCleanupService()
         initializeMediaSession()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        handleNotifications(intent.extras)
 
         setContent {
             val state by viewModel.activityHandlerState.collectAsStateWithLifecycle()
@@ -112,6 +111,10 @@ class RumbleMainActivity : FragmentActivity() {
                 RumbleApp()
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        viewModel.handleNotifications(intent.extras)
     }
 
     @SuppressLint("MissingSuperCall")
@@ -399,27 +402,6 @@ class RumbleMainActivity : FragmentActivity() {
             }
         }
 
-    @Suppress("DEPRECATION")
-    private fun handleNotifications(bundle: Bundle?) {
-        val notificationData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            bundle?.getParcelable(
-                KEY_NOTIFICATION_VIDEO_DETAILS,
-                RumbleNotificationData::class.java
-            )
-        } else {
-            bundle?.getParcelable(KEY_NOTIFICATION_VIDEO_DETAILS)
-        }
-        if (notificationData != null) {
-            viewModel.onToggleAppLaunchedFromNotification(true)
-            viewModel.getVideoDetails(notificationData)
-            bundle?.let {
-                viewModel.clearBundleKeys(it, listOf(KEY_NOTIFICATION_VIDEO_DETAILS))
-            }
-        } else {
-            viewModel.enableContentLoad()
-        }
-    }
-
     private fun initializePlayService(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Main) {
@@ -432,6 +414,10 @@ class RumbleMainActivity : FragmentActivity() {
         if (savedInstanceState == null) {
             startService(Intent(this@RumbleMainActivity, TimeRangeService::class.java))
         }
+    }
+
+    private fun initializeCleanupService() {
+        startService(Intent(this@RumbleMainActivity, CleanupService::class.java))
     }
 
     private fun initializeMediaSession() {

@@ -645,6 +645,13 @@
     <string name="upload_success_a_video">A video</string>
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
+    <string name="primary_category">Primary Category</string>
+    <string name="secondary_category">Secondary Category</string>
+    <string name="select_primary_category">Select a Primary Category</string>
+    <string name="select_secondary_category">Select a Secondary Category</string>
+    <string name="required">required</string>
+    <string name="primary_category_required_error">Please select at least one category</string>
+    <string name="search_categories">Search categories</string>
 
     <!-- Premium subscription -->
     <string name="premium_only">Premium only</string>
