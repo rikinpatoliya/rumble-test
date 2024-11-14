@@ -122,4 +122,15 @@ const val AuthSignInSignInButton = "AuthSignIn_SignInButton"
 //Temp Tags for setting up automation
 const val ContentDescriptionProfileMenuTag = "ProfileMenu"
 const val AndroidIdSettingsTag = "android:id/`Settings`"
+
+//UIT testing tags
+const val FeedSearchButtonTag = "Feed_SearchButton"
+const val SearchQuerySearchBarTag = "SearchQuery_SearchBar"
+const val SearchQueryCancelButtonTag = "SearchQuery_CancelButton"
+const val SearchQueryClearAllTag = "SearchQuery_ClearAll"
+const val SearchQueryClearTextButtonTag = "SearchQuery_ClearTextButton"
+const val SearchQueryRecentSearchItemTag = "SearchQuery_RecentSearchItem_"
+const val SearchQueryRecentSearchItemTitleTag = "SearchQuery_RecentSearchItemTitle_"
+const val SearchQueryRecentSearchItemDeleteButtonTag = "SearchQuery_RecentSearchItemDeleteButton_"
+
 // endregion

@@ -14,11 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.rumble.battles.R
+import com.rumble.battles.SearchQueryRecentSearchItemDeleteButtonTag
+import com.rumble.battles.SearchQueryRecentSearchItemTag
+import com.rumble.battles.SearchQueryRecentSearchItemTitleTag
 import com.rumble.battles.common.buildDelimiterHighlightedAnnotatedString
 import com.rumble.domain.search.domain.domainModel.RecentQuery
 import com.rumble.theme.RumbleTypography.h5
@@ -33,6 +38,7 @@ fun RecentQueryView(
     modifier: Modifier = Modifier,
     recentQuery: RecentQuery,
     query: String,
+    index: Int,
     onClick: () -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -52,6 +58,7 @@ fun RecentQueryView(
     )
 
     Box(modifier = modifier
+        .semantics { contentDescription = "$SearchQueryRecentSearchItemTag$index" }
         .clickable {
             onClick()
         }
@@ -71,6 +78,7 @@ fun RecentQueryView(
             )
             Text(
                 modifier = Modifier
+                    .semantics { contentDescription = "$SearchQueryRecentSearchItemTitleTag$index" }
                     .weight(1f),
                 text = annotatedText,
                 color = MaterialTheme.colors.primary,
@@ -79,6 +87,10 @@ fun RecentQueryView(
             )
 
             IconButton(
+                modifier = Modifier
+                    .semantics {
+                        contentDescription = "$SearchQueryRecentSearchItemDeleteButtonTag$index"
+                    },
                 onClick = onDelete
             ) {
                 Icon(
@@ -100,6 +112,7 @@ private fun Preview() {
         modifier = Modifier.fillMaxWidth(),
         recentQuery = RecentQuery(query = "Test query"),
         query = "Test",
+        0,
         {},
         {}
     )

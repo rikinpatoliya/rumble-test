@@ -47,20 +47,14 @@ interface AuthHandler : FacebookCallback<FacebookLoginResult> {
     val colorMode: Flow<ColorMode>
 
     fun onGoogleSignIn(task: Task<GoogleSignInAccount>)
-    fun onFacebookTokenReceived(accessToken: AccessToken) // Reintroduced method
+    fun onFacebookTokenReceived(accessToken: AccessToken)
 }
 
-/**
- * Holds the state of the authentication process.
- */
 data class AuthState(
     val loading: Boolean = false,
     val uitTesting: Boolean = false,
 )
 
-/**
- * Represents various events that can occur during authentication.
- */
 sealed class AuthHandlerEvent {
     data class Error(val errorMessage: String? = null) : AuthHandlerEvent()
     object NavigateToHomeScreen : AuthHandlerEvent()
@@ -132,7 +126,7 @@ class AuthViewModel @Inject constructor(
 
     override fun onSuccess(result: FacebookLoginResult) {
         val accessToken = result.accessToken
-        onFacebookTokenReceived(accessToken) // Use the method to avoid code duplication
+        onFacebookTokenReceived(accessToken)
     }
 
     override fun onCancel() {
@@ -201,7 +195,6 @@ class AuthViewModel @Inject constructor(
         }
         request.parameters = parameters
 
-        // Execute the request synchronously on a background thread
         val thread = Thread {
             request.executeAndWait()
         }
