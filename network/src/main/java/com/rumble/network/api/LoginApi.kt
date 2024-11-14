@@ -49,11 +49,20 @@ interface LoginApi {
     @POST("service.php?name=roku.link.code_verify")
     suspend fun verifyTvPairingCode(@Body body: FormBody): Response<TvPairingCodeVerificationResponse>
 
+    /**
+     * Log in with an Identity Provider (IdP) such as Google, Apple, or Facebook.
+     *
+     * @param loginBody HTTP Body, application/x-www-form-urlencoded, containing the following parameters:
+     *                  user_id=<String> // Auth provider user id
+     *                  jwt=<String>     // Auth provider token
+     *                  provider=<String> // apple / google / facebook
+     * @param name The API endpoint name, e.g., user.login.google, user.login.apple, user.login.facebook
+     */
     @POST("service.php")
-    suspend fun googleAppleLogin(
+    suspend fun idpLogin(
         @Body loginBody: FormBody,
         @Query("name") name: String
-    ): Response<GoogleAppleResponse>
+    ): Response<IdpLoginResponse>
 
     @POST("register.php")
     suspend fun facebookRumbleRegister(
@@ -69,14 +78,8 @@ interface LoginApi {
         @Query("api") api: String = "6",
     ): Response<RegisterResponse>
 
-    @GET("api/User/LoginFacebook")
-    suspend fun facebookLogin(
-        @Query("m_user_id") userId: String,
-        @Query("m_access_token") accessToken: String,
-    ): Response<FacebookLoginResponse>
-
     /**
-     * Notify the server that the user have logged out.
+     * Notify the server that the user has logged out.
      * The request is “fire and forget”. Ignore any responses or errors.
      */
     @GET("service.php?name=user.logout")

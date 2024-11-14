@@ -2,20 +2,11 @@ package com.rumble.domain.login.model
 
 import com.rumble.domain.common.domain.domainmodel.TvPairingCodeResult
 import com.rumble.domain.common.model.RumbleError
-import com.rumble.domain.login.domain.domainmodel.LoginResult
-import com.rumble.domain.login.domain.domainmodel.LoginResultStatus
-import com.rumble.domain.login.domain.domainmodel.LoginType
-import com.rumble.domain.login.domain.domainmodel.RegisterResult
-import com.rumble.domain.login.domain.domainmodel.ResetPasswordResult
+import com.rumble.domain.login.domain.domainmodel.*
 import com.rumble.domain.login.model.datasource.LoginRemoteDataSource
 import com.rumble.network.NetworkRumbleConstants.TOO_MANY_REQUESTS
 import com.rumble.network.api.LoginApi
-import com.rumble.network.dto.login.FacebookLoginResponse
-import com.rumble.network.dto.login.GoogleAppleResponse
-import com.rumble.network.dto.login.RegisterErrorResponse
-import com.rumble.network.dto.login.RumbleLoginResponse
-import com.rumble.network.dto.login.TvPairingCodeVerificationDataStatus
-import com.rumble.network.dto.login.TvPairingCodeVerificationResponse
+import com.rumble.network.dto.login.*
 import com.rumble.network.getResponseResult
 import com.rumble.utils.HashCalculator
 import kotlinx.coroutines.CoroutineDispatcher
@@ -49,54 +40,44 @@ class LoginRepositoryImpl @Inject constructor(
         loginType: LoginType,
         userId: String,
         token: String
-    ): LoginResult =
-        withContext(dispatcher) {
-            val response: Response<*> = when (loginType) {
-                LoginType.FACEBOOK -> loginApi.facebookLogin(userId, token)
-                LoginType.GOOGLE -> loginApi.googleAppleLogin(
-                    createGoogleAppleLoginFormBody(loginType, userId, token),
-                    "user.login.google"
-                )
+    ): LoginResult = withContext(dispatcher) {
+        val response: Response<*> = loginApi.idpLogin(
+            createIdpLoginFormBody(loginType, userId, token),
+            loginType.loginName
+        )
+        createLoginResult(response)
+    }
 
-                LoginType.APPLE -> loginApi.googleAppleLogin(
-                    createGoogleAppleLoginFormBody(loginType, userId, token),
-                    "user.login.apple"
-                )
-
-                else -> throw Error("Unsupported SSO login type!")
-            }
-            createLoginResult(response)
-        }
-
-    private fun createGoogleAppleLoginFormBody(
+    private fun createIdpLoginFormBody(
         loginType: LoginType,
         userId: String,
         token: String
-    ) = FormBody.Builder().add("user_id", userId).add("jwt", token)
-        .add("provider", if (loginType == LoginType.GOOGLE) "google" else "apple").build()
+    ) = FormBody.Builder()
+        .add("user_id", userId)
+        .add("jwt", token)
+        .add("provider", loginType.provider)
+        .build()
 
     override suspend fun register(
         loginType: LoginType,
         body: FormBody
-    ): RegisterResult =
-        withContext(dispatcher) {
-            val response = when (loginType) {
-                LoginType.GOOGLE, LoginType.APPLE -> loginApi.googleAppleRegister(
-                    body = body,
-                    provider = loginType.provider
-                )
-
-                else -> loginApi.facebookRumbleRegister(
-                    body = body,
-                    provider = loginType.provider
-                )
-            }
-            val responseResult = response.getResponseResult(registerErrorConverter)
-            if (responseResult.first) RegisterResult.Success
-            else if (response.code() == TOO_MANY_REQUESTS) {
-                RegisterResult.DuplicatedRequest(RumbleError(TAG, response.raw()))
-            } else RegisterResult.Failure(RumbleError(TAG, response.raw()), responseResult.second)
+    ): RegisterResult = withContext(dispatcher) {
+        val response = when (loginType) {
+            LoginType.GOOGLE, LoginType.APPLE -> loginApi.googleAppleRegister(
+                body = body,
+                provider = loginType.provider
+            )
+            else -> loginApi.facebookRumbleRegister(
+                body = body,
+                provider = loginType.provider
+            )
         }
+        val responseResult = response.getResponseResult(registerErrorConverter)
+        if (responseResult.first) RegisterResult.Success
+        else if (response.code() == TOO_MANY_REQUESTS) {
+            RegisterResult.DuplicatedRequest(RumbleError(TAG, response.raw()))
+        } else RegisterResult.Failure(RumbleError(TAG, response.raw()), responseResult.second)
+    }
 
     override suspend fun requestTvPairingCode(deviceId: String): TvPairingCodeResult {
         val response = loginApi.requestTvPairingCode(
@@ -146,7 +127,7 @@ class LoginRepositoryImpl @Inject constructor(
 
     private fun createLoginResult(response: Response<*>): LoginResult {
         return when (val body = response.body()) {
-            is GoogleAppleResponse -> {
+            is IdpLoginResponse -> {
                 val cookies = extractCookies(response)
                 val loginSuccess = body.userData.success
                 val error = body.userData.error
@@ -180,19 +161,12 @@ class LoginRepositoryImpl @Inject constructor(
                     userThumbnail,
                     LoginResultStatus.get(body.data.status)
                 )
-
             }
 
-            is FacebookLoginResponse -> {
-                val cookies = extractCookies(response)
-                val loginSuccess = ((body.returnData.success as? Int)
-                    ?: 0) > 0 || (body.returnData.success as? Boolean ?: false)
-                val userId = body.returnData.userData?.userId
-                val userName = body.returnData.userData?.userName
-                LoginResult(loginSuccess, null, cookies, userId, userName, null)
-            }
-
-            else -> LoginResult(success = false, rumbleError = RumbleError(TAG, response.raw()))
+            else -> LoginResult(
+                success = false,
+                rumbleError = RumbleError(TAG, response.raw())
+            )
         }
     }
 }

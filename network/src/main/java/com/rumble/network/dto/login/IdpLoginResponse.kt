@@ -2,9 +2,9 @@ package com.rumble.network.dto.login
 
 import com.google.gson.annotations.SerializedName
 
-data class GoogleAppleResponse(
+data class IdpLoginResponse(
     @SerializedName("user")
-    val user: UserState,
+    val user: UserState?,
     @SerializedName("data")
-   val userData: UserData
+    val userData: UserData
 )
