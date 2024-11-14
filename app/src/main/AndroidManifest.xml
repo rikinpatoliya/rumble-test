@@ -63,7 +63,7 @@
 
         <activity
             android:name=".landing.RumbleMainActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:supportsPictureInPicture="true"
@@ -107,6 +107,10 @@
 
         <service
             android:name="com.rumble.domain.timerange.model.TimeRangeService"
+            android:exported="false"/>
+
+        <service
+            android:name="com.rumble.domain.common.model.CleanupService"
             android:exported="false"/>
 
     </application>

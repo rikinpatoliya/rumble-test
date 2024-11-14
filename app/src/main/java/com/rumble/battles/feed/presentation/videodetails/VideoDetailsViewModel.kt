@@ -119,7 +119,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -504,6 +503,7 @@ class VideoDetailsViewModel @Inject constructor(
             state.value.rumblePlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
         } else {
+            viewModelScope.launch { sessionManager.allowContentLoadFlow(true) }
             state.value.rumblePlayer?.setRumbleVideoMode(RumbleVideoMode.Minimized)
             emitVmEvent(VideoDetailsEvent.VideoModeMinimized)
             if (deviceType != DeviceType.Tablet) {
@@ -512,11 +512,6 @@ class VideoDetailsViewModel @Inject constructor(
             }
             if (state.value.hasPremiumRestriction || state.value.hasLiveGateRestriction) onCloseVideoDetails()
         }
-    }
-
-    override fun onCleared() {
-        runBlocking { sessionManager.allowContentLoadFlow(true) }
-        super.onCleared()
     }
 
     override fun onDismissBottomSheet() {

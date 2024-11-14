@@ -360,7 +360,9 @@ class HomeViewModel @Inject constructor(
                 if (cookies.isNotBlank()) {
                     loadChannelsWithFreshContent()
                 }
-                loadVideoCollections()
+                if (sessionManager.allowContentLoadFlow.first()) {
+                    loadVideoCollections()
+                }
             }
         }
     }

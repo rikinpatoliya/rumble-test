@@ -1,6 +1,8 @@
 package com.rumble.battles.landing
 
 import android.app.Application
+import android.os.Build
+import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.MutableState
@@ -109,6 +111,7 @@ interface RumbleActivityHandler {
 
     fun onNavigateToMyVideos()
     fun onLogException(e: Exception)
+    fun handleNotifications(bundle: Bundle?)
 }
 
 
@@ -455,19 +458,20 @@ class RumbleActivityViewModel @Inject constructor(
         viewModelScope.launch { prepareAppForTestingUseCase(uitUserName, uitPassword) }
     }
 
-    private fun handleNotifications(savedStateHandle: SavedStateHandle) {
-        val notificationData = savedStateHandle.get<RumbleNotificationData>(KEY_NOTIFICATION_VIDEO_DETAILS)
+    override fun handleNotifications(bundle: Bundle?) {
+        val notificationData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            bundle?.getParcelable(
+                KEY_NOTIFICATION_VIDEO_DETAILS,
+                RumbleNotificationData::class.java
+            )
+        } else {
+            bundle?.getParcelable(KEY_NOTIFICATION_VIDEO_DETAILS)
+        }
         if (notificationData != null) {
             onToggleAppLaunchedFromNotification(true)
             getVideoDetails(notificationData)
-            clearBundleKeys(savedStateHandle, listOf(KEY_NOTIFICATION_VIDEO_DETAILS))
-        } else {
-            enableContentLoad()
+            bundle?.remove(KEY_NOTIFICATION_VIDEO_DETAILS)
         }
-    }
-
-    private fun enableContentLoad() {
-        viewModelScope.launch { sessionManager.allowContentLoadFlow(true) }
     }
 
     private fun clearBundleKeys(savedStateHandle: SavedStateHandle, keys: List<String>) {
@@ -478,7 +482,6 @@ class RumbleActivityViewModel @Inject constructor(
 
     private fun initState(savedStateHandle: SavedStateHandle) {
         val isTesting = handleLaunchAttributesForTesting(savedStateHandle)
-        handleNotifications(savedStateHandle)
         viewModelScope.launch(errorHandler) {
             val needLogin = loginRequiredUseCase() && isTesting.not()
             if (needLogin) emitVmEvent(RumbleEvent.NavigateToAuth)

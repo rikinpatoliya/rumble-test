@@ -53,6 +53,7 @@ import com.rumble.battles.login.presentation.RegisterScreen
 import com.rumble.battles.login.presentation.RegisterViewModel
 import com.rumble.battles.navigation.LandingPath
 import com.rumble.battles.navigation.LandingScreens
+import com.rumble.domain.common.model.CleanupService
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.isDarkTheme
@@ -94,6 +95,7 @@ class RumbleMainActivity : FragmentActivity() {
         initGeneralErrorHandler()
         initializePlayService(savedInstanceState)
         initializeTimeRangeService(savedInstanceState)
+        initializeCleanupService()
         initializeMediaSession()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -109,6 +111,10 @@ class RumbleMainActivity : FragmentActivity() {
                 RumbleApp()
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        viewModel.handleNotifications(intent.extras)
     }
 
     @SuppressLint("MissingSuperCall")
@@ -408,6 +414,10 @@ class RumbleMainActivity : FragmentActivity() {
         if (savedInstanceState == null) {
             startService(Intent(this@RumbleMainActivity, TimeRangeService::class.java))
         }
+    }
+
+    private fun initializeCleanupService() {
+        startService(Intent(this@RumbleMainActivity, CleanupService::class.java))
     }
 
     private fun initializeMediaSession() {
