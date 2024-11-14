@@ -129,11 +129,11 @@ class LoginRepositoryImpl @Inject constructor(
         return when (val body = response.body()) {
             is IdpLoginResponse -> {
                 val cookies = extractCookies(response)
-                val loginSuccess = body.success
-                val error = body.error
-                val userId = body.userId
-                val userName = body.userName
-                val userThumbnail = body.thumb
+                val loginSuccess = body.userData.success
+                val error = body.userData.error
+                val userId = body.userData.userId
+                val userName = body.userData.userName
+                val userThumbnail = body.userData.thumb
                 LoginResult(loginSuccess, error, cookies, userId, userName, userThumbnail)
             }
 

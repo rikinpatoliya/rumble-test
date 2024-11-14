@@ -10,13 +10,11 @@ import com.facebook.AccessToken
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.GraphRequest
-import com.facebook.login.LoginResult as FacebookLoginResult  // Alias to avoid naming conflict
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.login.domain.domainmodel.LoginResult as DomainLoginResult  // Alias to avoid naming conflict
 import com.rumble.domain.login.domain.domainmodel.LoginType
 import com.rumble.domain.login.domain.usecases.SSOLoginUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
@@ -34,6 +32,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.facebook.login.LoginResult as FacebookLoginResult
+import com.rumble.domain.login.domain.domainmodel.LoginResult as DomainLoginResult
 
 private const val TAG = "AuthViewModel"
 
@@ -70,6 +70,7 @@ sealed class AuthHandlerEvent {
         val token: String,
         val email: String
     ) : AuthHandlerEvent()
+
     object NavigateToAgeVerification : AuthHandlerEvent()
 }
 
@@ -103,14 +104,13 @@ class AuthViewModel @Inject constructor(
 
     override fun onGoogleSignIn(task: Task<GoogleSignInAccount>) {
         if (task.isSuccessful) {
-            state.value = state.value.copy(loading = true)
             val account = task.getResult(ApiException::class.java)
-            val userId = account.id ?: ""
-            val token = account.idToken ?: ""
-            viewModelScope.launch(errorHandler) {
-                val result = ssoLoginUseCase(LoginType.GOOGLE, userId = userId, token = token)
-                handleLoginResult(result, LoginType.GOOGLE, userId, token, account.email)
-            }
+            ssoLogin(
+                LoginType.GOOGLE,
+                account.id ?: "",
+                account.idToken ?: "",
+                account.email
+            )
         } else {
             unhandledErrorUseCase(
                 TAG,
@@ -121,22 +121,13 @@ class AuthViewModel @Inject constructor(
     }
 
     override fun onFacebookTokenReceived(accessToken: AccessToken) {
-        state.value = state.value.copy(loading = true)
-        viewModelScope.launch(errorHandler) {
-            val loginResult = ssoLoginUseCase(
-                LoginType.FACEBOOK,
-                userId = accessToken.userId,
-                token = accessToken.token
-            )
-            handleLoginResult(
-                loginResult,
-                LoginType.FACEBOOK,
-                accessToken.userId,
-                accessToken.token,
-                email = null,
-                accessToken = accessToken
-            )
-        }
+        ssoLogin(
+            LoginType.FACEBOOK,
+            accessToken.userId,
+            accessToken.token,
+            null,
+            accessToken
+        )
     }
 
     override fun onSuccess(result: FacebookLoginResult) {
@@ -153,44 +144,47 @@ class AuthViewModel @Inject constructor(
         emitEvent(AuthHandlerEvent.Error())
     }
 
-    private suspend fun handleLoginResult(
-        result: DomainLoginResult,
+    private fun ssoLogin(
         loginType: LoginType,
         userId: String,
         token: String,
         email: String?,
         accessToken: AccessToken? = null
     ) {
-        if (result.success) {
-            // For SSO login, verify age restrictions
-            val profileResult = getUserProfileUseCase()
-            if (profileResult.success) {
-                val userProfile = profileResult.userProfileEntity
-                val birthday = userProfile?.birthday?.toUtcLong()
-                if (userProfile?.ageVerificationRequired == true &&
-                    birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first
-                ) {
-                    state.value = state.value.copy(loading = false)
-                    emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
-                    return
+        state.value = state.value.copy(loading = true)
+        viewModelScope.launch(errorHandler) {
+            val result = ssoLoginUseCase(loginType, userId = userId, token = token)
+            if (result.success) {
+                // For SSO login, verify age restrictions
+                val profileResult = getUserProfileUseCase()
+                if (profileResult.success) {
+                    val userProfile = profileResult.userProfileEntity
+                    val birthday = userProfile?.birthday?.toUtcLong()
+                    if (userProfile?.ageVerificationRequired == true &&
+                        birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first
+                    ) {
+                        state.value = state.value.copy(loading = false)
+                        emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
+                        return@launch
+                    }
                 }
-            }
-            state.value = state.value.copy(loading = false)
-            emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
-        } else if (result.error == UNABLE_TO_FIND_USER_ERROR) {
-            state.value = state.value.copy(loading = false)
-            val userEmail = email ?: accessToken?.let { getEmailFromFacebook(it) }
-            emitEvent(
-                AuthHandlerEvent.NavigateToRegistration(
-                    loginType,
-                    userId,
-                    token,
-                    userEmail ?: ""
+                state.value = state.value.copy(loading = false)
+                emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
+            } else if (result.error == UNABLE_TO_FIND_USER_ERROR) {
+                state.value = state.value.copy(loading = false)
+                val userEmail = email ?: accessToken?.let { getEmailFromFacebook(it) }
+                emitEvent(
+                    AuthHandlerEvent.NavigateToRegistration(
+                        loginType,
+                        userId,
+                        token,
+                        userEmail ?: ""
+                    )
                 )
-            )
-        } else {
-            state.value = state.value.copy(loading = false)
-            emitEvent(AuthHandlerEvent.Error(result.error))
+            } else {
+                state.value = state.value.copy(loading = false)
+                emitEvent(AuthHandlerEvent.Error(result.error))
+            }
         }
     }
 
