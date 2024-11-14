@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -69,6 +71,7 @@ import com.rumble.theme.imageMedium
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
+import com.rumble.theme.paddingXSmall10
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusMedium
 import com.rumble.theme.radiusSmall
@@ -88,6 +91,7 @@ import com.rumble.utils.extension.dashedBorder
 fun CameraUploadStepOneScreen(
     cameraUploadHandler: CameraUploadHandler,
     onSelectChannel: () -> Unit,
+    onSelectCategory: (isPrimary: Boolean) -> Unit,
     onNextStep: () -> Unit,
     onBackClick: () -> Unit,
 ) {
@@ -255,6 +259,60 @@ fun CameraUploadStepOneScreen(
                 tint = MaterialTheme.colors.primaryVariant
             )
         }
+
+        Row(
+            modifier = Modifier
+                .padding(
+                    start = paddingMedium,
+                    top = paddingMedium,
+                    end = paddingMedium,
+                    bottom = paddingXXXSmall
+                )
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                text = stringResource(id = R.string.categories).uppercase(),
+                style = h6Heavy
+            )
+
+            Text(
+                text = stringResource(R.string.required),
+                color = MaterialTheme.colors.primaryVariant,
+                style = tinyBody
+            )
+        }
+
+        CategorySelection(
+            selectedCategoryName = uiState.selectedPrimaryCategory?.title,
+            categoryPlaceholder = stringResource(id = R.string.primary_category),
+            iconContentDescription = stringResource(id = R.string.select_primary_category),
+            onClick = { onSelectCategory(true) }
+        )
+
+        if (uiState.primaryCategoryError) {
+            ErrorMessageView(
+                modifier = Modifier
+                    .padding(
+                        top = paddingXSmall,
+                        start = paddingMedium,
+                        end = paddingMedium
+                    )
+                    .fillMaxWidth(),
+                errorMessage = stringResource(R.string.primary_category_required_error),
+                textColor = MaterialTheme.colors.secondary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(paddingXSmall))
+
+        CategorySelection(
+            selectedCategoryName = uiState.selectedSecondaryCategory?.title,
+            categoryPlaceholder = stringResource(id = R.string.secondary_category),
+            iconContentDescription = stringResource(id = R.string.select_secondary_category),
+            onClick = { onSelectCategory(false) }
+        )
     }
 }
 
@@ -437,6 +495,45 @@ fun UploadThumbnailView(
             model = bitmap,
             contentDescription = "",
             contentScale = ContentScale.Fit
+        )
+    }
+}
+
+@Composable
+private fun CategorySelection(
+    selectedCategoryName: String?,
+    categoryPlaceholder: String,
+    iconContentDescription: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = paddingMedium)
+            .clip(RoundedCornerShape(radiusMedium))
+            .background(MaterialTheme.colors.onSecondary)
+            .clickable { onClick() }
+            .padding(horizontal = paddingMedium, vertical = paddingSmall),
+        horizontalArrangement = Arrangement.spacedBy(paddingXSmall10),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = selectedCategoryName ?: categoryPlaceholder,
+            modifier = Modifier
+                .weight(weight = 1f)
+                .alpha(if (selectedCategoryName != null) 1f else 0.5f),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            style = if (selectedCategoryName != null) {
+                RumbleTypography.body1Bold
+            } else {
+                RumbleTypography.body1
+            }
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = iconContentDescription,
+            tint = MaterialTheme.colors.primaryVariant
         )
     }
 }

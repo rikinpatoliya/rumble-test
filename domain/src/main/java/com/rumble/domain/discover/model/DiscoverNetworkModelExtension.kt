@@ -5,9 +5,11 @@ import com.rumble.network.dto.discover.Category
 
 fun Category.getCategoryEntity(): CategoryEntity =
     CategoryEntity(
+        id = id,
         title = title,
         thumbnail = thumbnail ?: "",
         viewersNumber = viewersNumber,
         description = description,
-        path = path
+        path = path,
+        isPrimary = isPrimary
     )
