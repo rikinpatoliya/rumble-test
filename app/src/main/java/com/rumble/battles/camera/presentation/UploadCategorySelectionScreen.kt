@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,7 +53,6 @@ import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.borderXSmall
 import com.rumble.theme.borderXXSmall
-import com.rumble.theme.enforcedBlack
 import com.rumble.theme.imageXMedium
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
@@ -121,6 +121,7 @@ fun UploadCategorySelectionScreen(
         )
 
         LazyColumn(
+            contentPadding = PaddingValues(bottom = paddingMedium),
             modifier = Modifier.padding(horizontal = paddingMedium, vertical = paddingXSmall),
             verticalArrangement = Arrangement.spacedBy(paddingXSmall)
         ) {
