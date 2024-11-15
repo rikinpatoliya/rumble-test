@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -50,7 +50,12 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
+import com.rumble.battles.SearchCombinedChannelCardTag
+import com.rumble.battles.SearchCombinedEmptyStateTitleTag
 import com.rumble.battles.SearchCombinedTag
+import com.rumble.battles.SearchCombinedVideoCardTag
+import com.rumble.battles.SearchCombinedViewAllChannelsTag
+import com.rumble.battles.SearchCombinedViewAllVideosTag
 import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
@@ -90,6 +95,7 @@ import com.rumble.theme.wokeGreen
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
+import com.rumble.utils.extension.rumbleUitTestTag
 import com.rumble.utils.extension.shortString
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -158,7 +164,10 @@ fun CombineSearchResultScreen(
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo }.collect {
             var createPlayer = false
-            val itemPosition = listState.findFirstFullyVisibleItemIndex(ITEMS_SHIFT, RumbleConstants.PLAYER_MIN_VISIBILITY)
+            val itemPosition = listState.findFirstFullyVisibleItemIndex(
+                ITEMS_SHIFT,
+                RumbleConstants.PLAYER_MIN_VISIBILITY
+            )
             val firstVisible =
                 if (itemPosition + ITEMS_SHIFT == 0 && state.videoList.isNotEmpty()) {
                     createPlayer = true
@@ -219,6 +228,7 @@ fun CombineSearchResultScreen(
                     SearchState.EMPTY -> {
                         EmptyView(
                             modifier = Modifier
+                                .rumbleUitTestTag(SearchCombinedEmptyStateTitleTag)
                                 .fillMaxSize()
                                 .padding(
                                     vertical = paddingMedium,
@@ -240,14 +250,22 @@ fun CombineSearchResultScreen(
                             state = listState
                         ) {
                             item { EmptyChannelListView() }
-                            item { VideoHeaderView(onViewVideos, handler.query, bottomSheetState, handler.selection) }
-                            items(state.videoList) { video ->
+                            item {
+                                VideoHeaderView(
+                                    onViewVideos,
+                                    handler.query,
+                                    bottomSheetState,
+                                    handler.selection
+                                )
+                            }
+                            itemsIndexed(state.videoList) { index, video ->
                                 VideoItem(
                                     video = video,
                                     contentHandler = contentHandler,
                                     onVideoClick = { handler.onVideoItemClick(video) },
                                     onViewChannel = onViewChannel,
-                                    handler = handler
+                                    handler = handler,
+                                    index = index
                                 )
                             }
                             item {
@@ -279,11 +297,19 @@ fun CombineSearchResultScreen(
                                     onViewChannel = onViewChannel,
                                 ) { onViewChannels(handler.query) }
                             }
-                            item { VideoHeaderView(onViewVideos, handler.query, bottomSheetState, handler.selection) }
+                            item {
+                                VideoHeaderView(
+                                    onViewVideos,
+                                    handler.query,
+                                    bottomSheetState,
+                                    handler.selection
+                                )
+                            }
                         }
 
                         EmptyView(
                             modifier = Modifier
+                                .rumbleUitTestTag(SearchCombinedEmptyStateTitleTag)
                                 .padding(paddingMedium)
                                 .fillMaxSize(),
                             title = stringResource(id = R.string.no_videos_found),
@@ -307,14 +333,22 @@ fun CombineSearchResultScreen(
                                     onViewChannel = onViewChannel,
                                 ) { onViewChannels(handler.query) }
                             }
-                            item { VideoHeaderView(onViewVideos, handler.query, bottomSheetState, handler.selection) }
-                            items(state.videoList) { video ->
+                            item {
+                                VideoHeaderView(
+                                    onViewVideos,
+                                    handler.query,
+                                    bottomSheetState,
+                                    handler.selection
+                                )
+                            }
+                            itemsIndexed(state.videoList) { index, video ->
                                 VideoItem(
                                     video = video,
                                     contentHandler = contentHandler,
                                     onVideoClick = { handler.onVideoItemClick(video) },
                                     onViewChannel = onViewChannel,
-                                    handler = handler
+                                    handler = handler,
+                                    index = index
                                 )
                             }
                             item {
@@ -378,11 +412,13 @@ private fun VideoItem(
     onVideoClick: (id: Feed) -> Unit,
     onViewChannel: (String) -> Unit,
     handler: CombineSearchResultHandler,
+    index: Int,
 ) {
     val soundOn by handler.soundState.collectAsStateWithLifecycle(initialValue = false)
 
     VideoView(
-        modifier = Modifier
+        modifier = Modifier.
+            rumbleUitTestTag("$SearchCombinedVideoCardTag$index")
             .fillMaxWidth(homeWidthRatio)
             .padding(top = paddingLarge, bottom = paddingLarge),
         videoEntity = video,
@@ -417,6 +453,7 @@ private fun EmptyChannelListView() {
     )
     EmptyView(
         modifier = Modifier
+            .rumbleUitTestTag(SearchCombinedEmptyStateTitleTag)
             .fillMaxWidth()
             .height(searchResultChannelsHeight)
             .padding(start = paddingMedium, end = paddingMedium),
@@ -445,6 +482,8 @@ private fun ChannelListView(
             style = h3
         )
         RumbleTextActionButton(
+            modifier = Modifier
+                .rumbleUitTestTag(SearchCombinedViewAllChannelsTag),
             text = stringResource(id = R.string.view_all),
         ) {
             onViewAll()
@@ -455,9 +494,11 @@ private fun ChannelListView(
         modifier = Modifier.padding(start = paddingMedium),
         contentPadding = PaddingValues(horizontal = horizontalContentPadding)
     ) {
-        items(channelList) { channel ->
+        itemsIndexed(channelList) { index, channel ->
             Column(
-                modifier = Modifier.padding(end = paddingSmall),
+                modifier = Modifier
+                    .rumbleUitTestTag("$SearchCombinedChannelCardTag$index")
+                    .padding(end = paddingSmall),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ProfileImageComponent(
@@ -537,6 +578,8 @@ private fun VideoHeaderView(
         }
         Spacer(modifier = Modifier.weight(1f))
         RumbleTextActionButton(
+            modifier = Modifier
+                .rumbleUitTestTag(SearchCombinedViewAllVideosTag),
             text = stringResource(id = R.string.view_all),
         ) {
             onViewAll(query, filterSelection)

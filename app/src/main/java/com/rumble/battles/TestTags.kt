@@ -134,5 +134,10 @@ const val SearchQueryRecentSearchItemTitleTag = "SearchQuery_RecentSearchItemTit
 const val SearchQueryRecentSearchItemDeleteButtonTag = "SearchQuery_RecentSearchItemDeleteButton_"
 const val SearchQuerySearchSuggestChannelItemTag = "SearchQuery_SearchSuggestChannelItem_"
 const val SearchQuerySearchSuggestChannelItemTitleTag = "SearchQuery_SearchSuggestChannelItemTitle_"
+const val SearchCombinedViewAllVideosTag = "SearchCombined_ViewAllVideos"
+const val SearchCombinedViewAllChannelsTag = "SearchCombined_ViewAllChannels"
+const val SearchCombinedEmptyStateTitleTag = "SearchCombined_EmptyStateTitle"
+const val SearchCombinedChannelCardTag = "SearchCombined_ChannelCard_"
+const val SearchCombinedVideoCardTag = "SearchCombined_VideoCard_"
 
 // endregion
