@@ -21,6 +21,7 @@
     <color name="bone">#FFD6E0EA</color>
     <color name="lite">#FFF3F5F8</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
     <color name="white_10_percent">#1AFFFFFF</color>
     <color name="white_12_percent">#20FFFFFF</color>
     <color name="white_18_percent">#2EFFFFFF</color>
