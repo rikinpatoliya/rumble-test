@@ -225,8 +225,8 @@ private fun SearchCategoryField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
-            placeholderColor = enforcedBlack.copy(alpha = 0.5f),
-            textColor = enforcedBlack
+            placeholderColor = MaterialTheme.colors.primary.copy(alpha = 0.5f),
+            textColor = MaterialTheme.colors.primary
         ),
         textStyle = RumbleTypography.h5,
         singleLine = true,
