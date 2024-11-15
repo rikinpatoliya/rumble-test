@@ -288,7 +288,7 @@ class ContentViewModel @Inject constructor(
     private val shouldSuggestNewAppVersionUseCase: ShouldSuggestNewAppVersionUseCase,
     private val shouldForceNewAppVersionUseCase: ShouldForceNewAppVersionUseCase,
     private val openPlayStoreUseCase: OpenPlayStoreUseCase,
-    private val deviceType: DeviceType,
+    deviceType: DeviceType,
 ) : ViewModel(), ContentHandler {
     override val userNameFlow: Flow<String> = sessionManager.userNameFlow
     override val userPictureFlow: Flow<String> = sessionManager.userPictureFlow

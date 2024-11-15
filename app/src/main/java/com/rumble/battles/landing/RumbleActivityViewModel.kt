@@ -153,6 +153,7 @@ data class ActivityHandlerState(
     val needLogin: Boolean = false,
 )
 
+@Suppress("DEPRECATION")
 @HiltViewModel
 class RumbleActivityViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -347,7 +348,6 @@ class RumbleActivityViewModel @Inject constructor(
                 }
             }
         }
-
     }
 
     override fun onEnterPipMode() {
@@ -438,14 +438,7 @@ class RumbleActivityViewModel @Inject constructor(
                 val uitUserName: String? = savedStateHandle[TESTING_LAUNCH_UIT_USERNAME]
                 val uitPassword: String? = savedStateHandle[TESTING_LAUNCH_UIT_PASSWORD]
                 onPrepareAppForTesting(uitUserName, uitPassword)
-                clearBundleKeys(
-                    savedStateHandle,
-                    listOf(
-                        TESTING_LAUNCH_UIT_FLAG,
-                        TESTING_LAUNCH_UIT_USERNAME,
-                        TESTING_LAUNCH_UIT_PASSWORD
-                    )
-                )
+                clearBundleKeys(savedStateHandle)
                 true
             } else false
         } else false
@@ -474,7 +467,7 @@ class RumbleActivityViewModel @Inject constructor(
         }
     }
 
-    private fun clearBundleKeys(savedStateHandle: SavedStateHandle, keys: List<String>) {
+    private fun clearBundleKeys(savedStateHandle: SavedStateHandle) {
         savedStateHandle.keys().forEach { key ->
             savedStateHandle.remove<String>(key)
         }
