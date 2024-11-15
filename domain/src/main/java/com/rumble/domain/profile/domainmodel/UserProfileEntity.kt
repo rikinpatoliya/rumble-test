@@ -13,7 +13,7 @@ data class UserProfileEntity(
     val city: String,
     val state: String,
     val postalCode: String,
-    val country: CountryEntity,
+    val country: CountryEntity?,
     val paypalEmail: String,
     val followedChannelCount: Int,
     val isPremium: Boolean,

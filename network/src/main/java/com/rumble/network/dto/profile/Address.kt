@@ -45,7 +45,7 @@ data class Address(
     @SerializedName("countryID")
     val countryID: Int,
     @SerializedName("countryName")
-    val countryName: String,
+    val countryName: String?,
     @SerializedName("is_payinfo_confirmed")
     val is_payInfo_confirmed: Boolean,
 )

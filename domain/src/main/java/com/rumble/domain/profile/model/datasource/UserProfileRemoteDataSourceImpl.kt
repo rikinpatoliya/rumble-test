@@ -48,8 +48,10 @@ class UserProfileRemoteDataSourceImpl(
                 .add("birthday_month", userProfileEntity.birthday?.monthValue?.toString() ?: "")
                 .add("birthday_day", userProfileEntity.birthday?.dayOfMonth?.toString() ?: "")
                 .add("gender", userProfileEntity.gender.requestValue)
-                .add("countryID", userProfileEntity.country.countryID.toString())
                 .apply {
+                    if (userProfileEntity.country != null){
+                        this.add("countryID", userProfileEntity.country.countryID.toString())
+                    }
                     if (userProfileEntity.paypalEmail.isNotEmpty())
                         this.add("payinfo", userProfileEntity.paypalEmail)
                 }
