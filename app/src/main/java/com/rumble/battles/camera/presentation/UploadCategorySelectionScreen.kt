@@ -96,6 +96,7 @@ fun UploadCategorySelectionScreen(
             .testTag(UploadCategorySelectionTag)
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .systemBarsPadding()
             .imePadding()
     ) {
         RumbleBasicTopAppBar(
@@ -106,9 +107,7 @@ fun UploadCategorySelectionScreen(
                     R.string.select_secondary_category
                 }
             ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             onBackClick = onBackClick,
         )
 
@@ -121,10 +120,7 @@ fun UploadCategorySelectionScreen(
         )
 
         LazyColumn(
-            contentPadding = PaddingValues(bottom = paddingMedium),
-            modifier = Modifier
-                .padding(horizontal = paddingMedium, vertical = paddingXSmall)
-                .systemBarsPadding(),
+            modifier = Modifier.padding(horizontal = paddingMedium, vertical = paddingXSmall),
             verticalArrangement = Arrangement.spacedBy(paddingXSmall)
         ) {
             items(categories) { category ->

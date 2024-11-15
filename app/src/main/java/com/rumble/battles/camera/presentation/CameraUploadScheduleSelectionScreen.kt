@@ -82,12 +82,11 @@ fun CameraUploadScheduleSelectionScreen(
             .testTag(UploadScheduleTag)
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .systemBarsPadding()
     ) {
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.schedule),
-            modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             onBackClick = onBackClick,
         )
         LazyColumn {

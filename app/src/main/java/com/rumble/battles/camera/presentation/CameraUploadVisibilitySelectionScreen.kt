@@ -35,12 +35,11 @@ fun CameraUploadVisibilitySelectionScreen(
             .testTag(UploadVisibilityTag)
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .systemBarsPadding()
     ) {
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.visibility),
-            modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             onBackClick = onBackClick,
         )
         LazyColumn {
