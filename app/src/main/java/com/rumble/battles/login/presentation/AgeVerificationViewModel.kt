@@ -232,7 +232,9 @@ class AgeVerificationViewModel @Inject constructor(
                         uiState.update { it.copy(loading = false) }
                         emitVmEvent(
                             AgeVerificationScreenVmEvent.Error(
-                                errorMessage = updateUserProfileResult.birthdayErrorMessage
+                                errorMessage = updateUserProfileResult.birthdayErrorMessage.ifBlank {
+                                    null
+                                }
                             )
                         )
                     }
