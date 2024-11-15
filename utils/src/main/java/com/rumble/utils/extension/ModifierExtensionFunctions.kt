@@ -99,3 +99,7 @@ fun Modifier.onVisible(visibilityPercentage: Float = 1f, onVisible: () -> Unit):
 fun Modifier.rumbleUitTestTag(testTag: String): Modifier {
     return this.semantics { contentDescription = testTag }
 }
+
+fun Modifier.rumbleUitTestTag(screenTag: String, elementTag: String): Modifier {
+    return this.semantics { contentDescription = "${screenTag}_$elementTag" }
+}

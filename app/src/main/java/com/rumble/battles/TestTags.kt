@@ -139,5 +139,13 @@ const val SearchCombinedViewAllChannelsTag = "SearchCombined_ViewAllChannels"
 const val SearchCombinedEmptyStateTitleTag = "SearchCombined_EmptyStateTitle"
 const val SearchCombinedChannelCardTag = "SearchCombined_ChannelCard_"
 const val SearchCombinedVideoCardTag = "SearchCombined_VideoCard_"
+const val SearchCombinedVideoFiltersTag = "SearchCombined_VideoFilters"
+
+//UIT testing tags for Screens
+const val SearchFiltersScreenTag = "SearchFilters"
+
+//UIT testing tags for Views
+const val ApplyButtonTag = "ApplyButton"
+const val CancelButtonTag = "CancelButton"
 
 // endregion

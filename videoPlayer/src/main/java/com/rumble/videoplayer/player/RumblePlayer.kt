@@ -944,7 +944,10 @@ class RumblePlayer(
             .setAdEventListener { event ->
                 when (event.type) {
                     AdEvent.AdEventType.LOADED -> {
-                        if (isMidRoll) startCountDown()
+                        if (isMidRoll) {
+                            _currentCountDownValue.value = 0
+                            startCountDown()
+                        }
                         else playAd()
                     }
 

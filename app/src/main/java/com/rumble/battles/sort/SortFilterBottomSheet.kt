@@ -29,7 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import com.rumble.battles.ApplyButtonTag
+import com.rumble.battles.CancelButtonTag
 import com.rumble.battles.R
+import com.rumble.battles.SearchFiltersScreenTag
 import com.rumble.battles.SearchFiltersTag
 import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CheckMarkItem
@@ -43,6 +46,7 @@ import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXLarge
 import com.rumble.theme.paddingXXLarge
 import com.rumble.theme.radiusXMedium
+import com.rumble.utils.extension.rumbleUitTestTag
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -102,14 +106,20 @@ fun SortFilterBottomSheet(
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RumbleTextActionButton(text = stringResource(id = R.string.cancel)) {
+                RumbleTextActionButton(
+                    modifier = Modifier.rumbleUitTestTag(SearchFiltersScreenTag, CancelButtonTag),
+                    text = stringResource(id = R.string.cancel)
+                ) {
                     sortSelection = selection.sortSelection
                     filterSelection = selection.filterSelection
                     durationSelection = selection.durationSelection
                     coroutineScope.launch { bottomSheetState.hide() }
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                RumbleTextActionButton(text = stringResource(id = R.string.apply)) {
+                RumbleTextActionButton(
+                    modifier = Modifier.rumbleUitTestTag(SearchFiltersScreenTag, ApplyButtonTag),
+                    text = stringResource(id = R.string.apply)
+                ) {
                     newSelection = SortFilterSelection(
                         sortSelection,
                         filterSelection,
@@ -132,6 +142,7 @@ fun SortFilterBottomSheet(
 
             sortTypes.forEach { sort ->
                 CheckMarkItem(
+                    modifier = Modifier.rumbleUitTestTag(SearchFiltersScreenTag, sort.testTag),
                     sortFilter = sort,
                     selected = sort == sortSelection,
                     addSeparator = sortTypes.last() != sort
@@ -150,6 +161,7 @@ fun SortFilterBottomSheet(
 
             filterTypes.forEach { filter ->
                 CheckMarkItem(
+                    modifier = Modifier.rumbleUitTestTag(SearchFiltersScreenTag, filter.testTag),
                     sortFilter = filter,
                     selected = filter == filterSelection,
                     addSeparator = filterTypes.last() != filter

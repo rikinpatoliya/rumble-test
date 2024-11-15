@@ -54,6 +54,7 @@ import com.rumble.battles.SearchCombinedChannelCardTag
 import com.rumble.battles.SearchCombinedEmptyStateTitleTag
 import com.rumble.battles.SearchCombinedTag
 import com.rumble.battles.SearchCombinedVideoCardTag
+import com.rumble.battles.SearchCombinedVideoFiltersTag
 import com.rumble.battles.SearchCombinedViewAllChannelsTag
 import com.rumble.battles.SearchCombinedViewAllVideosTag
 import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
@@ -417,8 +418,8 @@ private fun VideoItem(
     val soundOn by handler.soundState.collectAsStateWithLifecycle(initialValue = false)
 
     VideoView(
-        modifier = Modifier.
-            rumbleUitTestTag("$SearchCombinedVideoCardTag$index")
+        modifier = Modifier
+            .rumbleUitTestTag("$SearchCombinedVideoCardTag$index")
             .fillMaxWidth(homeWidthRatio)
             .padding(top = paddingLarge, bottom = paddingLarge),
         videoEntity = video,
@@ -565,6 +566,7 @@ private fun VideoHeaderView(
         )
 
         IconButton(
+            modifier = Modifier.rumbleUitTestTag(SearchCombinedVideoFiltersTag),
             onClick = {
                 coroutineScope.launch {
                     bottomSheetState.show()

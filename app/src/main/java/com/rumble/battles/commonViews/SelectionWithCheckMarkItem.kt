@@ -24,6 +24,7 @@ import com.rumble.theme.paddingSmall
 
 @Composable
 fun CheckMarkItem(
+    modifier: Modifier = Modifier,
     sortFilter: SortFilter,
     selected: Boolean,
     addSeparator: Boolean,
@@ -32,7 +33,7 @@ fun CheckMarkItem(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .alpha(if (hasAlpha) 0.5F else 1F)
     ) {
