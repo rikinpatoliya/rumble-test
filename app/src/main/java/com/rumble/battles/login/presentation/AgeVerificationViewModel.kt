@@ -107,7 +107,7 @@ class AgeVerificationViewModel @Inject constructor(
             "",
             "",
             "",
-            CountryEntity(0, ""),
+            null,
             "",
             0,
             false,

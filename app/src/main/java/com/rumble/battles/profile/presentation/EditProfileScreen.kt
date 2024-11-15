@@ -242,7 +242,7 @@ private fun CountrySelectionBottomSheet(
             countries.forEach { item ->
                 CheckMarkItem(
                     title = item.countryName,
-                    selected = item.countryID == state.userProfileEntity.country.countryID,
+                    selected = item.countryID == state.userProfileEntity.country?.countryID,
                     addSeparator = countries.last() != item,
                 ) {
                     coroutineScope.launch {
@@ -427,7 +427,7 @@ private fun EditProfileContent(
         RumbleInputSelectorFieldView(
             label = stringResource(id = R.string.country).uppercase(),
             labelColor = MaterialTheme.colors.primary,
-            value = state.userProfileEntity.country.countryName,
+            value = state.userProfileEntity.country?.countryName ?: "",
             hasError = state.countryError,
             errorMessage = stringResource(id = R.string.please_select_your_country),
         ) { editProfileHandler.onSelectCountry() }

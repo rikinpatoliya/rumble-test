@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Background color -->
-    <item android:drawable="?attr/colorSurface" />
-    <item
-        android:drawable="@drawable/ic_launcher_round_foreground"
-        android:gravity="center" />
+<item android:drawable="@color/rumble_green" />
+<item
+    android:drawable="@drawable/ic_logo_splash"
+    android:gravity="center" />
 </layer-list>
