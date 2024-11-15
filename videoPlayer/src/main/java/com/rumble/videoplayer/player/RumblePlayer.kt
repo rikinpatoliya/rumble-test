@@ -46,6 +46,8 @@ import com.rumble.analytics.ImaSkippedEvent
 import com.rumble.analytics.ImaVideoStartedEvent
 import com.rumble.analytics.MediaErrorData
 import com.rumble.analytics.PRE_ROLL_FAILED
+import com.rumble.analytics.VideoPlaybackStalledEvent
+import com.rumble.analytics.VideoPlaybackUnstalledEvent
 import com.rumble.network.connection.NetworkTypeResolver
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
@@ -150,7 +152,8 @@ class RumblePlayer(
     private val errorHandler: CoroutineExceptionHandler
 
     // External callbacks
-    private var reportLiveVideo: (suspend (Long, String, String, Boolean) -> LiveVideoReportResult?)? = null
+    private var reportLiveVideo: (suspend (Long, String, String, Boolean) -> LiveVideoReportResult?)? =
+        null
     private var fetchPreRollData: (suspend (Long, Float, Long, PublisherId, Boolean) -> VideoAdDataEntity)? =
         null
     private var onLiveVideoReport: ((Long, LiveVideoReportResult) -> Unit)? = null
@@ -1053,7 +1056,13 @@ class RumblePlayer(
                     Player.STATE_BUFFERING -> {
                         when (this@RumblePlayer.playbackState.value) {
                             is PlayerPlaybackState.Idle -> PlayerPlaybackState.Fetching()
-                            is PlayerPlaybackState.Playing -> PlayerPlaybackState.Playing(true)
+                            is PlayerPlaybackState.Playing -> {
+                                // player stalled
+                                sendAnalyticsEvent(VideoPlaybackStalledEvent, false)
+                                sendErrorReport(errorMessage = "Player stalled error")
+                                PlayerPlaybackState.Playing(true)
+                            }
+
                             is PlayerPlaybackState.Paused -> PlayerPlaybackState.Paused(true)
                             else -> _playbackSate.value
                         }
@@ -1081,6 +1090,10 @@ class RumblePlayer(
                         val currentState = this@RumblePlayer.playbackState.value
                         if (currentState is PlayerPlaybackState.Fetching) {
                             sendInitialPlaybackEvent?.invoke()
+                        }
+                        if (currentState is PlayerPlaybackState.Error) {
+                            // player unstalled
+                            sendAnalyticsEvent(VideoPlaybackUnstalledEvent, false)
                         }
                         when (currentState) {
                             is PlayerPlaybackState.Paused -> PlayerPlaybackState.Paused(false)
@@ -1499,7 +1512,8 @@ class RumblePlayer(
             playbackSpeed = currentPlaybackSpeed.value,
             quality = currentVideoSource?.qualityText ?: "",
             bitrate = currentVideoSource?.bitrateText ?: "",
-            target = playerTarget.value.toString()
+            target = playerTarget.value.toString(),
+            userId = null
         )
         sendMediaError(mediaErrorData)
     }
