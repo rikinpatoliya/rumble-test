@@ -122,7 +122,9 @@ fun UploadCategorySelectionScreen(
 
         LazyColumn(
             contentPadding = PaddingValues(bottom = paddingMedium),
-            modifier = Modifier.padding(horizontal = paddingMedium, vertical = paddingXSmall),
+            modifier = Modifier
+                .padding(horizontal = paddingMedium, vertical = paddingXSmall)
+                .systemBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(paddingXSmall)
         ) {
             items(categories) { category ->
