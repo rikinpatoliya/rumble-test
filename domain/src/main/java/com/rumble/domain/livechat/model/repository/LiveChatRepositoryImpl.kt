@@ -38,12 +38,11 @@ class LiveChatRepositoryImpl(
     private val remoteDataSource: LiveChatRemoteDataSource,
     private val errorConverter: Converter<ResponseBody, LiveChatErrorResponse>?,
     private val baseUrl: String,
-    private val currentUserId: String,
     private val dispatcher: CoroutineDispatcher,
 ) : LiveChatRepository {
 
-    override suspend fun fetchChatEvents(videoId: Long): Flow<LiveChatResult> =
-        remoteDataSource.fetchChatEvents(videoId)
+    override suspend fun fetchChatEvents(videoId: Long, currentUserId: String, cookies: String): Flow<LiveChatResult> =
+        remoteDataSource.fetchChatEvents(videoId, cookies)
             .map {
                 var liveChatResult = LiveChatNetworkModelMapper.mapToLiveChatResult(
                     it,

@@ -13,7 +13,12 @@ import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import kotlinx.coroutines.flow.Flow
 
 interface LiveChatRepository {
-    suspend fun fetchChatEvents(videoId: Long): Flow<LiveChatResult>
+    suspend fun fetchChatEvents(
+        videoId: Long,
+        currentUserId: String,
+        cookies: String
+    ): Flow<LiveChatResult>
+
     suspend fun postMessage(
         chatId: Long,
         message: String,

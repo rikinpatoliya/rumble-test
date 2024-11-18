@@ -68,10 +68,8 @@ object LiveChatModule {
         createLiveStreamMetricUseCase: CreateLiveStreamMetricUseCase,
     ): LiveChatRemoteDataSource {
         val chatEndpoint = runBlocking { sessionManager.chatEndPointFlow.first() }
-        val cookies = runBlocking { sessionManager.cookiesFlow.first() }
         return LiveChatRemoteDataSourceImpl(
             chatEndpoint = chatEndpoint,
-            cookies = cookies,
             liveChatApi = liveChatApi,
             emoteApi = emoteApi,
             liveChatEventsApi = liveChatEventsApi,
@@ -90,15 +88,12 @@ object LiveChatModule {
         liveChatRemoteDataSource: LiveChatRemoteDataSource,
         errorConverter: Converter<ResponseBody, LiveChatErrorResponse>?,
         baseUrl: String,
-        sessionManager: SessionManager,
         @IoDispatcher dispatcher: CoroutineDispatcher,
     ): LiveChatRepository {
-        val userId = runBlocking { sessionManager.userIdFlow.first() }
         return LiveChatRepositoryImpl(
             liveChatRemoteDataSource,
             errorConverter,
             baseUrl,
-            userId,
             dispatcher
         )
     }

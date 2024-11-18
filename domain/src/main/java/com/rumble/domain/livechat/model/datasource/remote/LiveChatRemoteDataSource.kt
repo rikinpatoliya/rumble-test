@@ -38,7 +38,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 interface LiveChatRemoteDataSource {
-    suspend fun fetchChatEvents(videoId: Long): Flow<LiveChatEvent>
+    suspend fun fetchChatEvents(videoId: Long, cookies: String): Flow<LiveChatEvent>
     suspend fun postMessage(chatId: Long, body: LiveChatMessageBody): Response<LiveChatResponse>?
     suspend fun fetchEmoteList(chatId: Long): Response<EmoteListResponse>
     suspend fun postPaymentProof(
@@ -55,7 +55,6 @@ interface LiveChatRemoteDataSource {
 
 class LiveChatRemoteDataSourceImpl(
     private val chatEndpoint: String,
-    private val cookies: String,
     private val liveChatApi: LiveChatApi?,
     private val emoteApi: EmoteApi,
     private val liveChatEventsApi: LiveChatEventsApi,
@@ -73,7 +72,7 @@ class LiveChatRemoteDataSourceImpl(
     private val dataOffset = dataElement.length
     private var measured: Boolean = false
 
-    override suspend fun fetchChatEvents(videoId: Long): Flow<LiveChatEvent> = channelFlow {
+    override suspend fun fetchChatEvents(videoId: Long, cookies: String): Flow<LiveChatEvent> = channelFlow {
         val userAgent = "${appName}/${versionCode} okhttp/${okhttp3.OkHttp.VERSION}"
         val chatUrl = "$chatEndpoint/chat/$videoId/stream"
         val chatFullUrl = Uri.parse(chatUrl)
