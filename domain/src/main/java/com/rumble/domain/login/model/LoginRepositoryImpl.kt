@@ -96,7 +96,7 @@ class LoginRepositoryImpl @Inject constructor(
             else if (response.code() == TOO_MANY_REQUESTS) {
                 RegisterResult.DuplicatedRequest(RumbleError(TAG, response.raw()))
             } else RegisterResult.Failure(RumbleError(TAG, response.raw()), responseResult.second)
-    }
+        }
 
     override suspend fun requestTvPairingCode(deviceId: String): TvPairingCodeResult {
         val response = loginApi.requestTvPairingCode(
@@ -180,6 +180,7 @@ class LoginRepositoryImpl @Inject constructor(
                     userThumbnail,
                     LoginResultStatus.get(body.data.status)
                 )
+
             }
 
             is FacebookLoginResponse -> {

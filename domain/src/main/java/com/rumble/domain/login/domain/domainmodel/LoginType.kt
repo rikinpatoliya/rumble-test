@@ -2,7 +2,6 @@ package com.rumble.domain.login.domain.domainmodel
 
 import com.rumble.domain.R
 
-
 enum class LoginType(val value: Int, val stringId: Int, val provider: String) {
 
     UNKNOWN(0, R.string.unknown, ""),

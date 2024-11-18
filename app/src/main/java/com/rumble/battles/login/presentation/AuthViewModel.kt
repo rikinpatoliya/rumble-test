@@ -37,7 +37,6 @@ import javax.inject.Inject
 
 private const val TAG = "AuthViewModel"
 
-
 interface AuthHandler : FacebookCallback<LoginResult> {
     val state: State<AuthState>
     val eventFlow: Flow<AuthHandlerEvent>

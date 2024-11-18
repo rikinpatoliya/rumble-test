@@ -71,12 +71,12 @@ fun EmotePickerView(
     val liveChatSate by remember { liveChatHandler.state }
     val emoteGroupList = liveChatSate.liveChatConfig?.emoteGroups ?: emptyList()
     val recentEmoteList = liveChatSate.recentEmoteList
-    val tabs = remember { createTabList(context, recentEmoteList, emoteGroupList) }
+    val tabs = createTabList(context, recentEmoteList, emoteGroupList)
     var selectedTab by remember { mutableStateOf(tabs.firstOrNull()) }
     val coroutineScope = rememberCoroutineScope()
     val contentListState = rememberLazyListState()
 
-    LaunchedEffect(contentListState) {
+    LaunchedEffect(contentListState, tabs) {
         snapshotFlow { contentListState.firstVisibleItemIndex }
             .distinctUntilChanged()
             .collect { index ->
@@ -95,9 +95,11 @@ fun EmotePickerView(
             color = RumbleCustomTheme.colors.backgroundHighlight,
         )
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(emotePickerHeight)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(emotePickerHeight)
+        ) {
             LazyRow(
                 modifier = Modifier.padding(vertical = paddingSmall),
                 contentPadding = PaddingValues(horizontal = paddingMedium),
