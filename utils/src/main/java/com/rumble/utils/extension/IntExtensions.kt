@@ -47,13 +47,6 @@ fun Int.toUserIdString(): String {
     return "_u${this.toString(36)}"
 }
 
-/*
-* Converting base36 user id to integer and removing _u prefix
-* */
-fun String.toUserIdInt(): Int {
-    return this.removePrefix("_u").toInt(36)
-}
-
 fun Int.toChannelIdString(): String {
     return "_c${this}"
 }

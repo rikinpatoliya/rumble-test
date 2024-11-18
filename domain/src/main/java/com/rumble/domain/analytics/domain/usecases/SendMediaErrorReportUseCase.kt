@@ -4,7 +4,7 @@ import com.rumble.analytics.AnalyticsManager
 import com.rumble.analytics.MediaErrorData
 import com.rumble.network.di.IoDispatcher
 import com.rumble.network.session.SessionManager
-import com.rumble.utils.extension.toUserIdInt
+import com.rumble.utils.extension.getUserId
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -20,7 +20,7 @@ class SendMediaErrorReportUseCase @Inject constructor(
     operator fun invoke(mediaErrorData: MediaErrorData) {
         scope.launch {
             val userId = sessionManager.userIdFlow.first()
-            val intUserId = if (userId.isNotBlank()) userId.toUserIdInt() else null
+            val intUserId = if (userId.isNotBlank()) userId.getUserId() else null
             analyticsManager.sendMediaErrorReport(mediaErrorData.copy(userId = intUserId))
         }
     }

@@ -12,5 +12,5 @@ data class MediaErrorData(
     val quality: String,
     val bitrate: String,
     val target: String,
-    val userId: Int?
+    val userId: Long?
 )
