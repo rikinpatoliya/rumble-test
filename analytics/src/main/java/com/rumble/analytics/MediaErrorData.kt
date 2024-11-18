@@ -11,5 +11,6 @@ data class MediaErrorData(
     val volume: Float,
     val quality: String,
     val bitrate: String,
-    val target: String
+    val target: String,
+    val userId: Long?
 )

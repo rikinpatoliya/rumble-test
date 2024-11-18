@@ -90,6 +90,18 @@ data class VideoViewEvent(
     override val appsFlyOps: Map<String, String> = mapOf(SCREEN to screenId)
 }
 
+object VideoPlaybackStalledEvent : AnalyticEvent {
+    override val eventName: String = "debug_playback_stalled"
+    override val firebaseOps: Bundle = bundleOf()
+    override val appsFlyOps: Map<String, String> = mapOf()
+}
+
+object VideoPlaybackUnstalledEvent : AnalyticEvent {
+    override val eventName: String = "debug_playback_unstalled"
+    override val firebaseOps: Bundle = bundleOf()
+    override val appsFlyOps: Map<String, String> = mapOf()
+}
+
 private fun createFirebaseParams(
     screenId: String,
     index: Int?,
