@@ -16,6 +16,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 
 fun Modifier.conditional(condition: Boolean, modifier: Modifier.() -> Modifier): Modifier {
@@ -93,3 +95,11 @@ fun Modifier.onVisible(visibilityPercentage: Float = 1f, onVisible: () -> Unit):
             }
         }
     }
+
+fun Modifier.rumbleUitTestTag(testTag: String): Modifier {
+    return this.semantics { contentDescription = testTag }
+}
+
+fun Modifier.rumbleUitTestTag(screenTag: String, elementTag: String): Modifier {
+    return this.semantics { contentDescription = "${screenTag}_$elementTag" }
+}

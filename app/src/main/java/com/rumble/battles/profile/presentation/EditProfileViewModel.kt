@@ -116,7 +116,7 @@ class EditProfileViewModel @Inject constructor(
             "",
             "",
             "",
-            CountryEntity(0, ""),
+            null,
             "",
             0,
             false,
@@ -351,7 +351,7 @@ class EditProfileViewModel @Inject constructor(
 
     private fun validInput(userProfileEntity: UserProfileEntity): Boolean {
         var validInput = true
-        if (userProfileEntity.country.countryID == 0) {
+        if (userProfileEntity.country == null) {
             uiState.update {
                 it.copy(
                     countryError = true

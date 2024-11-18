@@ -17,8 +17,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.rumble.battles.FeedSearchButtonTag
 import com.rumble.battles.R
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.borderXXSmall
@@ -74,6 +77,7 @@ fun RumbleLogoSearchHeaderView(
                 bottom.linkTo(logo.bottom)
             }) {
             IconButton(
+                modifier = Modifier.semantics { contentDescription = FeedSearchButtonTag },
                 onClick = { onSearch() }) {
                 Icon(
                     modifier = Modifier

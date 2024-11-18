@@ -1,6 +1,10 @@
 package com.rumble.battles.commonViews
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
@@ -22,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.rumble.battles.R
 import com.rumble.theme.rumbleGreen
+import com.rumble.utils.extension.rumbleUitTestTag
 
 @Composable
 fun UserNameView(
@@ -84,9 +89,11 @@ fun UserNameViewSingleLine(
     textStyle: TextStyle,
     textColor: Color = MaterialTheme.colors.primary,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    testTag: String = ""
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier
+            .rumbleUitTestTag(testTag),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = horizontalArrangement
     ) {

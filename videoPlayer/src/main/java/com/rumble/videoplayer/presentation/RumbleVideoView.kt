@@ -172,32 +172,6 @@ fun RumbleVideoView(
                 modifier = Modifier.fillMaxSize(),
                 rumblePlayer = rumblePlayer
             )
-        } else if (playerTarget == PlayerTarget.AD) {
-            if (adPlaybackState is AdPlaybackState.Buffering) {
-                AdLoadingScreen(modifier = Modifier.fillMaxSize())
-            } else {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    factory = {
-                        rumblePlayer.adPlayerView
-                            .apply { resizeMode = aspectRatioMode }
-                            .also {
-                                if (uiType != UiType.TV && it.parent != null) {
-                                    (it.parent as? ViewGroup)?.removeView(it)
-                                }
-                            }
-                    },
-                    update = { playerView ->
-                        if (isFullScreen)
-                            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                        else if (isCollapsingMiniPlayerInProgress)
-                            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-                        else
-                            playerView.resizeMode = aspectRatioMode
-                    }
-                )
-            }
         } else if (playbackState !is PlayerPlaybackState.Idle) {
             AndroidView(
                 modifier = Modifier
@@ -431,6 +405,34 @@ fun RumbleVideoView(
 
                         else -> return
                     }
+                }
+            }
+
+            if (playerTarget == PlayerTarget.AD) {
+                if (adPlaybackState is AdPlaybackState.Buffering) {
+                    AdLoadingScreen(modifier = Modifier.fillMaxSize())
+                } else {
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        factory = {
+                            rumblePlayer.adPlayerView
+                                .apply { resizeMode = aspectRatioMode }
+                                .also {
+                                    if (uiType != UiType.TV && it.parent != null) {
+                                        (it.parent as? ViewGroup)?.removeView(it)
+                                    }
+                                }
+                        },
+                        update = { playerView ->
+                            if (isFullScreen)
+                                playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                            else if (isCollapsingMiniPlayerInProgress)
+                                playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                            else
+                                playerView.resizeMode = aspectRatioMode
+                        }
+                    )
                 }
             }
         }

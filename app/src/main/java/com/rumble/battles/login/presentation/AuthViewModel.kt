@@ -1,17 +1,15 @@
 package com.rumble.battles.login.presentation
 
+import android.os.Bundle
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.facebook.AccessToken
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.GraphRequest
-import com.facebook.HttpMethod
-import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
@@ -34,10 +32,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.facebook.login.LoginResult as FacebookLoginResult
+import com.rumble.domain.login.domain.domainmodel.LoginResult as DomainLoginResult
 
 private const val TAG = "AuthViewModel"
 
-interface AuthHandler : FacebookCallback<LoginResult> {
+/**
+ * AuthHandler interface extends FacebookCallback to handle login results.
+ */
+interface AuthHandler : FacebookCallback<FacebookLoginResult> {
     val state: State<AuthState>
     val eventFlow: Flow<AuthHandlerEvent>
     val googleSignInClient: GoogleSignInClient?
@@ -54,7 +57,7 @@ data class AuthState(
 
 sealed class AuthHandlerEvent {
     data class Error(val errorMessage: String? = null) : AuthHandlerEvent()
-    data object NavigateToHomeScreen : AuthHandlerEvent()
+    object NavigateToHomeScreen : AuthHandlerEvent()
     data class NavigateToRegistration(
         val loginType: LoginType,
         val userId: String,
@@ -62,7 +65,7 @@ sealed class AuthHandlerEvent {
         val email: String
     ) : AuthHandlerEvent()
 
-    data object NavigateToAgeVerification : AuthHandlerEvent()
+    object NavigateToAgeVerification : AuthHandlerEvent()
 }
 
 @HiltViewModel
@@ -95,42 +98,13 @@ class AuthViewModel @Inject constructor(
 
     override fun onGoogleSignIn(task: Task<GoogleSignInAccount>) {
         if (task.isSuccessful) {
-            state.value = state.value.copy(loading = true)
             val account = task.getResult(ApiException::class.java)
-            val userId = account.id ?: ""
-            val token = account.idToken ?: ""
-            viewModelScope.launch(errorHandler) {
-                val result = ssoLoginUseCase(LoginType.GOOGLE, userId = userId, token = token)
-                if (result.success) {
-                    // for sso login, verify age restrictions
-                    val profileResult = getUserProfileUseCase()
-                    if (profileResult.success) {
-                        val userProfile = profileResult.userProfileEntity
-                        val birthday = userProfile?.birthday?.toUtcLong()
-                        if (userProfile?.ageVerificationRequired == true &&
-                            birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first) {
-                            state.value = state.value.copy(loading = false)
-                            emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
-                            return@launch
-                        }
-                    }
-                    state.value = state.value.copy(loading = false)
-                    emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
-                } else if (result.error == UNABLE_TO_FIND_USER_ERROR) {
-                    state.value = state.value.copy(loading = false)
-                    emitEvent(
-                        AuthHandlerEvent.NavigateToRegistration(
-                            LoginType.GOOGLE,
-                            userId,
-                            token,
-                            account.email ?: ""
-                        )
-                    )
-                } else {
-                    state.value = state.value.copy(loading = false)
-                    emitEvent(AuthHandlerEvent.Error(result.error))
-                }
-            }
+            ssoLogin(
+                LoginType.GOOGLE,
+                account.id ?: "",
+                account.idToken ?: "",
+                account.email
+            )
         } else {
             unhandledErrorUseCase(
                 TAG,
@@ -140,35 +114,49 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    override fun onFacebookTokenReceived(accessToken: AccessToken) =
-        onFacebookLogin(accessToken)
+    override fun onFacebookTokenReceived(accessToken: AccessToken) {
+        ssoLogin(
+            LoginType.FACEBOOK,
+            accessToken.userId,
+            accessToken.token,
+            null,
+            accessToken
+        )
+    }
 
-    override fun onCancel() {}//Nothing should be done if user cancelled intent
+    override fun onSuccess(result: FacebookLoginResult) {
+        val accessToken = result.accessToken
+        onFacebookTokenReceived(accessToken)
+    }
+
+    override fun onCancel() {
+        // Nothing should be done if user cancelled intent
+    }
 
     override fun onError(error: FacebookException) {
         unhandledErrorUseCase(TAG, error.fillInStackTrace())
         emitEvent(AuthHandlerEvent.Error())
     }
 
-    override fun onSuccess(result: LoginResult) =
-        onFacebookLogin(result.accessToken)
-
-    private fun onFacebookLogin(accessToken: AccessToken) {
+    private fun ssoLogin(
+        loginType: LoginType,
+        userId: String,
+        token: String,
+        email: String?,
+        accessToken: AccessToken? = null
+    ) {
         state.value = state.value.copy(loading = true)
         viewModelScope.launch(errorHandler) {
-            if (ssoLoginUseCase(
-                    LoginType.FACEBOOK,
-                    userId = accessToken.userId,
-                    token = accessToken.token
-                ).success
-            ) {
-                // for sso login, verify age restrictions
+            val result = ssoLoginUseCase(loginType, userId = userId, token = token)
+            if (result.success) {
+                // For SSO login, verify age restrictions
                 val profileResult = getUserProfileUseCase()
                 if (profileResult.success) {
                     val userProfile = profileResult.userProfileEntity
                     val birthday = userProfile?.birthday?.toUtcLong()
                     if (userProfile?.ageVerificationRequired == true &&
-                        birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first) {
+                        birthdayValidationUseCase(birthday, userProfile.minEligibleAge).first
+                    ) {
                         state.value = state.value.copy(loading = false)
                         emitEvent(AuthHandlerEvent.NavigateToAgeVerification)
                         return@launch
@@ -176,32 +164,44 @@ class AuthViewModel @Inject constructor(
                 }
                 state.value = state.value.copy(loading = false)
                 emitEvent(AuthHandlerEvent.NavigateToHomeScreen)
+            } else if (result.error == UNABLE_TO_FIND_USER_ERROR) {
+                state.value = state.value.copy(loading = false)
+                val userEmail = email ?: accessToken?.let { getEmailFromFacebook(it) }
+                emitEvent(
+                    AuthHandlerEvent.NavigateToRegistration(
+                        loginType,
+                        userId,
+                        token,
+                        userEmail ?: ""
+                    )
+                )
             } else {
-                getUserFacebookEmail(accessToken)
+                state.value = state.value.copy(loading = false)
+                emitEvent(AuthHandlerEvent.Error(result.error))
             }
         }
     }
 
-    private fun getUserFacebookEmail(accessToken: AccessToken) {
-        GraphRequest(
-            accessToken,
-            accessToken.userId,
-            bundleOf("fields" to FACEBOOK_REGISTRATION_EMAIL_REQUEST_FIELD),
-            HttpMethod.GET,
-            { graphResponse ->
-                val email = graphResponse.getJSONObject()
-                    ?.optString(FACEBOOK_REGISTRATION_EMAIL_REQUEST_FIELD)
-                state.value = state.value.copy(loading = false)
-                emitEvent(
-                    AuthHandlerEvent.NavigateToRegistration(
-                        LoginType.FACEBOOK,
-                        accessToken.userId,
-                        accessToken.token,
-                        email ?: ""
-                    )
-                )
-            }
-        ).executeAsync()
+    private fun getEmailFromFacebook(accessToken: AccessToken): String? {
+        var email: String? = null
+        val request = GraphRequest.newMeRequest(
+            accessToken
+        ) { jsonObject, _ ->
+            email = jsonObject?.optString(FACEBOOK_REGISTRATION_EMAIL_REQUEST_FIELD)
+        }
+
+        val parameters = Bundle().apply {
+            putString("fields", FACEBOOK_REGISTRATION_EMAIL_REQUEST_FIELD)
+        }
+        request.parameters = parameters
+
+        val thread = Thread {
+            request.executeAndWait()
+        }
+        thread.start()
+        thread.join()
+
+        return email
     }
 
     private fun emitEvent(event: AuthHandlerEvent) {

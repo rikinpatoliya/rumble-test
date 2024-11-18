@@ -24,15 +24,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.rumble.battles.R
+import com.rumble.battles.SearchQueryClearTextButtonTag
+import com.rumble.battles.SearchQuerySearchBarTag
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.radiusXLarge
 import com.rumble.utils.RumbleConstants
+import com.rumble.utils.extension.rumbleUitTestTag
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -57,7 +62,9 @@ fun SearchView(
     }
 
     OutlinedTextField(
-        modifier = modifier.focusRequester(focusRequester),
+        modifier = modifier
+            .rumbleUitTestTag(SearchQuerySearchBarTag)
+            .focusRequester(focusRequester),
         shape = RoundedCornerShape(radiusXLarge),
         value = query,
         placeholder = {
@@ -87,6 +94,9 @@ fun SearchView(
         }),
         trailingIcon = {
             IconButton(
+                modifier = Modifier.semantics {
+                    contentDescription = SearchQueryClearTextButtonTag
+                },
                 onClick = {
                     query = TextFieldValue(text = "")
                     onQueryChanged(query.text)

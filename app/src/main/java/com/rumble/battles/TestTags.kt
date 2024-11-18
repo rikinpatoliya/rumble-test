@@ -122,4 +122,30 @@ const val AuthSignInSignInButton = "AuthSignIn_SignInButton"
 //Temp Tags for setting up automation
 const val ContentDescriptionProfileMenuTag = "ProfileMenu"
 const val AndroidIdSettingsTag = "android:id/`Settings`"
+
+//UIT testing tags
+const val FeedSearchButtonTag = "Feed_SearchButton"
+const val SearchQuerySearchBarTag = "SearchQuery_SearchBar"
+const val SearchQueryCancelButtonTag = "SearchQuery_CancelButton"
+const val SearchQueryClearAllTag = "SearchQuery_ClearAll"
+const val SearchQueryClearTextButtonTag = "SearchQuery_ClearTextButton"
+const val SearchQueryRecentSearchItemTag = "SearchQuery_RecentSearchItem_"
+const val SearchQueryRecentSearchItemTitleTag = "SearchQuery_RecentSearchItemTitle_"
+const val SearchQueryRecentSearchItemDeleteButtonTag = "SearchQuery_RecentSearchItemDeleteButton_"
+const val SearchQuerySearchSuggestChannelItemTag = "SearchQuery_SearchSuggestChannelItem_"
+const val SearchQuerySearchSuggestChannelItemTitleTag = "SearchQuery_SearchSuggestChannelItemTitle_"
+const val SearchCombinedViewAllVideosTag = "SearchCombined_ViewAllVideos"
+const val SearchCombinedViewAllChannelsTag = "SearchCombined_ViewAllChannels"
+const val SearchCombinedEmptyStateTitleTag = "SearchCombined_EmptyStateTitle"
+const val SearchCombinedChannelCardTag = "SearchCombined_ChannelCard_"
+const val SearchCombinedVideoCardTag = "SearchCombined_VideoCard_"
+const val SearchCombinedVideoFiltersTag = "SearchCombined_VideoFilters"
+
+//UIT testing tags for Screens
+const val SearchFiltersScreenTag = "SearchFilters"
+
+//UIT testing tags for Views
+const val ApplyButtonTag = "ApplyButton"
+const val CancelButtonTag = "CancelButton"
+
 // endregion

@@ -278,7 +278,7 @@ fun ContentScreen(
 
     LaunchedEffect(contentHandler.userUIState) {
         contentHandler.userUIState.collectLatest {
-            if (it.isLoggedIn && authHandler.state.value.uitTesting.not()) {
+            if (it.isLoggedIn && authHandler.state.value.uitTesting.not() && videoDetailsState.visible.not()) {
                 val permission = OneSignal.Notifications.requestPermission(false)
                 if (permission) OneSignal.User.pushSubscription.optIn()
             }

@@ -16,13 +16,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -114,12 +117,12 @@ fun CameraUploadStepOneScreen(
             .testTag(UploadForm1Tag)
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .systemBarsPadding()
+            .imePadding()
     ) {
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.info),
-            modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             onBackClick = { cameraUploadHandler.onBackClicked(onBackClick) },
             extraContent = {
                 ActionButton(
@@ -135,184 +138,190 @@ fun CameraUploadStepOneScreen(
                 ) { cameraUploadHandler.onNextClicked(onNextStep) }
             }
         )
-        Text(
-            text = stringResource(id = R.string.thumbnail).uppercase(),
-            modifier = Modifier.padding(start = paddingMedium, top = paddingMedium),
-            style = h6Heavy
-        )
-        LazyRow(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(imageHeightXXLarge)
-                .padding(top = paddingXSmall),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(paddingXSmall)
-        ) {
-            item {
-                Spacer(modifier = Modifier.width(paddingMedium))
-                SelectUploadThumbnailView(
-                    uri = uiState.selectedUploadImage,
-                    onClick = {
-                        launcher.launch(RumbleConstants.ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE)
-                    }
-                )
-            }
-            items(uiState.thumbnails) {
-                UploadThumbnailView(
-                    bitmap = it,
-                    selected = uiState.selectedThumbnail == it,
-                    onClick = {
-                        cameraUploadHandler.onSelectUploadThumbnail(it)
-                    }
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.width(paddingMedium))
-            }
-        }
-        UploadTextInputField(
-            initialValue = uiState.title,
-            label = stringResource(id = R.string.title),
-            maxLines = 1,
-            maxCharacters = MAX_CHARACTERS_UPLOAD_TITLE,
-            onValueChange = { cameraUploadHandler.onTitleChanged(it) },
-            hasError = uiState.titleError || uiState.titleEmptyError,
-            errorMessage = stringResource(
-                id = if (uiState.titleEmptyError) {
-                    R.string.error_message_video_title_empty
-                } else {
-                    R.string.error_message_video_title_too_long
-                }
-            ),
-            optional = false
-        )
-        UploadTextInputField(
-            initialValue = uiState.description,
-            label = stringResource(id = R.string.description),
-            maxLines = 4,
-            maxCharacters = MAX_CHARACTERS_UPLOAD_DESCRIPTION,
-            onValueChange = { cameraUploadHandler.onDescriptionChanged(it) },
-            hasError = uiState.descriptionError,
-            errorMessage = stringResource(id = R.string.error_message_description_too_long),
-            optional = true
-        )
-        Text(
-            text = stringResource(id = R.string.select_a_channel).uppercase(),
-            modifier = Modifier.padding(start = paddingMedium, top = paddingMedium),
-            style = h6Heavy
-        )
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = paddingMedium,
-                    end = paddingMedium,
-                    top = paddingXXXSmall
-                )
-                .clip(RoundedCornerShape(radiusMedium))
-                .background(MaterialTheme.colors.onSecondary)
-                .clickable { onSelectChannel() },
-        ) {
-            val (profileImage, title, icon) = createRefs()
-            ProfileImageComponent(
-                modifier = Modifier
-                    .padding(
-                        start = paddingMedium,
-                        top = paddingSmall,
-                        bottom = paddingSmall,
-                    )
-                    .constrainAs(profileImage) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    },
-                profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
-                userName = uiState.selectedUploadChannel.title,
-                userPicture = uiState.selectedUploadChannel.thumbnail ?: ""
-            )
-            Text(
-                text = uiState.selectedUploadChannel.title,
-                modifier = Modifier
-                    .padding(start = paddingMedium)
-                    .constrainAs(title) {
-                        start.linkTo(profileImage.end)
-                        end.linkTo(icon.start)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        width = Dimension.fillToConstraints
-                    },
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = RumbleTypography.body1Bold,
-                textAlign = TextAlign.Start
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
-                contentDescription = stringResource(id = R.string.select_a_channel),
-                modifier = Modifier
-                    .padding(end = paddingMedium)
-                    .constrainAs(icon) {
-                        end.linkTo(parent.end)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    },
-                tint = MaterialTheme.colors.primaryVariant
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .padding(
-                    start = paddingMedium,
-                    top = paddingMedium,
-                    end = paddingMedium,
-                    bottom = paddingXXXSmall
-                )
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = paddingXSmall)
         ) {
             Text(
-                text = stringResource(id = R.string.categories).uppercase(),
+                text = stringResource(id = R.string.thumbnail).uppercase(),
+                modifier = Modifier.padding(start = paddingMedium, top = paddingMedium),
                 style = h6Heavy
             )
-
-            Text(
-                text = stringResource(R.string.required),
-                color = MaterialTheme.colors.primaryVariant,
-                style = tinyBody
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(imageHeightXXLarge)
+                    .padding(top = paddingXSmall),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(paddingXSmall)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.width(paddingMedium))
+                    SelectUploadThumbnailView(
+                        uri = uiState.selectedUploadImage,
+                        onClick = {
+                            launcher.launch(RumbleConstants.ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE)
+                        }
+                    )
+                }
+                items(uiState.thumbnails) {
+                    UploadThumbnailView(
+                        bitmap = it,
+                        selected = uiState.selectedThumbnail == it,
+                        onClick = {
+                            cameraUploadHandler.onSelectUploadThumbnail(it)
+                        }
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.width(paddingMedium))
+                }
+            }
+            UploadTextInputField(
+                initialValue = uiState.title,
+                label = stringResource(id = R.string.title),
+                maxLines = 1,
+                maxCharacters = MAX_CHARACTERS_UPLOAD_TITLE,
+                onValueChange = { cameraUploadHandler.onTitleChanged(it) },
+                hasError = uiState.titleError || uiState.titleEmptyError,
+                errorMessage = stringResource(
+                    id = if (uiState.titleEmptyError) {
+                        R.string.error_message_video_title_empty
+                    } else {
+                        R.string.error_message_video_title_too_long
+                    }
+                ),
+                optional = false
             )
-        }
+            UploadTextInputField(
+                initialValue = uiState.description,
+                label = stringResource(id = R.string.description),
+                maxLines = 4,
+                maxCharacters = MAX_CHARACTERS_UPLOAD_DESCRIPTION,
+                onValueChange = { cameraUploadHandler.onDescriptionChanged(it) },
+                hasError = uiState.descriptionError,
+                errorMessage = stringResource(id = R.string.error_message_description_too_long),
+                optional = true
+            )
+            Text(
+                text = stringResource(id = R.string.select_a_channel).uppercase(),
+                modifier = Modifier.padding(start = paddingMedium, top = paddingMedium),
+                style = h6Heavy
+            )
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = paddingMedium,
+                        end = paddingMedium,
+                        top = paddingXXXSmall
+                    )
+                    .clip(RoundedCornerShape(radiusMedium))
+                    .background(MaterialTheme.colors.onSecondary)
+                    .clickable { onSelectChannel() },
+            ) {
+                val (profileImage, title, icon) = createRefs()
+                ProfileImageComponent(
+                    modifier = Modifier
+                        .padding(
+                            start = paddingMedium,
+                            top = paddingSmall,
+                            bottom = paddingSmall,
+                        )
+                        .constrainAs(profileImage) {
+                            start.linkTo(parent.start)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        },
+                    profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
+                    userName = uiState.selectedUploadChannel.title,
+                    userPicture = uiState.selectedUploadChannel.thumbnail ?: ""
+                )
+                Text(
+                    text = uiState.selectedUploadChannel.title,
+                    modifier = Modifier
+                        .padding(start = paddingMedium)
+                        .constrainAs(title) {
+                            start.linkTo(profileImage.end)
+                            end.linkTo(icon.start)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            width = Dimension.fillToConstraints
+                        },
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    style = RumbleTypography.body1Bold,
+                    textAlign = TextAlign.Start
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    contentDescription = stringResource(id = R.string.select_a_channel),
+                    modifier = Modifier
+                        .padding(end = paddingMedium)
+                        .constrainAs(icon) {
+                            end.linkTo(parent.end)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        },
+                    tint = MaterialTheme.colors.primaryVariant
+                )
+            }
 
-        CategorySelection(
-            selectedCategoryName = uiState.selectedPrimaryCategory?.title,
-            categoryPlaceholder = stringResource(id = R.string.primary_category),
-            iconContentDescription = stringResource(id = R.string.select_primary_category),
-            onClick = { onSelectCategory(true) }
-        )
-
-        if (uiState.primaryCategoryError) {
-            ErrorMessageView(
+            Row(
                 modifier = Modifier
                     .padding(
-                        top = paddingXSmall,
                         start = paddingMedium,
-                        end = paddingMedium
+                        top = paddingMedium,
+                        end = paddingMedium,
+                        bottom = paddingXXXSmall
                     )
                     .fillMaxWidth(),
-                errorMessage = stringResource(R.string.primary_category_required_error),
-                textColor = MaterialTheme.colors.secondary
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(
+                    text = stringResource(id = R.string.categories).uppercase(),
+                    style = h6Heavy
+                )
+
+                Text(
+                    text = stringResource(R.string.required),
+                    color = MaterialTheme.colors.primaryVariant,
+                    style = tinyBody
+                )
+            }
+
+            CategorySelection(
+                selectedCategoryName = uiState.selectedPrimaryCategory?.title,
+                categoryPlaceholder = stringResource(id = R.string.primary_category),
+                iconContentDescription = stringResource(id = R.string.select_primary_category),
+                onClick = { onSelectCategory(true) }
+            )
+
+            if (uiState.primaryCategoryError) {
+                ErrorMessageView(
+                    modifier = Modifier
+                        .padding(
+                            top = paddingXSmall,
+                            start = paddingMedium,
+                            end = paddingMedium
+                        )
+                        .fillMaxWidth(),
+                    errorMessage = stringResource(R.string.primary_category_required_error),
+                    textColor = MaterialTheme.colors.secondary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(paddingXSmall))
+
+            CategorySelection(
+                selectedCategoryName = uiState.selectedSecondaryCategory?.title,
+                categoryPlaceholder = stringResource(id = R.string.secondary_category),
+                iconContentDescription = stringResource(id = R.string.select_secondary_category),
+                onClick = { onSelectCategory(false) }
             )
         }
-
-        Spacer(modifier = Modifier.height(paddingXSmall))
-
-        CategorySelection(
-            selectedCategoryName = uiState.selectedSecondaryCategory?.title,
-            categoryPlaceholder = stringResource(id = R.string.secondary_category),
-            iconContentDescription = stringResource(id = R.string.select_secondary_category),
-            onClick = { onSelectCategory(false) }
-        )
     }
 }
 

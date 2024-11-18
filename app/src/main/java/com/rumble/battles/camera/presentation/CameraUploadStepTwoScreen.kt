@@ -74,12 +74,11 @@ fun CameraUploadStepTwoScreen(
             .testTag(UploadForm2Tag)
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .systemBarsPadding()
     ) {
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.info),
-            modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             onBackClick = onBackClick,
             extraContent = {
                 ActionButton(

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
+import com.rumble.battles.SearchQueryCancelButtonTag
+import com.rumble.battles.SearchQueryClearAllTag
 import com.rumble.battles.SearchQueryTag
 import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
@@ -39,6 +44,7 @@ import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXMedium
 import com.rumble.theme.wokeGreen
+import com.rumble.utils.extension.rumbleUitTestTag
 
 @Composable
 fun SearchScreen(
@@ -83,6 +89,7 @@ fun SearchScreen(
 
                 RumbleTextActionButton(
                     modifier = Modifier
+                        .rumbleUitTestTag(SearchQueryCancelButtonTag)
                         .padding(end = paddingXSmall),
                     text = stringResource(id = R.string.cancel)
                 ) {
@@ -107,6 +114,7 @@ fun SearchScreen(
                     Spacer(modifier = Modifier.weight(1F))
                     Text(
                         modifier = Modifier
+                            .semantics { contentDescription = SearchQueryClearAllTag }
                             .clickable { searchHandler.onDeleteAllRecentQueries() },
                         text = stringResource(id = R.string.clear_all),
                         color = wokeGreen,
@@ -123,12 +131,13 @@ fun SearchScreen(
                 state = listState,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(state.recentQueryList) { recentQuery ->
+                itemsIndexed(state.recentQueryList) { index, recentQuery ->
                     RecentQueryView(
                         modifier = Modifier
                             .fillMaxWidth(),
                         recentQuery = recentQuery,
                         query = state.query,
+                        index = index,
                         onClick = {
                             searchHandler.updateQuery(recentQuery)
                             onSearch(
@@ -141,10 +150,11 @@ fun SearchScreen(
                     )
                 }
                 if (state.query.isNotEmpty()) {
-                    items(state.autoCompleteChannelsList) { autoCompleteChannel ->
+                    itemsIndexed(state.autoCompleteChannelsList) { index, autoCompleteChannel ->
                         AutoCompleteSearchChannelView(
                             channelDetailsEntity = autoCompleteChannel,
                             query = state.query,
+                            index = index,
                             onViewChannel = onViewChannel
                         )
                     }

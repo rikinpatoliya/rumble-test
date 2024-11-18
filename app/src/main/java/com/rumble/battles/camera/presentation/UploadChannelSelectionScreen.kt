@@ -41,12 +41,11 @@ fun UploadChannelSelectionScreen(
             .testTag(UploadChannelTag)
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .systemBarsPadding()
     ) {
         RumbleBasicTopAppBar(
             title = stringResource(id = R.string.select_a_channel),
-            modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             onBackClick = onBackClick,
         )
 

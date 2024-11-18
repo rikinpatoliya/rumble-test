@@ -42,7 +42,6 @@ fun RoundIconButton(
     backgroundColor: Color = MaterialTheme.colors.background,
     tintColor: Color =  MaterialTheme.colors.primaryVariant,
     onClick: () -> Unit = {},
-    onLongClick: () -> Unit = {},
 ) {
     var isLongPressing by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -64,7 +63,7 @@ fun RoundIconButton(
                             isLongPressing = true
                             job = coroutineScope.launch {
                                 while (isLongPressing) {
-                                    onLongClick()
+                                    onClick()
                                     delay(LONG_PRESS_FREQUENCY)
                                 }
                             }

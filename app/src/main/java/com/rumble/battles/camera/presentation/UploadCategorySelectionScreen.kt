@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,7 +53,6 @@ import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.borderXSmall
 import com.rumble.theme.borderXXSmall
-import com.rumble.theme.enforcedBlack
 import com.rumble.theme.imageXMedium
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
@@ -96,6 +96,7 @@ fun UploadCategorySelectionScreen(
             .testTag(UploadCategorySelectionTag)
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            .systemBarsPadding()
             .imePadding()
     ) {
         RumbleBasicTopAppBar(
@@ -106,9 +107,7 @@ fun UploadCategorySelectionScreen(
                     R.string.select_secondary_category
                 }
             ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
             onBackClick = onBackClick,
         )
 
@@ -225,8 +224,8 @@ private fun SearchCategoryField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
-            placeholderColor = enforcedBlack.copy(alpha = 0.5f),
-            textColor = enforcedBlack
+            placeholderColor = MaterialTheme.colors.primary.copy(alpha = 0.5f),
+            textColor = MaterialTheme.colors.primary
         ),
         textStyle = RumbleTypography.h5,
         singleLine = true,

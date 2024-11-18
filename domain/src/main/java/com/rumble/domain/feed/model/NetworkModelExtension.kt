@@ -42,6 +42,7 @@ import com.rumble.network.dto.channel.Channel
 import com.rumble.network.dto.channel.UserUploadChannel
 import com.rumble.network.dto.collection.VideoCollectionWithoutVideos
 import com.rumble.network.dto.comments.Comment
+import com.rumble.network.dto.profile.Address
 import com.rumble.network.dto.profile.ProfileNotificationItem
 import com.rumble.network.dto.profile.UserProfile
 import com.rumble.network.dto.referral.Referral
@@ -270,10 +271,14 @@ fun UserProfile.getUserProfileEntity(): UserProfileEntity =
         city = address?.city ?: "",
         state = address?.stateProv ?: "",
         postalCode = address?.postalCode ?: "",
-        country = CountryEntity(
-            countryID = address?.countryID ?: 0,
-            countryName = address?.countryName ?: "",
-        ),
+        country = address?.let { address ->
+            address.countryID.takeIf { it != 0 }?.let { countryID ->
+                CountryEntity(
+                    countryID = countryID,
+                    countryName = address.countryName ?: ""
+                )
+            }
+        },
         paypalEmail = address?.payInfo ?: "",
         followedChannelCount = followingCount,
         isPremium = isPremium,
