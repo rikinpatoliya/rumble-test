@@ -104,7 +104,7 @@ private fun EmoteTabView(
                     .align(Alignment.Center),
                 profileImageComponentStyle = ProfileImageComponentStyle.CircleImageSmallStyle(
                     borderColor = null,
-                    imageBackground = imageBackground
+                    imageBackground = if (tab.pictureUrl != null) imageBackground else null
                 ),
                 userName = tab.channelName ?: "",
                 userPicture = tab.pictureUrl ?: "",
