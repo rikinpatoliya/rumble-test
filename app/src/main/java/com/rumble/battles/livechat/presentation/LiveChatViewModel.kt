@@ -517,9 +517,9 @@ class LiveChatViewModel @Inject constructor(
                         pinnedMessage = getPinnedMessage(updatedResult),
                         canModerate = (if (updatedResult.canModerate != null) updatedResult.canModerate else state.value.canModerate)
                             ?: false,
-                        raidEntity = result.raidEntity,
+                        raidEntity = result.raidEntity ?: state.value.raidEntity,
                     )
-                    startUpdateRaidTimeOut()
+                    if (result.raidEntity != null) startUpdateRaidTimeOut()
                     delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
                     emitEvent(LiveChatEvent.ScrollLiveChat(max(messageList.size - 1, 0)))
                 }
