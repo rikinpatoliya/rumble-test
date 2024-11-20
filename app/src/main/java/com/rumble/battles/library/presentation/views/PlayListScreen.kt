@@ -274,6 +274,7 @@ fun PlayListScreen(
                                     verifiedBadge = state.playListEntity.verifiedBadge,
                                     followers = state.playListEntity.followers,
                                     followStatus = state.followStatus,
+                                    showJoinButton = false,
                                     onUpdateSubscription = {
                                         playListHandler.onUpdateSubscription(it)
                                     },

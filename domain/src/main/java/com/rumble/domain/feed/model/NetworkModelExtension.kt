@@ -317,6 +317,7 @@ fun Channel.getChannelDetailsEntity(): ChannelDetailsEntity =
                 videoUrl = it.urls.videoUrl,
                 channelUrl = it.urls.channelUrl,
                 showPremiumFlow = it.showPremium,
+                joinButtonText = it.joinButtonText
             )
         },
         latestVideo = latestVideo?.getVideoEntity(),

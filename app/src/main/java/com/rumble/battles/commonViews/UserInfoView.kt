@@ -11,7 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsActionButtonsView
 import com.rumble.battles.feed.presentation.views.FollowerNumberView
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.paddingXSmall
@@ -25,10 +27,14 @@ fun UserInfoView(
     channelThumbnail: String,
     channelId: String?,
     verifiedBadge: Boolean,
+    showJoinButton: Boolean,
     followers: Int = 0,
+    channelDetailsEntity: ChannelDetailsEntity? = null,
     followStatus: FollowStatus? = null,
     onUpdateSubscription: (action: UpdateChannelSubscriptionAction) -> Unit,
     onChannelClick: (String) -> Unit,
+    onJoin: (localsCommunityEntity: LocalsCommunityEntity) -> Unit = {},
+    onChannelNotifications: (ChannelDetailsEntity) -> Unit = {},
 ) {
     Row(
         modifier = modifier
@@ -73,10 +79,18 @@ fun UserInfoView(
         followStatus?.let { followStatus ->
             ChannelDetailsActionButtonsView(
                 followStatus = followStatus,
-                onJoin = {},
+                channelDetailsEntity = channelDetailsEntity,
+                onJoin = onJoin,
                 onUpdateSubscription = onUpdateSubscription,
-                onChannelNotification = {},
+                onChannelNotification = {
+                    channelDetailsEntity?.let {
+                        onChannelNotifications(it)
+                    }
+                },
                 showDrawable = false,
+                showNotificationBell = true,
+                showJoinButton = showJoinButton,
+                showJoinButtonAsStar = followStatus.followed.not()
             )
         }
     }

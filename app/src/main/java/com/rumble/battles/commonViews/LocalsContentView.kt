@@ -334,6 +334,7 @@ fun PreviewLocalsPopupBottomSheet() {
             videoUrl = "",
             channelUrl = "",
             showPremiumFlow = false,
+            joinButtonText = ""
         ),
         withNavigationBar = true,
         onSupport = {},

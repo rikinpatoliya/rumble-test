@@ -16,5 +16,7 @@ data class LocalsCommunity(
     @SerializedName("counts")
     val counts: Counts,
     @SerializedName("show_premium")
-    val showPremium: Boolean
+    val showPremium: Boolean,
+    @SerializedName("join_button_text")
+    val joinButtonText: String
 )
