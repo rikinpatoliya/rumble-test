@@ -7,5 +7,10 @@ data class ReportResponse(
     @SerializedName("user")
     val user: UserState,
     @SerializedName("data")
-    val data: List<ReportData>? = null,
+    val data: ReportResponseData?,
+)
+
+data class ReportResponseData(
+    @SerializedName("success")
+    val success: Boolean
 )
