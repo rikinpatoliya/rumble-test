@@ -42,7 +42,7 @@ class GetVideoCollectionsUseCase @Inject constructor(
             }
 
         val result =
-            if (sessionManager.isUserSignedIn()) mutableListOf<VideoCollectionType>(VideoCollectionType.MyFeed)
+            if (sessionManager.isUserSignedIn()) mutableListOf(VideoCollectionType.MyFeed, VideoCollectionType.Reposts)
             else mutableListOf()
         result.addAll(collections.sortedWith(comparator))
 

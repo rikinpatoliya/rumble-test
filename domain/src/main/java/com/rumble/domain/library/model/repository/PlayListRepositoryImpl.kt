@@ -16,6 +16,7 @@ import com.rumble.domain.library.domain.model.ClearWatchHistoryResult
 import com.rumble.domain.library.domain.model.DeletePlayListResult
 import com.rumble.domain.library.domain.model.UpdatePlayListResult
 import com.rumble.domain.library.model.datasource.PlayListRemoteDataSource
+import com.rumble.network.dto.video.Video
 import com.rumble.network.queryHelpers.PlayListType
 import com.rumble.utils.RumbleConstants.HTTP_CONFLICT
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +33,7 @@ class PlayListRepositoryImpl(
         val body = response.body()
         return if (response.isSuccessful && body != null) {
             VideoListResult.Success(
-                videoList = body.data.items.map {
+                videoList = body.data.items.filterIsInstance<Video>().map {
                     it.getVideoEntity()
                 }.take(pageSize)
             )

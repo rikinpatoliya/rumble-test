@@ -73,6 +73,7 @@ val bottomBarHeight = 65.dp
 val bottomBarTabletHeight = 60.dp
 val bottomBarSpacerBehind = bottomBarHeight + paddingLarge
 val bottomBarMinimalSpacerBehind = bottomBarHeight + paddingXSmall
+val bottomBarSpacerListEmptyState = 210.dp
 val recordTimerTimeBoxSize = 100.dp
 val minDefaultEmptyViewHeight = 200.dp
 val barCompactHeight = 4.dp

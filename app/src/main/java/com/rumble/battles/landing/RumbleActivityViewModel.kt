@@ -112,6 +112,7 @@ interface RumbleActivityHandler {
     fun onNavigateToMyVideos()
     fun onLogException(e: Exception)
     fun handleNotifications(bundle: Bundle?)
+    fun onDisplayRepostUndoWarning(repostId: Long)
 }
 
 
@@ -145,6 +146,7 @@ sealed class RumbleActivityAlertReason : AlertDialogReason {
 
     data object PremiumPurchaseMade : RumbleActivityAlertReason()
     data object SubscriptionNotAvailable : RumbleActivityAlertReason()
+    data class UndoRepostWarning(val repostId: Long) : RumbleActivityAlertReason()
 }
 
 data class ActivityHandlerState(
@@ -465,6 +467,13 @@ class RumbleActivityViewModel @Inject constructor(
             getVideoDetails(notificationData)
             bundle?.remove(KEY_NOTIFICATION_VIDEO_DETAILS)
         }
+    }
+
+    override fun onDisplayRepostUndoWarning(repostId: Long) {
+        alertDialogState.value = AlertDialogState(
+            show = true,
+            alertDialogReason = RumbleActivityAlertReason.UndoRepostWarning(repostId)
+        )
     }
 
     private fun clearBundleKeys(savedStateHandle: SavedStateHandle) {

@@ -1,9 +1,11 @@
 package com.rumble.network.dto.video
 
 import com.google.gson.annotations.SerializedName
+import com.rumble.network.deserializer.FeedObjectType
 import com.rumble.network.dto.categories.Categories
 import com.rumble.network.dto.comments.Comments
 import com.rumble.network.dto.livechat.LiveGate
+import com.rumble.network.dto.repost.Repost
 
 data class Video(
     @SerializedName("id")
@@ -70,4 +72,10 @@ data class Video(
     val availability: String?,
     @SerializedName("live_gate")
     val liveGate: LiveGate?,
-)
+    @SerializedName("reposts_count")
+    val repostsCount: Int?,
+    @SerializedName("user_reposts")
+    val userRepostList: List<Repost>?,
+    @SerializedName("object_type")
+    val objectType: String = FeedObjectType.Video.value
+) : FeedItem

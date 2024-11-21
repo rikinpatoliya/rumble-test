@@ -32,10 +32,12 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.LogChannelViewUs
 import com.rumble.domain.channels.channeldetails.domain.usecase.ReportChannelUseCase
 import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
+import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
+import com.rumble.domain.repost.domain.usecases.FetchRepostListUseCase
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
@@ -100,6 +102,7 @@ interface ChannelDetailsHandler : LazyListStateHandler {
     fun onVideoCardImpression(videoEntity: VideoEntity, cardSize: CardSize)
 
     fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
+    fun onDisplayTypeSelected(displayType: CategoryDisplayType)
 }
 
 interface NotificationsScreenHandler {
@@ -112,6 +115,7 @@ interface NotificationsScreenHandler {
 data class ChannelDetailsUIState(
     val channelId: String,
     val channelDetailsEntity: ChannelDetailsEntity? = null,
+    val displayType: CategoryDisplayType = CategoryDisplayType.VIDEOS,
     val userUploadChannels: List<UserUploadChannelEntity>? = null,
     val loading: Boolean = false,
     val connectionState: InternetConnectionState = InternetConnectionState.CONNECTED,
@@ -119,7 +123,7 @@ data class ChannelDetailsUIState(
     val userName: String = "",
     val userPicture: String = "",
     val shareAvailable: Boolean = false,
-    val videoList: Flow<PagingData<Feed>> = emptyFlow(),
+    val itemsList: Flow<PagingData<Feed>> = emptyFlow(),
     val showJoinButton: Boolean = false,
 )
 
@@ -172,7 +176,8 @@ class ChannelDetailsViewModel @Inject constructor(
     private val shareUseCase: ShareUseCase,
     private val sessionManager: SessionManager,
     private val internetConnectionObserver: InternetConnectionObserver,
-    private val internetConnectionUseCase: InternetConnectionUseCase
+    private val internetConnectionUseCase: InternetConnectionUseCase,
+    private val fetchRepostListUseCase: FetchRepostListUseCase
 ) : ViewModel(), ChannelDetailsHandler, NotificationsScreenHandler {
 
     private var currentVisibleFeed: VideoEntity? = null
@@ -216,7 +221,7 @@ class ChannelDetailsViewModel @Inject constructor(
     private fun fetchVideoList() {
         uiState.update {
             uiState.value.copy(
-                videoList = getChannelVideosUseCase(uiState.value.channelId).cachedIn(viewModelScope),
+                itemsList = getChannelVideosUseCase(uiState.value.channelId).cachedIn(viewModelScope),
             )
         }
     }
@@ -462,6 +467,19 @@ class ChannelDetailsViewModel @Inject constructor(
     }
 
     //endregion
+
+    override fun onDisplayTypeSelected(displayType: CategoryDisplayType) {
+        uiState.update {
+            uiState.value.copy(
+                displayType = displayType,
+                itemsList = (if (displayType == CategoryDisplayType.VIDEOS) {
+                    getChannelVideosUseCase(uiState.value.channelId)
+                } else {
+                    fetchRepostListUseCase()
+                }).cachedIn(viewModelScope)
+            )
+        }
+    }
 
     private fun handleFailure(throwable: Throwable) {
         uiState.update { it.copy(loading = false) }

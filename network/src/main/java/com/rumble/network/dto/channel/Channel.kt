@@ -30,7 +30,7 @@ data class Channel(
     @SerializedName("id")
     val id: String,
     @SerializedName("type")
-    val type: String,
+    val type: String?,
     @SerializedName("title")
     val title: String,
     @SerializedName("name")

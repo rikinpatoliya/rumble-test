@@ -8,14 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.rumble.battles.R
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsActionButtonsView
@@ -31,7 +29,6 @@ import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h1
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
-import com.rumble.theme.paddingXLarge
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.titleOffset
@@ -94,11 +91,7 @@ internal fun ChannelDetailsHeader(
             }
             Spacer(
                 modifier
-                    .height(paddingMedium)
-            )
-            Divider(
-                modifier = modifier,
-                color = MaterialTheme.colors.secondaryVariant
+                    .height(paddingSmall)
             )
         }
     }
@@ -115,7 +108,7 @@ fun VideosCountView(
     if (videoCount != null && videoCount > 0) {
         Spacer(
             modifier
-                .height(paddingXLarge)
+                .height(paddingSmall)
         )
         VideosRow(
             modifier = modifier,
@@ -189,11 +182,10 @@ private fun VideosRow(
 ) {
     Row(
         modifier = modifier
-            .padding(start = paddingXLarge, end = paddingMedium),
+            .padding(start = paddingMedium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TitleWithBoxedCount(
-            title = stringResource(id = R.string.videos),
             count = "$videoCount"
         )
         Spacer(modifier = Modifier.weight(1f))

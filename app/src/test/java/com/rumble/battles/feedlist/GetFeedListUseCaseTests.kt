@@ -6,7 +6,7 @@ import com.rumble.domain.common.domain.usecase.GetVideoPageSizeUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.domain.usecase.CreateKeywordsUseCase
-import com.rumble.domain.feed.domain.usecase.GetHomeListUseCase
+import com.rumble.domain.feed.domain.usecase.GetFeedListUseCase
 import com.rumble.domain.feed.model.repository.FeedRepository
 import com.rumble.domain.rumbleads.model.repository.RumbleAdRepository
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -26,7 +26,7 @@ class GetFeedListUseCaseTests {
     private val isDevelopModeUseCase: IsDevelopModeUseCase = mockk(relaxed = true)
     private val sessionManager: SessionManager = mockk(relaxed = true)
     private val userPreferenceManager: UserPreferenceManager = mockk(relaxed = true)
-    private val useCase = GetHomeListUseCase(
+    private val useCase = GetFeedListUseCase(
         feedRepository = repository,
         rumbleAdRepository = rumbleAdRepository,
         rumbleUnhandledErrorUseCase = unhandledErrorUseCase,

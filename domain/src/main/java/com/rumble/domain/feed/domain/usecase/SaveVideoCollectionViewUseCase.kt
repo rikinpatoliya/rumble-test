@@ -7,7 +7,7 @@ import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.model.repository.FeedRepository
 import com.rumble.network.session.SessionManager
 import kotlinx.coroutines.flow.first
-import java.util.*
+import java.util.Date
 import javax.inject.Inject
 
 class SaveVideoCollectionViewUseCase @Inject constructor(
@@ -18,7 +18,7 @@ class SaveVideoCollectionViewUseCase @Inject constructor(
 
     suspend operator fun invoke(collectionType: VideoCollectionType) {
         when (collectionType) {
-            VideoCollectionType.MyFeed -> {
+            VideoCollectionType.MyFeed, VideoCollectionType.Reposts -> {
                 //Do nothing because my feed is always first and has no ID so nothing to save
             }
             is VideoCollectionType.VideoCollectionEntity -> {

@@ -12,6 +12,7 @@ import com.rumble.domain.feed.model.datasource.remote.LiveVideoPlaylistDataSourc
 import com.rumble.domain.feed.model.datasource.remote.LiveVideoPlaylistDataSourceImpl
 import com.rumble.domain.feed.model.repository.FeedRepository
 import com.rumble.domain.feed.model.repository.FeedRepositoryImpl
+import com.rumble.network.api.RepostApi
 import com.rumble.network.api.VideoApi
 import dagger.Module
 import dagger.Provides
@@ -48,6 +49,7 @@ object FeedModule {
     @Singleton
     fun provideFeedRepository(
         videoApi: VideoApi,
+        repostApi: RepostApi,
         channelRemoteDataSource: ChannelRemoteDataSource,
         channelViewDao: ChannelViewDao,
         commentRemoteDataSource: CommentRemoteDataSource,
@@ -57,6 +59,7 @@ object FeedModule {
     ): FeedRepository =
         FeedRepositoryImpl(
             videoApi = videoApi,
+            repostApi = repostApi,
             channelRemoteDataSource = channelRemoteDataSource,
             dispatcher = Dispatchers.IO,
             channelViewDao = channelViewDao,

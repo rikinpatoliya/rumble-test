@@ -58,6 +58,7 @@ object RumbleConstants {
     const val MAX_CHARACTERS_UPLOAD_DESCRIPTION = 10000
     const val MAX_CHARACTERS_PLAYLIST_TITLE = 255
     const val MAX_CHARACTERS_PLAYLIST_DESCRIPTION = 10000
+    const val MAX_CHARACTERS_REPOST = 500
     const val LIVE_MESSAGE_MAX_CHARACTERS = 200
     const val LOCK_EMOTE_CODE = "\uD83D\uDD12"
     const val EMOTE_PATTERN = ":(r\\+){0,1}[A-Za-z0-9]+:"

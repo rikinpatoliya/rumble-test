@@ -18,6 +18,8 @@ import com.rumble.analytics.UnfollowTapEvent
 import com.rumble.battles.BuildConfig
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.BottomSheetItem
+import com.rumble.battles.feed.presentation.repost.RepostHandler
+import com.rumble.battles.feed.presentation.repost.RepostScreenUIState
 import com.rumble.battles.landing.AppUpdateHandler
 import com.rumble.battles.landing.AppUpdateState
 import com.rumble.battles.landing.RumbleActivityAlertReason
@@ -65,6 +67,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntityWithOptions
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListUserEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
+import com.rumble.domain.feed.domain.usecase.ReportContentUseCase
 import com.rumble.domain.landing.usecases.ShouldForceNewAppVersionUseCase
 import com.rumble.domain.landing.usecases.ShouldSuggestNewAppVersionUseCase
 import com.rumble.domain.library.domain.model.ClearWatchHistoryResult
@@ -97,16 +100,23 @@ import com.rumble.domain.premium.domain.usecases.FetchPremiumSubscriptionListUse
 import com.rumble.domain.premium.domain.usecases.FetchUserInfoUseCase
 import com.rumble.domain.premium.domain.usecases.PostSubscriptionProofUseCase
 import com.rumble.domain.premium.domain.usecases.SendPremiumPurchasedEventUseCase
+import com.rumble.domain.repost.domain.domainmodel.AddRepostResult
+import com.rumble.domain.repost.domain.domainmodel.DeleteRepostResult
+import com.rumble.domain.repost.domain.domainmodel.RepostEntity
+import com.rumble.domain.repost.domain.usecases.AddRepostUseCase
+import com.rumble.domain.repost.domain.usecases.DeleteRepostUseCase
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.sort.NotificationFrequency
 import com.rumble.domain.sort.SortFollowingType
 import com.rumble.domain.video.domain.usecases.GetVideoOptionsUseCase
 import com.rumble.domain.video.model.VideoOption
+import com.rumble.network.dto.channel.ReportContentType
 import com.rumble.network.queryHelpers.PlayListType
 import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
+import com.rumble.videoplayer.player.config.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
@@ -123,7 +133,7 @@ import javax.inject.Inject
 
 interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayListHandler,
     PlayListOptionsHandler, SubscriptionHandler, NotificationsHandler, PremiumSubscriptionHandler,
-    PurchaseHandler, SortFollowingHandler, OnboardingHandler, AppUpdateHandler {
+    PurchaseHandler, SortFollowingHandler, OnboardingHandler, AppUpdateHandler, RepostHandler {
     val userNameFlow: Flow<String>
     val userPictureFlow: Flow<String>
     val bottomSheetUiState: StateFlow<BottomSheetUIState>
@@ -162,7 +172,9 @@ data class UserUIState(
     val userName: String = "",
     val userPicture: String = "",
     val isPremiumUser: Boolean = false,
-    val isLoggedIn: Boolean = false
+    val isLoggedIn: Boolean = false,
+    val userChannel: UserUploadChannelEntity = UserUploadChannelEntity(),
+    val userUploadChannels: List<UserUploadChannelEntity> = emptyList(),
 )
 
 sealed class BottomSheetContent {
@@ -187,6 +199,7 @@ sealed class BottomSheetContent {
 
     data class AddToPlayList(val videoEntityId: Long) : BottomSheetContent()
     data class CreateNewPlayList(val videoEntityId: Long) : BottomSheetContent()
+    data class RepostVideo(val videoEntity: VideoEntity) : BottomSheetContent()
 
     data class MorePlayListOptionsSheet(
         val playListEntityWithOptions: PlayListEntityWithOptions,
@@ -199,6 +212,8 @@ sealed class BottomSheetContent {
     data object PremiumSubscription : BottomSheetContent()
     data class SortFollowingSheet(val sortFollowingType: SortFollowingType) : BottomSheetContent()
     data object AuthMenu : BottomSheetContent()
+    data class RepostMoreActions(val repost: RepostEntity, val userId: String) : BottomSheetContent()
+    data class ReportRepost(val repost: RepostEntity) : BottomSheetContent()
 }
 
 sealed class ContentScreenVmEvent {
@@ -248,6 +263,10 @@ sealed class ContentScreenVmEvent {
 
     data class SortFollowingTypeUpdated(val sortFollowingType: SortFollowingType) :
         ContentScreenVmEvent()
+    data class DisplayUndoRepostWarning(val repostId: Long) : ContentScreenVmEvent()
+    data class OnRepostDeleted(val repostId: Long) : ContentScreenVmEvent()
+    data object ShowRepostReportedMessage : ContentScreenVmEvent()
+    data object VideoRepostedByCurrentUser : ContentScreenVmEvent()
 }
 
 private const val TAG = "ContentViewModel"
@@ -289,7 +308,10 @@ class ContentViewModel @Inject constructor(
     private val shouldSuggestNewAppVersionUseCase: ShouldSuggestNewAppVersionUseCase,
     private val shouldForceNewAppVersionUseCase: ShouldForceNewAppVersionUseCase,
     private val openPlayStoreUseCase: OpenPlayStoreUseCase,
+    private val addRepostUseCase: AddRepostUseCase,
     deviceType: DeviceType,
+    private val deleteRepostUseCase: DeleteRepostUseCase,
+    private val reportContentUseCase: ReportContentUseCase,
 ) : ViewModel(), ContentHandler {
     override val userNameFlow: Flow<String> = sessionManager.userNameFlow
     override val userPictureFlow: Flow<String> = sessionManager.userPictureFlow
@@ -318,6 +340,8 @@ class ContentViewModel @Inject constructor(
     override val editPlayListState = MutableStateFlow(EditPlayListScreenUIState())
     override val playListSettingsState =
         MutableStateFlow<PlayListSettingsBottomSheetDialog>(PlayListSettingsBottomSheetDialog.DefaultPopupState)
+    override val repostState =
+        MutableStateFlow(RepostScreenUIState())
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
@@ -523,7 +547,14 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onUpdateCurrentSubscriptionParams(videoId: Long?, source: SubscriptionSource?) {
-        currentSubscriptionParams = currentSubscriptionParams.copy(videoId = videoId, source = source)
+        currentSubscriptionParams =
+            currentSubscriptionParams.copy(videoId = videoId, source = source)
+    }
+
+    override fun onRepostClicked(videoEntity: VideoEntity) {
+        updateBottomSheetUiState(
+            BottomSheetContent.RepostVideo(videoEntity)
+        )
     }
 
     // region AddToPlayListHandler
@@ -574,7 +605,7 @@ class ContentViewModel @Inject constructor(
         canSaveVideoToPlayListUseCase(
             entity,
             userUIState.value.userId,
-            editPlayListState.value.userUploadChannels
+            userUIState.value.userUploadChannels,
         )
 
     private fun removeVideoFromPlayList(
@@ -633,6 +664,91 @@ class ContentViewModel @Inject constructor(
     }
     // endregion
 
+    // region RepostHandler
+    override fun onOpenRepostMoreActions(repost: RepostEntity) {
+        viewModelScope.launch {
+            updateBottomSheetUiState(
+                BottomSheetContent.RepostMoreActions(
+                    repost = repost,
+                    userId = sessionManager.userIdFlow.first()
+                )
+            )
+        }
+    }
+
+    override fun onUndoRepost(repostId: Long?) {
+        repostId?.let {
+            emitVmEvent(ContentScreenVmEvent.DisplayUndoRepostWarning(it))
+        }
+    }
+
+    override fun onDisplayReportRepostOptions(repost: RepostEntity) {
+        updateBottomSheetUiState(BottomSheetContent.ReportRepost(repost))
+    }
+
+    override fun onReportRepost(repost: RepostEntity, reportType: ReportType) {
+        viewModelScope.launch(errorHandler) {
+            val success = reportContentUseCase(
+                contentId = repost.id,
+                reportType = reportType,
+                ReportContentType.REPOST
+            )
+            if (success) {
+                emitVmEvent(event = ContentScreenVmEvent.ShowRepostReportedMessage)
+            } else {
+                emitVmEvent(event = ContentScreenVmEvent.Error())
+            }
+        }
+    }
+
+    override fun onUndoRepostConfirmed(repostId: Long) {
+        viewModelScope.launch(errorHandler) {
+            when(deleteRepostUseCase(repostId)) {
+                is DeleteRepostResult.Success -> {
+                    emitVmEvent(ContentScreenVmEvent.OnRepostDeleted(repostId))
+                }
+                is DeleteRepostResult.Failure -> {
+                    emitVmEvent(ContentScreenVmEvent.Error())
+                }
+            }
+        }
+    }
+
+    override fun onRepostTextChanged(value: String) {
+        repostState.update {
+            it.copy(
+                post = value,
+                repostError = value.count() > RumbleConstants.MAX_CHARACTERS_REPOST
+            )
+        }
+    }
+
+    override fun onRepostOwnerChanged(repostChannelEntity: UserUploadChannelEntity) {
+        repostState.update {
+            it.copy(
+                selectedRepostChannelEntity = repostChannelEntity
+            )
+        }
+    }
+
+    override fun resetRepostState() {
+        repostState.value =
+            RepostScreenUIState(selectedRepostChannelEntity = userUIState.value.userChannel)
+    }
+
+    override fun onRepost(videoId: Long, channelId: Long, message: String) {
+        updateBottomSheetUiState(BottomSheetContent.HideBottomSheet)
+        viewModelScope.launch(errorHandler) {
+            when (addRepostUseCase(videoId = videoId, channelId = channelId, message = message)) {
+                is AddRepostResult.Failure -> emitVmEvent(ContentScreenVmEvent.Error())
+                is AddRepostResult.Success -> emitVmEvent(ContentScreenVmEvent.VideoRepostedByCurrentUser)
+            }
+        }
+        resetRepostState()
+    }
+
+    // endregion
+
     // region EditPlayListHandler
     override fun onTitleChanged(value: String) {
         editPlayListState.value.editPlayListEntity?.let { playListEntity ->
@@ -674,7 +790,6 @@ class ContentViewModel @Inject constructor(
             playListSettingsState.value =
                 PlayListSettingsBottomSheetDialog.PlayListChannelSelection(
                     playListEntity = it,
-                    userUploadChannels = editPlayListState.value.userUploadChannels
                 )
         }
     }
@@ -1216,8 +1331,18 @@ class ContentViewModel @Inject constructor(
             }
 
             is UserUploadChannelsResult.UserUploadChannelsSuccess -> {
-                editPlayListState.update {
+                val userId = sessionManager.userIdFlow.first()
+                val userName = sessionManager.userNameFlow.first()
+                val userPicture = sessionManager.userPictureFlow.first()
+                userUIState.update {
                     it.copy(
+                        userChannel = UserUploadChannelEntity(
+                            id = userId,
+                            channelId = 0,
+                            title = userName,
+                            name = userName,
+                            thumbnail = userPicture
+                        ),
                         userUploadChannels = result.userUploadChannels
                     )
                 }

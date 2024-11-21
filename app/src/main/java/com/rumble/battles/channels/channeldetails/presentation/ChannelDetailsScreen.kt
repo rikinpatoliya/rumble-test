@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,6 +69,8 @@ import com.rumble.battles.commonViews.ReportBottomSheet
 import com.rumble.battles.commonViews.RumbleBottomSheet
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.RumbleProgressIndicator
+import com.rumble.battles.commonViews.RumbleTabsView
+import com.rumble.battles.commonViews.TitleWithBoxedCount
 import com.rumble.battles.commonViews.TransparentStatusBar
 import com.rumble.battles.commonViews.VideosCountView
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
@@ -76,14 +79,17 @@ import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
+import com.rumble.battles.feed.presentation.views.RepostFeedView
 import com.rumble.battles.feed.presentation.views.VideoCompactView
 import com.rumble.battles.feed.presentation.views.VideoView
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.DisplayScreenType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
+import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
+import com.rumble.domain.repost.domain.domainmodel.RepostEntity
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
 import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.theme.bottomBarHeight
@@ -92,6 +98,8 @@ import com.rumble.theme.commentActionButtonWidth
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
+import com.rumble.theme.paddingSmall
+import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXMedium
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
@@ -110,6 +118,7 @@ fun ChannelDetailsScreen(
     channelDetailsHandler: ChannelDetailsHandler,
     contentHandler: ContentHandler,
     activityHandler: RumbleActivityHandler,
+    onChannelClick: (id: String) -> Unit,
     onBackClick: () -> Unit,
     onVideoClick: (id: Feed) -> Unit,
 ) {
@@ -125,10 +134,10 @@ fun ChannelDetailsScreen(
             skipHalfExpanded = true
         )
     val coroutineScope = rememberCoroutineScope()
-    val videoListItems: LazyPagingItems<Feed> = state.videoList.collectAsLazyPagingItems()
+    val itemsList: LazyPagingItems<Feed> = state.itemsList.collectAsLazyPagingItems()
     val updatedEntity by channelDetailsHandler.updatedEntity.collectAsStateWithLifecycle()
     updatedEntity?.let { updated ->
-        videoListItems.itemSnapshotList.find { it is VideoEntity && it.id == updated.id }?.let {
+        itemsList.itemSnapshotList.find { it is VideoEntity && it.id == updated.id }?.let {
             val videoEntity = it as VideoEntity
             videoEntity.userVote = updated.userVote
             videoEntity.likeNumber = updated.likeNumber
@@ -161,7 +170,7 @@ fun ChannelDetailsScreen(
         if (videoDetailsState.visible.not()) channelDetailsHandler.onCreatePlayerForVisibleFeed()
     }
 
-    LaunchedEffect(scrollState, videoListItems.itemCount) {
+    LaunchedEffect(scrollState, itemsList.itemCount) {
         snapshotFlow { scrollState.layoutInfo }.collect {
             var createPlayer = false
             val itemPosition = scrollState.findFirstFullyVisibleItemIndex(
@@ -169,11 +178,11 @@ fun ChannelDetailsScreen(
                 visibilityPercentage = RumbleConstants.PLAYER_MIN_VISIBILITY
             )
             val firstVisible =
-                if (itemPosition + ITEMS_SHIFT == 0 && videoListItems.itemCount > 0) {
+                if (itemPosition + ITEMS_SHIFT == 0 && itemsList.itemCount > 0) {
                     createPlayer = true
-                    videoListItems[0]
-                } else if (itemPosition >= 0 && itemPosition < videoListItems.itemCount) {
-                    videoListItems[itemPosition]
+                    itemsList[0]
+                } else if (itemPosition >= 0 && itemPosition < itemsList.itemCount) {
+                    itemsList[itemPosition]
                 } else {
                     null
                 }
@@ -288,139 +297,23 @@ fun ChannelDetailsScreen(
                         .height(collapsedSpacerPadding)
                         .systemBarsPadding()
                 )
-                if (videoListItems.itemCount > 0) {
-                    BoxWithConstraints {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .nestedScroll(listConnection)
-                                .systemBarsPadding(),
-                            state = scrollState,
-                            contentPadding = PaddingValues(
-                                horizontal = CalculatePaddingForTabletWidth(
-                                    maxWidth = maxWidth
-                                )
-                            ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            item {
-                                ChannelDetailsHeader(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    currentDestinationRoute = currentDestinationRoute,
-                                    state = state,
-                                    onJoin = { channelDetailsHandler.onJoin(it) },
-                                    onUpdateSubscription = {
-                                        contentHandler.onUpdateSubscription(
-                                            channelDetailsHandler.uiState.value.channelDetailsEntity,
-                                            it
-                                        )
-                                    },
-                                    onChannelNotification = {
-                                        channelDetailsHandler.uiState.value.channelDetailsEntity?.let { entity ->
-                                            contentHandler.updateBottomSheetUiState(
-                                                BottomSheetContent.ChannelNotificationsSheet(
-                                                    entity
-                                                )
-                                            )
-                                        }
-                                    },
-                                )
-                            }
-                            item {
-                                VideosCountView(
-                                    state,
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .background(color = MaterialTheme.colors.background),
-                                    listToggleViewStyle
-                                ) {
-                                    channelDetailsHandler.onToggleVideoViewStyle(
-                                        it
-                                    )
-                                }
-                            }
-
-                            state.channelDetailsEntity?.featuredVideo?.let { entity ->
-                                item {
-                                    if (listToggleViewStyle == ListToggleViewStyle.LIST) {
-                                        ChannelDetailsVideoCompactView(
-                                            entity,
-                                            channelDetailsHandler,
-                                            contentHandler,
-                                            true
-                                        )
-                                    } else {
-                                        ChannelDetailsVideoView(
-                                            entity,
-                                            channelDetailsHandler,
-                                            contentHandler,
-                                            soundOn,
-                                            true
-                                        )
-                                    }
-                                }
-                            }
-
-                            items(
-                                count = videoListItems.itemCount,
-                                key = videoListItems.itemKey(),
-                                contentType = videoListItems.itemContentType(
-                                )
-                            ) { index ->
-                                val item = videoListItems[index]
-                                item?.let { entity ->
-                                    if (entity is VideoEntity) {
-                                        if (listToggleViewStyle == ListToggleViewStyle.LIST) {
-                                            ChannelDetailsVideoCompactView(
-                                                entity,
-                                                channelDetailsHandler,
-                                                contentHandler
-                                            )
-                                        } else {
-                                            ChannelDetailsVideoView(
-                                                entity,
-                                                channelDetailsHandler,
-                                                contentHandler,
-                                                soundOn
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                            videoListItems.apply {
-                                if (loadState.append is LoadState.Loading) {
-                                    item {
-                                        PageLoadingView(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .wrapContentHeight()
-                                                .padding(paddingMedium)
-                                        )
-                                    }
-                                }
-                            }
-
-                            item {
-                                BottomNavigationBarScreenSpacer()
-                            }
-                        }
-                    }
-                } else if (videoListItems.loadState.refresh != LoadState.Loading) {
-                    BoxWithConstraints {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(
-                                    horizontal = CalculatePaddingForTabletWidth(
-                                        maxWidth = maxWidth
-                                    )
-                                )
-                        ) {
+                BoxWithConstraints {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(listConnection)
+                            .systemBarsPadding(),
+                        state = scrollState,
+                        contentPadding = PaddingValues(
+                            horizontal = CalculatePaddingForTabletWidth(
+                                maxWidth = maxWidth
+                            )
+                        ),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        item {
                             ChannelDetailsHeader(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .systemBarsPadding(),
+                                modifier = Modifier.fillMaxWidth(),
                                 currentDestinationRoute = currentDestinationRoute,
                                 state = state,
                                 onJoin = { channelDetailsHandler.onJoin(it) },
@@ -440,13 +333,132 @@ fun ChannelDetailsScreen(
                                     }
                                 },
                             )
-                            EmptyView(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(paddingMedium),
-                                title = stringResource(id = R.string.no_videos_yet),
-                                text = stringResource(id = R.string.this_channel_doesnt_have_videos_yet)
+                        }
+                        item {
+                            RumbleTabsView(
+                                modifier = Modifier.background(color = MaterialTheme.colors.background),
+                                tabsList = CategoryDisplayType.getChannelDetailsCategoryTypeList(),
+                                initialIndex = state.displayType.channelDetailsIndex,
+                                onTabSelected = channelDetailsHandler::onDisplayTypeSelected
                             )
+                        }
+                        if (itemsList.itemCount > 0) {
+                            if (state.displayType == CategoryDisplayType.VIDEOS) {
+                                item {
+                                    VideosCountView(
+                                        state,
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .background(color = MaterialTheme.colors.background),
+                                        listToggleViewStyle
+                                    ) {
+                                        channelDetailsHandler.onToggleVideoViewStyle(
+                                            it
+                                        )
+                                    }
+                                }
+
+                                state.channelDetailsEntity?.featuredVideo?.let { entity ->
+                                    item {
+                                        if (listToggleViewStyle == ListToggleViewStyle.LIST) {
+                                            ChannelDetailsVideoCompactView(
+                                                entity,
+                                                channelDetailsHandler,
+                                                contentHandler,
+                                                true
+                                            )
+                                        } else {
+                                            ChannelDetailsVideoView(
+                                                entity,
+                                                channelDetailsHandler,
+                                                contentHandler,
+                                                soundOn,
+                                                true
+                                            )
+                                        }
+                                    }
+                                }
+                            } else if (state.displayType == CategoryDisplayType.REPOSTS) {
+                                item {
+                                    Row(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(paddingSmall)
+                                            .background(color = MaterialTheme.colors.background),
+
+                                        ) {
+                                        TitleWithBoxedCount(
+                                            count = "${itemsList.itemCount}"
+                                        )
+                                    }
+                                }
+                            }
+                            items(
+                                count = itemsList.itemCount,
+                                key = itemsList.itemKey(),
+                                contentType = itemsList.itemContentType(
+                                )
+                            ) { index ->
+                                val item = itemsList[index]
+                                item?.let { entity ->
+                                    if (entity is VideoEntity) {
+                                        if (listToggleViewStyle == ListToggleViewStyle.LIST) {
+                                            ChannelDetailsVideoCompactView(
+                                                entity,
+                                                channelDetailsHandler,
+                                                contentHandler
+                                            )
+                                        } else {
+                                            ChannelDetailsVideoView(
+                                                entity,
+                                                channelDetailsHandler,
+                                                contentHandler,
+                                                soundOn
+                                            )
+                                        }
+                                    } else if (entity is RepostEntity) {
+                                        RepostFeedView(
+                                            modifier = Modifier.padding(
+                                                horizontal = paddingXSmall,
+                                                vertical = paddingXSmall
+                                            ),
+                                            repost = entity,
+                                            onChannelClick = onChannelClick,
+                                            onVideoClick = channelDetailsHandler::onVideoClick,
+                                            onMoreClick = {
+                                                contentHandler.onOpenRepostMoreActions(
+                                                    entity
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+
+                            }
+                            itemsList.apply {
+                                if (loadState.append is LoadState.Loading) {
+                                    item {
+                                        PageLoadingView(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .wrapContentHeight()
+                                                .padding(paddingMedium)
+                                        )
+                                    }
+                                }
+                            }
+                        } else if (itemsList.loadState.refresh != LoadState.Loading) {
+                            item {
+                                EmptyView(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(paddingMedium),
+                                    title = stringResource(id = if (state.displayType == CategoryDisplayType.VIDEOS) R.string.no_videos_yet else R.string.no_reposts_yet),
+                                    text = stringResource(id = if (state.displayType == CategoryDisplayType.VIDEOS) R.string.this_channel_doesnt_have_videos_yet else R.string.this_channel_doesnt_have_reposts_yet),
+                                )
+                            }
+                        }
+                        item {
                             BottomNavigationBarScreenSpacer()
                         }
                     }
@@ -454,7 +466,7 @@ fun ChannelDetailsScreen(
             }
         }
     }
-    if (state.loading || videoListItems.loadState.refresh == LoadState.Loading) {
+    if (state.loading || itemsList.loadState.refresh == LoadState.Loading) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {

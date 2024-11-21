@@ -1,14 +1,18 @@
 package com.rumble.network.di
 
+import com.google.gson.GsonBuilder
 import com.rumble.battles.network.BuildConfig
 import com.rumble.network.api.CameraApi
 import com.rumble.network.api.ChannelApi
 import com.rumble.network.api.DiscoverApi
 import com.rumble.network.api.ReportApi
+import com.rumble.network.api.RepostApi
 import com.rumble.network.api.SearchApi
 import com.rumble.network.api.SubscriptionApi
 import com.rumble.network.api.UserApi
 import com.rumble.network.api.VideoApi
+import com.rumble.network.deserializer.FeedItemDeserializer
+import com.rumble.network.dto.video.FeedItem
 import com.rumble.network.interceptors.AcceptJsonHeadersInterceptor
 import com.rumble.network.interceptors.ApiVersionInterceptor
 import com.rumble.network.interceptors.HeadersInterceptor
@@ -97,14 +101,24 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideConverterFactory(): GsonConverterFactory {
+        val gson = GsonBuilder()
+            .registerTypeAdapter(FeedItem::class.java, FeedItemDeserializer())
+            .create()
+        return GsonConverterFactory.create(gson)
+    }
+
+    @Provides
+    @Singleton
     @NetworkRetrofit
     fun provideRetrofit(
         @NetworkHttpClient httpClient: OkHttpClient,
+        factory: GsonConverterFactory,
         baseUrl: String
     ): Retrofit {
         return Retrofit.Builder()
             .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(factory)
             .baseUrl(baseUrl)
             .build()
     }
@@ -140,4 +154,8 @@ object NetworkModule {
     @Provides
     fun provideSubscriptionApi(@NetworkRetrofit retrofit: Retrofit): SubscriptionApi =
         retrofit.create(SubscriptionApi::class.java)
+
+    @Provides
+    fun provideRepostApi(@NetworkRetrofit retrofit: Retrofit): RepostApi =
+        retrofit.create(RepostApi::class.java)
 }

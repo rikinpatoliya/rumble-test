@@ -12,7 +12,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VoteResult
 import com.rumble.domain.feed.domain.usecase.GetFreshChannelsUseCase
-import com.rumble.domain.feed.domain.usecase.GetHomeListUseCase
+import com.rumble.domain.feed.domain.usecase.GetFeedListUseCase
 import com.rumble.domain.feed.domain.usecase.GetVideoCollectionsUseCase
 import com.rumble.domain.feed.domain.usecase.GetViewCollectionTitleUseCase
 import com.rumble.domain.feed.domain.usecase.SaveVideoCollectionViewUseCase
@@ -35,7 +35,7 @@ import org.junit.Test
 
 class FeedListViewModelTests {
 
-    private val getHomeListUseCase = mockk<GetHomeListUseCase>(relaxed = true)
+    private val getFeedListUseCase = mockk<GetFeedListUseCase>(relaxed = true)
     private val voteVideoUseCase = mockk<VoteVideoUseCase>(relaxed = true)
     private val videoEntity = mockk<VideoEntity>(relaxed = true)
     private val unhandledErrorUseCase: UnhandledErrorUseCase = mockk(relaxed = true)
@@ -64,7 +64,7 @@ class FeedListViewModelTests {
         Dispatchers.setMain(Dispatchers.Unconfined)
         viewModel = HomeViewModel(
             application = application,
-            getHomeListUseCase = getHomeListUseCase,
+            getFeedListUseCase = getFeedListUseCase,
             voteVideoUseCase = voteVideoUseCase,
             unhandledErrorUseCase = unhandledErrorUseCase,
             adFeedImpressionUseCase = adFeedImpressionUseCase,

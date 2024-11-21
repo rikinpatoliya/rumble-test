@@ -6,8 +6,8 @@ import androidx.paging.map
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
 import com.rumble.domain.channels.model.datasource.ChannelRemoteDataSource
 import com.rumble.domain.channels.model.datasource.VideoPagingSource
-import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.common.model.datasource.VideoRemoteDataSource
+import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.database.getRoomVideoCollectionView
 import com.rumble.domain.database.getVideoCollectionViewCount
 import com.rumble.domain.feed.domain.domainmodel.Feed
@@ -37,10 +37,12 @@ import com.rumble.domain.feed.model.datasource.remote.SubscriptionVideoPagingSou
 import com.rumble.domain.feed.model.datasource.remote.VideoCollectionPagingSource
 import com.rumble.domain.feed.model.getVideoEntity
 import com.rumble.domain.feed.model.getWatchingNowEntity
+import com.rumble.network.api.RepostApi
 import com.rumble.network.api.VideoApi
 import com.rumble.network.dto.collection.VideoCollection
 import com.rumble.network.dto.livevideo.LiveReportBody
 import com.rumble.network.dto.livevideo.LiveReportBodyData
+import com.rumble.network.dto.video.Video
 import com.rumble.network.queryHelpers.Options
 import com.rumble.network.queryHelpers.Sort
 import kotlinx.coroutines.CoroutineDispatcher
@@ -51,6 +53,7 @@ import java.time.ZoneOffset
 
 class FeedRepositoryImpl(
     private val videoApi: VideoApi,
+    private val repostApi: RepostApi,
     private val channelRemoteDataSource: ChannelRemoteDataSource,
     private val dispatcher: CoroutineDispatcher,
     private val channelViewDao: ChannelViewDao,
@@ -80,7 +83,7 @@ class FeedRepositoryImpl(
         }
         val responseBody = response.body()
         return if (response.isSuccessful && responseBody != null)
-            Result.success(responseBody.data.items.map { it.getVideoEntity() })
+            Result.success(responseBody.data.items.filterIsInstance<Video>().map { it.getVideoEntity() })
         else
             Result.failure(IllegalStateException("getLiveFeed failed"))
     }
@@ -103,6 +106,7 @@ class FeedRepositoryImpl(
                 VideoCollectionPagingSource(
                     videoCollectionType = videoCollectionType,
                     videoApi = videoApi,
+                    repostApi = repostApi,
                     dispatcher = dispatcher
                 )
             }).flow.map { pagingData ->
@@ -139,7 +143,7 @@ class FeedRepositoryImpl(
         }
         val responseBody = response.body()
         return if (response.isSuccessful && responseBody != null)
-            Result.success(responseBody.data.items.map { it.getVideoEntity() })
+            Result.success(responseBody.data.items.filterIsInstance<Video>().map { it.getVideoEntity() })
         else
             Result.failure(IllegalStateException("getFeedList failed"))
     }

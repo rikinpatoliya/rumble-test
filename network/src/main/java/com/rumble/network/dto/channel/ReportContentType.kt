@@ -14,5 +14,8 @@ enum class ReportContentType {
     COMMENT,
 
     @SerializedName("user")
-    USER
+    USER,
+
+    @SerializedName("repost")
+    REPOST
 }

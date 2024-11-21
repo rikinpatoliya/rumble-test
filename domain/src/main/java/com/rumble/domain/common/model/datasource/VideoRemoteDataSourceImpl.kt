@@ -11,6 +11,7 @@ import com.rumble.domain.feed.model.getVideoEntity
 import com.rumble.network.NetworkRumbleConstants.USER_HAS_ALREADY_VOTED_ON_THIS_CONTENT_ERROR_CODE
 import com.rumble.network.api.VideoApi
 import com.rumble.network.dto.video.RelatedVideoResponse
+import com.rumble.network.dto.video.Video
 import com.rumble.network.dto.video.VideoVoteBody
 import com.rumble.network.dto.video.VideoVoteData
 import com.rumble.network.queryHelpers.BattlesType
@@ -51,7 +52,7 @@ class VideoRemoteDataSourceImpl(
         val body = response.body()
         return if (response.isSuccessful && body != null) {
             VideoListResult.Success(
-                videoList = body.data.items.map { it.getVideoEntity() }
+                videoList = body.data.items.filterIsInstance<Video>().map { it.getVideoEntity() }
             )
         } else {
             VideoListResult.Failure(
@@ -66,7 +67,7 @@ class VideoRemoteDataSourceImpl(
         val body = response.body()
         return if (response.isSuccessful && body != null) {
             VideoListResult.Success(
-                videoList = body.data.items.map { it.getVideoEntity() }
+                videoList = body.data.items.filterIsInstance<Video>().map { it.getVideoEntity() }
             )
         } else {
             VideoListResult.Failure(
@@ -90,7 +91,7 @@ class VideoRemoteDataSourceImpl(
 
         val body = response.body()
         return if (response.isSuccessful && body != null) {
-            val collection = body.data.items.map { it.getVideoEntity() }
+            val collection = body.data.items.filterIsInstance<Video>().map { it.getVideoEntity() }
             if (collection.isEmpty()) {
                 VideoListResult.Failure(
                     rumbleError = RumbleError(TAG, response = response.raw())

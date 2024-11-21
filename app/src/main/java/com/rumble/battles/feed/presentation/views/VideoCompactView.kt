@@ -47,6 +47,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.PpvEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
+import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.RumbleTypography.h6Medium
 import com.rumble.theme.RumbleTypography.tinyBodyExtraBold
@@ -78,9 +79,11 @@ import com.rumble.utils.extension.onVisible
 fun VideoCompactView(
     modifier: Modifier = Modifier,
     videoEntity: VideoEntity,
+    showMoreAction: Boolean = true,
+    listToggleViewStyle: ListToggleViewStyle = ListToggleViewStyle.LIST,
     onViewVideo: (VideoEntity) -> Unit = {},
-    onMoreClick: (VideoEntity) -> Unit,
-    onImpression: (VideoEntity) -> Unit,
+    onMoreClick: (VideoEntity) -> Unit = {},
+    onImpression: (VideoEntity) -> Unit = {},
     displayScreenType: DisplayScreenType = DisplayScreenType.OTHER,
     featured: Boolean = false
 ) {
@@ -251,12 +254,14 @@ fun VideoCompactView(
                             }
                         }
                     )
-                    Icon(
-                        modifier = Modifier.clickableNoRipple { onMoreClick(videoEntity) },
-                        painter = painterResource(id = R.drawable.ic_more),
-                        contentDescription = stringResource(id = R.string.more),
-                        tint = MaterialTheme.colors.primary
-                    )
+                    if (showMoreAction) {
+                        Icon(
+                            modifier = Modifier.clickableNoRipple { onMoreClick(videoEntity) },
+                            painter = painterResource(id = R.drawable.ic_more),
+                            contentDescription = stringResource(id = R.string.more),
+                            tint = MaterialTheme.colors.primary
+                        )
+                    }
                 }
                 Row(
                     modifier = Modifier
@@ -270,7 +275,7 @@ fun VideoCompactView(
                         name = videoEntity.channelName,
                         verifiedBadge = videoEntity.verifiedBadge,
                         textStyle = h6,
-                        textColor = MaterialTheme.colors.secondary,
+                        textColor = RumbleCustomTheme.colors.primary,
                         spacerWidth = paddingXXXSmall,
                         verifiedBadgeHeight = verifiedBadgeHeightSmall
                     )
@@ -278,7 +283,7 @@ fun VideoCompactView(
                 VideoMetadataView(
                     videoEntity = videoEntity,
                     textStyle = h6Medium,
-                    listToggleViewStyle = ListToggleViewStyle.LIST
+                    listToggleViewStyle = listToggleViewStyle,
                 )
                 if (videoEntity.isPremiumExclusiveContent) {
                     PremiumTagCompactView()

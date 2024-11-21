@@ -73,6 +73,7 @@
 
     <!--  Home Category  -->
     <string name="home_category_my_feed">My Feed</string>
+    <string name="home_category_reposts">Reposts</string>
 
     <!-- Upload Schedule -->
     <string name="now">Now</string>
@@ -93,6 +94,7 @@
     <string name="category_recorded_streams">Recorded Streams</string>
     <string name="category_videos">Videos</string>
     <string name="category_categories">Categories</string>
+    <string name="category_reposts">Reposts</string>
 
     <!-- Onboarding -->
     <string name="search_rumble">Search Rumble</string>

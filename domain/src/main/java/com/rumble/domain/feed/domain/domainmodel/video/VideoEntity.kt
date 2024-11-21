@@ -6,6 +6,7 @@ import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.category.VideoCategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.comments.CommentEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
+import com.rumble.domain.repost.domain.domainmodel.RepostEntity
 import com.rumble.network.dto.LiveStreamStatus
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
@@ -61,4 +62,6 @@ data class VideoEntity(
     val subscribedToCurrentChannel: Boolean,
     val hasLiveGate: Boolean,
     val liveGateEntity: LiveGateEntity? = null,
+    val repostCount: Int,
+    val userRepostList: List<RepostEntity>,
 ) : Feed, UniqueId, Parcelable

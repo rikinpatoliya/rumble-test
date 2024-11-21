@@ -8,4 +8,5 @@ interface VideoOptionsHandler {
     fun onSaveToWatchLater(videoId: Long)
     fun onRemoveFromPlayList(playListId: String, videoId: Long)
     fun onShare(videUrl: String)
+    fun onRepostClicked(videoEntity: VideoEntity)
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
+import com.rumble.battles.commonViews.RumbleTabsView
 import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.theme.paddingLarge
@@ -56,9 +57,9 @@ fun CategoryCollapsingToolBar(
             )
         }
 
-        CategoryTabsView(
+        RumbleTabsView(
             modifier = Modifier.fillMaxWidth(),
-            hasSubcategories = hasSubcategories,
+            tabsList = CategoryDisplayType.getDisplayTypeList(hasSubcategories = hasSubcategories),
             onTabSelected = onTabSelected,
             initialIndex = categoryDisplayType.index
         )

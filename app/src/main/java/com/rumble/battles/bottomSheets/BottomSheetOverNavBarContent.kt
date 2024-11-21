@@ -3,7 +3,11 @@ package com.rumble.battles.bottomSheets
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import com.rumble.battles.R
+import com.rumble.battles.commonViews.ReportBottomSheet
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.landing.RumbleActivityHandler
@@ -27,6 +31,8 @@ fun BottomSheetOverNavBarContent(
     onNavigateToRegistration: (String, String, String, String) -> Unit,
     onNavigateToAgeVerification: () -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     when (bottomSheetData) {
         is BottomSheetContent.ChangeAppearance -> {
             ChangeAppearanceBottomSheet(
@@ -94,7 +100,7 @@ fun BottomSheetOverNavBarContent(
 
         is BottomSheetContent.CreateNewPlayList -> {
             PlayListSettingsBottomSheet(
-                playListHandler = contentHandler,
+                contentHandler = contentHandler,
                 playListAction = PlayListAction.Create,
                 videoId = bottomSheetData.videoEntityId,
                 onClose = onHideBottomSheet
@@ -117,9 +123,20 @@ fun BottomSheetOverNavBarContent(
             )
         }
 
+        is BottomSheetContent.RepostVideo -> {
+            RepostVideoBottomSheet(
+                contentHandler = contentHandler,
+                videoEntity = bottomSheetData.videoEntity,
+                onClose = {
+                    contentHandler.resetRepostState()
+                    onHideBottomSheet()
+                }
+            )
+        }
+
         is BottomSheetContent.PlayListSettingsSheet -> {
             PlayListSettingsBottomSheet(
-                playListHandler = contentHandler,
+                contentHandler = contentHandler,
                 playListAction = PlayListAction.Edit,
                 onClose = onHideBottomSheet
             )
@@ -181,6 +198,33 @@ fun BottomSheetOverNavBarContent(
                 onNavigateToAgeVerification = {
                     onHideBottomSheet()
                     onNavigateToAgeVerification()
+                }
+            )
+        }
+
+        is BottomSheetContent.RepostMoreActions -> {
+            RepostActionsBottomSheet(
+                repost = bottomSheetData.repost,
+                currentUserId = bottomSheetData.userId,
+                onDeleteRepost = {
+                    onHideBottomSheet()
+                    contentHandler.onUndoRepost(it.id)
+                },
+                onReportRepost = {
+                    onHideBottomSheet()
+                    contentHandler.onDisplayReportRepostOptions(it)
+                },
+                onHideBottomSheet = onHideBottomSheet,
+            )
+        }
+
+        is BottomSheetContent.ReportRepost -> {
+            ReportBottomSheet(
+                subtitle = stringResource(id = R.string.why_report_video),
+                coroutineScope = coroutineScope,
+                bottomSheetState = bottomSheetState,
+                onReport = {
+                    contentHandler.onReportRepost(bottomSheetData.repost, it)
                 }
             )
         }

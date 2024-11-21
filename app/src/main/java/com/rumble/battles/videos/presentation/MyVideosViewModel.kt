@@ -6,7 +6,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.rumble.analytics.CardSize
 import com.rumble.analytics.MatureContentCancelEvent
@@ -393,7 +392,7 @@ class MyVideosViewModel @Inject constructor(
     private fun fetchVideoList() {
         uiState.update {
             uiState.value.copy(
-                videoList = getChannelVideosUseCase(uiState.value.userId).cachedIn(viewModelScope)
+                itemsList = getChannelVideosUseCase(uiState.value.userId).cachedIn(viewModelScope)
             )
         }
     }

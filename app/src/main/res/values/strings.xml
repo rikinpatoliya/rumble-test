@@ -245,6 +245,7 @@
         <item quantity="other">videos</item>
     </plurals>
     <string name="this_channel_doesnt_have_videos_yet">This channel doesn\'t have videos yet</string>
+    <string name="this_channel_doesnt_have_reposts_yet">This channel doesn\'t have reposts yet</string>
     <string name="my_videos_have_not_uploaded_title">No videos yet</string>
     <string name="my_videos_have_not_uploaded_description">Be yourself and speak freely. Record a video and upload it today!</string>
     <plurals name="followers">
@@ -417,6 +418,13 @@
     <string name="subscriber_exclusive_emote">%s supporter exclusive emote</string>
     <string name="must_be_supporter">You must be a supporter to unlock this exclusive emotes.</string>
     <string name="switch_to_keyboard">Switch to keyboard</string>
+    <string name="repost_video">Repost Video</string>
+    <string name="repost">Repost</string>
+    <string name="post">Post</string>
+    <string name="undo_repost">Undo Repost</string>
+    <string name="sure_delete_repost">Are you sure you want to delete your repost? This action cannot be undone.</string>
+    <string name="delete_repost">Delete Repost</string>
+    <string name="report_repost">Report Repost</string>
 
     <!-- Search -->
     <string name="search_rumble">Search Rumble</string>
@@ -626,6 +634,7 @@
     <string name="time_zone_your_local_time">Time zone: your local time</string>
     <string name="gallery">Gallery</string>
     <string name="no_videos_yet">No videos yet</string>
+    <string name="no_reposts_yet">No reposts yet</string>
     <string name="tap_record_to_get_started">Tap RECORD button above to get started</string>
     <string name="recording_error_retry">Recording finished with error, please retry</string>
     <string name="recording_start_error_retry">Not able to start recording, please restart camera</string>
@@ -682,6 +691,11 @@
     <string name="subscribe_to_rumble_premium">Subscribe to Rumble Premium to watch the full video and enjoy ad-free viewing.</string>
     <string name="subscribe">Subscribe</string>
     <string name="rest_video_premium_only">The rest of this video is only available to Rumble Premium subscribers. Subscribe to continue watching this video and enjoy ad-free viewing.</string>
+
+    <!-- Reposts -->
+    <string name="no_reposts">No Reposts</string>
+    <string name="no_reposts_from_your_categories">It looks like there aren’t any reposts from creators you follow yet.</string>
+    <string name="error_message_repost_text_too_long">The repost text is too long</string>
 
     <!-- Deep Links -->
     <string name="deep_link_host">rumble-dev.onelink.me</string>

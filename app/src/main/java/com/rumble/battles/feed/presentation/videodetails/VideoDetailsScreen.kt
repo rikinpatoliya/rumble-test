@@ -155,6 +155,7 @@ import com.rumble.theme.RumbleTypography.tinyBodySemiBold
 import com.rumble.theme.brandedLocalsRed
 import com.rumble.theme.brandedPlayerBackground
 import com.rumble.theme.commentActionButtonWidth
+import com.rumble.theme.enforcedBlack
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageMedium
 import com.rumble.theme.imageXMedium
@@ -181,6 +182,7 @@ import com.rumble.theme.radiusLarge
 import com.rumble.theme.radiusMedium
 import com.rumble.theme.radiusNone
 import com.rumble.theme.radiusXXXXMedium
+import com.rumble.theme.rumbleGreen
 import com.rumble.theme.videoHeightReduced
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.COLLAPSE_ANIMATION_DURATION
@@ -448,9 +450,21 @@ fun VideoDetailsScreen(
 
     LaunchedEffect(Unit) {
         contentHandler.eventFlow.collectLatest {
-            if (it is ContentScreenVmEvent.ChannelSubscriptionUpdated) {
-                handler.updateChannelDetailsEntity(it.channelDetailsEntity)
-                liveChatHandler.updateChannelDetailsEntity(it.channelDetailsEntity)
+            when (it) {
+                is ContentScreenVmEvent.ChannelSubscriptionUpdated -> {
+                    handler.updateChannelDetailsEntity(it.channelDetailsEntity)
+                    liveChatHandler.updateChannelDetailsEntity(it.channelDetailsEntity)
+                }
+
+                is ContentScreenVmEvent.OnRepostDeleted -> {
+                    handler.onRepostDeleted(it.repostId)
+                }
+
+                is ContentScreenVmEvent.VideoRepostedByCurrentUser -> {
+                    handler.onRepostedByCurrentUser()
+                }
+
+                else -> return@collectLatest
             }
         }
     }
@@ -1465,6 +1479,22 @@ private fun VideoDetailsHeaderView(
                         onDislike = handler::onDislike,
                     )
                 }
+
+                item {
+                    RepostActionButton(
+                        repostCount = state.videoEntity?.repostCount ?: 0,
+                        repostedByUser = state.repostedByUser,
+                        onClick = {
+                            state.videoEntity?.let {
+                                if (state.repostedByUser) {
+                                    //TODO: @Igor handle when docs will be updated.
+                                }
+                                else contentHandler.onRepostClicked(it)
+                            }
+                        }
+                    )
+                }
+
                 if (it.videoStatus != VideoStatus.STREAMED
                     && it.videoStatus != VideoStatus.UPLOADED
                     && it.liveChatDisabled.not()
@@ -1591,6 +1621,32 @@ private fun VideoDetailsActionButton(
         textColor = MaterialTheme.colors.secondary,
         onClick = onClick,
         enabled = enabled
+    )
+}
+
+@Composable
+private fun RepostActionButton(
+    repostCount: Int,
+    repostedByUser: Boolean,
+    onClick: () -> Unit,
+) {
+    ActionButton(
+        text = repostCount.toString(),
+        contentModifier = Modifier
+            .padding(
+                top = paddingXXSmall,
+                bottom = paddingXXSmall,
+                start = paddingSmall,
+                end = paddingSmall
+            ),
+        textModifier = Modifier
+            .padding(start = paddingXXXSmall),
+        leadingIconPainter = painterResource(id = R.drawable.ic_repeat),
+        backgroundColor = if (repostedByUser) rumbleGreen else MaterialTheme.colors.onSurface,
+        borderColor = if (repostedByUser) rumbleGreen else MaterialTheme.colors.onSurface,
+        textColor =  if (repostedByUser) enforcedBlack else MaterialTheme.colors.secondary,
+        onClick = onClick,
+        enabled = true,
     )
 }
 
