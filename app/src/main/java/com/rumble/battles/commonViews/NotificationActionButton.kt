@@ -92,9 +92,9 @@ data class NotificationActionData(
     val notificationActionType: NotificationActionType
 )
 
-enum class NotificationActionType(val value: String) {
-    WITH_STATES("with_states"),
-    WITH_DROPDOWN("with_dropdown");
+enum class NotificationActionType {
+    WITH_STATES,
+    WITH_DROPDOWN
 }
 
 private fun getNotificationActionShape(notificationActionType: NotificationActionType): Shape {

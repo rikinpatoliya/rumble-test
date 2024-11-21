@@ -47,7 +47,7 @@ data class JoinActionData(
     val joinActionType: JoinActionType
 )
 
-enum class JoinActionType(val value: String) {
-    SHOW_AS_STAR("show_as_star"),
-    WITH_TEXT("with_text");
+enum class JoinActionType {
+    SHOW_AS_STAR,
+    WITH_TEXT
 }
