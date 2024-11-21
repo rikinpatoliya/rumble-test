@@ -140,6 +140,7 @@ import com.rumble.battles.livechat.presentation.content.LiveChatModerationMenu
 import com.rumble.battles.livechat.presentation.content.MuteUserBottomSheet
 import com.rumble.battles.livechat.presentation.rant.BuyRantSheet
 import com.rumble.battles.rumbleads.presentation.RumbleAdView
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
@@ -916,6 +917,7 @@ private fun ChannelContentView(
                 videoEntity = state.videoEntity,
                 contentHandler = contentHandler,
                 handler = handler,
+                coroutineScope = coroutineScope,
                 onChannelClick = onChannelClick,
                 activityHandler = activityHandler
             )
@@ -943,10 +945,7 @@ private fun ChannelContentView(
                     .padding(paddingMedium)
                     .clip(RoundedCornerShape(radiusMedium))
                     .background(color = MaterialTheme.colors.surface),
-                handler = handler,
-                contentHandler = contentHandler,
                 activityHandler = activityHandler,
-                coroutineScope = coroutineScope,
                 videoEntity = state.videoEntity,
                 onCategoryClick = onCategoryClick,
                 onTagClick = onTagClick
@@ -1290,37 +1289,17 @@ private fun JoinOnLocalsView(
 @Composable
 private fun VideoDetailsInfoView(
     modifier: Modifier = Modifier,
-    handler: VideoDetailsHandler,
-    contentHandler: ContentHandler,
     activityHandler: RumbleActivityHandler,
-    coroutineScope: CoroutineScope,
     videoEntity: VideoEntity?,
     onCategoryClick: (String) -> Unit,
     onTagClick: (String) -> Unit,
 ) {
-    val state by handler.state
-    val contentSate by contentHandler.userUIState.collectAsStateWithLifecycle()
-
     Box(
         modifier = modifier
     ) {
         Column(
             modifier = Modifier.padding(paddingSmall)
         ) {
-            state.channelDetailsEntity?.localsCommunityEntity?.let {
-                if ((it.showPremiumFlow && contentSate.isPremiumUser.not()) || it.showPremiumFlow.not()) {
-                    JoinOnLocalsView(
-                        handler = handler,
-                        coroutineScope = coroutineScope
-                    )
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = paddingSmall),
-                        color = MaterialTheme.colors.secondaryVariant
-                    )
-                }
-            }
             videoEntity?.let {
                 VideoSummaryView(
                     videoEntity = it,
@@ -1369,6 +1348,7 @@ private fun VideoDetailsHeaderView(
     videoEntity: VideoEntity?,
     contentHandler: ContentHandler,
     handler: VideoDetailsHandler,
+    coroutineScope: CoroutineScope,
     onChannelClick: (String) -> Unit,
     activityHandler: RumbleActivityHandler
 ) {
@@ -1422,7 +1402,9 @@ private fun VideoDetailsHeaderView(
                     channelName = it.channelName,
                     channelThumbnail = it.channelThumbnail,
                     channelId = state.channelDetailsEntity?.channelId,
+                    channelDetailsEntity = state.channelDetailsEntity,
                     verifiedBadge = it.verifiedBadge,
+                    showJoinButton = state.showJoinButton,
                     followers = it.channelFollowers,
                     followStatus = state.followStatus,
                     onUpdateSubscription = { action ->
@@ -1432,6 +1414,12 @@ private fun VideoDetailsHeaderView(
                         )
                     },
                     onChannelClick = onChannelClick,
+                    onJoin = { coroutineScope.launch { handler.onLocals() } },
+                    onChannelNotifications = { channelDetailsEntity ->
+                        contentHandler.updateBottomSheetUiState(
+                            BottomSheetContent.ChannelNotificationsSheet(channelDetailsEntity)
+                        )
+                    }
                 )
             }
 

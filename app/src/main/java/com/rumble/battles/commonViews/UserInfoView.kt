@@ -11,7 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsActionButtonsView
 import com.rumble.battles.feed.presentation.views.FollowerNumberView
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.paddingXSmall
@@ -25,10 +27,14 @@ fun UserInfoView(
     channelThumbnail: String,
     channelId: String?,
     verifiedBadge: Boolean,
+    showJoinButton: Boolean,
     followers: Int = 0,
+    channelDetailsEntity: ChannelDetailsEntity? = null,
     followStatus: FollowStatus? = null,
     onUpdateSubscription: (action: UpdateChannelSubscriptionAction) -> Unit,
     onChannelClick: (String) -> Unit,
+    onJoin: (localsCommunityEntity: LocalsCommunityEntity) -> Unit = {},
+    onChannelNotifications: (ChannelDetailsEntity) -> Unit = {},
 ) {
     Row(
         modifier = modifier
@@ -73,10 +79,31 @@ fun UserInfoView(
         followStatus?.let { followStatus ->
             ChannelDetailsActionButtonsView(
                 followStatus = followStatus,
-                onJoin = {},
+                notificationActionData = channelDetailsEntity?.let {
+                    NotificationActionData(
+                        channelDetailsEntity = it,
+                        notificationActionType = NotificationActionType.WITH_DROPDOWN
+                    )
+                },
+                joinActionData = channelDetailsEntity?.localsCommunityEntity?.let {
+                    JoinActionData(
+                        localsCommunityEntity = it,
+                        joinActionType = if (followStatus.followed) {
+                            JoinActionType.WITH_TEXT
+                        } else {
+                            JoinActionType.SHOW_AS_STAR
+                        }
+                    )
+                },
+                onJoin = onJoin,
                 onUpdateSubscription = onUpdateSubscription,
-                onChannelNotification = {},
-                showDrawable = false,
+                onChannelNotification = {
+                    channelDetailsEntity?.let {
+                        onChannelNotifications(it)
+                    }
+                },
+                showJoinButton = showJoinButton,
+                showUnfollowAction = false
             )
         }
     }

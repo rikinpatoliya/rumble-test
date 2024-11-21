@@ -241,6 +241,7 @@ data class VideoDetailsState(
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
     val displayPremiumOnlyContent: Boolean = false,
     val chatMode: ChatMode = ChatMode.Free,
+    val showJoinButton: Boolean = false,
 )
 
 data class EmoteState(
@@ -298,7 +299,11 @@ sealed class VideoDetailsEvent {
     data class SetOrientation(val orientation: Int) : VideoDetailsEvent()
     data object OpenAuthMenu : VideoDetailsEvent()
     data object RequestMessageFocus : VideoDetailsEvent()
-    data class StartFollowChannel(val channelDetailsEntity: ChannelDetailsEntity?, val action: UpdateChannelSubscriptionAction) : VideoDetailsEvent()
+    data class StartFollowChannel(
+        val channelDetailsEntity: ChannelDetailsEntity?,
+        val action: UpdateChannelSubscriptionAction
+    ) : VideoDetailsEvent()
+
     data class EmoteUsed(val emote: EmoteEntity) : VideoDetailsEvent()
     data object VideoModeMinimized : VideoDetailsEvent()
 }
@@ -459,10 +464,12 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onFollowChannel() {
-        emitVmEvent(VideoDetailsEvent.StartFollowChannel(
-            channelDetailsEntity = state.value.channelDetailsEntity,
-            action = UpdateChannelSubscriptionAction.SUBSCRIBE,
-        ))
+        emitVmEvent(
+            VideoDetailsEvent.StartFollowChannel(
+                channelDetailsEntity = state.value.channelDetailsEntity,
+                action = UpdateChannelSubscriptionAction.SUBSCRIBE,
+            )
+        )
         emoteState.value = emoteState.value.copy(
             requestFollow = false,
         )
@@ -796,7 +803,10 @@ class VideoDetailsViewModel @Inject constructor(
                     state.value = state.value.copy(
                         videoEntity = state.value.videoEntity?.copy(hasLiveGate = true),
                         hasLiveGateRestriction = true,
-                        chatMode = defineLiveChatModeUseCase(it, liveGateEntity?.chatMode ?: state.value.chatMode),
+                        chatMode = defineLiveChatModeUseCase(
+                            it,
+                            liveGateEntity?.chatMode ?: state.value.chatMode
+                        ),
                     )
                     onFullScreen(false)
                 }
@@ -1304,14 +1314,10 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity) {
-        state.value = state.value.copy(
-            channelDetailsEntity = channelDetailsEntity,
-            followStatus = FollowStatus(
-                channelId = channelDetailsEntity.channelId,
-                followed = channelDetailsEntity.followed,
-                isBlocked = channelDetailsEntity.blocked
-            )
-        )
+        viewModelScope.launch {
+            val isPremium = isPremiumUserFlow.first()
+            updateChannelDetails(channelDetailsEntity, isPremium)
+        }
     }
 
     private fun onLiveVideoReport(videoId: Long, status: Int?, watchingNow: Long) {
@@ -1608,7 +1614,10 @@ class VideoDetailsViewModel @Inject constructor(
                 commentsDisabled = it.commentsDisabled,
                 watchingNow = it.watchingNow,
                 hasPremiumRestriction = hasPremiumRestrictionUseCase(it) && (it.hasLiveGate.not() || it.livestreamStatus == LiveStreamStatus.LIVE),
-                chatMode = defineLiveChatModeUseCase(it, it.liveGateEntity?.chatMode ?: ChatMode.Free),
+                chatMode = defineLiveChatModeUseCase(
+                    it,
+                    it.liveGateEntity?.chatMode ?: ChatMode.Free
+                ),
             )
             onVideoPlayerImpression()
             initLiveChat(it)
@@ -1658,17 +1667,27 @@ class VideoDetailsViewModel @Inject constructor(
     private suspend fun fetchChannelDetails(channelId: String?) {
         channelId?.let {
             val result = viewModelScope.async { getChannelDataUseCase(it).getOrNull() }
+            val isPremium = isPremiumUserFlow.first()
             result.await()?.let { channel ->
-                state.value = state.value.copy(
-                    channelDetailsEntity = channel,
-                    followStatus = FollowStatus(
-                        channelId = channel.channelId,
-                        followed = channel.followed,
-                        isBlocked = channel.blocked
-                    )
-                )
+                updateChannelDetails(channel, isPremium)
             }
         }
+    }
+
+    private fun updateChannelDetails(
+        channelDetailsEntity: ChannelDetailsEntity,
+        isPremium: Boolean
+    ) {
+        val showPremiumFlow = channelDetailsEntity.localsCommunityEntity?.showPremiumFlow ?: false
+        state.value = state.value.copy(
+            channelDetailsEntity = channelDetailsEntity,
+            followStatus = FollowStatus(
+                channelId = channelDetailsEntity.channelId,
+                followed = channelDetailsEntity.followed,
+                isBlocked = channelDetailsEntity.blocked
+            ),
+            showJoinButton = (showPremiumFlow && isPremium.not()) || showPremiumFlow.not()
+        )
     }
 
     private suspend fun fetchUserProfile() {
