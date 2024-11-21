@@ -14,10 +14,13 @@ class GetVideoDetailsUseCase @Inject constructor(
     private val updateVideoSourceListUseCase: UpdateVideoSourceListUseCase,
     override val rumbleErrorUseCase: RumbleErrorUseCase
 ) : RumbleUseCase {
+    private val optionList = listOf(
+        Options.EXTENDED, Options.RELATED, Options.COMMENTS, Options.CATEGORIES, Options.WATCHING_PROGRESS, Options.FULL, Options.USER_REPOSTS
+    )
     suspend operator fun invoke(videoId: Long): VideoEntity? {
         val videoDetailsResult = feedRepository.fetchVideoDetails(
             videoId,
-            listOf(Options.EXTENDED, Options.RELATED, Options.COMMENTS, Options.CATEGORIES, Options.WATCHING_PROGRESS)
+            optionList
         )
         return extractVideo(videoDetailsResult)
     }
@@ -25,7 +28,7 @@ class GetVideoDetailsUseCase @Inject constructor(
     suspend operator fun invoke(videoUrl: String): VideoEntity? {
         val videoDetailsResult = feedRepository.fetchVideoDetails(
             videoUrl,
-            listOf(Options.EXTENDED, Options.RELATED, Options.COMMENTS, Options.CATEGORIES)
+            optionList
         )
         return extractVideo(videoDetailsResult)
     }

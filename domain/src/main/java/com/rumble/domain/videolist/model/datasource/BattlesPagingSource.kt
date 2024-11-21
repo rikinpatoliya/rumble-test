@@ -6,6 +6,7 @@ import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.model.getVideoEntity
 import com.rumble.network.api.VideoApi
+import com.rumble.network.dto.video.Video
 import com.rumble.network.queryHelpers.BattlesType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -52,7 +53,7 @@ class BattlesPagingSource(
                 offset = offset,
                 limit = loadSize
             ).body()
-        val items = response?.data?.items?.map { it.getVideoEntity() } ?: emptyList()
+        val items = response?.data?.items?.filterIsInstance<Video>()?.map { it.getVideoEntity() } ?: emptyList()
         offset += loadSize
         return items
     }

@@ -6,7 +6,10 @@ import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.channel.FeaturedChannelsFeedItem
 import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.model.getVideoEntity
+import com.rumble.domain.feed.model.getFeed
+import com.rumble.domain.repost.domain.domainmodel.RepostEntity
+import com.rumble.domain.repost.getRepostEntity
+import com.rumble.network.api.RepostApi
 import com.rumble.network.api.VideoApi
 import com.rumble.network.queryHelpers.LiveVideoFront
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,6 +18,7 @@ import kotlinx.coroutines.withContext
 class VideoCollectionPagingSource(
     private val videoCollectionType: VideoCollectionType,
     private val videoApi: VideoApi,
+    private val repostApi: RepostApi,
     private val dispatcher: CoroutineDispatcher,
 ) : RumblePagingSource<Int, Feed>() {
 
@@ -30,14 +34,13 @@ class VideoCollectionPagingSource(
             try {
                 nextKey = params.key ?: 0
 
-                val subscriptionItems =
-                    fetchVideos(
-                        videoCollectionType = videoCollectionType,
-                        loadSize = getLoadSize(loadSize)
-                    )
+                val subscriptionItems = fetchVideos(
+                    videoCollectionType = videoCollectionType,
+                    loadSize = getLoadSize(loadSize)
+                )
 
-                val filteredItems: List<VideoEntity> = sanitizeDuplicates(subscriptionItems)
-                val items: MutableList<Feed> = filteredItems.toMutableList()
+//                val filteredItems: List<Feed> = sanitizeDuplicates(subscriptionItems) //TODO: how to remove duplicates?
+                val items: MutableList<Feed> = subscriptionItems.toMutableList()
 
                 if (nextKey == 0) {
                     if (items.size <= 10) {
@@ -51,12 +54,12 @@ class VideoCollectionPagingSource(
                 }
 
                 val itemsWithIndex: List<Feed> = items.mapIndexed { index, it ->
-                    if (it is FeaturedChannelsFeedItem) {
-                        it.copy(index = nextKey + index)
-                    } else {
-                        (it as VideoEntity).copy(index = nextKey + index)
+                    when (it) {
+                        is FeaturedChannelsFeedItem -> it.copy(index = nextKey + index)
+                        is VideoEntity -> it.copy(index = nextKey + index)
+                        else -> (it as? RepostEntity)?.copy(index = nextKey + index)
                     }
-                }
+                }.mapNotNull { it }
 
                 LoadResult.Page(
                     data = itemsWithIndex,
@@ -75,7 +78,10 @@ class VideoCollectionPagingSource(
     override val keyReuseSupported: Boolean
         get() = true
 
-    private suspend fun fetchVideos(videoCollectionType: VideoCollectionType, loadSize: Int): List<VideoEntity> {
+    private suspend fun fetchVideos(
+        videoCollectionType: VideoCollectionType,
+        loadSize: Int
+    ): List<Feed> {
         return when (videoCollectionType) {
             is VideoCollectionType.VideoCollectionEntity -> {
                 if (videoCollectionType.name.trim().lowercase() == "live") {
@@ -87,11 +93,13 @@ class VideoCollectionPagingSource(
                     )
                 }
             }
+
             VideoCollectionType.MyFeed -> fetchSubscriptionVideoList(loadSize = loadSize)
+            VideoCollectionType.Reposts -> fetchRepostList(loadSize = loadSize)
         }
     }
 
-    private suspend fun fetchLiveVideoList(loadSize: Int): List<VideoEntity> {
+    private suspend fun fetchLiveVideoList(loadSize: Int): List<Feed> {
         val response =
             videoApi.fetchLiveVideoList(
                 offset = subscribedOffset,
@@ -99,7 +107,7 @@ class VideoCollectionPagingSource(
                 front = LiveVideoFront.NotFront.value
             )
                 .body()
-        val items = response?.data?.items?.map { it.getVideoEntity() } ?: emptyList()
+        val items = response?.data?.items?.map { it.getFeed() }?.mapNotNull { it } ?: emptyList()
         subscribedOffset += loadSize
         return items
     }
@@ -107,7 +115,7 @@ class VideoCollectionPagingSource(
     private suspend fun fetchVideoCollection(
         id: String,
         loadSize: Int,
-    ): List<VideoEntity> {
+    ): List<Feed> {
         val responseBody =
             videoApi.fetchVideoCollection(
                 id,
@@ -115,17 +123,22 @@ class VideoCollectionPagingSource(
                 limit = loadSize
             ).body()
         val items = responseBody?.data?.items?.map {
-            it.getVideoEntity()
-        } ?: emptyList()
+            it.getFeed()
+        }?.mapNotNull { it } ?: emptyList()
         subscribedOffset += loadSize
         return items
     }
 
-    private suspend fun fetchSubscriptionVideoList(loadSize: Int): List<VideoEntity> {
+    private suspend fun fetchSubscriptionVideoList(loadSize: Int): List<Feed> {
         val response =
             videoApi.fetchSubscriptionVideoList(offset = subscribedOffset, limit = loadSize).body()
-        val items = response?.data?.items?.map { it.getVideoEntity() } ?: emptyList()
+        val items = response?.data?.items?.map { it.getFeed() }?.mapNotNull { it } ?: emptyList()
         subscribedOffset += loadSize
         return items
+    }
+
+    private suspend fun fetchRepostList(loadSize: Int): List<Feed> {
+        val repostListResponse = repostApi.fetchRepost(offset = nextKey, limit = loadSize)
+        return repostListResponse.body()?.data?.items?.map { it.getRepostEntity() } ?: emptyList()
     }
 }

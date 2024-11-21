@@ -26,7 +26,6 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserUploadChannelsUseCase
@@ -326,7 +325,6 @@ class PlayListViewModel @Inject constructor(
             playListSettingsState.value =
                 PlayListSettingsBottomSheetDialog.PlayListChannelSelection(
                     playListEntity = it,
-                    userUploadChannels = editPlayListState.value.userUploadChannels
                 )
         }
     }
@@ -401,25 +399,7 @@ class PlayListViewModel @Inject constructor(
                 )
             }
             refreshPlayList()
-            updateUserChannelEntity()
             fetchUserUploadChannels()
-        }
-    }
-
-    private suspend fun updateUserChannelEntity() {
-        val userId = sessionManager.userIdFlow.first()
-        val userName = sessionManager.userNameFlow.first()
-        val userPicture = sessionManager.userPictureFlow.first()
-        editPlayListState.update {
-            it.copy(
-                userChannel = UserUploadChannelEntity(
-                    id = userId,
-                    channelId = 0,
-                    title = userName,
-                    name = userName,
-                    thumbnail = userPicture
-                )
-            )
         }
     }
 
@@ -449,7 +429,7 @@ class PlayListViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fetchUserUploadChannels() {
+    private fun fetchUserUploadChannels() {
         viewModelScope.launch(errorHandler) {
             when (val result = getUserUploadChannelsUseCase()) {
                 is UserUploadChannelsResult.UserUploadChannelsError -> {
@@ -458,11 +438,6 @@ class PlayListViewModel @Inject constructor(
                 }
 
                 is UserUploadChannelsResult.UserUploadChannelsSuccess -> {
-                    editPlayListState.update {
-                        it.copy(
-                            userUploadChannels = result.userUploadChannels
-                        )
-                    }
                     result.userUploadChannels.forEach { userUploadChannelEntity ->
                         if (userUploadChannelEntity.channelId.toChannelIdString() == state.value.playListEntity.channelId) {
                             state.update { playListScreenState ->

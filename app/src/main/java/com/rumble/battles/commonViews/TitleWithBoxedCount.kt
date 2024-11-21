@@ -17,13 +17,17 @@ import com.rumble.theme.radiusLarge
 
 @Composable
 fun TitleWithBoxedCount(
-    title: String,
+    title: String = "",
     count: String,
 ) {
-    Text(
-        text = title.uppercase(),
-        style = RumbleTypography.h6Heavy
-    )
+    if (title.isNotEmpty()) {
+        Text(
+            modifier = Modifier
+                .padding(end = paddingXXXSmall),
+            text = title.uppercase(),
+            style = RumbleTypography.h6Heavy
+        )
+    }
     Box(
         modifier = Modifier
             .padding(start = paddingXXXSmall)

@@ -7,7 +7,23 @@ import com.rumble.network.dto.comments.CommentVoteResponse
 import com.rumble.network.dto.comments.UserCommentResponse
 import com.rumble.network.dto.livevideo.LiveReportBody
 import com.rumble.network.dto.timerange.TimeRangeDataRequest
-import com.rumble.network.dto.video.*
+import com.rumble.network.dto.video.AddVideoToPlaylistResponse
+import com.rumble.network.dto.video.ClearWatchHistoryResponse
+import com.rumble.network.dto.video.DeletePlayListResponse
+import com.rumble.network.dto.video.FollowPlayListResponse
+import com.rumble.network.dto.video.PlayListResponse
+import com.rumble.network.dto.video.PlayListVideoListResponse
+import com.rumble.network.dto.video.PlayListsResponse
+import com.rumble.network.dto.video.RelatedVideoResponse
+import com.rumble.network.dto.video.RemoveFromPlaylistResponse
+import com.rumble.network.dto.video.RumbleLog
+import com.rumble.network.dto.video.UpdatePlayListResponse
+import com.rumble.network.dto.video.Video
+import com.rumble.network.dto.video.VideoDetailsResponse
+import com.rumble.network.dto.video.VideoListResponse
+import com.rumble.network.dto.video.VideoVoteBody
+import com.rumble.network.dto.video.VideoVoteResponse
+import com.rumble.network.dto.video.WatchingNowResponse
 import com.rumble.network.queryHelpers.BattlesType
 import com.rumble.network.queryHelpers.Options
 import com.rumble.network.queryHelpers.PlayListInclude
@@ -15,7 +31,14 @@ import com.rumble.network.queryHelpers.Sort
 import okhttp3.FormBody
 import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface VideoApi {
 
@@ -32,6 +55,7 @@ interface VideoApi {
         @Query("sort") sortType: Sort? = null,
         @Query("offset") offset: Int? = null,
         @Query("limit") limit: Int? = null,
+        @Query("api") apiVersion: String = "7",
         @Query("options") options: String = listOf(Options.FULL, Options.WATCHING_PROGRESS).joinToString(separator = ",")
     ): Response<VideoListResponse>
 

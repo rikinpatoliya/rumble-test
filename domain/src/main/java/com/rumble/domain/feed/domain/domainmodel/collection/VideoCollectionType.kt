@@ -1,7 +1,8 @@
 package com.rumble.domain.feed.domain.domainmodel.collection
 
 sealed class VideoCollectionType(val collectionTitle: String? = null) {
-    object MyFeed : VideoCollectionType()
+    data object MyFeed : VideoCollectionType()
+    data object Reposts: VideoCollectionType()
     data class VideoCollectionEntity(
         val id: String,
         val slug: String,

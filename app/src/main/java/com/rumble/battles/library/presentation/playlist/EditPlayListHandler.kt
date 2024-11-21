@@ -21,8 +21,6 @@ interface EditPlayListHandler {
 
 data class EditPlayListScreenUIState(
     val editPlayListEntity: PlayListEntity? = null,
-    val userChannel: UserUploadChannelEntity = UserUploadChannelEntity(),
-    val userUploadChannels: List<UserUploadChannelEntity> = emptyList(),
     val titleError: Boolean = false,
     val descriptionError: Boolean = false,
 )
@@ -33,7 +31,6 @@ sealed class PlayListSettingsBottomSheetDialog {
 
     data class PlayListChannelSelection(
         val playListEntity: PlayListEntity,
-        val userUploadChannels: List<UserUploadChannelEntity>
     ) : PlayListSettingsBottomSheetDialog()
 
     object DefaultPopupState : PlayListSettingsBottomSheetDialog()

@@ -72,7 +72,9 @@ fun EmptyView(
 
             text?.let {
                 Text(
-                    modifier = Modifier.padding(top = paddingXXXSmall),
+                    modifier = Modifier
+                        .padding(top = paddingXXXSmall)
+                        .padding(horizontal = paddingMedium),
                     text = text,
                     color = RumbleCustomTheme.colors.secondary,
                     style = h5,

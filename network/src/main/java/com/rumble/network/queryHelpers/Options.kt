@@ -6,7 +6,8 @@ enum class Options(val value: String) {
     EXTENDED("extended"),
     RELATED("related"),
     COMMENTS("comments"),
-    CATEGORIES("categories");
+    CATEGORIES("categories"),
+    USER_REPOSTS("video.user_reposts");
 
     override fun toString(): String = this.value
 }

@@ -1,9 +1,9 @@
 package com.rumble.battles.feed.presentation.views
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -22,14 +22,16 @@ import com.rumble.theme.imageXXMini
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.utils.extension.shortString
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VideoMetadataView(
     videoEntity: VideoEntity,
     textStyle: TextStyle,
     listToggleViewStyle: ListToggleViewStyle
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
+    FlowRow(
+        verticalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.spacedBy(paddingXXXSmall)
     ) {
         Text(
             text = getStringTitleByStatus(
@@ -40,14 +42,13 @@ fun VideoMetadataView(
             style = textStyle,
         )
         if (shouldShowViews(videoEntity)) {
-            Spacer(modifier = Modifier.width(paddingXXXSmall))
             Icon(
                 painter = painterResource(id = R.drawable.ic_dot),
                 contentDescription = "",
-                modifier = Modifier.size(imageXXMini),
+                modifier = Modifier.size(imageXXMini).align(Alignment.CenterVertically),
                 tint = MaterialTheme.colors.secondary
             )
-            Spacer(modifier = Modifier.width(paddingXXXSmall))
+
             Text(
                 text = getViewsNumberText(videoEntity),
                 color = MaterialTheme.colors.secondary,
@@ -55,14 +56,12 @@ fun VideoMetadataView(
             )
         }
         if (shouldShowLikes(listToggleViewStyle, videoEntity)) {
-            Spacer(modifier = Modifier.width(paddingXXXSmall))
             Icon(
                 painter = painterResource(id = R.drawable.ic_dot),
                 contentDescription = "",
-                modifier = Modifier.size(imageXXMini),
+                modifier = Modifier.size(imageXXMini).align(Alignment.CenterVertically),
                 tint = MaterialTheme.colors.secondary
             )
-            Spacer(modifier = Modifier.width(paddingXXXSmall))
             Text(
                 text = "${videoEntity.likeNumber.shortString()} ${stringResource(id = R.string.likes).lowercase()}",
                 color = MaterialTheme.colors.secondary,
@@ -77,11 +76,11 @@ private fun shouldShowLikes(
     listToggleViewStyle: ListToggleViewStyle,
     videoEntity: VideoEntity
 ) = (listToggleViewStyle == ListToggleViewStyle.GRID &&
-        (videoEntity.videoStatus == VideoStatus.UPLOADED
-                || (videoEntity.videoStatus == VideoStatus.UPCOMING && videoEntity.likeNumber > 0)
-                || (videoEntity.videoStatus == VideoStatus.STARTING && videoEntity.likeNumber > 0)
-                || videoEntity.videoStatus == VideoStatus.STREAMED)
-        )
+    (videoEntity.videoStatus == VideoStatus.UPLOADED
+        || (videoEntity.videoStatus == VideoStatus.UPCOMING && videoEntity.likeNumber > 0)
+        || (videoEntity.videoStatus == VideoStatus.STARTING && videoEntity.likeNumber > 0)
+        || videoEntity.videoStatus == VideoStatus.STREAMED)
+    )
 
 @Composable
 private fun shouldShowViews(videoEntity: VideoEntity) = when (videoEntity.videoStatus) {

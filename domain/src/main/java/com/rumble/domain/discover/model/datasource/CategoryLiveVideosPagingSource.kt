@@ -5,8 +5,8 @@ import com.rumble.domain.common.model.datasource.RumblePagingSource
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.model.getVideoEntity
 import com.rumble.network.api.VideoApi
+import com.rumble.network.dto.video.Video
 import com.rumble.network.queryHelpers.LiveVideoFront
-import com.rumble.network.queryHelpers.Options
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -28,7 +28,7 @@ class CategoryLiveVideosPagingSource(
                     limit = loadSize
                 )
                 val videoEntities = if (response.isSuccessful) {
-                    response.body()?.data?.items?.mapIndexed { index, video ->
+                    response.body()?.data?.items?.filterIsInstance<Video>()?.mapIndexed { index, video ->
                         video.getVideoEntity().copy(index = index + nextKey)
                     }
                         ?: emptyList()

@@ -140,7 +140,7 @@ fun MyVideosScreen(
     )
     val context = LocalContext.current
 
-    val videoListItems: LazyPagingItems<Feed> = state.videoList.collectAsLazyPagingItems()
+    val videoListItems: LazyPagingItems<Feed> = state.itemsList.collectAsLazyPagingItems()
     val updatedEntity by myVideosHandler.updatedEntity.collectAsStateWithLifecycle()
     updatedEntity?.let { updated ->
         videoListItems.itemSnapshotList.find { it is VideoEntity && it.id == updated.id }?.let {
@@ -339,11 +339,11 @@ fun MyVideosScreen(
                             }
                             item {
                                 VideosCountView(
-                                    state,
-                                    Modifier
+                                    state= state,
+                                    modifier = Modifier
                                         .fillMaxWidth()
                                         .background(color = MaterialTheme.colors.background),
-                                    listToggleViewStyle
+                                    videoListToggleViewStyle = listToggleViewStyle
                                 ) {
                                     myVideosHandler.onToggleVideoViewStyle(it)
                                 }

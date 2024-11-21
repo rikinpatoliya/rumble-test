@@ -22,7 +22,7 @@ class ReportContentUseCase @Inject constructor(
             contentType = contentReportType,
             contentId = contentId,
             reason = context.getString(reportType.value),
-            isTest = developModeUseCase(),
+            isTest = developModeUseCase()
         )
     }
 }

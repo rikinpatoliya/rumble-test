@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.RumbleBasicTopAppBar
+import com.rumble.battles.commonViews.RumbleTabsView
 import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
 import com.rumble.domain.discover.domain.domainmodel.MainCategory
 import com.rumble.theme.RumbleTheme
@@ -59,8 +60,9 @@ fun BrowseCategoriesCollapsingToolBar(
             }
         }
 
-        MainCategoryTabsView(
+        RumbleTabsView(
             modifier = Modifier.fillMaxWidth(),
+            tabsList = CategoryDisplayType.getMainCategoryTypeList(),
             onTabSelected = onTabSelected,
             initialIndex = categoryDisplayType.mainIndex
         )

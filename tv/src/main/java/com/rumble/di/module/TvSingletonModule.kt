@@ -67,6 +67,7 @@ import com.rumble.network.api.ChannelApi
 import com.rumble.network.api.LoginApi
 import com.rumble.network.api.PreRollApi
 import com.rumble.network.api.ReportApi
+import com.rumble.network.api.RepostApi
 import com.rumble.network.api.RumbleAdsApi
 import com.rumble.network.api.RumbleBannerApi
 import com.rumble.network.api.SearchApi
@@ -135,6 +136,7 @@ class TvSingletonModule {
     @Singleton
     fun provideFeedRepository(
         videoApi: VideoApi,
+        repostApi: RepostApi,
         channelRemoteDataSource: ChannelRemoteDataSource,
         channelViewDao: ChannelViewDao,
         commentRemoteDataSource: CommentRemoteDataSource,
@@ -143,6 +145,7 @@ class TvSingletonModule {
     ): FeedRepository =
         FeedRepositoryImpl(
             videoApi,
+            repostApi,
             channelRemoteDataSource,
             Dispatchers.IO,
             channelViewDao,

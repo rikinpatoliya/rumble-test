@@ -6,8 +6,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
 import com.rumble.domain.earnings.domainmodel.EarningsEntity
-import com.rumble.domain.feed.domain.domainmodel.ads.AdEntity
-import com.rumble.domain.feed.domain.domainmodel.ads.AdsType
+import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.category.VideoCategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.domain.domainmodel.comments.CommentEntity
@@ -31,24 +30,24 @@ import com.rumble.domain.profile.domainmodel.ProfileNotificationEntity
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
 import com.rumble.domain.referrals.domain.domainmodel.ReferralDetailsEntity
 import com.rumble.domain.referrals.domain.domainmodel.ReferralEntity
+import com.rumble.domain.repost.getRepostEntity
 import com.rumble.domain.settings.domain.domainmodel.NotificationSettingsEntity
 import com.rumble.domain.settings.domain.domainmodel.NotificationSettingsLegacyEntity
 import com.rumble.network.dto.LiveStreamStatus
-import com.rumble.network.dto.ads.revcontent.RevTrackBody
-import com.rumble.network.dto.ads.revcontent.Revcontent
 import com.rumble.network.dto.categories.Categories
 import com.rumble.network.dto.categories.VideoCategory
 import com.rumble.network.dto.channel.Channel
 import com.rumble.network.dto.channel.UserUploadChannel
 import com.rumble.network.dto.collection.VideoCollectionWithoutVideos
 import com.rumble.network.dto.comments.Comment
-import com.rumble.network.dto.profile.Address
 import com.rumble.network.dto.profile.ProfileNotificationItem
 import com.rumble.network.dto.profile.UserProfile
 import com.rumble.network.dto.referral.Referral
 import com.rumble.network.dto.referral.ReferralsData
+import com.rumble.network.dto.repost.Repost
 import com.rumble.network.dto.settings.Earnings
 import com.rumble.network.dto.settings.NotificationSettings
+import com.rumble.network.dto.video.FeedItem
 import com.rumble.network.dto.video.PlayList
 import com.rumble.network.dto.video.PlayListChannel
 import com.rumble.network.dto.video.PlayListUser
@@ -62,21 +61,6 @@ import com.rumble.utils.extension.toDate
 import com.rumble.utils.extension.toUserIdString
 import java.time.LocalDateTime
 import kotlin.math.max
-
-fun AdEntity.getRevTrackBody(): RevTrackBody =
-    RevTrackBody(
-        view = viewHash,
-        viewType = "widget",
-        position = position.toString()
-    )
-
-fun Revcontent.getAdEntity(): AdEntity =
-    AdEntity(
-        videoThumbnail = image,
-        title = headline,
-        type = AdsType.getByValue(type),
-        adUrl = url
-    )
 
 fun PlayList.getPlayListEntity(): PlayListEntity =
     PlayListEntity(
@@ -221,7 +205,16 @@ fun Video.getVideoEntity(): VideoEntity =
                 chatMode = ChatMode.getByValue(it.chatMode)
             )
         },
+        repostCount = repostsCount ?: 0,
+        userRepostList = userRepostList?.map { it.getRepostEntity() } ?: emptyList()
     )
+
+fun FeedItem.getFeed(): Feed? =
+    when (this) {
+        is Video -> this.getVideoEntity()
+        is Repost -> this.getRepostEntity()
+        else -> null
+    }
 
 private fun Categories.getVideoCategories(): List<VideoCategoryEntity> {
     val list = mutableListOf<VideoCategoryEntity>()
@@ -293,7 +286,7 @@ fun Channel.getChannelDetailsEntity(): ChannelDetailsEntity =
         channelId = id,
         channelTitle = title,
         name = name,
-        type = ChannelType.getByValue(type),
+        type = type?. let { ChannelType.getByValue(it) } ?: ChannelType.CHANNEL,
         thumbnail = thumbnail ?: "",
         backSplash = backSplash ?: "",
         rumbles = rumbles,

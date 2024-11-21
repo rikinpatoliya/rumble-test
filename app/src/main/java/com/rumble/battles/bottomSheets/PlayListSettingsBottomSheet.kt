@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -45,18 +44,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
+import com.rumble.battles.commonViews.BottomSheetHeader
+import com.rumble.battles.commonViews.ChannelSelectionBottomSheet
+import com.rumble.battles.commonViews.ChannelSelectionBottomSheetItem
 import com.rumble.battles.commonViews.ErrorMessageView
 import com.rumble.battles.commonViews.MainActionButton
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
-import com.rumble.battles.library.presentation.playlist.EditPlayListHandler
+import com.rumble.battles.commonViews.SelectChannelRowView
+import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.library.presentation.playlist.PlayListAction
 import com.rumble.battles.library.presentation.playlist.PlayListSettingsBottomSheetDialog
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
@@ -72,7 +74,6 @@ import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
-import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusMedium
 import com.rumble.theme.radiusSmall
 import com.rumble.theme.rumbleGreen
@@ -83,13 +84,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlayListSettingsBottomSheet(
-    playListHandler: EditPlayListHandler,
+    contentHandler: ContentHandler,
     playListAction: PlayListAction,
     videoId: Long? = null,
     onClose: () -> Unit
 ) {
-    val state by playListHandler.editPlayListState.collectAsStateWithLifecycle()
-    val popupState by playListHandler.playListSettingsState.collectAsStateWithLifecycle()
+    val userState by contentHandler.userUIState.collectAsStateWithLifecycle()
+    val editPlayListScreenUIState by contentHandler.editPlayListState.collectAsStateWithLifecycle()
+    val playListSettingsPopupState by contentHandler.playListSettingsState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState =
@@ -110,9 +112,9 @@ fun PlayListSettingsBottomSheet(
         sheetState = bottomSheetState,
         sheetContent = {
             PlayListSettingsSelectionBottomSheet(
-                playListHandler = playListHandler,
+                contentHandler = contentHandler,
                 context = context,
-                popupState = popupState,
+                popupState = playListSettingsPopupState,
                 coroutineScope = coroutineScope,
                 bottomSheetState = bottomSheetState
             )
@@ -125,26 +127,27 @@ fun PlayListSettingsBottomSheet(
                 .clip(RoundedCornerShape(topStart = radiusMedium, topEnd = radiusMedium))
                 .background(MaterialTheme.colors.background)
         ) {
-            PlayListSettingsBottomSheetHeader(
+            BottomSheetHeader(
+                modifier = Modifier.padding(paddingMedium),
                 title = context.getString(if (playListAction == PlayListAction.Edit) R.string.edit_playlist else R.string.new_playlist),
-                onClose = playListHandler::onCancelPlayListSettings
+                onClose = contentHandler::onCancelPlayListSettings
             )
             PlayListTextInputField(
-                initialValue = state.editPlayListEntity?.title ?: "",
+                initialValue = editPlayListScreenUIState.editPlayListEntity?.title ?: "",
                 label = stringResource(id = R.string.name).uppercase(),
                 maxLines = 1,
                 maxCharacters = RumbleConstants.MAX_CHARACTERS_PLAYLIST_TITLE,
-                onValueChange = { playListHandler.onTitleChanged(it) },
-                hasError = state.titleError,
-                errorMessage = stringResource(id = if (state.editPlayListEntity?.title.isNullOrEmpty()) R.string.error_message_playlist_title_empty else R.string.error_message_playlist_title_too_long)
+                onValueChange = { contentHandler.onTitleChanged(it) },
+                hasError = editPlayListScreenUIState.titleError,
+                errorMessage = stringResource(id = if (editPlayListScreenUIState.editPlayListEntity?.title.isNullOrEmpty()) R.string.error_message_playlist_title_empty else R.string.error_message_playlist_title_too_long)
             )
             PlayListTextInputField(
-                initialValue = state.editPlayListEntity?.description ?: "",
+                initialValue = editPlayListScreenUIState.editPlayListEntity?.description ?: "",
                 label = stringResource(id = R.string.description),
                 maxLines = 4,
                 maxCharacters = RumbleConstants.MAX_CHARACTERS_PLAYLIST_DESCRIPTION,
-                onValueChange = { playListHandler.onDescriptionChanged(it) },
-                hasError = state.descriptionError,
+                onValueChange = { contentHandler.onDescriptionChanged(it) },
+                hasError = editPlayListScreenUIState.descriptionError,
                 errorMessage = stringResource(id = R.string.error_message_playlist_description_too_long)
             )
             Text(
@@ -153,12 +156,12 @@ fun PlayListSettingsBottomSheet(
                 color = MaterialTheme.colors.primary,
                 style = RumbleTypography.h6Heavy
             )
-            state.editPlayListEntity?.let {
-                PlayListSettingsSelectableRow(
-                    getPlayListOwnerTitle(it, state.userUploadChannels),
-                    getPlayListOwnerHandle(it, state.userUploadChannels)
+            editPlayListScreenUIState.editPlayListEntity?.let {
+                SelectChannelRowView(
+                    getPlayListOwnerTitle(it, userState.userUploadChannels),
+                    getPlayListOwnerHandle(it, userState.userUploadChannels)
                 ) {
-                    playListHandler.onOpenChannelSelectionBottomSheet()
+                    contentHandler.onOpenChannelSelectionBottomSheet()
                     coroutineScope.launch {
                         bottomSheetState.show()
                     }
@@ -170,12 +173,12 @@ fun PlayListSettingsBottomSheet(
                 color = MaterialTheme.colors.primary,
                 style = RumbleTypography.h6Heavy
             )
-            state.editPlayListEntity?.visibility?.let { visibility ->
-                PlayListSettingsSelectableRow(
+            editPlayListScreenUIState.editPlayListEntity?.visibility?.let { visibility ->
+                SelectChannelRowView(
                     title = context.getString(visibility.titleId),
                     description = context.getString(visibility.subtitleId)
                 ) {
-                    playListHandler.onOpenPlayListVisibilitySelectionBottomSheet()
+                    contentHandler.onOpenPlayListVisibilitySelectionBottomSheet()
                     coroutineScope.launch {
                         bottomSheetState.show()
                     }
@@ -193,14 +196,14 @@ fun PlayListSettingsBottomSheet(
                     ),
                     text = context.getString(R.string.cancel),
                     backgroundColor = MaterialTheme.colors.onSecondary,
-                    onClick = playListHandler::onCancelPlayListSettings
+                    onClick = contentHandler::onCancelPlayListSettings
                 )
                 MainActionButton(
                     modifier = Modifier.fillMaxWidth(),
                     textModifier = Modifier.padding(vertical = paddingXSmall),
                     text = context.getString(if (playListAction == PlayListAction.Edit) R.string.save else R.string.create_and_save),
                     textColor = enforcedDarkmo,
-                    onClick = { playListHandler.onSavePlayListSettings(playListAction, videoId) }
+                    onClick = { contentHandler.onSavePlayListSettings(playListAction, videoId) }
                 )
             }
         }
@@ -234,7 +237,8 @@ private fun getPlayListOwnerHandle(
 ): String {
     var handle = ""
     if (editPlayListEntity.playListOwnerId == editPlayListEntity.playListUserEntity.id) {
-        handle = stringResource(id = R.string.username_prefix) + editPlayListEntity.playListUserEntity.username
+        handle =
+            stringResource(id = R.string.username_prefix) + editPlayListEntity.playListUserEntity.username
     } else {
         userUploadChannels.forEach {
             if (editPlayListEntity.playListOwnerId == it.id) {
@@ -244,31 +248,6 @@ private fun getPlayListOwnerHandle(
         }
     }
     return handle
-}
-
-@Composable
-private fun PlayListSettingsBottomSheetHeader(
-    title: String,
-    onClose: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.padding(paddingMedium),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            color = MaterialTheme.colors.primary,
-            style = RumbleTypography.h3
-        )
-        Spacer(modifier = Modifier.weight(1F))
-        Icon(
-            painter = painterResource(id = R.drawable.ic_close),
-            contentDescription = stringResource(id = R.string.close),
-            modifier = Modifier
-                .clickable { onClose() },
-            tint = MaterialTheme.colors.primary
-        )
-    }
 }
 
 @Composable
@@ -378,68 +357,6 @@ fun PlayListTextInputField(
     }
 }
 
-@Composable
-fun PlayListSettingsSelectableRow(
-    title: String,
-    description: String,
-    onClick: () -> Unit,
-) {
-    ConstraintLayout(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                start = paddingMedium,
-                end = paddingMedium,
-                top = paddingXXXSmall
-            )
-            .clip(RoundedCornerShape(radiusMedium))
-            .background(MaterialTheme.colors.onSurface)
-            .clickable { onClick() },
-    ) {
-        val (text, icon) = createRefs()
-        Column(
-            modifier = Modifier
-                .padding(start = paddingMedium, top = paddingMedium, bottom = paddingMedium)
-                .constrainAs(text) {
-                    start.linkTo(parent.start)
-                    end.linkTo(icon.start)
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    width = Dimension.fillToConstraints
-                }
-        ) {
-            Text(
-                text = title,
-                color = MaterialTheme.colors.primary,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = RumbleTypography.h4,
-                textAlign = TextAlign.Start
-            )
-            Text(
-                text = description,
-                color = MaterialTheme.colors.primaryVariant,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = RumbleTypography.smallBody,
-                textAlign = TextAlign.Start
-            )
-        }
-        Icon(
-            painter = painterResource(id = R.drawable.ic_chevron_down),
-            contentDescription = stringResource(id = R.string.select_a_channel),
-            modifier = Modifier
-                .padding(end = paddingMedium)
-                .constrainAs(icon) {
-                    end.linkTo(parent.end)
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                },
-            tint = MaterialTheme.colors.primaryVariant
-        )
-    }
-}
-
 private fun getCharactersText(text: String, maxCharacters: Int, default: String): String {
     return when {
         text.isEmpty() -> default
@@ -454,33 +371,66 @@ private fun getCharactersTextColor(text: String, maxCharacters: Int, default: Co
     }
 }
 
+private fun buildChannelSelectionBottomSheetItems(
+    playListEntity: PlayListEntity,
+    userUploadChannels: List<UserUploadChannelEntity>,
+    onPlayListOwnerSelected: (String) -> Unit,
+    context: Context
+): List<ChannelSelectionBottomSheetItem> {
+    val result = mutableListOf<ChannelSelectionBottomSheetItem>()
+    result.add(
+        ChannelSelectionBottomSheetItem(
+            imageUrl = playListEntity.playListUserEntity.thumbnail ?: "",
+            text = playListEntity.playListUserEntity.username,
+            subText = context.getString(R.string.username_prefix) + playListEntity.playListUserEntity.username,
+            selected = playListEntity.playListOwnerId == playListEntity.playListUserEntity.id,
+            action = { onPlayListOwnerSelected(playListEntity.playListUserEntity.id) }
+        )
+    )
+    result.addAll(
+        userUploadChannels.map { userUploadChannelEntity ->
+            ChannelSelectionBottomSheetItem(
+                imageUrl = userUploadChannelEntity.thumbnail ?: "",
+                text = userUploadChannelEntity.title,
+                subText = context.getString(R.string.channel_name_prefix) + userUploadChannelEntity.name,
+                selected = playListEntity.playListOwnerId == userUploadChannelEntity.id,
+                action = { onPlayListOwnerSelected(userUploadChannelEntity.id) }
+            )
+        }
+    )
+    return result
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlayListSettingsSelectionBottomSheet(
-    playListHandler: EditPlayListHandler,
+    contentHandler: ContentHandler,
     popupState: PlayListSettingsBottomSheetDialog,
     context: Context,
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
 ) {
+    val userState by contentHandler.userUIState.collectAsStateWithLifecycle()
     when (popupState) {
         is PlayListSettingsBottomSheetDialog.PlayListVisibilitySelection ->
             PlayListVisibilitySelectionBottomSheet(
                 playListEntity = popupState.playListEntity,
-                onVisibilitySelected = playListHandler::onPlayListVisibilityChanged,
+                onVisibilitySelected = contentHandler::onPlayListVisibilityChanged,
                 context = context,
                 coroutineScope = coroutineScope,
                 bottomSheetState = bottomSheetState
             )
 
         is PlayListSettingsBottomSheetDialog.PlayListChannelSelection ->
-            PlayListChannelSelectionBottomSheet(
-                playListEntity = popupState.playListEntity,
-                userUploadChannels = popupState.userUploadChannels,
-                onPlayListOwnerSelected = playListHandler::onPlayListOwnerChanged,
-                context = context,
-                coroutineScope = coroutineScope,
-                bottomSheetState = bottomSheetState
+            ChannelSelectionBottomSheet(
+                title = stringResource(id = R.string.select_channel),
+                sheetItems = buildChannelSelectionBottomSheetItems(
+                    popupState.playListEntity,
+                    userState.userUploadChannels,
+                    onPlayListOwnerSelected = contentHandler::onPlayListOwnerChanged,
+                    context
+                ),
+                onCancel = { coroutineScope.launch { bottomSheetState.hide() } }
             )
 
         else -> {}
@@ -503,7 +453,8 @@ fun PlayListVisibilitySelectionBottomSheet(
             .clip(RoundedCornerShape(topStart = radiusMedium, topEnd = radiusMedium))
             .background(MaterialTheme.colors.background)
     ) {
-        PlayListSettingsBottomSheetHeader(
+        BottomSheetHeader(
+            modifier = Modifier.padding(paddingMedium),
             title = context.getString(R.string.select_visibility),
             onClose = {
                 coroutineScope.launch { bottomSheetState.hide() }
@@ -539,82 +490,6 @@ private fun getPlayListVisibilityIcon(playListVisibility: PlayListVisibility): I
         PlayListVisibility.PUBLIC -> R.drawable.ic_globe
         PlayListVisibility.UNLISTED -> R.drawable.ic_link
         PlayListVisibility.PRIVATE -> R.drawable.ic_lock
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun PlayListChannelSelectionBottomSheet(
-    playListEntity: PlayListEntity,
-    userUploadChannels: List<UserUploadChannelEntity>,
-    onPlayListOwnerSelected: (String) -> Unit,
-    context: Context,
-    coroutineScope: CoroutineScope,
-    bottomSheetState: ModalBottomSheetState,
-) {
-    Box(
-        modifier = Modifier
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .clip(RoundedCornerShape(topStart = radiusMedium, topEnd = radiusMedium))
-            .background(MaterialTheme.colors.background)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .clip(RoundedCornerShape(topStart = radiusMedium, topEnd = radiusMedium))
-                .background(MaterialTheme.colors.background)
-        ) {
-            PlayListSettingsBottomSheetHeader(
-                title = context.getString(R.string.select_channel),
-                onClose = {
-                    coroutineScope.launch { bottomSheetState.hide() }
-                }
-            )
-            LazyColumn(
-                state = rememberLazyListState(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                item {
-                    PlayListSettingsSelectionRow(
-                        iconId = null,
-                        imageUrl = playListEntity.playListUserEntity.thumbnail,
-                        title = playListEntity.playListUserEntity.username,
-                        subTitle = stringResource(id = R.string.username_prefix) + playListEntity.playListUserEntity.username,
-                        selected = playListEntity.playListOwnerId == playListEntity.playListUserEntity.id,
-                        onSelected = { onPlayListOwnerSelected(playListEntity.playListUserEntity.id) }
-                    )
-                }
-                if (userUploadChannels.isNotEmpty()) {
-                    item {
-                        Divider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colors.onSurface
-                        )
-                    }
-                    itemsIndexed(userUploadChannels) {index, userChannelEntity ->
-                        PlayListSettingsSelectionRow(
-                            iconId = null,
-                            imageUrl = userChannelEntity.thumbnail,
-                            title = userChannelEntity.title,
-                            subTitle = stringResource(id = R.string.channel_name_prefix) + userChannelEntity.name,
-                            selected = playListEntity.playListOwnerId == userChannelEntity.id,
-                            onSelected = { onPlayListOwnerSelected(userChannelEntity.id) }
-                        )
-                        if (index != userUploadChannels.size - 1) {
-                            Divider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colors.onSurface
-                            )
-                        }
-                    }
-                }
-                item {
-                    Spacer(modifier = Modifier.height(paddingMedium))
-                }
-            }
-        }
     }
 }
 

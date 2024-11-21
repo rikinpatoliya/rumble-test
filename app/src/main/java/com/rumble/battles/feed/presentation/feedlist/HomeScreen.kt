@@ -1,6 +1,7 @@
 package com.rumble.battles.feed.presentation.feedlist
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +59,7 @@ import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChan
 import com.rumble.battles.feed.presentation.views.FeaturedChannelListView
 import com.rumble.battles.feed.presentation.views.FreshChannelListView
 import com.rumble.battles.feed.presentation.views.PremiumBannerView
+import com.rumble.battles.feed.presentation.views.RepostFeedView
 import com.rumble.battles.feed.presentation.views.VideoCollectionSelectorView
 import com.rumble.battles.feed.presentation.views.VideoView
 import com.rumble.battles.landing.RumbleActivityHandler
@@ -65,9 +67,12 @@ import com.rumble.battles.rumbleads.presentation.RumbleAdView
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
 import com.rumble.domain.feed.domain.domainmodel.channel.FeaturedChannelsFeedItem
+import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.premium.domain.domainmodel.PremiumBanner
+import com.rumble.domain.repost.domain.domainmodel.RepostEntity
 import com.rumble.network.queryHelpers.SubscriptionSource
+import com.rumble.theme.bottomBarSpacerListEmptyState
 import com.rumble.theme.commentActionButtonWidth
 import com.rumble.theme.homeWidthRatio
 import com.rumble.theme.paddingLarge
@@ -111,7 +116,7 @@ fun HomeScreen(
 
     val activityHandlerState by activityHandler.activityHandlerState.collectAsStateWithLifecycle()
 
-    val videoListItems: LazyPagingItems<Feed> = state.videoList.collectAsLazyPagingItems()
+    val videoListItems: LazyPagingItems<Feed> = state.feedList.collectAsLazyPagingItems()
 
     val updatedEntity by homeHandler.updatedEntity.collectAsStateWithLifecycle()
 
@@ -153,8 +158,16 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         contentHandler.eventFlow.collectLatest {
-            if (it is ContentScreenVmEvent.ScrollToTop) {
-                listState.animateScrollToItem(0)
+            when(it) {
+                is ContentScreenVmEvent.ScrollToTop -> {
+                    listState.animateScrollToItem(0)
+                }
+
+                is ContentScreenVmEvent.OnRepostDeleted -> {
+                    homeHandler.onRepostDeleted()
+                }
+
+                else -> return@collectLatest
             }
         }
     }
@@ -168,6 +181,13 @@ fun HomeScreen(
 
                 is HomeEvent.NavigateToChannelDetails -> {
                     onChannelClick(it.channelId)
+                }
+
+                is HomeEvent.Error -> {
+                    contentHandler.onError(
+                        errorMessage = null,
+                        withPadding = true
+                    )
                 }
             }
         }
@@ -361,6 +381,21 @@ fun HomeScreen(
                                     onDismiss = homeHandler::onDismissPremiumBanner
                                 )
                             }
+
+                            is RepostEntity -> {
+                                RepostFeedView(
+                                    modifier = Modifier.padding(
+                                        horizontal = paddingXMedium,
+                                        vertical = paddingXSmall
+                                    ),
+                                    repost = it,
+                                    onChannelClick = { id ->
+                                        onChannelClick(id)
+                                    },
+                                    onVideoClick = homeHandler::onVideoClick,
+                                    onMoreClick = { contentHandler.onOpenRepostMoreActions(it) }
+                                )
+                            }
                         }
                     }
                 }
@@ -368,25 +403,32 @@ fun HomeScreen(
                     when {
                         loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
                             item {
-                                EmptyView(
-                                    modifier = Modifier
-                                        .fillParentMaxSize()
-                                        .padding(paddingMedium),
-                                    title = stringResource(id = R.string.nothing_to_see_here),
-                                    text = ""
-                                )
+                                Column(modifier = Modifier.fillParentMaxSize()) {
+                                    EmptyView(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxWidth()
+                                            .padding(paddingMedium),
+                                        title = getEmptyStateTitle(state.selectedCollection),
+                                        text = getEmptyStateMessage(state.selectedCollection)
+                                    )
+                                    BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                                }
                             }
                         }
 
                         loadState.refresh is LoadState.Error ->
                             item {
-                                ErrorView(
-                                    modifier = Modifier
-                                        .fillParentMaxSize()
-                                        .padding(paddingMedium),
-                                    backgroundColor = MaterialTheme.colors.onSecondary,
-                                    onRetry = homeHandler::onRefreshAll
-                                )
+                                Column(modifier = Modifier.fillParentMaxSize()) {
+                                    ErrorView(
+                                        modifier = Modifier
+                                            .fillParentMaxSize()
+                                            .padding(paddingMedium),
+                                        backgroundColor = MaterialTheme.colors.onSecondary,
+                                        onRetry = homeHandler::onRefreshAll
+                                    )
+                                    BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                                }
                             }
 
                         loadState.append is LoadState.Loading -> {
@@ -402,14 +444,17 @@ fun HomeScreen(
 
                         loadState.append is LoadState.Error -> {
                             item {
-                                ErrorView(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
-                                        .padding(paddingMedium),
-                                    backgroundColor = MaterialTheme.colors.onSecondary,
-                                    onRetry = videoListItems::retry,
-                                )
+                                Column(modifier = Modifier.fillParentMaxSize()) {
+                                    ErrorView(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .wrapContentHeight()
+                                            .padding(paddingMedium),
+                                        backgroundColor = MaterialTheme.colors.onSecondary,
+                                        onRetry = videoListItems::retry,
+                                    )
+                                    BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                                }
                             }
                         }
                     }
@@ -457,4 +502,18 @@ private fun HomeScreenDialog(reason: AlertDialogReason, handler: HomeHandler) {
         }
     }
 }
+
+@Composable
+private fun getEmptyStateTitle(type: VideoCollectionType?): String =
+    when(type) {
+        is VideoCollectionType.Reposts -> stringResource(R.string.no_reposts)
+        else -> stringResource(id = R.string.nothing_to_see_here)
+    }
+
+@Composable
+private fun getEmptyStateMessage(type: VideoCollectionType?): String =
+    when(type) {
+        is VideoCollectionType.Reposts -> stringResource(R.string.no_reposts_from_your_categories)
+        else -> ""
+    }
 

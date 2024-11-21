@@ -478,6 +478,7 @@ class CategoryViewModel @Inject constructor(
 
             CategoryDisplayType.VIDEOS ->
                 analyticsEventUseCase(CategoryVideosTabTapEvent)
+            else -> Unit
         }
     }
 

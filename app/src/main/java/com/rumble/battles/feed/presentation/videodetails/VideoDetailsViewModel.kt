@@ -196,6 +196,8 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onBackPressed()
     fun onDismissEmoteRequest()
     fun onFollowChannel()
+    fun onRepostDeleted(repostId: Long)
+    fun onRepostedByCurrentUser()
 }
 
 data class PlayListState(
@@ -241,6 +243,7 @@ data class VideoDetailsState(
     val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
     val displayPremiumOnlyContent: Boolean = false,
     val chatMode: ChatMode = ChatMode.Free,
+    val repostedByUser: Boolean = false,
     val showJoinButton: Boolean = false,
 )
 
@@ -480,6 +483,26 @@ class VideoDetailsViewModel @Inject constructor(
             getVideoDetailsUseCase(videoUrl)?.let {
                 state.value = state.value.copy(videoEntity = getVideoDetailsUseCase(it.id))
                 updateVideoSource(videoId = it.id, updatedRelatedVideoList = true, autoplay = true)
+            }
+        }
+    }
+
+    override fun onRepostDeleted(repostId: Long) {
+        state.value.videoEntity?.let { video ->
+            if (video.userRepostList.any { it.id == repostId }) {
+                viewModelScope.launch(errorHandler) {
+                    fetchDetails(video.id)
+                }
+            }
+        }
+    }
+
+    override fun onRepostedByCurrentUser() {
+        viewModelScope.launch(errorHandler) {
+            state.value.videoEntity?.let { video ->
+                viewModelScope.launch(errorHandler) {
+                    fetchDetails(video.id)
+                }
             }
         }
     }
@@ -1618,6 +1641,7 @@ class VideoDetailsViewModel @Inject constructor(
                     it,
                     it.liveGateEntity?.chatMode ?: ChatMode.Free
                 ),
+                repostedByUser = it.userRepostList.any { repost -> repost.video.id == it.id }
             )
             onVideoPlayerImpression()
             initLiveChat(it)

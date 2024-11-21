@@ -14,6 +14,7 @@ import com.rumble.domain.feed.model.repository.FeedRepository
 import com.rumble.domain.premium.domain.domainmodel.PremiumBanner
 import com.rumble.domain.profile.domainmodel.AgeBracket
 import com.rumble.domain.profile.domainmodel.Gender
+import com.rumble.domain.repost.domain.domainmodel.RepostEntity
 import com.rumble.domain.rumbleads.model.repository.RumbleAdRepository
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.network.session.SessionManager
@@ -26,7 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-class GetHomeListUseCase @Inject constructor(
+class GetFeedListUseCase @Inject constructor(
     private val feedRepository: FeedRepository,
     private val rumbleAdRepository: RumbleAdRepository,
     private val rumbleUnhandledErrorUseCase: UnhandledErrorUseCase,
@@ -38,7 +39,7 @@ class GetHomeListUseCase @Inject constructor(
 ) : RumbleUseCase {
 
     private val maxItemCount = 10
-    private val cachedVideoList = mutableListOf<VideoEntity>()
+    private val cachedVideoList = mutableListOf<Feed>()
 
     operator fun invoke(videoCollectionType: VideoCollectionType, category: String): Flow<PagingData<Feed>> {
         val isPremium by lazy { runBlocking { sessionManager.isPremiumUserFlow.first() } }
@@ -46,7 +47,7 @@ class GetHomeListUseCase @Inject constructor(
             .map { pagingData ->
                 pagingData.insertSeparators { _, after ->
                     if (after is VideoEntity) {
-                        if (cachedVideoList.size >= maxItemCount) cachedVideoList.removeFirst()
+                        if (cachedVideoList.size >= maxItemCount) cachedVideoList.removeAt(0)
                         cachedVideoList.add(after)
                     }
                     null
@@ -55,7 +56,7 @@ class GetHomeListUseCase @Inject constructor(
             .map { pagingData ->
                 var nonVideoCount = 0
                 pagingData.insertSeparators { before, after ->
-                    if (before != null && before !is VideoEntity) {
+                    if (before != null && before !is VideoEntity && before !is RepostEntity) {
                         nonVideoCount++
                     }
                     after?.index?.let { index ->
@@ -87,7 +88,7 @@ class GetHomeListUseCase @Inject constructor(
             }
             .map { pagingData ->
                 pagingData.insertSeparators { before, _ ->
-                    if (before is VideoEntity &&
+                    if ((before is VideoEntity || before is RepostEntity) &&
                         before.index == 0 &&
                         isPremium.not() &&
                         runBlocking { userPreferenceManager.displayPremiumBannerFlow.first() }) {

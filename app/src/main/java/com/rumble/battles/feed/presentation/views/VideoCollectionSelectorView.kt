@@ -38,6 +38,13 @@ fun VideoCollectionSelectorView(
                         selected = it == selectedCollection
                     )
                 }
+                VideoCollectionType.Reposts -> {
+                    PillView(
+                        modifier = Modifier.clickableNoRipple { onCollectionClick(it) },
+                        text = stringResource(id = R.string.home_category_reposts),
+                        selected = it == selectedCollection
+                    )
+                }
                 is VideoCollectionType.VideoCollectionEntity -> {
                     if (it.id == VideoCollectionId.Live.value) {
                         PillView(

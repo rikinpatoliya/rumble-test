@@ -31,8 +31,8 @@ import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionResul
 import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
+import com.rumble.domain.feed.domain.usecase.GetFeedListUseCase
 import com.rumble.domain.feed.domain.usecase.GetFreshChannelsUseCase
-import com.rumble.domain.feed.domain.usecase.GetHomeListUseCase
 import com.rumble.domain.feed.domain.usecase.GetVideoCollectionsUseCase
 import com.rumble.domain.feed.domain.usecase.GetViewCollectionTitleUseCase
 import com.rumble.domain.feed.domain.usecase.SaveVideoCollectionViewUseCase
@@ -67,7 +67,7 @@ enum class LoadingState {
 
 data class HomeScreenState(
     val selectedCollection: VideoCollectionType? = null,
-    val videoList: Flow<PagingData<Feed>> = emptyFlow(),
+    val feedList: Flow<PagingData<Feed>> = emptyFlow(),
     val connectionState: InternetConnectionState = InternetConnectionState.CONNECTED,
     val freshChannels: List<FreshChannel> = emptyList(),
     val freshContentLoadingState: LoadingState = LoadingState.None,
@@ -80,6 +80,7 @@ sealed class HomeAlertReason : AlertDialogReason {
 sealed class HomeEvent {
     data class PlayVideo(val videoEntity: VideoEntity) : HomeEvent()
     data class NavigateToChannelDetails(val channelId: String) : HomeEvent()
+    data object Error : HomeEvent()
 }
 
 interface HomeHandler: LazyListStateHandler {
@@ -108,6 +109,7 @@ interface HomeHandler: LazyListStateHandler {
     fun onWatchRestricted(videoEntity: VideoEntity)
     fun onRumbleAdResumed(rumbleAd: RumbleAdEntity)
     fun onDismissPremiumBanner()
+    fun onRepostDeleted()
 }
 
 private const val TAG = "HomeViewModel"
@@ -116,7 +118,7 @@ private const val TAG = "HomeViewModel"
 class HomeViewModel @Inject constructor(
     application: Application,
     private val sessionManager: SessionManager,
-    private val getHomeListUseCase: GetHomeListUseCase,
+    private val getFeedListUseCase: GetFeedListUseCase,
     private val voteVideoUseCase: VoteVideoUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val adFeedImpressionUseCase: RumbleAdFeedImpressionUseCase,
@@ -237,7 +239,7 @@ class HomeViewModel @Inject constructor(
 
             homeScreenState.value = homeScreenState.value.copy(
                 selectedCollection = videoCollection,
-                videoList = getHomeListUseCase(
+                feedList = getFeedListUseCase(
                     videoCollection,
                     getViewCollectionTitleUseCase(
                         viewCollectionType = videoCollection,
@@ -354,6 +356,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    override fun onRepostDeleted() {
+        onRefreshOnlyVideoList()
+    }
+
     private fun observeUserAuthState() {
         viewModelScope.launch {
             sessionManager.cookiesFlow.distinctUntilChanged().collectLatest { cookies ->
@@ -428,7 +434,7 @@ class HomeViewModel @Inject constructor(
     private fun onRefreshOnlyVideoList() {
         homeScreenState.value.selectedCollection?.let {
             homeScreenState.value = homeScreenState.value.copy(
-                videoList = getHomeListUseCase(
+                feedList = getFeedListUseCase(
                     it,
                     getViewCollectionTitleUseCase(
                         it,
@@ -489,7 +495,7 @@ class HomeViewModel @Inject constructor(
                 is VideoCollectionResult.Success -> {
                     if (homeScreenState.value.selectedCollection == null && result.videoCollections.isNotEmpty()) {
                         homeScreenState.value = homeScreenState.value.copy(
-                            videoList = getHomeListUseCase(
+                            feedList = getFeedListUseCase(
                                 result.videoCollections[0],
                                 getViewCollectionTitleUseCase(
                                     result.videoCollections[0],

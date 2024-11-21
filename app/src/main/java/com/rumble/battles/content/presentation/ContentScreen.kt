@@ -167,6 +167,7 @@ import com.rumble.domain.feed.domain.domainmodel.ads.AdEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.onboarding.domain.domainmodel.ShowOnboardingPopups
+import com.rumble.theme.commentActionButtonWidth
 import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingNone
 import com.rumble.utils.RumbleConstants.NAV_BAR_ANIMATION_DURATION
@@ -425,6 +426,16 @@ fun ContentScreen(
                         event.videoId,
                         event.playListId,
                         event.shuffle
+                    )
+                }
+
+                is ContentScreenVmEvent.DisplayUndoRepostWarning -> {
+                    activityHandler.onDisplayRepostUndoWarning(event.repostId)
+                }
+
+                is ContentScreenVmEvent.ShowRepostReportedMessage -> {
+                    snackBarHostState.showRumbleSnackbar(
+                        message = context.getString(R.string.the_video_has_been_reported)
                     )
                 }
 
@@ -732,6 +743,32 @@ private fun ContentScreenDialog(
                         text = stringResource(id = R.string.ok),
                         action = handler::onDismissDialog,
                         dialogActionType = DialogActionType.Positive
+                    )
+                )
+            )
+        }
+
+        is RumbleActivityAlertReason.UndoRepostWarning -> {
+            RumbleAlertDialog(
+                onDismissRequest = handler::onDismissDialog,
+                title = stringResource(id = R.string.undo_repost),
+                text = stringResource(id = R.string.sure_delete_repost),
+                actionItems = listOf(
+                    DialogActionItem(
+                        text = stringResource(R.string.cancel),
+                        dialogActionType = DialogActionType.Neutral,
+                        withSpacer = true,
+                        width = commentActionButtonWidth,
+                        action = handler::onDismissDialog
+                    ),
+                    DialogActionItem(
+                        text = stringResource(R.string.delete_repost),
+                        dialogActionType = DialogActionType.Destructive,
+                        width = commentActionButtonWidth,
+                        action = {
+                            handler.onDismissDialog()
+                            contentHandler.onUndoRepostConfirmed(reason.repostId)
+                        }
                     )
                 )
             )
@@ -1121,6 +1158,9 @@ private fun createNavigationGraph(
                 contentHandler = contentHandler,
                 onBackClick = { currentNavController.navigateUp() },
                 activityHandler = activityHandler,
+                onChannelClick = { channelId ->
+                    currentNavController.navigate(RumbleScreens.Channel.getPath(channelId))
+                },
                 onVideoClick = {
                     if (it is VideoEntity)
                         contentHandler.onOpenVideoDetails(videoId = it.id)
