@@ -3,6 +3,7 @@ package com.rumble.domain.channels.channeldetails.domain.usecase
 import android.content.Context
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
+import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.report.model.repository.ReportContentRepository
 import com.rumble.network.dto.channel.ReportContentType
 import com.rumble.videoplayer.player.config.ReportType
@@ -11,7 +12,8 @@ import javax.inject.Inject
 
 class ReportChannelUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val reportContentRepository: ReportContentRepository
+    private val reportContentRepository: ReportContentRepository,
+    private val developModeUseCase: IsDevelopModeUseCase,
 ) {
 
     suspend operator fun invoke(
@@ -28,6 +30,7 @@ class ReportChannelUseCase @Inject constructor(
             contentType = type,
             contentId = stringIdToLong(channelDetailsEntity.channelId),
             reason = context.getString(reportType.value),
+            isTest = developModeUseCase()
         )
     }
 

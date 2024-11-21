@@ -8,7 +8,8 @@ interface ReportContentRemoteDataSource {
         contentType: ReportContentType,
         contentId: Long,
         reason: String,
-        comment: String = ""
+        comment: String = "",
+        isTest: Boolean,
     ): Boolean
 
 }

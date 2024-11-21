@@ -12,12 +12,13 @@ class ReportContentRemoteDataSourceImpl(private val reportApi: ReportApi) :
         contentType: ReportContentType,
         contentId: Long,
         reason: String,
-        comment: String
+        comment: String,
+        isTest: Boolean,
     ): Boolean {
         val data = ReportData(
-            false,
-            content_type = contentType,
-            content_id = contentId,
+            isTest = isTest,
+            contentType = contentType,
+            contentId = contentId,
             reason = reason
         )
 

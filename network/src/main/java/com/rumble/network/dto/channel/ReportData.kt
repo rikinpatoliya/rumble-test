@@ -7,11 +7,11 @@ import com.google.gson.annotations.SerializedName
  */
 data class ReportData(
     @SerializedName("_is_test")
-    val _is_test: Boolean = false,
+    val isTest: Boolean = false,
     @SerializedName("content_type")
-    val content_type: ReportContentType,
+    val contentType: ReportContentType,
     @SerializedName("content_id")
-    val content_id: Long,
+    val contentId: Long,
     @SerializedName("reason")
     val reason: String,
     @SerializedName("comment")

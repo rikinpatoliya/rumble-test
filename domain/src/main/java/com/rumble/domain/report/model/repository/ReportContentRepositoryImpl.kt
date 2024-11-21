@@ -13,14 +13,16 @@ class ReportContentRepositoryImpl(
         contentType: ReportContentType,
         contentId: Long,
         reason: String,
-        comment: String
+        comment: String,
+        isTest: Boolean,
     ): Boolean =
         withContext(dispatcher) {
             reportContentRemoteDataSource.report(
                 contentType,
                 contentId,
                 reason,
-                comment
+                comment,
+                isTest,
             )
         }
 }
