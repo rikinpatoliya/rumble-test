@@ -17,9 +17,11 @@ class FeedItemDeserializer : JsonDeserializer<FeedItem> {
         context: JsonDeserializationContext
     ): FeedItem {
         val jsonObject = json.asJsonObject
-        return when(FeedObjectType.getByValue(jsonObject.get(keyField).asString))  {
-            FeedObjectType.Repost ->  context.deserialize(jsonObject, Repost::class.java)
-            else -> context.deserialize(jsonObject, Video::class.java)
-        }
+        return if (jsonObject.has(keyField)) {
+            when(FeedObjectType.getByValue(jsonObject.get(keyField).asString))  {
+                FeedObjectType.Repost ->  context.deserialize(jsonObject, Repost::class.java)
+                else -> context.deserialize(jsonObject, Video::class.java)
+            }
+        } else context.deserialize(jsonObject, Video::class.java)
     }
 }
