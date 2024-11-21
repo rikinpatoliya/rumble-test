@@ -79,7 +79,22 @@ fun UserInfoView(
         followStatus?.let { followStatus ->
             ChannelDetailsActionButtonsView(
                 followStatus = followStatus,
-                channelDetailsEntity = channelDetailsEntity,
+                notificationActionData = channelDetailsEntity?.let {
+                    NotificationActionData(
+                        channelDetailsEntity = it,
+                        notificationActionType = NotificationActionType.WITH_DROPDOWN
+                    )
+                },
+                joinActionData = channelDetailsEntity?.localsCommunityEntity?.let {
+                    JoinActionData(
+                        localsCommunityEntity = it,
+                        joinActionType = if (followStatus.followed) {
+                            JoinActionType.WITH_TEXT
+                        } else {
+                            JoinActionType.SHOW_AS_STAR
+                        }
+                    )
+                },
                 onJoin = onJoin,
                 onUpdateSubscription = onUpdateSubscription,
                 onChannelNotification = {
@@ -87,10 +102,8 @@ fun UserInfoView(
                         onChannelNotifications(it)
                     }
                 },
-                showDrawable = false,
-                showNotificationBell = true,
                 showJoinButton = showJoinButton,
-                showJoinButtonAsStar = followStatus.followed.not()
+                showUnfollowAction = false
             )
         }
     }

@@ -157,12 +157,21 @@ private fun ChannelActionButtons(
             modifier = Modifier
                 .wrapContentWidth()
                 .align(Alignment.CenterHorizontally),
-            channelDetailsEntity = channelDetailsEntity,
             followStatus = FollowStatus(
                 channelId = channelDetailsEntity.channelId,
                 followed = channelDetailsEntity.followed,
                 isBlocked = channelDetailsEntity.blocked
             ),
+            notificationActionData = NotificationActionData(
+                channelDetailsEntity = channelDetailsEntity,
+                notificationActionType = NotificationActionType.WITH_STATES
+            ),
+            joinActionData = channelDetailsEntity.localsCommunityEntity?.let {
+                JoinActionData(
+                    localsCommunityEntity = it,
+                    joinActionType = JoinActionType.WITH_TEXT
+                )
+            },
             onJoin = onJoin,
             onUpdateSubscription = onUpdateSubscription,
             onChannelNotification = onChannelNotification,
