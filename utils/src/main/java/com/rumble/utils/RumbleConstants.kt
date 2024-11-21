@@ -120,7 +120,6 @@ object RumbleConstants {
     const val RECENT_MAX_NUMBER = 100
     const val MIN_USERNAME_LENGTH = 3
     const val LONG_PRESS_FREQUENCY = 100L
-    const val LIVE_CHAT_SHEET_CLOSE_DELAY = 500L
 
     @Language("JSON")
     val countriesList = """

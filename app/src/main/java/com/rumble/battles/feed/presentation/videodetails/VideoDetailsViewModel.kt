@@ -1412,12 +1412,12 @@ class VideoDetailsViewModel @Inject constructor(
                 state.value = state.value.copy(inLiveChat = false)
                 emitVmEvent(VideoDetailsEvent.HideKeyboard)
                 emitVmEvent(VideoDetailsEvent.CloseLiveChat)
-                delay(RumbleConstants.LIVE_CHAT_SHEET_CLOSE_DELAY)
+                delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
             } else if (state.value.inComments) {
                 state.value = state.value.copy(inComments = false)
                 emitVmEvent(VideoDetailsEvent.HideKeyboard)
                 emitVmEvent(VideoDetailsEvent.CloseComments)
-                delay(RumbleConstants.LIVE_CHAT_SHEET_CLOSE_DELAY)
+                delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
             }
 
             state.value = state.value.copy(
