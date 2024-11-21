@@ -157,6 +157,7 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun onNavigateHome()
     fun onNavigateHomeAfterSignedOut()
     fun scrollToTop(index: Int)
+    fun onUpdateCurrentSubscriptionParams(videoId: Long?, source: SubscriptionSource?)
 }
 
 data class VideoDetailsState(
@@ -543,6 +544,11 @@ class ContentViewModel @Inject constructor(
 
     override fun onShare(videUrl: String) {
         shareUseCase(videUrl)
+    }
+
+    override fun onUpdateCurrentSubscriptionParams(videoId: Long?, source: SubscriptionSource?) {
+        currentSubscriptionParams =
+            currentSubscriptionParams.copy(videoId = videoId, source = source)
     }
 
     override fun onRepostClicked(videoEntity: VideoEntity) {
