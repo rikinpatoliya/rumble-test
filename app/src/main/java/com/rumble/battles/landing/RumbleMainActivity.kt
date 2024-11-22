@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -23,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -75,7 +75,7 @@ import java.net.UnknownHostException
 
 @UnstableApi
 @AndroidEntryPoint
-class RumbleMainActivity : ComponentActivity() {
+class RumbleMainActivity : FragmentActivity() {
 
     companion object {
         private const val TAG = "RumbleMainActivity"
