@@ -95,6 +95,7 @@ import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.network.dto.channel.ReportContentType
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS
 import com.rumble.utils.extension.getChannelId
 import com.rumble.utils.extension.insertTextAtPosition
@@ -109,6 +110,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -196,6 +198,8 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onBackPressed()
     fun onDismissEmoteRequest()
     fun onFollowChannel()
+    fun onOpenPremiumPromo()
+    fun onClosePremiumPromo()
     fun onRepostDeleted(repostId: Long)
     fun onRepostedByCurrentUser()
 }
@@ -292,6 +296,8 @@ sealed class VideoDetailsEvent {
     data object CloseLiveChat : VideoDetailsEvent()
     data object OpenComments : VideoDetailsEvent()
     data object CloseComments : VideoDetailsEvent()
+    data object OpenPremiumPromo : VideoDetailsEvent()
+    data object ClosePremiumPromo : VideoDetailsEvent()
     data class InitLiveChat(val videoEntity: VideoEntity) : VideoDetailsEvent()
     data class StartBuyRantFlow(val pendingMessageInfo: PendingMessageInfo) : VideoDetailsEvent()
     data object ScrollToTop : VideoDetailsEvent()
@@ -1398,6 +1404,36 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onSignIn() {
         emitVmEvent(VideoDetailsEvent.OpenAuthMenu)
+    }
+
+    override fun onOpenPremiumPromo() {
+        viewModelScope.launch {
+            if (state.value.inLiveChat) {
+                state.value = state.value.copy(inLiveChat = false)
+                emitVmEvent(VideoDetailsEvent.HideKeyboard)
+                emitVmEvent(VideoDetailsEvent.CloseLiveChat)
+                delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
+            } else if (state.value.inComments) {
+                state.value = state.value.copy(inComments = false)
+                emitVmEvent(VideoDetailsEvent.HideKeyboard)
+                emitVmEvent(VideoDetailsEvent.CloseComments)
+                delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
+            }
+
+            state.value = state.value.copy(
+                inComments = false,
+                inLiveChat = false,
+                lastBottomSheet = LastBottomSheet.PREMIUM_PROMO
+            )
+            emitVmEvent(VideoDetailsEvent.OpenPremiumPromo)
+        }
+    }
+
+    override fun onClosePremiumPromo() {
+        state.value = state.value.copy(
+            lastBottomSheet = LastBottomSheet.NONE
+        )
+        emitVmEvent(VideoDetailsEvent.ClosePremiumPromo)
     }
 
     private fun handleError(errorMessage: String? = null) {

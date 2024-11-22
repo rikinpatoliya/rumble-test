@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 @Parcelize
 data class RepostEntity(
     override val index: Int = 0,
-    val id: Long,
+    override val id: Long,
     val message: String,
     val video: VideoEntity,
     val user: PlayListUserEntity,

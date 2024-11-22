@@ -2,6 +2,7 @@ package com.rumble.battles.channels.channeldetails.presentation
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -110,7 +111,7 @@ import kotlinx.coroutines.launch
 
 private const val ITEMS_SHIFT = 2
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ChannelDetailsScreen(
@@ -334,7 +335,7 @@ fun ChannelDetailsScreen(
                                 },
                             )
                         }
-                        item {
+                        stickyHeader {
                             RumbleTabsView(
                                 modifier = Modifier.background(color = MaterialTheme.colors.background),
                                 tabsList = CategoryDisplayType.getChannelDetailsCategoryTypeList(),
@@ -383,10 +384,9 @@ fun ChannelDetailsScreen(
                                     Row(
                                         Modifier
                                             .fillMaxWidth()
-                                            .padding(paddingSmall)
-                                            .background(color = MaterialTheme.colors.background),
-
-                                        ) {
+                                            .background(color = MaterialTheme.colors.background)
+                                            .padding(paddingSmall),
+                                    ) {
                                         TitleWithBoxedCount(
                                             count = "${itemsList.itemCount}"
                                         )
@@ -418,10 +418,12 @@ fun ChannelDetailsScreen(
                                         }
                                     } else if (entity is RepostEntity) {
                                         RepostFeedView(
-                                            modifier = Modifier.padding(
-                                                horizontal = paddingXSmall,
-                                                vertical = paddingXSmall
-                                            ),
+                                            modifier = Modifier
+                                                .background(color = MaterialTheme.colors.background)
+                                                .padding(
+                                                    horizontal = paddingXSmall,
+                                                    vertical = paddingXSmall
+                                                ),
                                             repost = entity,
                                             onChannelClick = onChannelClick,
                                             onVideoClick = channelDetailsHandler::onVideoClick,
