@@ -475,7 +475,7 @@ class ChannelDetailsViewModel @Inject constructor(
                 itemsList = (if (displayType == CategoryDisplayType.VIDEOS) {
                     getChannelVideosUseCase(uiState.value.channelId)
                 } else {
-                    fetchRepostListUseCase()
+                    fetchRepostListUseCase(uiState.value.channelId)
                 }).cachedIn(viewModelScope)
             )
         }

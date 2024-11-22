@@ -17,11 +17,25 @@ class RepostRemoteDataSourceImpl(
     private val dispatcher: CoroutineDispatcher,
 ) : RepostRemoteDataSource {
 
-    override fun fetchRepostData(pageSize: Int): Flow<PagingData<Feed>> =
+    override fun fetchFeedRepostData(pageSize: Int): Flow<PagingData<Feed>> =
+        Pager(
+            config = getRumblePagingConfig(pageSize = pageSize),
+            pagingSourceFactory = {
+                FeedRepostPagingSource(
+                    repostApi = repostApi,
+                    dispatcher = dispatcher,
+                )
+            }).flow
+
+    override fun fetchRepostData(
+        id: String,
+        pageSize: Int
+    ): Flow<PagingData<Feed>> =
         Pager(
             config = getRumblePagingConfig(pageSize = pageSize),
             pagingSourceFactory = {
                 RepostPagingSource(
+                    id = id,
                     repostApi = repostApi,
                     dispatcher = dispatcher,
                 )

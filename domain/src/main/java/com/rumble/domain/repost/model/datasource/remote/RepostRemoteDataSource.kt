@@ -9,7 +9,8 @@ import okhttp3.FormBody
 import retrofit2.Response
 
 interface RepostRemoteDataSource {
-    fun fetchRepostData(pageSize: Int): Flow<PagingData<Feed>>
+    fun fetchFeedRepostData(pageSize: Int): Flow<PagingData<Feed>>
+    fun fetchRepostData(id: String, pageSize: Int): Flow<PagingData<Feed>>
     suspend fun deleteRepost(repostId: Long): Response<DeleteRepostResponse>
     suspend fun addRepost(addRepostBody: FormBody): Response<RepostResponse>
 }

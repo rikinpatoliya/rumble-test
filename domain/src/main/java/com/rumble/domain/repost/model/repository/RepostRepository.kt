@@ -7,7 +7,8 @@ import com.rumble.domain.repost.domain.domainmodel.DeleteRepostResult
 import kotlinx.coroutines.flow.Flow
 
 interface RepostRepository {
-    fun fetchRepostData(pageSize: Int): Flow<PagingData<Feed>>
+    fun fetchFeedRepostData(pageSize: Int): Flow<PagingData<Feed>>
+    fun fetchRepostData(id: String, pageSize: Int): Flow<PagingData<Feed>>
     suspend fun deleteRepost(repostId: Long): DeleteRepostResult
     suspend fun addRepost(videoId: Long, channelId: Long, message: String): AddRepostResult
 }

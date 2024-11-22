@@ -138,7 +138,7 @@ class VideoCollectionPagingSource(
     }
 
     private suspend fun fetchRepostList(loadSize: Int): List<Feed> {
-        val repostListResponse = repostApi.fetchRepost(offset = nextKey, limit = loadSize)
+        val repostListResponse = repostApi.fetchFeedReposts(offset = nextKey, limit = loadSize)
         return repostListResponse.body()?.data?.items?.map { it.getRepostEntity() } ?: emptyList()
     }
 }

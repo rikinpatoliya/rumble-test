@@ -18,8 +18,13 @@ class RepostRepositoryImpl(
     private val dispatcher: CoroutineDispatcher,
 ) : RepostRepository {
 
-    override fun fetchRepostData(pageSize: Int): Flow<PagingData<Feed>> =
-        remoteDataSource.fetchRepostData(pageSize)
+    override fun fetchFeedRepostData(pageSize: Int): Flow<PagingData<Feed>> =
+        remoteDataSource.fetchFeedRepostData(pageSize)
+
+    override fun fetchRepostData(
+        id: String,
+        pageSize: Int
+    ): Flow<PagingData<Feed>> = remoteDataSource.fetchRepostData(id, pageSize)
 
     override suspend fun deleteRepost(repostId: Long): DeleteRepostResult =
         withContext(dispatcher) {

@@ -12,5 +12,8 @@ class FetchRepostListUseCase @Inject constructor(
     private val getVideoPageSizeUseCase: GetVideoPageSizeUseCase,
 ) {
     operator fun invoke(): Flow<PagingData<Feed>> =
-        repostRepository.fetchRepostData(pageSize = getVideoPageSizeUseCase())
+        repostRepository.fetchFeedRepostData(pageSize = getVideoPageSizeUseCase())
+
+    operator fun invoke(id: String): Flow<PagingData<Feed>> =
+        repostRepository.fetchRepostData(id = id, pageSize = getVideoPageSizeUseCase())
 }

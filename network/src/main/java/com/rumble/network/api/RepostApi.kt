@@ -14,7 +14,16 @@ import retrofit2.http.Query
 
 interface RepostApi {
     @GET("service.php?name=video_repost.feed")
-    suspend fun fetchRepost(
+    suspend fun fetchFeedReposts(
+        @Query("offset") offset: Int? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("options") options: String = Options.FULL.value
+    ): Response<RepostListResponse>
+
+    @GET("service.php?name=video_repost.list")
+    suspend fun fetchReposts(
+        @Query("user_id") userId: String,
+        @Query("channel_id") channelId: String,
         @Query("offset") offset: Int? = null,
         @Query("limit") limit: Int? = null,
         @Query("options") options: String = Options.FULL.value
