@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChannelRepository {
 
-    suspend fun fetchChannelData(id: String): Result<ChannelDetailsEntity>
+    suspend fun fetchChannelData(id: String): Result<CreatorEntity>
 
     suspend fun fetchUserUploadChannels(): UserUploadChannelsResult
 
@@ -22,15 +22,15 @@ interface ChannelRepository {
         type: ChannelType,
         action: UpdateChannelSubscriptionAction,
         data: UpdateChannelNotificationsData? = null,
-    ): Result<ChannelDetailsEntity>
+    ): Result<CreatorEntity>
 
-    suspend fun listOfFollowedChannels(): Result<List<ChannelDetailsEntity>>
+    suspend fun listOfFollowedChannels(): Result<List<CreatorEntity>>
 
-    fun pagingOfFeaturedChannels(): Flow<PagingData<ChannelDetailsEntity>>
+    fun pagingOfFeaturedChannels(): Flow<PagingData<CreatorEntity>>
 
     suspend fun listOfFeaturedChannels(): ChannelListResult
 
-    fun fetchFollowedChannels(): Flow<PagingData<ChannelDetailsEntity>>
+    fun fetchFollowedChannels(): Flow<PagingData<CreatorEntity>>
 
     fun fetchChannelFollowUpdates(): Flow<List<ChannelFollow>>
     suspend fun fetchFollowedChannelsV2(): ChannelListResult

@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.rumble.MainActivityNew
 import com.rumble.R
 import com.rumble.databinding.V4FragmentSearchNewBinding
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.leanback.RowsSupportFragment
 import com.rumble.player.VideoPlaybackActivityDirections
@@ -102,10 +102,10 @@ class SearchFragmentV4 : RowsSupportFragment(){
                         combinedSelectedItemPosition = selectedIndex
                     }
 
-                    if (item is ChannelDetailsEntity) {
+                    if (item is CreatorEntity) {
                         selectedChannelRowPosition = 1
 
-                        val currentRowAdapter = listRow.adapter as PagingAdapter<ChannelDetailsEntity>
+                        val currentRowAdapter = listRow.adapter as PagingAdapter<CreatorEntity>
                         val selectedIndex = currentRowAdapter.snapshot().indexOf(item)
                         selectedChannelItemPosition = selectedIndex
                         combinedSelectedItemPosition = selectedIndex
@@ -135,9 +135,9 @@ class SearchFragmentV4 : RowsSupportFragment(){
                     } else {
                         parentFragmentManager.showAlert(getString(R.string.player_error), true)
                     }
-                } else if (item is ChannelDetailsEntity) {
+                } else if (item is CreatorEntity) {
 
-                    val currentRowAdapter = listRow.adapter as PagingAdapter<ChannelDetailsEntity>
+                    val currentRowAdapter = listRow.adapter as PagingAdapter<CreatorEntity>
                     val selectedIndex = currentRowAdapter.snapshot().indexOf(item)
                     lastClickedChannelItemPosition = selectedIndex
 
@@ -156,17 +156,17 @@ class SearchFragmentV4 : RowsSupportFragment(){
 
         val channelCardPresenter = ChannelCardPresenter()
         viewModel.channelPagingDataAdapter = PagingAdapter(channelCardPresenter,
-            object : DiffUtil.ItemCallback<ChannelDetailsEntity>() {
+            object : DiffUtil.ItemCallback<CreatorEntity>() {
                 override fun areItemsTheSame(
-                    oldItem: ChannelDetailsEntity,
-                    newItem: ChannelDetailsEntity
+                    oldItem: CreatorEntity,
+                    newItem: CreatorEntity
                 ): Boolean {
                     return oldItem.channelId == newItem.channelId
                 }
 
                 override fun areContentsTheSame(
-                    oldItem: ChannelDetailsEntity,
-                    newItem: ChannelDetailsEntity
+                    oldItem: CreatorEntity,
+                    newItem: CreatorEntity
                 ): Boolean {
                     return oldItem == newItem
                 }

@@ -9,7 +9,7 @@ import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import com.rumble.R
 import com.rumble.databinding.DialogMatureContentBinding
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.player.VideoPlaybackActivity
 import com.rumble.ui3.channel.details.v4.ChannelDetailsActivityV4
@@ -62,7 +62,7 @@ object Utils {
         context.startActivity(intent)
     }
 
-    fun navigateToChannelDetails(context: Context, item: ChannelDetailsEntity) {
+    fun navigateToChannelDetails(context: Context, item: CreatorEntity) {
         val intent = Intent(context, ChannelDetailsActivityV4::class.java)
         intent.putExtra(Constant.CHANNEL_ITEM_ARGS, item)
         intent.putExtra(Constant.SHOW_LOGO_ARGS, true)

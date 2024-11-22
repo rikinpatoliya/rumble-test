@@ -1,7 +1,7 @@
 package com.rumble.domain.feed.domain.usecase
 
 import com.rumble.domain.analytics.domain.usecases.RumbleErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FreshChannelListResult
 import com.rumble.domain.common.domain.usecase.RumbleUseCase
@@ -29,7 +29,7 @@ data class GetFreshChannelsUseCase @Inject constructor(
         }
     }
 
-    private suspend fun isFresh(channel: ChannelDetailsEntity): Boolean {
+    private suspend fun isFresh(channel: CreatorEntity): Boolean {
         val uploadTimestamp = channel.latestVideo?.uploadDate?.toEpochSecond(ZoneOffset.UTC) ?: 0
         val view = feedRepository.fetchChannelView(channel.channelId)
         return (view == null || view.time < uploadTimestamp)

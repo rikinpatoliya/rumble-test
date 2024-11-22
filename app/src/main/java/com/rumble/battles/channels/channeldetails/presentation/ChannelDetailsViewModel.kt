@@ -23,7 +23,7 @@ import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.camera.UploadVideoEntity
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
@@ -101,7 +101,7 @@ interface ChannelDetailsHandler : LazyListStateHandler {
     //endregion
     fun onVideoCardImpression(videoEntity: VideoEntity, cardSize: CardSize)
 
-    fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
+    fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
     fun onDisplayTypeSelected(displayType: CategoryDisplayType)
 }
 
@@ -109,12 +109,12 @@ interface NotificationsScreenHandler {
     val uiState: StateFlow<ChannelDetailsUIState>
     val vmEvents: Flow<ChannelDetailsVmEvent>
 
-    fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
+    fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
 }
 
 data class ChannelDetailsUIState(
     val channelId: String,
-    val channelDetailsEntity: ChannelDetailsEntity? = null,
+    val channelDetailsEntity: CreatorEntity? = null,
     val displayType: CategoryDisplayType = CategoryDisplayType.VIDEOS,
     val userUploadChannels: List<UserUploadChannelEntity>? = null,
     val loading: Boolean = false,
@@ -128,7 +128,7 @@ data class ChannelDetailsUIState(
 )
 
 sealed class ChannelDetailsDialog {
-    data class BlockDialog(val channelDetailsEntity: ChannelDetailsEntity) : ChannelDetailsDialog()
+    data class BlockDialog(val channelDetailsEntity: CreatorEntity) : ChannelDetailsDialog()
     data object ReportDialog : ChannelDetailsDialog()
     data object ActionMenuDialog : ChannelDetailsDialog()
     data class LocalsPopupDialog(val localsCommunityEntity: LocalsCommunityEntity) :
@@ -458,7 +458,7 @@ class ChannelDetailsViewModel @Inject constructor(
     }
 
     //region NOTIFICATIONS HANDLER ACTIONS
-    override fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity) {
+    override fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity) {
         uiState.update {
             it.copy(
                 channelDetailsEntity = channelDetailsEntity
@@ -475,7 +475,10 @@ class ChannelDetailsViewModel @Inject constructor(
                 itemsList = (if (displayType == CategoryDisplayType.VIDEOS) {
                     getChannelVideosUseCase(uiState.value.channelId)
                 } else {
-                    fetchRepostListUseCase(uiState.value.channelId)
+                    fetchRepostListUseCase(
+                        userId = "",
+                        channelId = uiState.value.channelDetailsEntity?.channelId
+                    )
                 }).cachedIn(viewModelScope)
             )
         }

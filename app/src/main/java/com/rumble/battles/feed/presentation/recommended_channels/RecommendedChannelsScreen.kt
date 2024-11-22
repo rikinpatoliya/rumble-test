@@ -35,7 +35,7 @@ import com.rumble.battles.commonViews.RumbleSwipeRefreshIndicator
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.discover.presentation.views.ErrorView
 import com.rumble.battles.feed.presentation.views.RecommendedChannelCard
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingSmall
 import com.rumble.utils.RumbleConstants.RECOMMENDED_CHANNELS_COLUMNS_QUANTITY
@@ -49,7 +49,7 @@ fun RecommendedChannelScreen(
     onBackClick: () -> Unit,
 ) {
 
-    val channelPagingItems: LazyPagingItems<ChannelDetailsEntity> =
+    val channelPagingItems: LazyPagingItems<CreatorEntity> =
         recommendedChannelsHandler.channels.collectAsLazyPagingItems()
     val gridState by recommendedChannelsHandler.gridState
 

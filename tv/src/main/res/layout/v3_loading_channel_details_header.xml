@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <variable name="item" type="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <variable name="item" type="com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity"/>
         <import type="android.view.View"/>
     </data>
 

@@ -16,7 +16,7 @@ import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.AlertDialogState
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
@@ -141,7 +141,7 @@ sealed class RumbleActivityAlertReason : AlertDialogReason {
     data class DeletePlayListConfirmationReason(val playListId: String) :
         RumbleActivityAlertReason()
 
-    data class UnfollowConfirmationReason(val channel: ChannelDetailsEntity) :
+    data class UnfollowConfirmationReason(val channel: CreatorEntity) :
         RumbleActivityAlertReason()
 
     data object PremiumPurchaseMade : RumbleActivityAlertReason()

@@ -84,7 +84,7 @@ import com.rumble.battles.feed.presentation.views.RepostFeedView
 import com.rumble.battles.feed.presentation.views.VideoCompactView
 import com.rumble.battles.feed.presentation.views.VideoView
 import com.rumble.battles.landing.RumbleActivityHandler
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.DisplayScreenType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
@@ -584,7 +584,7 @@ private fun ChannelDetailsScreenDialog(
     coroutineScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
     dialogState: ChannelDetailsDialog,
-    channelDetailsEntity: ChannelDetailsEntity?,
+    channelDetailsEntity: CreatorEntity?,
     contentHandler: ContentHandler,
     channelDetailsHandler: ChannelDetailsHandler,
     activityHandler: RumbleActivityHandler,

@@ -1,13 +1,13 @@
 package com.rumble.network.dto.comments
 
 import com.google.gson.annotations.SerializedName
-import com.rumble.network.dto.video.User
+import com.rumble.network.dto.creator.UserLight
 
 data class Comment(
     @SerializedName("id")
     val commentId: Long,
     @SerializedName("user")
-    val user: User?,
+    val user: UserLight?,
     @SerializedName("comment")
     val comment: String?,
     @SerializedName("date")

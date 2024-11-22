@@ -1,7 +1,7 @@
 package com.rumble.domain.channels.channeldetails.domain.usecase
 
 import android.content.Context
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.report.model.repository.ReportContentRepository
@@ -17,7 +17,7 @@ class ReportChannelUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(
-        channelDetailsEntity: ChannelDetailsEntity,
+        channelDetailsEntity: CreatorEntity,
         reportType: ReportType
     ): Boolean {
         val type = when (channelDetailsEntity.type) {

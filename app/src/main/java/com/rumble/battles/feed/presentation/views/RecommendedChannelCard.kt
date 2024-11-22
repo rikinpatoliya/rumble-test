@@ -18,7 +18,7 @@ import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.UserNameViewSingleLine
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.enforcedDarkmo
@@ -36,9 +36,9 @@ import com.rumble.utils.extension.shortString
 @Composable
 fun RecommendedChannelCard(
     modifier: Modifier = Modifier,
-    channel: ChannelDetailsEntity,
+    channel: CreatorEntity,
     onChannelClick: (id: String) -> Unit,
-    onSubscriptionUpdate: (channel: ChannelDetailsEntity, action: UpdateChannelSubscriptionAction) -> Unit
+    onSubscriptionUpdate: (channel: CreatorEntity, action: UpdateChannelSubscriptionAction) -> Unit
 ) {
     Column(
         modifier = modifier

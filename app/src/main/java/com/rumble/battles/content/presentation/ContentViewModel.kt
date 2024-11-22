@@ -46,7 +46,7 @@ import com.rumble.domain.camera.UploadStatus
 import com.rumble.domain.camera.UploadVideoEntity
 import com.rumble.domain.camera.domain.usecases.GetUploadNotificationVideoUseCase
 import com.rumble.domain.camera.domain.usecases.UpdateUploadVideoEntityUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
@@ -65,7 +65,7 @@ import com.rumble.domain.common.domain.usecase.RemoveFromPlaylistUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntityWithOptions
-import com.rumble.domain.feed.domain.domainmodel.video.PlayListUserEntity
+import com.rumble.domain.feed.domain.domainmodel.video.UserEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.ReportContentUseCase
 import com.rumble.domain.landing.usecases.ShouldForceNewAppVersionUseCase
@@ -183,7 +183,7 @@ sealed class BottomSheetContent {
     data class UserUploadChannelSwitcher(val channels: List<UserUploadChannelEntity>) :
         BottomSheetContent()
 
-    data class ChannelNotificationsSheet(val channelDetailsEntity: ChannelDetailsEntity) :
+    data class ChannelNotificationsSheet(val channelDetailsEntity: CreatorEntity) :
         BottomSheetContent()
 
     data class MoreUploadOptionsSheet(
@@ -237,10 +237,10 @@ sealed class ContentScreenVmEvent {
     data class Error(val errorMessage: String? = null, val withPadding: Boolean = false) : ContentScreenVmEvent()
     data class ShowSnackBarMessage(val messageId: Int, val titleId: Int? = null, val withPadding: Boolean = false) : ContentScreenVmEvent()
     data class ShowSnackBarMessageString(val message: String, val title: String? = null, val withPadding: Boolean = true) : ContentScreenVmEvent()
-    data class ChannelSubscriptionUpdated(val channelDetailsEntity: ChannelDetailsEntity) :
+    data class ChannelSubscriptionUpdated(val channelDetailsEntity: CreatorEntity) :
         ContentScreenVmEvent()
 
-    data class ChannelNotificationsUpdated(val channelDetailsEntity: ChannelDetailsEntity) :
+    data class ChannelNotificationsUpdated(val channelDetailsEntity: CreatorEntity) :
         ContentScreenVmEvent()
 
     data object VideoAlreadyInPlayList : ContentScreenVmEvent()
@@ -581,7 +581,7 @@ class ContentViewModel @Inject constructor(
             it.copy(
                 editPlayListEntity = PlayListEntity(
                     playListOwnerId = userUIState.value.userId,
-                    playListUserEntity = PlayListUserEntity(
+                    playListUserEntity = UserEntity(
                         id = userUIState.value.userId,
                         username = userUIState.value.userName,
                         thumbnail = userUIState.value.userPicture
@@ -966,7 +966,7 @@ class ContentViewModel @Inject constructor(
 
     // region SubscriptionHandler
     override fun onUpdateSubscription(
-        channel: ChannelDetailsEntity?,
+        channel: CreatorEntity?,
         action: UpdateChannelSubscriptionAction
     ) {
         if (userUIState.value.isLoggedIn) {
@@ -990,7 +990,7 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    override fun onUnfollow(channel: ChannelDetailsEntity) {
+    override fun onUnfollow(channel: CreatorEntity) {
         analyticsEventUseCase(UnfollowConfirmedEvent)
         emitVmEvent(ContentScreenVmEvent.HideAlertDialogEvent)
         updateSubscription(channel = channel, action = UpdateChannelSubscriptionAction.UNSUBSCRIBE)
@@ -1001,12 +1001,12 @@ class ContentViewModel @Inject constructor(
         emitVmEvent(ContentScreenVmEvent.HideAlertDialogEvent)
     }
 
-    override fun onUpdateSubscriptionStatus(channel: ChannelDetailsEntity) {
+    override fun onUpdateSubscriptionStatus(channel: CreatorEntity) {
         emitVmEvent(ContentScreenVmEvent.ChannelSubscriptionUpdated(channel))
     }
 
     override fun onUpdateEmailFrequency(
-        channelDetailsEntity: ChannelDetailsEntity,
+        channelDetailsEntity: CreatorEntity,
         notificationFrequency: NotificationFrequency
     ) {
         updateNotifications(
@@ -1016,7 +1016,7 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onEnablePushForLivestreams(
-        channelDetailsEntity: ChannelDetailsEntity,
+        channelDetailsEntity: CreatorEntity,
         enable: Boolean
     ) {
         updateNotifications(
@@ -1026,7 +1026,7 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onEnableEmailNotifications(
-        channelDetailsEntity: ChannelDetailsEntity,
+        channelDetailsEntity: CreatorEntity,
         enable: Boolean
     ) {
         updateNotifications(
@@ -1268,7 +1268,7 @@ class ContentViewModel @Inject constructor(
         viewModelScope.launch { eventFlow.emit(event) }
 
     private fun updateSubscription(
-        channel: ChannelDetailsEntity,
+        channel: CreatorEntity,
         action: UpdateChannelSubscriptionAction
     ) {
         viewModelScope.launch(errorHandler) {
@@ -1286,7 +1286,7 @@ class ContentViewModel @Inject constructor(
     }
 
     private fun updateNotifications(
-        channelDetailsEntity: ChannelDetailsEntity,
+        channelDetailsEntity: CreatorEntity,
         pushNotificationsEnabled: Boolean? = null,
         emailNotificationsEnabled: Boolean? = null,
         notificationFrequency: NotificationFrequency? = null

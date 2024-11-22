@@ -5,7 +5,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class PlayListUserEntity(
+data class UserEntity(
     val id: String = "",
     val username: String = "",
     val thumbnail: String? = null,

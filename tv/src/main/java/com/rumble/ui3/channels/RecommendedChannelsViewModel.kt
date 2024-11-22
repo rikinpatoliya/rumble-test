@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetPagingFeaturedChannelsUseCase
 import com.rumble.network.connection.InternetConnectionState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,8 +22,8 @@ import javax.inject.Inject
 
 data class RecommendedChannelsUiState(
     val loading: Boolean = false,
-    val channelList: Flow<PagingData<ChannelDetailsEntity>> = emptyFlow(),
-    val focusedChannel: ChannelDetailsEntity? = null,
+    val channelList: Flow<PagingData<CreatorEntity>> = emptyFlow(),
+    val focusedChannel: CreatorEntity? = null,
 )
 
 sealed class RecommendedChannelsVmEvent {
@@ -32,9 +32,9 @@ sealed class RecommendedChannelsVmEvent {
 interface RecommendedChannelsHandler {
     val state: StateFlow<RecommendedChannelsUiState>
 
-    fun onFocusedChannel(channel: ChannelDetailsEntity?)
+    fun onFocusedChannel(channel: CreatorEntity?)
 
-    val channels: Flow<PagingData<ChannelDetailsEntity>>
+    val channels: Flow<PagingData<CreatorEntity>>
     val eventFlow: SharedFlow<RecommendedChannelsVmEvent>
 }
 
@@ -52,7 +52,7 @@ class RecommendedChannelsViewModel @Inject constructor(
     private val _state = MutableStateFlow(RecommendedChannelsUiState())
     override val state = _state
 
-    override val channels: Flow<PagingData<ChannelDetailsEntity>> =
+    override val channels: Flow<PagingData<CreatorEntity>> =
         getPagingFeaturedChannelsUseCase(viewModelScope).cachedIn(viewModelScope)
 
     val connectionState: MutableLiveData<InternetConnectionState> = MutableLiveData<InternetConnectionState>()
@@ -62,7 +62,7 @@ class RecommendedChannelsViewModel @Inject constructor(
         Timber.e(throwable)
     }
 
-    override fun onFocusedChannel(channel: ChannelDetailsEntity?) {
+    override fun onFocusedChannel(channel: CreatorEntity?) {
         state.value = state.value.copy(focusedChannel = channel)
     }
 }

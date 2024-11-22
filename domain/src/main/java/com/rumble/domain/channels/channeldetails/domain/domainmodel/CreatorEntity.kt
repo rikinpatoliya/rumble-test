@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 import java.util.UUID
 
 @Parcelize
-data class ChannelDetailsEntity(
+data class CreatorEntity(
     val channelId: String,
     val channelTitle: String,
     val name: String = "",

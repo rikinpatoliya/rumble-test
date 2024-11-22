@@ -20,7 +20,7 @@ import com.rumble.battles.common.buildDelimiterHighlightedAnnotatedString
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.UserNameViewSingleLine
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.theme.RumbleTypography.h5
 import com.rumble.theme.enforcedCloud
 import com.rumble.theme.imageXSmall
@@ -34,7 +34,7 @@ import com.rumble.utils.extension.rumbleUitTestTag
 @Composable
 fun AutoCompleteSearchChannelView(
     modifier: Modifier = Modifier,
-    channelDetailsEntity: ChannelDetailsEntity,
+    channelDetailsEntity: CreatorEntity,
     query: String,
     index: Int,
     onViewChannel: (String) -> Unit,

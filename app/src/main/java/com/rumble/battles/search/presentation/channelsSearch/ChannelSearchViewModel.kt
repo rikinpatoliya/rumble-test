@@ -10,7 +10,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.navigation.RumblePath
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.search.domain.useCases.SearchChannelsUseCase
 import com.rumble.utils.extension.navigationSafeDecode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 interface ChannelSearchHandler: LazyListStateHandler {
     val query: String
-    val channelList: Flow<PagingData<ChannelDetailsEntity>>
+    val channelList: Flow<PagingData<CreatorEntity>>
 }
 
 @HiltViewModel
@@ -31,7 +31,7 @@ class ChannelSearchViewModel @Inject constructor(
     override val query: String =
         (stateHandle.get<String>(RumblePath.QUERY.path) ?: "").navigationSafeDecode()
 
-    override val channelList: Flow<PagingData<ChannelDetailsEntity>> =
+    override val channelList: Flow<PagingData<CreatorEntity>> =
         searchChannelsUseCase(query).cachedIn(viewModelScope)
 
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))

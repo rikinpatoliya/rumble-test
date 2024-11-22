@@ -19,7 +19,7 @@ data class PlayListEntity(
     val thumbnail: String = "",
     val updatedDate: LocalDateTime = LocalDateTime.now(),
     var playListOwnerId: String = "",
-    val playListUserEntity: PlayListUserEntity = PlayListUserEntity(),
+    val playListUserEntity: UserEntity = UserEntity(),
     val playListChannelEntity: PlayListChannelEntity? = null,
     val videosQuantity: Int = 0,
     var username: String = "",

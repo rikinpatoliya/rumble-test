@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.navigation.RumblePath
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.domain.search.domain.domainModel.RecentQuery
 import com.rumble.domain.search.domain.useCases.DeleteAllQueriesUseCase
@@ -41,7 +41,7 @@ interface SearchHandler: LazyListStateHandler {
 data class SearchQueryUIState(
     val query: String = "",
     val recentQueryList: List<RecentQuery> = emptyList(),
-    val autoCompleteChannelsList: List<ChannelDetailsEntity> = emptyList(),
+    val autoCompleteChannelsList: List<CreatorEntity> = emptyList(),
     val autoCompleteCategoriesList: List<CategoryEntity> = emptyList()
 )
 

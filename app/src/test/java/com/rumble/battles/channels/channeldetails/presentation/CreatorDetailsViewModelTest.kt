@@ -5,7 +5,7 @@ import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelVideosUseCase
@@ -14,7 +14,6 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.ReportChannelUse
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsData
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelSubscriptionUseCase
-import com.rumble.domain.common.domain.usecase.OpenUriUseCase
 import com.rumble.domain.common.domain.usecase.SendEmailUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
@@ -41,7 +40,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-internal class ChannelDetailsViewModelTest {
+internal class CreatorDetailsViewModelTest {
 
     private val getChannelDataUseCase = mockk<GetChannelDataUseCase>(relaxed = true)
     private val getChannelVideosUseCase = mockk<GetChannelVideosUseCase>(relaxed = true)
@@ -53,7 +52,7 @@ internal class ChannelDetailsViewModelTest {
     private val savedStateHandle = mockk<SavedStateHandle>(relaxed = true)
     private val videoEntity = mockk<VideoEntity>(relaxed = true)
     private val localsCommunityEntity = mockk<LocalsCommunityEntity>(relaxed = true)
-    private val channelDetailsEntity = mockk<ChannelDetailsEntity>(relaxed = true)
+    private val channelDetailsEntity = mockk<CreatorEntity>(relaxed = true)
     private val updateChannelNotificationsData =
         mockk<UpdateChannelNotificationsData>(relaxed = true)
     private val notificationFrequency = mockk<NotificationFrequency>(relaxed = true)

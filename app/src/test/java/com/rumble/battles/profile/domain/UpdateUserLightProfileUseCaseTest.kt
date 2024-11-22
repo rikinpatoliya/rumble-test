@@ -12,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.time.LocalDate
 
-internal class UpdateUserProfileUseCaseTest {
+internal class UpdateUserLightProfileUseCaseTest {
     private val repository = mockk<ProfileRepository>(relaxed = true)
     private val rumbleErrorUseCase = mockk<RumbleErrorUseCase>(relaxed = true)
     private val useCase = UpdateUserProfileUseCase(repository, rumbleErrorUseCase)

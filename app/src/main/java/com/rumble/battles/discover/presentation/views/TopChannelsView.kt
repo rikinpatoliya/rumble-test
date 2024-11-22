@@ -14,7 +14,7 @@ import com.rumble.battles.FeaturedChannelsErrorTag
 import com.rumble.battles.FeaturedChannelsLoadingTag
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.RumbleTextActionButton
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
 import com.rumble.theme.*
 import com.rumble.utils.extension.ignoreHorizontalParentPadding
@@ -22,7 +22,7 @@ import com.rumble.utils.extension.ignoreHorizontalParentPadding
 @Composable
 fun TopChannelsView(
     modifier: Modifier,
-    featuredChannels: List<ChannelDetailsEntity>,
+    featuredChannels: List<CreatorEntity>,
     loading: Boolean,
     error: Boolean,
     onChannelClick: (String) -> Unit,

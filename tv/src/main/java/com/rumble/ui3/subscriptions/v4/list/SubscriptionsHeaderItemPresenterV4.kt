@@ -19,7 +19,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.rumble.R
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.ui3.subscriptions.pages.list.HeaderItemWithData
 import com.rumble.ui3.subscriptions.v4.AllSubscriptionsFragmentRow
 import com.rumble.ui3.subscriptions.v4.AllSubscriptionsSort
@@ -121,7 +121,7 @@ class SubscriptionsHeaderItemPresenterV4(
             val headerIconItem = ((item as Row).headerItem as HeaderItemWithData)
 
             titleView.text = headerIconItem.name
-            val channelData = headerIconItem.data as ChannelDetailsEntity
+            val channelData = headerIconItem.data as CreatorEntity
 
             imageViewBorder.visibility = View.INVISIBLE
             channelData.watchingNowCount?.let { watchingNow ->

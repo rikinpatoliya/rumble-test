@@ -73,8 +73,8 @@ data class Video(
     val liveGate: LiveGate?,
     @SerializedName("reposts_count")
     val repostsCount: Int?,
-    @SerializedName("user_reposts")
-    val userRepostList: List<Repost>?,
+    @SerializedName("user_repost")
+    val userRepostList: Repost?,
     @SerializedName("object_type")
     val objectType: String?
 ) : FeedItem

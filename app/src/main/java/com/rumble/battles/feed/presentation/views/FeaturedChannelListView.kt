@@ -26,7 +26,7 @@ import com.rumble.battles.commonViews.RumbleTextActionButton
 import com.rumble.battles.commonViews.UserNameViewSingleLine
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelsHandler
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.theme.RumbleTypography.h4
 import com.rumble.theme.RumbleTypography.h6
@@ -49,7 +49,7 @@ fun FeaturedChannelListView(
     onChannelClick: (id: String) -> Unit,
     onViewAllClick: () -> Unit
 ) {
-    val channelPagingItems: LazyPagingItems<ChannelDetailsEntity> =
+    val channelPagingItems: LazyPagingItems<CreatorEntity> =
         recommendedChannelsHandler.channels.collectAsLazyPagingItems()
 
     Box(modifier = modifier) {

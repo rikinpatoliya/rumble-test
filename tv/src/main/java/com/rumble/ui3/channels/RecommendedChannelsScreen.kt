@@ -43,7 +43,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Text
 import com.rumble.R
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.theme.RumbleTvTypography
 import com.rumble.theme.RumbleTvTypography.labelBoldTv
 import com.rumble.theme.backButtonArrowSize
@@ -71,11 +71,11 @@ import java.util.UUID
 @Composable
 fun RecommendedChannelsScreen(
     viewModel: RecommendedChannelsHandler,
-    onNavigateToChannelDetails: (ChannelDetailsEntity) -> Unit,
+    onNavigateToChannelDetails: (CreatorEntity) -> Unit,
     onBack: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val channelsPagingItems: LazyPagingItems<ChannelDetailsEntity> = viewModel.channels.collectAsLazyPagingItems()
+    val channelsPagingItems: LazyPagingItems<CreatorEntity> = viewModel.channels.collectAsLazyPagingItems()
 
     val gridFocusRequester = remember { FocusRequester() }
 

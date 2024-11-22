@@ -62,7 +62,7 @@ import com.rumble.battles.login.presentation.AuthPlaceholderScreen
 import com.rumble.battles.navigation.RumbleScreens
 import com.rumble.battles.profile.presentation.views.ProfileFollowingView
 import com.rumble.battles.profile.presentation.views.ProfileItemView
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.profile.domainmodel.AppVersionVisibility
 import com.rumble.domain.uploadmanager.dto.VideoUploadsIndicatorStatus
 import com.rumble.network.queryHelpers.SubscriptionSource
@@ -104,7 +104,7 @@ fun ProfileScreen(
     val screenSate by profileHandler.screenSate
     val appVersion by profileHandler.appVersionState.collectAsStateWithLifecycle()
     val activityHandlerState by activityHandler.activityHandlerState.collectAsStateWithLifecycle()
-    val channelDetailsEntity: ChannelDetailsEntity? =
+    val channelDetailsEntity: CreatorEntity? =
         (screenSate as? ProfileScreenState.LoggedIn)?.channelDetailsEntity
     val clipboard: ClipboardManager = LocalClipboardManager.current
 

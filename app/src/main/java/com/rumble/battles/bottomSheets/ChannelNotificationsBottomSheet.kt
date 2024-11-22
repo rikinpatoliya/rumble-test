@@ -32,7 +32,7 @@ import com.rumble.battles.commonViews.RumbleRadioSelectionRow
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
 import com.rumble.battles.notifications.presentation.views.NotificationItemView
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.sort.NotificationFrequency
 import com.rumble.network.queryHelpers.Frequency
@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun ChannelNotificationsBottomSheet(
-    channelDetailsEntity: ChannelDetailsEntity,
+    channelDetailsEntity: CreatorEntity,
     contentHandler: ContentHandler,
     onHideBottomSheet: () -> Unit
 ) {

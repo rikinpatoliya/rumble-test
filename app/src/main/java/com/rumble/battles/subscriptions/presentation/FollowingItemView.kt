@@ -30,7 +30,7 @@ import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.SubscriptionStatusActionButton
 import com.rumble.battles.commonViews.UserNameViewSingleLine
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.theme.RumbleTypography.h4
@@ -59,7 +59,7 @@ import com.rumble.utils.extension.shortString
 @Composable
 fun FollowingItemView(
     modifier: Modifier = Modifier,
-    channelDetailsEntity: ChannelDetailsEntity,
+    channelDetailsEntity: CreatorEntity,
     onChannelClick: (channelId: String) -> Unit,
     onNotificationClick: () -> Unit,
     onUpdateSubscription: (action: UpdateChannelSubscriptionAction) -> Unit

@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsActionButtonsView
 import com.rumble.battles.feed.presentation.views.FollowerNumberView
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
@@ -29,12 +29,12 @@ fun UserInfoView(
     verifiedBadge: Boolean,
     showJoinButton: Boolean,
     followers: Int = 0,
-    channelDetailsEntity: ChannelDetailsEntity? = null,
+    channelDetailsEntity: CreatorEntity? = null,
     followStatus: FollowStatus? = null,
     onUpdateSubscription: (action: UpdateChannelSubscriptionAction) -> Unit,
     onChannelClick: (String) -> Unit,
     onJoin: (localsCommunityEntity: LocalsCommunityEntity) -> Unit = {},
-    onChannelNotifications: (ChannelDetailsEntity) -> Unit = {},
+    onChannelNotifications: (CreatorEntity) -> Unit = {},
 ) {
     Row(
         modifier = modifier

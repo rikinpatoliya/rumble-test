@@ -9,7 +9,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-internal class GetUserProfileUseCaseTest {
+internal class GetUserLightProfileUseCaseTest {
     private val repository = mockk<ProfileRepository>(relaxed = true)
     private val rumbleErrorUseCase = mockk<RumbleErrorUseCase>(relaxed = true)
     private val sessionManager: SessionManager = mockk(relaxed = true)

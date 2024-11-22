@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChannelRemoteDataSource {
 
-    suspend fun fetchChannelData(id: String): Result<ChannelDetailsEntity>
+    suspend fun fetchChannelData(id: String): Result<CreatorEntity>
 
     suspend fun fetchUserUploadChannels(): UserUploadChannelsResult
 
@@ -20,13 +20,13 @@ interface ChannelRemoteDataSource {
         type: ChannelType,
         action: UpdateChannelSubscriptionAction,
         data: UpdateChannelNotificationsData?,
-    ): Result<ChannelDetailsEntity>
+    ): Result<CreatorEntity>
 
-    suspend fun listOfFollowedChannels(): Result<List<ChannelDetailsEntity>>
+    suspend fun listOfFollowedChannels(): Result<List<CreatorEntity>>
 
-    fun fetchFollowedChannels(): Flow<PagingData<ChannelDetailsEntity>>
+    fun fetchFollowedChannels(): Flow<PagingData<CreatorEntity>>
 
-    fun pagingOfFeaturedChannels(): Flow<PagingData<ChannelDetailsEntity>>
+    fun pagingOfFeaturedChannels(): Flow<PagingData<CreatorEntity>>
 
     suspend fun fetchFeaturedChannels(
         offset: Int? = null,

@@ -1,6 +1,6 @@
 package com.rumble.domain.channels.channeldetails.domain.usecase
 
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.model.repository.ChannelRepository
 import com.rumble.domain.sort.NotificationFrequency
@@ -17,9 +17,9 @@ class UpdateChannelNotificationsUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(
-        channelDetailsEntity: ChannelDetailsEntity,
+        channelDetailsEntity: CreatorEntity,
         data: UpdateChannelNotificationsData
-    ): Result<ChannelDetailsEntity> {
+    ): Result<CreatorEntity> {
         return channelRepository.updateChannelSubscription(
             id = channelDetailsEntity.channelId,
             type = channelDetailsEntity.type,

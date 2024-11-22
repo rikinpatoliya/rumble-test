@@ -1,14 +1,14 @@
 package com.rumble.domain.channels.channeldetails.domain.usecase
 
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.sort.SortFollowingType
 import javax.inject.Inject
 
 class SortFollowingChannelsUseCase @Inject constructor() {
     operator fun invoke(
         sortType: SortFollowingType,
-        channelList: List<ChannelDetailsEntity>,
-    ): List<ChannelDetailsEntity> {
+        channelList: List<CreatorEntity>,
+    ): List<CreatorEntity> {
 
         return when (sortType) {
             SortFollowingType.DEFAULT -> channelList

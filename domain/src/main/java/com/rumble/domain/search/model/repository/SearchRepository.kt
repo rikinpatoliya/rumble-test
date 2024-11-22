@@ -1,7 +1,7 @@
 package com.rumble.domain.search.model.repository
 
 import androidx.paging.PagingData
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.search.domain.domainModel.AutoCompleteQueriesResult
 import com.rumble.domain.search.domain.domainModel.RecentQuery
@@ -24,7 +24,7 @@ interface SearchRepository {
         duration: DurationType?,
     ): SearchResult
 
-    fun searchChannels(query: String): Flow<PagingData<ChannelDetailsEntity>>
+    fun searchChannels(query: String): Flow<PagingData<CreatorEntity>>
     fun searchVideos(
         query: String,
         sort: SortType? = null,

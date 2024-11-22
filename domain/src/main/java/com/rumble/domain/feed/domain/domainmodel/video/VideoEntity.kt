@@ -63,5 +63,5 @@ data class VideoEntity(
     val hasLiveGate: Boolean,
     val liveGateEntity: LiveGateEntity? = null,
     val repostCount: Int,
-    val userRepostList: List<RepostEntity>,
+    val userRepost: RepostEntity?,
 ) : Feed, UniqueId, Parcelable

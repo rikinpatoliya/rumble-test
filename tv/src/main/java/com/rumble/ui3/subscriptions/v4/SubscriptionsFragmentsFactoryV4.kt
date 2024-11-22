@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.leanback.widget.HeaderItem
 import androidx.leanback.widget.PageRow
 import androidx.leanback.widget.Row
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.leanback.BrowseSupportFragment
 import com.rumble.ui3.channel.details.v4.ChannelDetailsFragmentV4
 import com.rumble.ui3.subscriptions.pages.list.HeaderItemWithData
@@ -30,7 +30,7 @@ class SubscriptionsFragmentsFactoryV4 @Inject constructor() :
             is ChannelFragmentRow -> {
                 val headerIconItem = ((row as Row).headerItem as HeaderItemWithData)
                 ChannelDetailsFragmentV4.getInstance(
-                    (headerIconItem.data as ChannelDetailsEntity),
+                    (headerIconItem.data as CreatorEntity),
                     showLogo = false,
                     fromActivity = false,
                     isCachingSupported = true

@@ -1,6 +1,6 @@
 package com.rumble.battles.discover.presentation.discoverscreen
 
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.videoplayer.player.RumblePlayer
@@ -18,7 +18,7 @@ data class DiscoverState(
     val editorPicksError: Boolean = false,
 
     val featuredChannelsLoading: Boolean = false,
-    val featuredChannels: List<ChannelDetailsEntity> = emptyList(),
+    val featuredChannels: List<CreatorEntity> = emptyList(),
     val featuredChannelsError: Boolean = false,
 
     val doNotMissItLoading: Boolean = false,

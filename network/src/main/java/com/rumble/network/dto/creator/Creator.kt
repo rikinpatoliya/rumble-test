@@ -1,4 +1,4 @@
-package com.rumble.network.dto.channel
+package com.rumble.network.dto.creator
 
 import com.google.gson.annotations.SerializedName
 import com.rumble.network.dto.video.LocalsCommunity
@@ -26,7 +26,7 @@ import com.rumble.network.dto.video.Video
  * @param localsCommunity Optional, the locals community of the channel
  * @param url // Optional, url of the channel on rumble.com
  */
-data class Channel(
+data class Creator(
     @SerializedName("id")
     val id: String,
     @SerializedName("type")

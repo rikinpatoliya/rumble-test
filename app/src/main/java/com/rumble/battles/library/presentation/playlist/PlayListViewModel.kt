@@ -23,7 +23,7 @@ import com.rumble.domain.analytics.domain.domainmodel.videoListScreen
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
@@ -73,7 +73,7 @@ interface PlayListHandler : RestrictedVideoHandler, EditPlayListHandler, LazyLis
     fun onShare()
     fun onFollowPlayList(following: Boolean)
     fun onUpdateSubscription(action: UpdateChannelSubscriptionAction)
-    fun updateFollowStatus(channelDetailsEntity: ChannelDetailsEntity)
+    fun updateFollowStatus(channelDetailsEntity: CreatorEntity)
     fun onPlayListUpdated(playListEntity: PlayListEntity)
 }
 
@@ -83,7 +83,7 @@ sealed class PlayListScreenVmEvent {
     data object WatchHistoryCleared : PlayListScreenVmEvent()
     data class PlayVideo(val videoEntity: VideoEntity) : PlayListScreenVmEvent()
     data class UpdateChannelSubscription(
-        val channelDetailsEntity: ChannelDetailsEntity,
+        val channelDetailsEntity: CreatorEntity,
         val action: UpdateChannelSubscriptionAction
     ) : PlayListScreenVmEvent()
 }
@@ -209,7 +209,7 @@ class PlayListViewModel @Inject constructor(
         }
     }
 
-    override fun updateFollowStatus(channelDetailsEntity: ChannelDetailsEntity) {
+    override fun updateFollowStatus(channelDetailsEntity: CreatorEntity) {
         val newFollowStatus = FollowStatus(
             channelId = channelDetailsEntity.channelId,
             followed = channelDetailsEntity.followed,

@@ -1,7 +1,7 @@
 package com.rumble.network.dto.profile
 
 import com.google.gson.annotations.SerializedName
-import com.rumble.network.dto.channel.Channel
+import com.rumble.network.dto.creator.Creator
 import com.rumble.network.dto.login.UserState
 import com.rumble.network.dto.video.Video
 
@@ -29,9 +29,9 @@ data class ProfileNotificationItem(
     @SerializedName("tag")
     val tag: Int?,
     @SerializedName("user")
-    val user: Channel?,
+    val user: Creator?,
     @SerializedName("channel")
-    val channel: Channel?,
+    val channel: Creator?,
     @SerializedName("video")
     val video: Video?,
 )

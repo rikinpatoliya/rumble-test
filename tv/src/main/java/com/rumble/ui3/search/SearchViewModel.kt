@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.search.domain.domainModel.RecentQuery
@@ -34,11 +34,11 @@ data class SearchUiState(
     val initialLoadState: Boolean = true,
 
     val videoResults: Flow<PagingData<VideoEntity>> = emptyFlow(),
-    val channelResults: Flow<PagingData<ChannelDetailsEntity>> = emptyFlow(),
+    val channelResults: Flow<PagingData<CreatorEntity>> = emptyFlow(),
 
     val focusedSuggestionIndex: Int = 0,
     val focusedVideo: VideoEntity? = null,
-    val focusedChannel: ChannelDetailsEntity? = null,
+    val focusedChannel: CreatorEntity? = null,
 
     )
 
@@ -49,7 +49,7 @@ interface SearchHandler {
 
     fun onFocusedSuggestion(index: Int)
     fun onFocusVideo(video: VideoEntity?)
-    fun onFocusedChannel(channel: ChannelDetailsEntity?)
+    fun onFocusedChannel(channel: CreatorEntity?)
 
     fun onContentSelected()
 
@@ -121,7 +121,7 @@ class SearchViewModel @Inject constructor(
         state.value = state.value.copy(focusedVideo = video)
     }
 
-    override fun onFocusedChannel(channel: ChannelDetailsEntity?) {
+    override fun onFocusedChannel(channel: CreatorEntity?) {
         state.value = state.value.copy(focusedChannel = channel)
     }
 

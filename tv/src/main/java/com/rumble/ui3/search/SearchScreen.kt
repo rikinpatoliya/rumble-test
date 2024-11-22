@@ -71,7 +71,7 @@ import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.rumble.R
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.theme.RumbleTvTypography.labelRegularTv
@@ -106,7 +106,7 @@ fun SearchScreen(
     focusRequester: FocusRequester,
     onNavigateToCategory: (CategoryEntity) -> Unit,
     onNavigateToVideo: (VideoEntity) -> Unit,
-    onNavigateToChannel: (ChannelDetailsEntity) -> Unit,
+    onNavigateToChannel: (CreatorEntity) -> Unit,
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()

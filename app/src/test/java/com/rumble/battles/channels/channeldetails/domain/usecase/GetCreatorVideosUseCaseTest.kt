@@ -9,7 +9,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-internal class GetChannelVideosUseCaseTest {
+internal class GetCreatorVideosUseCaseTest {
 
     private val repository = mockk<ChannelRepository>(relaxed = true)
     private val getVideoPageSizeUseCase: GetVideoPageSizeUseCase = mockk(relaxed = true)

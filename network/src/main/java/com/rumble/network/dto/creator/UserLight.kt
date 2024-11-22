@@ -1,8 +1,8 @@
-package com.rumble.network.dto.video
+package com.rumble.network.dto.creator
 
 import com.google.gson.annotations.SerializedName
 
-data class User(
+data class UserLight(
     @SerializedName("id")
     val id: String?,
     @SerializedName("slug")

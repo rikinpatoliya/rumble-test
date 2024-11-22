@@ -22,9 +22,10 @@ class RepostRepositoryImpl(
         remoteDataSource.fetchFeedRepostData(pageSize)
 
     override fun fetchRepostData(
-        id: String,
+        userId: String,
+        channelId: String,
         pageSize: Int
-    ): Flow<PagingData<Feed>> = remoteDataSource.fetchRepostData(id, pageSize)
+    ): Flow<PagingData<Feed>> = remoteDataSource.fetchRepostData(userId, channelId, pageSize)
 
     override suspend fun deleteRepost(repostId: Long): DeleteRepostResult =
         withContext(dispatcher) {

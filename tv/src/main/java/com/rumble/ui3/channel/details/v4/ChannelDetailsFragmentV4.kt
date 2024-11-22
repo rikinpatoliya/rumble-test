@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.rumble.R
 import com.rumble.databinding.V3ChannelDetailsEmptyViewBinding
 import com.rumble.databinding.V3ChannelDetailsHeaderBinding
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.leanback.BrowseSupportFragment
@@ -74,7 +74,7 @@ class ChannelDetailsFragmentV4() : VerticalGridSupportFragment(),
         var fromActivity: Boolean = false
         var caching: Boolean = false
 
-        fun getInstance(channel: ChannelDetailsEntity?, showLogo: Boolean = true, fromActivity: Boolean = false, isCachingSupported: Boolean = false): ChannelDetailsFragmentV4 {
+        fun getInstance(channel: CreatorEntity?, showLogo: Boolean = true, fromActivity: Boolean = false, isCachingSupported: Boolean = false): ChannelDetailsFragmentV4 {
             val fragment = ChannelDetailsFragmentV4()
             val bundle = Bundle()
             bundle.putParcelable(BUNDLE_KEY_CHANNEL, channel)
@@ -689,7 +689,7 @@ class ChannelDetailsFragmentV4() : VerticalGridSupportFragment(),
         adapter = pagingDataAdapter
     }
 
-    override fun updateChannelState(channelDetailsEntity: ChannelDetailsEntity) {
+    override fun updateChannelState(channelDetailsEntity: CreatorEntity) {
         viewModel.channelObject = channelDetailsEntity
         headerBinding.item = channelDetailsEntity
         headerBinding.detailsHeaderContainer.requestFocus()

@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.R
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetFeaturedChannelsUseCase
 import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
@@ -104,7 +104,7 @@ class HomeViewModelV4 @Inject constructor(
     private val classPresenterSelector = ClassPresenterSelector().apply {
         addClassPresenter(VideoEntity::class.java, videoCardPresenter)
         addClassPresenter(VideoViewAllEntity::class.java, VideoViewAllCardPresenter())
-        addClassPresenter(ChannelDetailsEntity::class.java, ChannelCardPresenter())
+        addClassPresenter(CreatorEntity::class.java, ChannelCardPresenter())
         addClassPresenter(ChannelViewAllEntity::class.java, ChannelViewAllCardPresenter())
         addClassPresenter(CategoryEntity::class.java, TopLiveCategoriesCardPresenter())
         addClassPresenter(TopLiveCategoriesViewAllEntity::class.java, TopLiveCategoriesViewAllCardPresenter())
@@ -119,7 +119,7 @@ class HomeViewModelV4 @Inject constructor(
     private val firstVideoCollectionArrayObjectAdapter = ArrayObjectAdapter(classPresenterSelector)
     private val secondAndThirdVideoCollectionArrayObjectAdapter = ArrayObjectAdapter(classPresenterSelector)
 
-    var allChannelDisplayed: List<ChannelDetailsEntity> = listOf()
+    var allChannelDisplayed: List<CreatorEntity> = listOf()
     private var topLiveCategories: List<CategoryEntity> = listOf()
 
     private val videoCollectionFirstCollectionPosition = 1
@@ -228,7 +228,7 @@ class HomeViewModelV4 @Inject constructor(
 
     }
 
-    fun refreshChannelData(channelObject: ChannelDetailsEntity): ChannelDetailsEntity? {
+    fun refreshChannelData(channelObject: CreatorEntity): CreatorEntity? {
         return runBlocking(errorHandler) { getChannelDataUseCase(channelObject.channelId).getOrNull() }
     }
 

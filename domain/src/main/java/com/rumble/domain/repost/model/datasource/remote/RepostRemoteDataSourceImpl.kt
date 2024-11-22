@@ -28,14 +28,16 @@ class RepostRemoteDataSourceImpl(
             }).flow
 
     override fun fetchRepostData(
-        id: String,
+        userId: String,
+        channelId: String,
         pageSize: Int
     ): Flow<PagingData<Feed>> =
         Pager(
             config = getRumblePagingConfig(pageSize = pageSize),
             pagingSourceFactory = {
                 RepostPagingSource(
-                    id = id,
+                    userId = userId,
+                    channelId = channelId,
                     repostApi = repostApi,
                     dispatcher = dispatcher,
                 )

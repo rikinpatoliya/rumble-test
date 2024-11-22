@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
 import com.rumble.databinding.V3ChannelCardBinding
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 
 
 class ChannelCardPresenter : Presenter() {
@@ -18,7 +18,7 @@ class ChannelCardPresenter : Presenter() {
     override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any?) {
         val channelCardViewHolder = viewHolder as ViewHolder
 
-        if (item is ChannelDetailsEntity) {
+        if (item is CreatorEntity) {
             channelCardViewHolder.bind(item)
         }
     }
@@ -30,7 +30,7 @@ class ChannelCardPresenter : Presenter() {
 
     class ViewHolder(private val binding: V3ChannelCardBinding) : Presenter.ViewHolder(binding.root) {
 
-        fun bind(item: ChannelDetailsEntity) {
+        fun bind(item: CreatorEntity) {
             binding.item = item
         }
 

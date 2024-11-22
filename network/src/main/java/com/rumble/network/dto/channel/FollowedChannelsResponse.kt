@@ -1,6 +1,7 @@
 package com.rumble.network.dto.channel
 
 import com.google.gson.annotations.SerializedName
+import com.rumble.network.dto.creator.Creator
 import com.rumble.network.dto.login.UserState
 
 data class FollowedChannelsResponse(
@@ -12,5 +13,5 @@ data class FollowedChannelsResponse(
 
 data class FollowedChannelItems(
     @SerializedName("items")
-    val items: List<Channel>?
+    val items: List<Creator>?
 )

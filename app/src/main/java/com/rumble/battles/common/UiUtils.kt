@@ -10,7 +10,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.rumble.battles.R
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.AnnotatedTextAction
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -94,7 +94,7 @@ fun getStringTitleByStatus(
 }
 
 @Composable
-fun getNotificationIcon(channelDetailsEntity: ChannelDetailsEntity) =
+fun getNotificationIcon(channelDetailsEntity: CreatorEntity) =
     if (channelDetailsEntity.pushNotificationsEnabled)
         R.drawable.ic_notifications_filled
     else if (channelDetailsEntity.emailNotificationsEnabled)

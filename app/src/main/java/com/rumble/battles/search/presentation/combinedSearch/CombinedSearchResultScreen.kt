@@ -75,7 +75,7 @@ import com.rumble.battles.feed.presentation.views.VideoView
 import com.rumble.battles.search.presentation.views.SearchResultHeader
 import com.rumble.battles.sort.SortFilterBottomSheet
 import com.rumble.battles.sort.SortFilterSelection
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.theme.RumbleTypography.h3
@@ -466,7 +466,7 @@ private fun EmptyChannelListView() {
 @Composable
 private fun ChannelListView(
     modifier: Modifier = Modifier,
-    channelList: List<ChannelDetailsEntity>,
+    channelList: List<CreatorEntity>,
     onViewChannel: (String) -> Unit,
     horizontalContentPadding: Dp = 0.dp,
     onViewAll: () -> Unit,

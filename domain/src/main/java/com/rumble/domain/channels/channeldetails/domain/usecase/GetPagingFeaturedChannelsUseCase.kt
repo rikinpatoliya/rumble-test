@@ -3,7 +3,7 @@ package com.rumble.domain.channels.channeldetails.domain.usecase
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.model.repository.ChannelRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +14,7 @@ class GetPagingFeaturedChannelsUseCase @Inject constructor(
     private val channelRepository: ChannelRepository
 ) {
 
-    operator fun invoke(scope: CoroutineScope): Flow<PagingData<ChannelDetailsEntity>> {
+    operator fun invoke(scope: CoroutineScope): Flow<PagingData<CreatorEntity>> {
         val pagingDataFlow = channelRepository.pagingOfFeaturedChannels()
         val followUpdateFlow = channelRepository.fetchChannelFollowUpdates()
 

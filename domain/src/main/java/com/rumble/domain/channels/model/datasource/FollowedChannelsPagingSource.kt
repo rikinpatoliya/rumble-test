@@ -1,9 +1,9 @@
 package com.rumble.domain.channels.model.datasource
 
 import androidx.paging.PagingState
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.common.model.datasource.RumblePagingSource
-import com.rumble.domain.feed.model.getChannelDetailsEntity
+import com.rumble.domain.feed.model.getCreatorEntity
 import com.rumble.network.api.ChannelApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -12,14 +12,14 @@ class FollowedChannelsPagingSource(
     private val id: String? = null,
     private val channelApi: ChannelApi,
     private val dispatcher: CoroutineDispatcher,
-) : RumblePagingSource<Int, ChannelDetailsEntity>() {
+) : RumblePagingSource<Int, CreatorEntity>() {
 
     private var nextKey = 0
     private var offset = 0
 
-    override fun getRefreshKey(state: PagingState<Int, ChannelDetailsEntity>): Int? = null
+    override fun getRefreshKey(state: PagingState<Int, CreatorEntity>): Int? = null
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ChannelDetailsEntity> =
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CreatorEntity> =
         withContext(dispatcher) {
             val loadSize = getLoadSize(params.loadSize)
             try {
@@ -39,9 +39,9 @@ class FollowedChannelsPagingSource(
     override val keyReuseSupported: Boolean
         get() = true
 
-    private suspend fun fetchChannelVideoList(loadSize: Int): List<ChannelDetailsEntity> {
+    private suspend fun fetchChannelVideoList(loadSize: Int): List<CreatorEntity> {
         val response = channelApi.listOfFollowedChannels(id, offset, loadSize).body()
-        val items = response?.data?.items?.map { it.getChannelDetailsEntity() } ?: emptyList()
+        val items = response?.data?.items?.map { it.getCreatorEntity() } ?: emptyList()
         offset += loadSize
         return items
     }

@@ -32,9 +32,9 @@ import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoDetailsUseCase
 import com.rumble.domain.analytics.domain.usecases.RumbleAdUpNextImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorsResult
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
@@ -170,7 +170,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onShufflePlayList(shufflePlayList: Boolean)
     fun onPlayListVideoClick(videoEntity: VideoEntity, videoNumber: Int)
     fun onPlayListVideoListUpdated(videoList: List<Feed>)
-    fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
+    fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
     fun onRantPurchaseSucceeded(rantLevel: RantLevel)
     fun onOpenBuyRantSheet()
     fun onOpenModerationMenu()
@@ -221,7 +221,7 @@ data class VideoDetailsState(
     val sortedCommentsList: List<CommentEntity>? = null,
     val rumbleAdEntity: RumbleAdEntity? = null,
     val followStatus: FollowStatus? = null,
-    val channelDetailsEntity: ChannelDetailsEntity? = null,
+    val channelDetailsEntity: CreatorEntity? = null,
     val rumblePlayer: RumblePlayer? = null,
     val isLoading: Boolean = true,
     val screenOrientation: Int = Configuration.ORIENTATION_UNDEFINED,
@@ -309,7 +309,7 @@ sealed class VideoDetailsEvent {
     data object OpenAuthMenu : VideoDetailsEvent()
     data object RequestMessageFocus : VideoDetailsEvent()
     data class StartFollowChannel(
-        val channelDetailsEntity: ChannelDetailsEntity?,
+        val channelDetailsEntity: CreatorEntity?,
         val action: UpdateChannelSubscriptionAction
     ) : VideoDetailsEvent()
 
@@ -495,7 +495,7 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onRepostDeleted(repostId: Long) {
         state.value.videoEntity?.let { video ->
-            if (video.userRepostList.any { it.id == repostId }) {
+            if (video.userRepost?.id == repostId) {
                 viewModelScope.launch(errorHandler) {
                     fetchDetails(video.id)
                 }
@@ -1342,7 +1342,7 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity) {
+    override fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity) {
         viewModelScope.launch {
             val isPremium = isPremiumUserFlow.first()
             updateChannelDetails(channelDetailsEntity, isPremium)
@@ -1677,7 +1677,7 @@ class VideoDetailsViewModel @Inject constructor(
                     it,
                     it.liveGateEntity?.chatMode ?: ChatMode.Free
                 ),
-                repostedByUser = it.userRepostList.any { repost -> repost.video.id == it.id }
+                repostedByUser = it.userRepost?.video?.id == videoId
             )
             onVideoPlayerImpression()
             initLiveChat(it)
@@ -1735,7 +1735,7 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private fun updateChannelDetails(
-        channelDetailsEntity: ChannelDetailsEntity,
+        channelDetailsEntity: CreatorEntity,
         isPremium: Boolean
     ) {
         val showPremiumFlow = channelDetailsEntity.localsCommunityEntity?.showPremiumFlow ?: false

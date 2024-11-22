@@ -25,7 +25,7 @@ fun RepostActionsBottomSheet(
                 }
             )
         ).apply {
-            if (currentUserId == repost.user.id || currentUserId == repost.channel?.channelId) {
+            if (currentUserId == repost.user.id || currentUserId == repost.channel?.id) {
                 add(
                     0,
                     BottomSheetItem(

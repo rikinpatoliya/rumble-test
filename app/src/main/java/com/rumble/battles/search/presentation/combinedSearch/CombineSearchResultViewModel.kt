@@ -20,7 +20,7 @@ import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
@@ -78,7 +78,7 @@ enum class SearchState {
 data class CombineSearchResultState(
     val timeStamp: Long = System.currentTimeMillis(),
     val searchState: SearchState = SearchState.LOADING,
-    val channelList: List<ChannelDetailsEntity> = emptyList(),
+    val channelList: List<CreatorEntity> = emptyList(),
     val videoList: List<VideoEntity> = emptyList(),
     val rumblePlayer: RumblePlayer? = null,
 )

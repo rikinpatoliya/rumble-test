@@ -10,7 +10,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 class RepostPagingSource(
-    private val id: String,
+    private val userId: String,
+    private val channelId: String,
     private val repostApi: RepostApi,
     private val dispatcher: CoroutineDispatcher,
 ) : RumblePagingSource<Int, Feed>() {
@@ -26,8 +27,8 @@ class RepostPagingSource(
                 val loadSize = getLoadSize(params.loadSize)
 
                 val repostListResponse = repostApi.fetchReposts(
-                    userId = id,
-                    channelId = id,
+                    userId = userId,
+                    channelId = channelId,
                     offset = nextKey,
                     limit = loadSize
                 )

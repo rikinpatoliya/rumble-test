@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelVideosUseCase
@@ -42,7 +42,7 @@ interface ChannelDetailsHandler {
 
     val vmEvents: Flow<ChannelDetailsVmEvent>
 
-    val channelDetails: MutableLiveData<ChannelDetailsEntity>
+    val channelDetails: MutableLiveData<CreatorEntity>
 
     fun onLoadInitialData(cachedState: ChannelDetailsUIState?, cachedPagingData: Flow<PagingData<Feed>>?)
     fun onError(throwable: Throwable)
@@ -57,7 +57,7 @@ interface ChannelDetailsHandler {
     fun onChannelReported()
 
     /* TODO These are just being moved over from old implementation but should be refactored */
-    var channelObject: ChannelDetailsEntity?
+    var channelObject: CreatorEntity?
     var channelId: String?
     fun getVideoCollectionItemFlowSort(sort: Sort): Flow<PagingData<Feed>>?
     fun onLoadChannelVideos()
@@ -104,14 +104,14 @@ class ChannelDetailsViewModelV4 @Inject constructor(
     override val uiState = MutableStateFlow(ChannelDetailsUIState())
     override val pagingDataState = MutableStateFlow<Flow<PagingData<Feed>>>(emptyFlow())
 
-    override var channelObject: ChannelDetailsEntity? = null
+    override var channelObject: CreatorEntity? = null
     override var channelId: String? = null
 
     private val _vmEvents = Channel<ChannelDetailsVmEvent>(capacity = Channel.CONFLATED)
     override val vmEvents: Flow<ChannelDetailsVmEvent> = _vmEvents.receiveAsFlow()
 
-    override val channelDetails: MutableLiveData<ChannelDetailsEntity> by lazy {
-        MutableLiveData<ChannelDetailsEntity>()
+    override val channelDetails: MutableLiveData<CreatorEntity> by lazy {
+        MutableLiveData<CreatorEntity>()
     }
 
     private fun isRefreshNeeded(cachedState: ChannelDetailsUIState): Boolean =
@@ -234,7 +234,7 @@ class ChannelDetailsViewModelV4 @Inject constructor(
         _vmEvents.trySend(ChannelDetailsVmEvent.ShowChannelReported)
     }
 
-    fun blockAndUnblock(subscriptionAction: UpdateChannelSubscriptionAction): ChannelDetailsEntity? {
+    fun blockAndUnblock(subscriptionAction: UpdateChannelSubscriptionAction): CreatorEntity? {
         return runBlocking(errorHandler) {
             channelObject?.let {
                 updateChannelSubscriptionUseCase(

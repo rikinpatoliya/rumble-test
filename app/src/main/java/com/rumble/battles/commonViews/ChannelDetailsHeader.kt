@@ -19,7 +19,7 @@ import com.rumble.battles.R
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsActionButtonsView
 import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsUIState
 import com.rumble.battles.navigation.RumbleScreens
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
@@ -138,7 +138,7 @@ private fun UserChannelStats(
 @Composable
 private fun ChannelActionButtons(
     modifier: Modifier = Modifier,
-    channelDetailsEntity: ChannelDetailsEntity,
+    channelDetailsEntity: CreatorEntity,
     onJoin: (localsCommunityEntity: LocalsCommunityEntity) -> Unit,
     onUpdateSubscription: (action: UpdateChannelSubscriptionAction) -> Unit,
     onChannelNotification: (id: String) -> Unit,

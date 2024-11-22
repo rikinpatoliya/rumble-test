@@ -2,7 +2,7 @@ package com.rumble.domain.channels.model.datasource
 
 import androidx.paging.Pager
 import androidx.paging.PagingData
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
@@ -11,7 +11,7 @@ import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNot
 import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.common.model.RumbleError
 import com.rumble.domain.feed.domain.domainmodel.Feed
-import com.rumble.domain.feed.model.getChannelDetailsEntity
+import com.rumble.domain.feed.model.getCreatorEntity
 import com.rumble.domain.feed.model.getUserUploadChannelEntity
 import com.rumble.network.api.ChannelApi
 import com.rumble.network.api.UserApi
@@ -34,11 +34,11 @@ class ChannelRemoteDataSourceImpl(
     private val dispatcher: CoroutineDispatcher,
 ) : ChannelRemoteDataSource {
 
-    override suspend fun fetchChannelData(id: String): Result<ChannelDetailsEntity> {
+    override suspend fun fetchChannelData(id: String): Result<CreatorEntity> {
         val response = channelApi.fetchChannelData(id)
         val responseBody = response.body()
         return if (response.isSuccessful && responseBody != null)
-            Result.success(responseBody.data.getChannelDetailsEntity())
+            Result.success(responseBody.data.getCreatorEntity())
         else
             Result.failure(IllegalStateException("fetchChannelData failed"))
     }
@@ -75,7 +75,7 @@ class ChannelRemoteDataSourceImpl(
         type: ChannelType,
         action: UpdateChannelSubscriptionAction,
         data: UpdateChannelNotificationsData?,
-    ): Result<ChannelDetailsEntity> {
+    ): Result<CreatorEntity> {
         val response = withContext(dispatcher) {
             channelApi.updateSubscription(
                 subscriptionBody = FormBody.Builder()
@@ -102,22 +102,22 @@ class ChannelRemoteDataSourceImpl(
         }
         val responseBody = response.body()
         return if (response.isSuccessful && responseBody != null)
-            Result.success(responseBody.data.getChannelDetailsEntity())
+            Result.success(responseBody.data.getCreatorEntity())
         else
             Result.failure(IllegalStateException("updateChannelSubscription failed"))
     }
 
-    override suspend fun listOfFollowedChannels(): Result<List<ChannelDetailsEntity>> {
+    override suspend fun listOfFollowedChannels(): Result<List<CreatorEntity>> {
         val response = channelApi.listOfFollowedChannels()
         val responseBody = response.body()
 
         return if (response.isSuccessful && responseBody != null)
-            Result.success(responseBody.data.items.map { it.getChannelDetailsEntity() })
+            Result.success(responseBody.data.items.map { it.getCreatorEntity() })
         else
             Result.failure(RuntimeException("listOfFollowedChannels failed"))
     }
 
-    override fun fetchFollowedChannels(): Flow<PagingData<ChannelDetailsEntity>> {
+    override fun fetchFollowedChannels(): Flow<PagingData<CreatorEntity>> {
         return Pager(
             config = getRumblePagingConfig(),
             pagingSourceFactory = {
@@ -128,7 +128,7 @@ class ChannelRemoteDataSourceImpl(
             }).flow
     }
 
-    override fun pagingOfFeaturedChannels(): Flow<PagingData<ChannelDetailsEntity>> {
+    override fun pagingOfFeaturedChannels(): Flow<PagingData<CreatorEntity>> {
         return Pager(
             config = getRumblePagingConfig(),
             pagingSourceFactory = {
@@ -147,7 +147,7 @@ class ChannelRemoteDataSourceImpl(
         val body = response.body()
 
         return if (response.isSuccessful && body != null) {
-            ChannelListResult.Success(body.data.items.map { it.getChannelDetailsEntity() })
+            ChannelListResult.Success(body.data.items.map { it.getCreatorEntity() })
         } else {
             ChannelListResult.Failure(RumbleError(TAG, response.raw()))
         }
@@ -158,7 +158,7 @@ class ChannelRemoteDataSourceImpl(
         val body = response.body()
 
         return if (response.isSuccessful && body != null) {
-            ChannelListResult.Success(body.data.items.map { it.getChannelDetailsEntity() })
+            ChannelListResult.Success(body.data.items.map { it.getCreatorEntity() })
         } else {
             ChannelListResult.Failure(RumbleError(TAG, response.raw()))
         }
@@ -169,7 +169,7 @@ class ChannelRemoteDataSourceImpl(
         val body = response.body()
 
         return if (response.isSuccessful && body != null) {
-            ChannelListResult.Success(body.data.items?.map { it.getChannelDetailsEntity() } ?: emptyList())
+            ChannelListResult.Success(body.data.items?.map { it.getCreatorEntity() } ?: emptyList())
         } else {
             ChannelListResult.Failure(RumbleError(TAG, response.raw()))
         }

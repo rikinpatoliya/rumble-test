@@ -24,7 +24,7 @@ class ChannelRepositoryImpl(
     private val dispatcher: CoroutineDispatcher,
 ) : ChannelRepository {
 
-    override suspend fun fetchChannelData(id: String): Result<ChannelDetailsEntity> =
+    override suspend fun fetchChannelData(id: String): Result<CreatorEntity> =
         withContext(dispatcher) {
             channelRemoteDataSource.fetchChannelData(id)
         }
@@ -53,7 +53,7 @@ class ChannelRepositoryImpl(
         type: ChannelType,
         action: UpdateChannelSubscriptionAction,
         data: UpdateChannelNotificationsData?,
-    ): Result<ChannelDetailsEntity> {
+    ): Result<CreatorEntity> {
         val result = channelRemoteDataSource.updateChannelSubscription(
             id = id,
             type = type,
@@ -80,13 +80,13 @@ class ChannelRepositoryImpl(
 
     override suspend fun listOfFollowedChannels() = channelRemoteDataSource.listOfFollowedChannels()
 
-    override fun pagingOfFeaturedChannels(): Flow<PagingData<ChannelDetailsEntity>> =
+    override fun pagingOfFeaturedChannels(): Flow<PagingData<CreatorEntity>> =
         channelRemoteDataSource.pagingOfFeaturedChannels()
 
     override suspend fun listOfFeaturedChannels(): ChannelListResult =
         channelRemoteDataSource.fetchFeaturedChannels()
 
-    override fun fetchFollowedChannels(): Flow<PagingData<ChannelDetailsEntity>> =
+    override fun fetchFollowedChannels(): Flow<PagingData<CreatorEntity>> =
         channelRemoteDataSource.fetchFollowedChannels()
 
     override fun fetchChannelFollowUpdates() =

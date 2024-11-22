@@ -8,13 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.rumble.battles.commonViews.ChannelRow
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.theme.*
 
 @Composable
 fun SubscriptionView(
     modifier: Modifier,
-    channelDetailsEntity: ChannelDetailsEntity,
+    channelDetailsEntity: CreatorEntity,
     onChannelClick: (channelId: String) -> Unit
 ) {
     Surface(

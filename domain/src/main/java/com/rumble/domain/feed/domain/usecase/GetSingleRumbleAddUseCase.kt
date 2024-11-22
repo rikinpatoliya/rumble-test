@@ -2,7 +2,7 @@ package com.rumble.domain.feed.domain.usecase
 
 import com.rumble.domain.analytics.domain.usecases.RumbleErrorUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
 import com.rumble.domain.common.domain.usecase.RumbleUseCase
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
@@ -25,7 +25,7 @@ class GetSingleRumbleAddUseCase @Inject constructor(
 ) : RumbleUseCase {
     suspend operator fun invoke(
         videoEntity: VideoEntity?,
-        channelDetailsEntity: ChannelDetailsEntity?
+        channelDetailsEntity: CreatorEntity?
     ): RumbleAdEntity? {
         return when (val rumbleAdResult =
             rumbleAdRepository.fetchSingleAd(

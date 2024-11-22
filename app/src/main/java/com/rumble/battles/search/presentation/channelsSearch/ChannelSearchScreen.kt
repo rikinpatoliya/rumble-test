@@ -32,7 +32,7 @@ import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.discover.presentation.views.ErrorView
 import com.rumble.battles.search.presentation.views.SearchResultHeader
 import com.rumble.battles.subscriptions.presentation.SubscriptionView
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXSmall
@@ -44,7 +44,7 @@ fun ChannelSearchScreen(
     onViewChannel: (String) -> Unit = {},
     onBack: () -> Unit = {}
 ) {
-    val channelListItems: LazyPagingItems<ChannelDetailsEntity> =
+    val channelListItems: LazyPagingItems<CreatorEntity> =
         handler.channelList.collectAsLazyPagingItems()
     val listState by handler.listState
 

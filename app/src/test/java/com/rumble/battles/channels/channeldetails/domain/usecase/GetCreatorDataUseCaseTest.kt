@@ -7,7 +7,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-internal class GetChannelDataUseCaseTest {
+internal class GetCreatorDataUseCaseTest {
 
     private val repository = mockk<ChannelRepository>(relaxed = true)
     private val useCase = GetChannelDataUseCase(repository)

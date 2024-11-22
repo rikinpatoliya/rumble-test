@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.search.domain.useCases.SearchChannelsUseCase
@@ -47,7 +47,7 @@ class SearchViewModelV4 @Inject constructor(
 
     private val classPresenterSelector = ClassPresenterSelector().apply {
         addClassPresenter(VideoEntity::class.java, videoCardPresenter)
-        addClassPresenter(ChannelDetailsEntity::class.java, ChannelCardPresenter())
+        addClassPresenter(CreatorEntity::class.java, ChannelCardPresenter())
     }
 
     private val channelsArrayObjectAdapter = ArrayObjectAdapter(classPresenterSelector)
@@ -68,7 +68,7 @@ class SearchViewModelV4 @Inject constructor(
         MutableLiveData<SearchFragmentStates>()
     }
 
-    lateinit var channelPagingDataAdapter: PagingAdapter<ChannelDetailsEntity>
+    lateinit var channelPagingDataAdapter: PagingAdapter<CreatorEntity>
     lateinit var videoPagingDataAdapter: PagingAdapter<VideoEntity>
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
@@ -143,7 +143,7 @@ class SearchViewModelV4 @Inject constructor(
         uiState.value = SearchFragmentStates.List
     }
 
-    fun refreshChannelData(channelObject: ChannelDetailsEntity): ChannelDetailsEntity?{
+    fun refreshChannelData(channelObject: CreatorEntity): CreatorEntity?{
         return runBlocking(errorHandler) { getChannelDataUseCase(channelObject.channelId).getOrNull() }
     }
 }

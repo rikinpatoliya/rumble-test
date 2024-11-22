@@ -18,7 +18,7 @@ import androidx.navigation.Navigation
 import com.rumble.MainActivityNew
 import com.rumble.R
 import com.rumble.databinding.V4FragmentHomeBinding
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.leanback.RowsSupportFragment
@@ -83,7 +83,7 @@ class HomeFragmentV4 : RowsSupportFragment() {
                         }
                     }
 
-                    is ChannelDetailsEntity -> {
+                    is CreatorEntity -> {
                         viewModel.onChannelClicked(selectedPosition)
                         Navigation.findNavController(requireView()).navigate(
                             ChannelDetailsActivityV4Directions.actionGlobalChannelDetailsActivityV4(

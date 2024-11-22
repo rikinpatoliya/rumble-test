@@ -1,7 +1,7 @@
 package com.rumble.domain.feed.model
 
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
@@ -12,9 +12,9 @@ import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.domain.domainmodel.comments.CommentEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListChannelEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
-import com.rumble.domain.feed.domain.domainmodel.video.PlayListUserEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlaylistVideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PpvEntity
+import com.rumble.domain.feed.domain.domainmodel.video.UserEntity
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoLogView
@@ -36,10 +36,11 @@ import com.rumble.domain.settings.domain.domainmodel.NotificationSettingsLegacyE
 import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.network.dto.categories.Categories
 import com.rumble.network.dto.categories.VideoCategory
-import com.rumble.network.dto.channel.Channel
 import com.rumble.network.dto.channel.UserUploadChannel
 import com.rumble.network.dto.collection.VideoCollectionWithoutVideos
 import com.rumble.network.dto.comments.Comment
+import com.rumble.network.dto.creator.Creator
+import com.rumble.network.dto.creator.User
 import com.rumble.network.dto.profile.ProfileNotificationItem
 import com.rumble.network.dto.profile.UserProfile
 import com.rumble.network.dto.referral.Referral
@@ -50,7 +51,6 @@ import com.rumble.network.dto.settings.NotificationSettings
 import com.rumble.network.dto.video.FeedItem
 import com.rumble.network.dto.video.PlayList
 import com.rumble.network.dto.video.PlayListChannel
-import com.rumble.network.dto.video.PlayListUser
 import com.rumble.network.dto.video.Ppv
 import com.rumble.network.dto.video.Video
 import com.rumble.network.dto.video.WatchingNowData
@@ -91,8 +91,8 @@ fun PlayList.getPlayListEntity(): PlayListEntity =
         videos = items.map { it.video.getPlaylistVideoEntity() }.toMutableList()
     )
 
-fun PlayListUser.getPlayListUserEntity(): PlayListUserEntity =
-    PlayListUserEntity(
+fun User.getPlayListUserEntity(): UserEntity =
+    UserEntity(
         id = id.toUserIdString(),
         username = username,
         thumbnail = picture,
@@ -206,7 +206,7 @@ fun Video.getVideoEntity(): VideoEntity =
             )
         },
         repostCount = repostsCount ?: 0,
-        userRepostList = userRepostList?.map { it.getRepostEntity() } ?: emptyList()
+        userRepost = userRepostList?.getRepostEntity()
     )
 
 fun FeedItem.getFeed(): Feed? =
@@ -281,8 +281,8 @@ fun UserProfile.getUserProfileEntity(): UserProfileEntity =
         minEligibleAge = ageVerification.minEligible
     )
 
-fun Channel.getChannelDetailsEntity(): ChannelDetailsEntity =
-    ChannelDetailsEntity(
+fun Creator.getCreatorEntity(): CreatorEntity =
+    CreatorEntity(
         channelId = id,
         channelTitle = title,
         name = name,

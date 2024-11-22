@@ -13,7 +13,7 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.camera.UploadStatus
 import com.rumble.domain.camera.UploadVideoEntity
 import com.rumble.domain.camera.domain.usecases.GetUploadVideoUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.profile.domain.GetAppVersionUseCase
@@ -64,7 +64,7 @@ data class ProfileScreenUiState(
 )
 
 sealed class ProfileScreenState {
-    data class LoggedIn(val channelDetailsEntity: ChannelDetailsEntity?) : ProfileScreenState()
+    data class LoggedIn(val channelDetailsEntity: CreatorEntity?) : ProfileScreenState()
     data object Loading : ProfileScreenState()
     data object LoggedOut : ProfileScreenState()
 }

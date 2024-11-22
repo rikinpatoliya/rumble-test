@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import com.rumble.R
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.discover.domain.domainmodel.CategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.player.VideoPlaybackActivityDirections
@@ -93,7 +93,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun onNavigateToChannel(channelDetailsEntity: ChannelDetailsEntity) {
+    private fun onNavigateToChannel(channelDetailsEntity: CreatorEntity) {
         Navigation.findNavController(requireView()).navigate(
             ChannelDetailsActivityV4Directions.actionGlobalChannelDetailsActivityV4(channelDetailsEntity, true)
         )

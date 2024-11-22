@@ -1,6 +1,6 @@
 package com.rumble.ui3.subscriptions
 
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 
 sealed class SubscriptionsFragmentStates {
 
@@ -9,8 +9,8 @@ sealed class SubscriptionsFragmentStates {
     object NotLoggedIn : SubscriptionsFragmentStates()
     object NoSubscriptions : SubscriptionsFragmentStates()
     data class SubscriptionsList(
-        val sortedList: List<ChannelDetailsEntity>,
-        val originalList: List<ChannelDetailsEntity>,
+        val sortedList: List<CreatorEntity>,
+        val originalList: List<CreatorEntity>,
     ) : SubscriptionsFragmentStates()
 
 }

@@ -21,7 +21,7 @@ import com.rumble.domain.billing.domain.usecase.FetchRantProductDetailsUseCase
 import com.rumble.domain.billing.model.PurchaseHandler
 import com.rumble.domain.billing.model.PurchaseResult
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.common.model.RumbleError
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
@@ -103,7 +103,7 @@ interface LiveChatHandler {
     fun onMuteUserConfirmed(videoId: Long, mutePeriod: MutePeriod)
     fun onJoinRaid()
     fun onOptOutRaid()
-    fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
+    fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
     fun getEmoteCountInSameGroup(emoteEntity: EmoteEntity?): Int
     fun onEmoteUsed(emoteEntity: EmoteEntity)
 }
@@ -434,7 +434,7 @@ class LiveChatViewModel @Inject constructor(
         )
     }
 
-    override fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity) {
+    override fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity) {
         val liveChatConfig = state.value.liveChatConfig
         state.value = state.value.copy(
             liveChatConfig = liveChatConfig?.copy(

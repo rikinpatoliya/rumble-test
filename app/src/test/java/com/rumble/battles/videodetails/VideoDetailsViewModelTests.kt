@@ -9,7 +9,7 @@ import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoDetailsUseCase
 import com.rumble.domain.analytics.domain.usecases.RumbleAdUpNextImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetUserCommentAuthorsUseCase
 import com.rumble.domain.common.domain.domainmodel.DeviceType
@@ -71,7 +71,7 @@ class VideoDetailsViewModelTests {
         mockk(relaxed = true)
     private val application: Application = mockk(relaxed = true)
     private val videoEntity: VideoEntity = mockk(relaxed = true)
-    private val channelDetailsEntity: ChannelDetailsEntity = mockk(relaxed = true)
+    private val channelDetailsEntity: CreatorEntity = mockk(relaxed = true)
     private val updateCommentVoteUseCase: UpdateCommentVoteUseCase = mockk(relaxed = true)
     private val postCommentUseCase: PostCommentUseCase = mockk(relaxed = true)
     private val deleteCommentUseCase: DeleteCommentUseCase = mockk(relaxed = true)

@@ -74,7 +74,7 @@
     <activity
         android:id="@+id/channelDetailsMoreButtonActivity"
         android:name="com.rumble.ui3.channel.details.more.GuidedStepActivity">
-        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity"/>
     </activity>
 
     <!-- Channel details activity -->
@@ -84,7 +84,7 @@
         android:id="@+id/channelDetailsActivityV4"
         android:name="com.rumble.ui3.channel.details.v4.ChannelDetailsActivityV4"
         tools:layout="@layout/activity_channel_details">
-        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity"/>
         <argument android:name="show_logo" app:argType="boolean" android:defaultValue="true"/>
     </activity>
 
@@ -95,7 +95,7 @@
     <fragment
         android:id="@+id/channelDetailsFragmentV4"
         android:name="com.rumble.ui3.channel.details.v4.ChannelDetailsFragmentV4">
-        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity"/>
+        <argument android:name="channel" app:argType="com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity"/>
         <argument android:name="show_logo" app:argType="boolean"/>
         <argument android:name="from_activity" app:argType="boolean" android:defaultValue="false"/>
         <argument android:name="is_caching_supported" app:argType="boolean" android:defaultValue="false"/>

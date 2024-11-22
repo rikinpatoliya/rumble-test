@@ -1,9 +1,9 @@
 package com.rumble.domain.search.model.datasource.remote
 
 import androidx.paging.PagingState
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.common.model.datasource.RumblePagingSource
-import com.rumble.domain.feed.model.getChannelDetailsEntity
+import com.rumble.domain.feed.model.getCreatorEntity
 import com.rumble.network.api.SearchApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -12,11 +12,11 @@ class ChannelSearchPagingSource(
     private val query: String,
     private val searchApi: SearchApi,
     private val dispatcher: CoroutineDispatcher,
-) : RumblePagingSource<Int, ChannelDetailsEntity>() {
+) : RumblePagingSource<Int, CreatorEntity>() {
 
-    override fun getRefreshKey(state: PagingState<Int, ChannelDetailsEntity>): Int? = null
+    override fun getRefreshKey(state: PagingState<Int, CreatorEntity>): Int? = null
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ChannelDetailsEntity> =
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CreatorEntity> =
         withContext(dispatcher) {
             val loadSize = getLoadSize(params.loadSize)
             try {
@@ -28,7 +28,7 @@ class ChannelSearchPagingSource(
                         limit = loadSize
                     )
                 val channels = if (response.isSuccessful) {
-                    response.body()?.data?.items?.map { it.getChannelDetailsEntity() }
+                    response.body()?.data?.items?.map { it.getCreatorEntity() }
                         ?: emptyList()
                 } else emptyList()
 

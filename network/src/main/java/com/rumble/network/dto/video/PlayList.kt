@@ -1,6 +1,7 @@
 package com.rumble.network.dto.video
 
 import com.google.gson.annotations.SerializedName
+import com.rumble.network.dto.creator.User
 
 data class PlayList(
     @SerializedName("id")
@@ -20,7 +21,7 @@ data class PlayList(
     @SerializedName("updated_on")
     val updatedOn: String,
     @SerializedName("user")
-    val user: PlayListUser,
+    val user: User,
     @SerializedName("channel")
     val channel: PlayListChannel?,
     @SerializedName("permissions")

@@ -27,7 +27,7 @@ import com.rumble.battles.R
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.commonViews.UserNameViewSingleLine
-import com.rumble.domain.feed.domain.domainmodel.video.PlayListUserEntity
+import com.rumble.domain.feed.domain.domainmodel.video.UserEntity
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoLogView
@@ -113,10 +113,10 @@ private fun RepostFeedHeader(
                     start.linkTo(parent.start)
                     top.linkTo(parent.top)
                 }
-                .clickable { onChannelClick(repost.channel?.channelId ?: repost.user.id) },
+                .clickable { onChannelClick(repost.channel?.id ?: repost.user.id) },
             profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
             userName = repost.channel?.name ?: repost.user.username,
-            userPicture = repost.channel?.thumbnail ?: repost.user.thumbnail ?: "",
+            userPicture = repost.channel?.picture ?: repost.user.thumbnail ?: "",
         )
 
         Icon(
@@ -227,10 +227,10 @@ private fun Preview() {
         subscribedToCurrentChannel = false,
         hasLiveGate = false,
         repostCount = 0,
-        userRepostList = emptyList(),
+        userRepost = null,
     )
 
-    val channel = PlayListUserEntity()
+    val channel = UserEntity()
     val repost = RepostEntity(
         id = 0,
         message = "Check out this amazing new podcast. I need to watch more @Shawn Ryan Show. Joe does not disappoint with this new episode and more text.",

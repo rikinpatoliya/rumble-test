@@ -21,7 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
 import com.rumble.battles.common.getNotificationIcon
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageXXSmall
@@ -88,7 +88,7 @@ fun NotificationActionButton(
 }
 
 data class NotificationActionData(
-    val channelDetailsEntity: ChannelDetailsEntity,
+    val channelDetailsEntity: CreatorEntity,
     val notificationActionType: NotificationActionType
 )
 
@@ -144,7 +144,7 @@ private fun getNotificationActionIconTint(
 @Composable
 private fun getNotificationActionIcon(
     notificationActionType: NotificationActionType,
-    channelDetailsEntity: ChannelDetailsEntity
+    channelDetailsEntity: CreatorEntity
 ): Int {
     return when (notificationActionType) {
         NotificationActionType.WITH_DROPDOWN -> {

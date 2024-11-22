@@ -13,7 +13,7 @@ import androidx.leanback.app.GuidedStepSupportFragment
 import androidx.leanback.widget.GuidanceStylist.Guidance
 import androidx.leanback.widget.GuidedAction
 import com.rumble.R
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.network.session.SessionManager
 import com.rumble.ui3.channel.details.v4.ChannelDetailsViewModelV4
@@ -252,7 +252,7 @@ class GuidedStepActivity : FragmentActivity() {
         var channelState: BlockStateListener? = null
         fun launchActivity(
             activity: Activity,
-            channel: ChannelDetailsEntity?,
+            channel: CreatorEntity?,
             blockState: BlockStateListener
         ) {
             channelState = blockState

@@ -2,11 +2,11 @@ package com.rumble.domain.search.model.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingData
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.discover.model.getCategoryEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.model.getChannelDetailsEntity
+import com.rumble.domain.feed.model.getCreatorEntity
 import com.rumble.domain.feed.model.getVideoEntity
 import com.rumble.domain.search.domain.domainModel.AutoCompleteQueriesResult
 import com.rumble.domain.search.domain.domainModel.RecentQuery
@@ -88,7 +88,7 @@ class SearchRepositoryImpl(
         )
         return if (result.isSuccessful) {
             SearchResult(
-                channelList = result.body()?.data?.channel?.items?.map { it.getChannelDetailsEntity() }
+                channelList = result.body()?.data?.channel?.items?.map { it.getCreatorEntity() }
                     ?: emptyList(),
                 videoList = result.body()?.data?.video?.items?.mapIndexed { index, video ->
                     video.getVideoEntity().copy(index = index)
@@ -97,7 +97,7 @@ class SearchRepositoryImpl(
         } else SearchResult()
     }
 
-    override fun searchChannels(query: String): Flow<PagingData<ChannelDetailsEntity>> = Pager(
+    override fun searchChannels(query: String): Flow<PagingData<CreatorEntity>> = Pager(
         config = getRumblePagingConfig(),
         pagingSourceFactory = {
             ChannelSearchPagingSource(
@@ -134,7 +134,7 @@ class SearchRepositoryImpl(
         )
         return if (result.isSuccessful) {
             AutoCompleteQueriesResult(
-                channelList = result.body()?.data?.channels?.map { it.getChannelDetailsEntity() }
+                channelList = result.body()?.data?.channels?.map { it.getCreatorEntity() }
                     ?: emptyList(),
                 categoryList = result.body()?.data?.categories?.map { it.getCategoryEntity() }
                     ?: emptyList())

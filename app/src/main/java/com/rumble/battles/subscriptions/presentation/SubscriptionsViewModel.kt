@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rumble.battles.common.presentation.LazyListStateHandler
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.FetchFollowedChannelsUseV2Case
 import com.rumble.domain.search.domain.useCases.FilterFollowingUseCase
@@ -22,7 +22,7 @@ import javax.inject.Inject
 interface SubscriptionsScreenHandler: LazyListStateHandler {
     val state: StateFlow<SubscriptionsScreenUIState>
     fun onRefresh()
-    fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity)
+    fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
     fun updateSortFollowing(sortFollowingType: SortFollowingType)
     fun onQueryChanged(query: String)
     fun onUpdateSearchVisible()
@@ -32,7 +32,7 @@ data class SubscriptionsScreenUIState(
     val loading: Boolean = false,
     val searchVisible: Boolean = false,
     val error: Boolean = false,
-    val followedChannels: List<ChannelDetailsEntity> = emptyList(),
+    val followedChannels: List<CreatorEntity> = emptyList(),
     val sortFollowingType: SortFollowingType = SortFollowingType.DEFAULT,
     val query: String = "",
 )
@@ -46,7 +46,7 @@ class SubscriptionsViewModel @Inject constructor(
 
     override val state = MutableStateFlow(SubscriptionsScreenUIState())
 
-    private var originalFollowedChannels: List<ChannelDetailsEntity> = emptyList()
+    private var originalFollowedChannels: List<CreatorEntity> = emptyList()
 
     init {
         loadFollowingChannels()
@@ -56,7 +56,7 @@ class SubscriptionsViewModel @Inject constructor(
         loadFollowingChannels()
     }
 
-    override fun updateChannelDetailsEntity(channelDetailsEntity: ChannelDetailsEntity) {
+    override fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity) {
         state.update {
             it.copy(
                 followedChannels = state.value.followedChannels.map { entity ->
@@ -128,9 +128,9 @@ class SubscriptionsViewModel @Inject constructor(
     }
 
     private fun sortFollowing(
-        followingList: List<ChannelDetailsEntity>,
+        followingList: List<CreatorEntity>,
         sortFollowingType: SortFollowingType
-    ): List<ChannelDetailsEntity> =
+    ): List<CreatorEntity> =
         when (sortFollowingType) {
             SortFollowingType.DEFAULT -> followingList
             SortFollowingType.NAME_A_Z -> followingList.sortedBy { it.channelTitle.lowercase() }
