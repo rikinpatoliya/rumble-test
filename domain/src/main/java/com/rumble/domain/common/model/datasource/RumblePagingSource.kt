@@ -2,7 +2,6 @@ package com.rumble.domain.common.model.datasource
 
 import androidx.paging.PagingSource
 import com.rumble.domain.BuildConfig
-import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.utils.RumbleConstants
 import timber.log.Timber
@@ -11,7 +10,6 @@ import kotlin.math.min
 abstract class RumblePagingSource<Key : Any, Value : Any>: PagingSource<Key, Value>() {
 
     private val idList: MutableList<Long> = mutableListOf()
-    private val seen = mutableSetOf<Pair<Long, Feed>>()
 
     fun sanitizeDuplicates(items: List<VideoEntity>): List<VideoEntity> {
         val filteredItems: List<VideoEntity> = if (idList.isEmpty()) {
@@ -23,13 +21,6 @@ abstract class RumblePagingSource<Key : Any, Value : Any>: PagingSource<Key, Val
         }
         idList.addAll(filteredItems.map { it.id })
         return filteredItems
-    }
-
-    fun sanitizeDuplicatesById(feeds: List<Feed>): List<Feed> {
-        return feeds.filter { feed ->
-            val key = feed.id to feed
-            seen.add(key)
-        }
     }
 
     /**

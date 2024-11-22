@@ -14,7 +14,7 @@ import java.util.UUID
 
 @Parcelize
 data class VideoEntity(
-    override val id: Long,
+    val id: Long,
     val description: String?,
     val videoThumbnail: String,
     val numberOfView: Int,

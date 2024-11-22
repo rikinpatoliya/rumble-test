@@ -414,8 +414,7 @@ fun RumbleVideoView(
                 } else {
                     AndroidView(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(playerBackgroundColor),
+                            .fillMaxSize(),
                         factory = {
                             rumblePlayer.adPlayerView
                                 .apply { resizeMode = aspectRatioMode }

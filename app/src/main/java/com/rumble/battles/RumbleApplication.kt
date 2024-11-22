@@ -10,28 +10,23 @@ import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.appsflyer.AppsFlyerConsent
-import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
-import com.rumble.analytics.ConversionFailedEvent
-import com.rumble.analytics.ConversionNonOrganicEvent
-import com.rumble.analytics.ConversionOrganicEvent
 import com.rumble.analytics.REPORT_DELAY
 import com.rumble.analytics.REPORT_DELAY_KYE
 import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE
 import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE_KEY
+import com.rumble.battles.common.RumbleAppsFlyerConversionListener
 import com.rumble.battles.deeplinks.RumbleDeepLinkListener
 import com.rumble.battles.notifications.pushnotifications.RumbleNotificationOpenedHandler
-import com.rumble.domain.analytics.domain.usecases.LogConversionUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.landing.usecases.FirstAppLaunchSetPropertiesUseCase
 import com.rumble.domain.logging.domain.FileLoggingTree
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_PROD
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV
-import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD_KEY
 import dagger.hilt.android.HiltAndroidApp
@@ -56,7 +51,7 @@ class RumbleApplication : Application(), Configuration.Provider {
     lateinit var isDevelopModeUseCase: IsDevelopModeUseCase
 
     @Inject
-    lateinit var logConversionUseCase: LogConversionUseCase
+    lateinit var rumbleAppsFlyerConversionListener: RumbleAppsFlyerConversionListener
 
     @Inject
     lateinit var firstAppLaunchSetPropertiesUseCase: FirstAppLaunchSetPropertiesUseCase
@@ -80,36 +75,7 @@ class RumbleApplication : Application(), Configuration.Provider {
     private fun initAppsFlyer() {
         val appsFlyerLib = AppsFlyerLib.getInstance()
         appsFlyerLib.subscribeForDeepLink(rumbleDeepLinkListener)
-        val conversionDataListener = object : AppsFlyerConversionListener {
-            override fun onConversionDataSuccess(data: MutableMap<String, Any>?) {
-                // check for conversion event and it's type and log it
-                data?.get(RumbleConstants.CONVERSION_TYPE_KEY)?.let {
-                    when (it) {
-                        RumbleConstants.ORGANIC_CONVERSION -> {
-                            logConversionUseCase.invoke(ConversionOrganicEvent)
-                        }
-
-                        RumbleConstants.NON_ORGANIC_CONVERSION -> {
-                            logConversionUseCase.invoke(ConversionNonOrganicEvent)
-                        }
-                    }
-                }
-            }
-
-            override fun onConversionDataFail(error: String?) {
-                // log failed conversion event
-                logConversionUseCase.invoke(ConversionFailedEvent)
-            }
-
-            override fun onAppOpenAttribution(data: MutableMap<String, String>?) {
-                // Must be overriden to satisfy the AppsFlyerConversionListener interface.
-            }
-
-            override fun onAttributionFailure(error: String?) {
-                // Must be overriden to satisfy the AppsFlyerConversionListener interface.
-            }
-        }
-        appsFlyerLib.init(BuildConfig.APPS_FLYER_API_ID, conversionDataListener, this)
+        appsFlyerLib.init(BuildConfig.APPS_FLYER_API_ID, rumbleAppsFlyerConversionListener, this)
         val hasConsentForDataUsage = false
         val hasConsentForAdsPersonalization = false
         appsFlyerLib.setConsentData(

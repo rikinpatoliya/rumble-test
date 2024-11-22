@@ -97,7 +97,6 @@ import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.VideoDetails
 import com.rumble.battles.VideoPlayerViewTag
-import com.rumble.battles.bottomSheets.PremiumOptionsBottomSheet
 import com.rumble.battles.comments.CommentsView
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
@@ -141,6 +140,7 @@ import com.rumble.battles.livechat.presentation.content.LiveChatModerationMenu
 import com.rumble.battles.livechat.presentation.content.MuteUserBottomSheet
 import com.rumble.battles.livechat.presentation.rant.BuyRantSheet
 import com.rumble.battles.rumbleads.presentation.RumbleAdView
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelDetailsEntity
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
@@ -366,10 +366,6 @@ fun VideoDetailsScreen(
 
                 is VideoDetailsEvent.CloseComments -> liveChatBottomSheetState.hide()
 
-                is VideoDetailsEvent.OpenPremiumPromo -> liveChatBottomSheetState.show()
-
-                is VideoDetailsEvent.ClosePremiumPromo -> liveChatBottomSheetState.hide()
-
                 is VideoDetailsEvent.InitLiveChat -> {
                     liveChatHandler.onInitLiveChat(it.videoEntity)
                     if (state.hasPremiumRestriction.not() && state.inComments.not() && state.inLiveChat)
@@ -385,8 +381,7 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    handler.onOpenPremiumPromo()
-                    contentHandler.onUpdateCurrentSubscriptionParams(
+                    contentHandler.onShowPremiumPromo(
                         state.videoEntity?.id,
                         SubscriptionSource.Video
                     )
@@ -715,17 +710,16 @@ fun VideoDetailsView(
                 val isKeyboardVisible by keyboardAsState()
                 val width =
                     if (isTablet && state.isFullScreen.not()) boxMaxWidth - contentPadding * 2 else boxMaxWidth
-                val height =
-                    if (isKeyboardVisible || emoteSate.showEmoteSelector) videoHeightReduced else {
-                        if (state.isFullScreen) boxMxHeight
-                        else if (state.videoEntity?.portraitMode == true && state.hasPremiumRestriction.not()) {
-                            if (isTablet) {
-                                min(width, boxMxHeight)
-                            } else {
-                                boxMaxWidth
-                            }
-                        } else width / 16 * 9
-                    }
+                val height = if (isKeyboardVisible || emoteSate.showEmoteSelector) videoHeightReduced else {
+                    if (state.isFullScreen) boxMxHeight
+                    else if (state.videoEntity?.portraitMode == true && state.hasPremiumRestriction.not()) {
+                        if (isTablet) {
+                            min(width, boxMxHeight)
+                        } else {
+                            boxMaxWidth
+                        }
+                    } else width / 16 * 9
+                }
 
                 if (miniPlayerHeight >= height * (1 - collapsePercentage) && collapseDirection == CollapseDirection.DOWN) {
                     minimalHeightReached = true
@@ -762,7 +756,7 @@ fun VideoDetailsView(
                             )
                         }
                     )
-                } else if (state.hasLiveGateRestriction) {
+                } else if (state.hasLiveGateRestriction){
                     PremiumOnlyThumbnailView(
                         modifier = sizeModifier
                             .aspectRatio(
@@ -836,40 +830,19 @@ fun VideoDetailsView(
                             .conditional(IsTablet()) {
                                 padding(horizontal = paddingXXMedium)
                             }
-                        when (state.lastBottomSheet) {
-                            LastBottomSheet.PREMIUM_PROMO -> {
-                                PremiumOptionsBottomSheet(
-                                    bottomSheetState = liveChatBottomSheetState,
-                                    isPremiumUser = false,
-                                    onClose = {
-                                        handler.onClosePremiumPromo()
-                                        contentHandler.onClosePremiumPromo()
-                                    },
-                                    onActionButtonClicked = {
-                                        handler.onClosePremiumPromo()
-                                        contentHandler.onGetPremium()
-                                    }
-                                )
-                            }
-
-                            LastBottomSheet.LIVECHAT -> {
-                                LiveChatView(
-                                    modifier = sheetContentModifier,
-                                    handler = handler,
-                                    liveChatHandler = liveChatHandler,
-                                    activityHandler = activityHandler
-                                )
-                            }
-
-                            LastBottomSheet.COMMENTS -> {
-                                CommentsView(
-                                    modifier = sheetContentModifier,
-                                    handler = handler,
-                                    activityHandler = activityHandler
-                                )
-                            }
-
-                            else -> {}
+                        if (state.lastBottomSheet == LastBottomSheet.LIVECHAT) {
+                            LiveChatView(
+                                modifier = sheetContentModifier,
+                                handler = handler,
+                                liveChatHandler = liveChatHandler,
+                                activityHandler = activityHandler
+                            )
+                        } else if (state.lastBottomSheet == LastBottomSheet.COMMENTS) {
+                            CommentsView(
+                                modifier = sheetContentModifier,
+                                handler = handler,
+                                activityHandler = activityHandler
+                            )
                         }
                     }) {
                     if (state.isLoading) {

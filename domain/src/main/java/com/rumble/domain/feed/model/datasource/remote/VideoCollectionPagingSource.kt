@@ -39,8 +39,8 @@ class VideoCollectionPagingSource(
                     loadSize = getLoadSize(loadSize)
                 )
 
-                val filteredItems: List<Feed> = sanitizeDuplicatesById(subscriptionItems)
-                val items: MutableList<Feed> = filteredItems.toMutableList()
+//                val filteredItems: List<Feed> = sanitizeDuplicates(subscriptionItems) //TODO: how to remove duplicates?
+                val items: MutableList<Feed> = subscriptionItems.toMutableList()
 
                 if (nextKey == 0) {
                     if (items.size <= 10) {
