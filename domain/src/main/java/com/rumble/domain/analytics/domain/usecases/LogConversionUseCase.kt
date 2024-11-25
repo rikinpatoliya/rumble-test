@@ -18,8 +18,8 @@ class LogConversionUseCase @Inject constructor(
     operator fun invoke(event: AnalyticEvent) {
         scope.launch {
             if (!sessionManager.conversionLoggedKeyFlow.first()) {
-                analyticsEventUseCase(event, true)
                 sessionManager.saveConversionLoggedState(true)
+                analyticsEventUseCase(event)
             }
         }
     }
