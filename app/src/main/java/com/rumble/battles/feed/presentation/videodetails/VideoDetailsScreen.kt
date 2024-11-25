@@ -281,7 +281,7 @@ fun VideoDetailsScreen(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
-            if (state.layoutState != CollapsableLayoutState.COLLAPSED) {
+            if (state.layoutState != CollapsableLayoutState.Collapsed) {
                 activityHandler.onPauseVideo()
             }
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -494,7 +494,7 @@ fun VideoDetailsScreen(
             coroutineScope.launch { bottomSheetState.hide() }
         } else if (contentBottomSheetState.isVisible) {
             coroutineScope.launch { contentBottomSheetState.hide() }
-        } else if (state.layoutState == CollapsableLayoutState.EXPENDED) {
+        } else if (state.layoutState is CollapsableLayoutState.Expended) {
             handler.onBackPressed()
         } else {
             onNavigateBack()
@@ -524,7 +524,7 @@ fun VideoDetailsScreen(
             cornerRadius = collapsingRadius,
             delayBeforeExpend = COLLAPSE_ANIMATION_DURATION.toLong(),
             onStateChanged = {
-                collapsed = it == CollapsableLayoutState.COLLAPSED
+                collapsed = it is CollapsableLayoutState.Collapsed
                 collapsePaddingVisible = collapsed
                 handler.onUpdateLayoutState(it)
             },
@@ -550,13 +550,13 @@ fun VideoDetailsScreen(
                         onClose = {
                             if (state.currentComment.isNotEmpty()) {
                                 collapsePaddingVisible = false
-                                handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
+                                handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
                             }
                             handler.onClearVideo()
                         },
                         onClick = {
                             collapsePaddingVisible = false
-                            handler.onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
+                            handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
                         }
                     )
                 }
@@ -611,7 +611,7 @@ fun VideoDetailsScreen(
                                 contentListState = contentListState,
                                 onEnforceCollapse = {
                                     handler.onUpdateLayoutState(
-                                        CollapsableLayoutState.COLLAPSED
+                                        CollapsableLayoutState.Collapsed
                                     )
                                 }
                             )

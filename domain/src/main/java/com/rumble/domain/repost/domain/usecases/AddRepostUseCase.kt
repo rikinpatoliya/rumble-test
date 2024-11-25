@@ -11,7 +11,11 @@ class AddRepostUseCase @Inject constructor(
     override val rumbleErrorUseCase: RumbleErrorUseCase,
 ) : RumbleUseCase {
     suspend operator fun invoke(videoId: Long, channelId: Long, message: String): AddRepostResult {
-        val result = repostRepository.addRepost(videoId, channelId, message)
+        val result = repostRepository.addRepost(
+            videoId= videoId,
+            channelId = if (channelId > 0) channelId else null,
+            message = message
+        )
         if (result is AddRepostResult.Failure) {
             rumbleErrorUseCase(result.error)
         }

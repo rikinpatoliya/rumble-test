@@ -1,6 +1,5 @@
 package com.rumble.battles.livechat.presentation.rant
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -142,6 +141,7 @@ fun BuyRantSheet(
                     activityHandler.onOpenWebView(it)
                 },
                 onClose = {
+                    liveChatHandler.onClearRantSelection()
                     handler.onCloseBuyRant(rantMessage)
                 })
             RantMessageView(

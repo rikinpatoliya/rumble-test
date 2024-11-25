@@ -77,7 +77,6 @@ interface RumbleActivityHandler {
     val isLaunchedFromNotification: State<Boolean>
 
     fun onToggleAppLaunchedFromNotification(fromNotification: Boolean)
-    suspend fun pipIsAvailable(): Boolean
     suspend fun backgroundSoundIsAvailable(): Boolean
     suspend fun getCookies(): String
     fun startObserveCookies()
@@ -230,10 +229,6 @@ class RumbleActivityViewModel @Inject constructor(
         isLaunchedFromNotification.value = fromNotification
     }
 
-    override suspend fun pipIsAvailable(): Boolean =
-        pipIsAvailableUseCase()
-            && currentPlayer != null
-
     override suspend fun getCookies(): String {
         try {
             transferUserDataUseCase()
@@ -245,6 +240,9 @@ class RumbleActivityViewModel @Inject constructor(
             getUserCookiesUseCase()
         }
     }
+
+    private suspend fun pipIsAvailable(): Boolean =
+        pipIsAvailableUseCase() && currentPlayer != null
 
     private fun getVideoDetails(rumbleNotificationData: RumbleNotificationData) {
         viewModelScope.launch(errorHandler) {
@@ -334,20 +332,24 @@ class RumbleActivityViewModel @Inject constructor(
 
     override fun onUserLeaveHint(lifecycleStateAtLeastStarted: Boolean) {
         viewModelScope.launch {
-            val showUpNext = currentPlayer?.showUpNext?.value ?: false
+            if (sessionManager.disablePipFlow.first().not()) {
+                val showUpNext = currentPlayer?.showUpNext?.value ?: false
 
-            if (showUpNext) {
-                // Autoplay UI is shown
-                currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundPaused)
-            } else {
-                if (pipIsAvailable() && lifecycleStateAtLeastStarted) {
-                    emitVmEvent(RumbleEvent.EnterPipMode)
-                } else if (backgroundSoundIsAvailable().not()) {
-                    currentPlayer?.pauseVideo()
+                if (showUpNext) {
+                    // Autoplay UI is shown
                     currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundPaused)
                 } else {
-                    currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundSoundOnly)
+                    if (pipIsAvailable() && lifecycleStateAtLeastStarted) {
+                        emitVmEvent(RumbleEvent.EnterPipMode)
+                    } else if (backgroundSoundIsAvailable().not()) {
+                        currentPlayer?.pauseVideo()
+                        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundPaused)
+                    } else {
+                        currentPlayer?.setRumbleVideoMode(RumbleVideoMode.BackgroundSoundOnly)
+                    }
                 }
+            } else {
+                sessionManager.saveDisablePip(false)
             }
         }
     }

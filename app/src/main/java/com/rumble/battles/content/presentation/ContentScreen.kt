@@ -272,6 +272,11 @@ fun ContentScreen(
                     selectedTabIndex = NAV_ITEM_INDEX_ACCOUNT
                 }
 
+                is RumbleEvent.EnterPipMode -> {
+                    videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.Expended(animated = false))
+                    contentHandler.onEnterPipMode()
+                }
+
                 else -> return@collectLatest
             }
         }
@@ -593,11 +598,11 @@ fun ContentScreen(
                     liveChatHandler = liveChatViewModel,
                     contentBottomSheetState = bottomSheetState,
                     onChannelClick = {
-                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.Collapsed)
                         navControllers[selectedTabIndex].navigate(RumbleScreens.Channel.getPath(it))
                     },
                     onCategoryClick = {
-                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.Collapsed)
                         navControllers[selectedTabIndex].navigate(
                             RumbleScreens.CategoryScreen.getPath(
                                 it,
@@ -606,7 +611,7 @@ fun ContentScreen(
                         )
                     },
                     onTagClick = {
-                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+                        videoDetailsViewModel.onUpdateLayoutState(CollapsableLayoutState.Collapsed)
                         navControllers[selectedTabIndex].navigate(
                             RumbleScreens.CombinedSearchResult.getPath(
                                 it

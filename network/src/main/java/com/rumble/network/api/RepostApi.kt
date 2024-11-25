@@ -38,7 +38,7 @@ interface RepostApi {
     @POST("service.php?name=video_repost.add")
     suspend fun addRepost(
         @Field("video_id") videoId: Long,
-        @Field("channel_id") channelId: Long,
+        @Field("channel_id") channelId: Long?,
         @Field("message") message: String,
         @Query("options") options: String = Options.FULL.value,
     ): Response<RepostResponse>

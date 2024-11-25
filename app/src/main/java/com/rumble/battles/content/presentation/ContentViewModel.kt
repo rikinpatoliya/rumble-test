@@ -158,6 +158,7 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     fun onNavigateHomeAfterSignedOut()
     fun scrollToTop(index: Int)
     fun onUpdateCurrentSubscriptionParams(videoId: Long?, source: SubscriptionSource?)
+    fun onEnterPipMode()
 }
 
 data class VideoDetailsState(
@@ -554,6 +555,12 @@ class ContentViewModel @Inject constructor(
     override fun onRepostClicked(videoEntity: VideoEntity) {
         updateBottomSheetUiState(
             BottomSheetContent.RepostVideo(videoEntity)
+        )
+    }
+
+    override fun onEnterPipMode() {
+        videoDetailsState.value = videoDetailsState.value.copy(
+            collapsed = false
         )
     }
 
@@ -1200,6 +1207,7 @@ class ContentViewModel @Inject constructor(
             currentSubscriptionParams =
                 currentSubscriptionParams.copy(subscriptionData = premiumSubscriptionData)
             purchaseInProgress = true
+            sessionManager.saveDisablePip(true)
             emitVmEvent(ContentScreenVmEvent.HideBottomSheetEvent)
             emitVmEvent(
                 ContentScreenVmEvent.StartPremiumPurchase(

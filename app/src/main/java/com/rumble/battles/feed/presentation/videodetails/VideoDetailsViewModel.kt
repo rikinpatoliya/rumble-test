@@ -244,7 +244,7 @@ data class VideoDetailsState(
     val hasLiveGateRestriction: Boolean = false,
     val screenOrientationLocked: Boolean = false,
     val isLoggedIn: Boolean = false,
-    val layoutState: CollapsableLayoutState = CollapsableLayoutState.NONE,
+    val layoutState: CollapsableLayoutState = CollapsableLayoutState.None,
     val displayPremiumOnlyContent: Boolean = false,
     val chatMode: ChatMode = ChatMode.Free,
     val repostedByUser: Boolean = false,
@@ -460,7 +460,7 @@ class VideoDetailsViewModel @Inject constructor(
         if (emoteState.value.showEmoteSelector) {
             emoteState.value = EmoteState()
         } else {
-            onUpdateLayoutState(CollapsableLayoutState.COLLAPSED)
+            onUpdateLayoutState(CollapsableLayoutState.Collapsed)
         }
     }
 
@@ -526,7 +526,7 @@ class VideoDetailsViewModel @Inject constructor(
                 loadContent(videoId)
             }
         }
-        onUpdateLayoutState(CollapsableLayoutState.EXPENDED)
+        onUpdateLayoutState(CollapsableLayoutState.Expended())
     }
 
     override fun onUpdateLayoutState(layoutState: CollapsableLayoutState) {
@@ -534,8 +534,8 @@ class VideoDetailsViewModel @Inject constructor(
             layoutState = layoutState,
         )
         emoteState.value =
-            emoteState.value.copy(showEmoteSelector = emoteState.value.showEmoteSelector && layoutState != CollapsableLayoutState.COLLAPSED)
-        if (layoutState == CollapsableLayoutState.EXPENDED) {
+            emoteState.value.copy(showEmoteSelector = emoteState.value.showEmoteSelector && layoutState != CollapsableLayoutState.Collapsed)
+        if (layoutState == CollapsableLayoutState.Expended()) {
             state.value.rumblePlayer?.setRumbleVideoMode(RumbleVideoMode.Normal)
             emitVmEvent(VideoDetailsEvent.SetOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
         } else {
@@ -1070,6 +1070,7 @@ class VideoDetailsViewModel @Inject constructor(
                 }
 
                 is LiveChatMessageResult.RantMessageSuccess -> {
+                    sessionManager.saveDisablePip(true)
                     emitVmEvent(
                         VideoDetailsEvent.StartBuyRantFlow(result.pendingMessageInfo)
                     )
@@ -1494,7 +1495,7 @@ class VideoDetailsViewModel @Inject constructor(
         state.value = VideoDetailsState(
             rumblePlayer = null,
             videoEntity = null,
-            layoutState = CollapsableLayoutState.NONE,
+            layoutState = CollapsableLayoutState.None,
             isLoggedIn = state.value.isLoggedIn,
             userProfile = state.value.userProfile,
             inLiveChat = false,

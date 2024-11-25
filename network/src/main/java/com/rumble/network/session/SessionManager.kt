@@ -61,6 +61,7 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     private val conversionLoggedKey = booleanPreferencesKey("conversionLoggedKey")
     private val firstAppLaunchKey = booleanPreferencesKey("firstAppLaunchKey")
     private val minEligibleAgeKey = intPreferencesKey("minEligibleAgeKey")
+    private val disablePipKey = booleanPreferencesKey("disablePipKey")
 
     val cookiesFlow: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[cookiesKey] ?: ""
@@ -235,6 +236,12 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     }.catch {
         Timber.tag(TAG).e(it)
         emit(value = null)
+    }
+    val disablePipFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[disablePipKey] ?: false
+    }.catch {
+        Timber.tag(TAG).e(it)
+        emit(value = false)
     }
 
 
@@ -599,6 +606,16 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         try {
             context.dataStore.edit { prefs ->
                 prefs[minEligibleAgeKey] = minEligibleAge
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun saveDisablePip(disable: Boolean) {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[disablePipKey] = disable
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)

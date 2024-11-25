@@ -35,7 +35,7 @@ class RepostRepositoryImpl(
 
     override suspend fun addRepost(
         videoId: Long,
-        channelId: Long,
+        channelId: Long?,
         message: String
     ): AddRepostResult =
         withContext(dispatcher) {

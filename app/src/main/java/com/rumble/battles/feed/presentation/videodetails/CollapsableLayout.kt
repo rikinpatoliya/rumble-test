@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,10 +36,10 @@ enum class CollapseDirection {
     DOWN
 }
 
-enum class CollapsableLayoutState {
-    NONE,
-    COLLAPSED,
-    EXPENDED
+sealed class CollapsableLayoutState {
+    data object None : CollapsableLayoutState()
+    data object Collapsed : CollapsableLayoutState()
+    data class Expended(val animated: Boolean = true) : CollapsableLayoutState()
 }
 
 private const val autoScrollDownPercentage = 0.2f
@@ -50,7 +49,7 @@ private const val autoScrollUpPercentage = 0.9f
 fun CollapsableLayout(
     modifier: Modifier = Modifier,
     collapseAvailable: Boolean = true,
-    enforcedState: CollapsableLayoutState = CollapsableLayoutState.EXPENDED,
+    enforcedState: CollapsableLayoutState = CollapsableLayoutState.Expended(),
     shadowElevation: Dp = elevation,
     bottomThreshold: Dp = 0.dp,
     cornerRadius: Dp = radiusNone,
@@ -65,7 +64,7 @@ fun CollapsableLayout(
     val sheetOffset = remember { Animatable(0f) }
     var collapseDirection by remember { mutableStateOf(CollapseDirection.DOWN) }
     val bottomPaddingPx: Float = with(LocalDensity.current) { bottomThreshold.toPx() }
-    var currentSate by rememberSaveable { mutableStateOf(enforcedState) }
+    var currentSate by remember { mutableStateOf(enforcedState) }
     val currentEnforcedState by rememberUpdatedState(enforcedState)
     val collapseAvailableCurrent by rememberUpdatedState(collapseAvailable)
     val configuration = LocalConfiguration.current
@@ -77,39 +76,50 @@ fun CollapsableLayout(
     }
 
     LaunchedEffect(maxOffset) {
-        if (maxOffset > 0 && enforcedState == CollapsableLayoutState.COLLAPSED) {
+        if (maxOffset > 0 && enforcedState is CollapsableLayoutState.Collapsed) {
             sheetOffset.snapTo(maxOffset)
-            currentSate = CollapsableLayoutState.COLLAPSED
+            currentSate = CollapsableLayoutState.Collapsed
         }
     }
 
     LaunchedEffect(currentEnforcedState) {
-        if (currentEnforcedState != CollapsableLayoutState.NONE) {
+        if (currentEnforcedState != CollapsableLayoutState.None) {
             collapseDirection =
-                if (currentEnforcedState == CollapsableLayoutState.COLLAPSED) CollapseDirection.DOWN
+                if (currentEnforcedState == CollapsableLayoutState.Collapsed) CollapseDirection.DOWN
                 else CollapseDirection.UP
 
             onCollapseProgress(sheetOffset.value / maxOffset, collapseDirection)
 
-            if (currentEnforcedState == CollapsableLayoutState.COLLAPSED) {
-                sheetOffset.animateTo(
-                    targetValue = maxOffset,
-                    animationSpec = tween(COLLAPSE_ANIMATION_DURATION),
-                    block = {
-                        if (sheetOffset.value == maxOffset)
-                            currentSate = CollapsableLayoutState.COLLAPSED
+            when (currentEnforcedState) {
+                is CollapsableLayoutState.Collapsed -> {
+                    sheetOffset.animateTo(
+                        targetValue = maxOffset,
+                        animationSpec = tween(COLLAPSE_ANIMATION_DURATION),
+                        block = {
+                            if (sheetOffset.value == maxOffset)
+                                currentSate = CollapsableLayoutState.Collapsed
+                        }
+                    )
+                }
+
+                is CollapsableLayoutState.Expended -> {
+                    if ((currentEnforcedState as CollapsableLayoutState.Expended).animated) {
+                        delay(delayBeforeExpend)
+                        sheetOffset.animateTo(
+                            targetValue = 0f,
+                            animationSpec = tween(COLLAPSE_ANIMATION_DURATION),
+                            block = {
+                                if (sheetOffset.value == maxOffset)
+                                    currentSate = CollapsableLayoutState.Expended()
+                            }
+                        )
+                    } else {
+                        sheetOffset.snapTo(0f)
+                        currentSate = CollapsableLayoutState.Expended()
                     }
-                )
-            } else {
-                delay(delayBeforeExpend)
-                sheetOffset.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(COLLAPSE_ANIMATION_DURATION),
-                    block = {
-                        if (sheetOffset.value == maxOffset) currentSate =
-                            CollapsableLayoutState.EXPENDED
-                    }
-                )
+                }
+
+                is CollapsableLayoutState.None -> return@LaunchedEffect
             }
         }
     }
@@ -119,10 +129,10 @@ fun CollapsableLayout(
         onCollapseProgress(percentage, collapseDirection)
 
         if (percentage >= 1f) {
-            currentSate = CollapsableLayoutState.COLLAPSED
+            currentSate = CollapsableLayoutState.Collapsed
             onStateChanged(currentSate)
         } else if (percentage <= 0f) {
-            currentSate = CollapsableLayoutState.EXPENDED
+            currentSate = CollapsableLayoutState.Expended()
             onStateChanged(currentSate)
         }
     }

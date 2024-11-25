@@ -47,7 +47,7 @@ class RepostRemoteDataSourceImpl(
 
     override suspend fun addRepost(
         videoId: Long,
-        channelId: Long,
+        channelId: Long?,
         message: String,
     ): Response<RepostResponse> =
         repostApi.addRepost(videoId, channelId, message)
