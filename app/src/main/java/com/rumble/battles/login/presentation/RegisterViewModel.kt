@@ -18,8 +18,6 @@ import com.rumble.domain.login.domain.usecases.RumbleLoginUseCase
 import com.rumble.domain.login.domain.usecases.SSOFormBodyBuilderUseCase
 import com.rumble.domain.login.domain.usecases.SSOLoginUseCase
 import com.rumble.domain.profile.domainmodel.Gender
-import com.rumble.domain.settings.domain.domainmodel.ColorMode
-import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
 import com.rumble.domain.validation.usecases.EmailValidationUseCase
 import com.rumble.domain.validation.usecases.PasswordValidationUseCase
@@ -40,7 +38,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 interface RegisterHandler {
@@ -112,7 +109,6 @@ private const val TAG = "RegisterViewModel"
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val userPreferenceManager: UserPreferenceManager,
     private val registerUseCase: RegisterUseCase,
     private val ssoFormBodyBuilderUseCase: SSOFormBodyBuilderUseCase,
     private val rumbleFormBodyBuilderUseCase: RumbleFormBodyBuilderUseCase,
@@ -146,16 +142,8 @@ class RegisterViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            userPreferenceManager.saveColorMode(ColorMode.DARK_MODE)
             minEligibleAge = sessionManager.minEligibleAgeFlow.first()
         }
-    }
-
-    override fun onCleared() {
-        runBlocking {
-            userPreferenceManager.saveColorMode(ColorMode.SYSTEM_DEFAULT)
-        }
-        super.onCleared()
     }
 
     override fun onUserNameChanged(value: String) {
