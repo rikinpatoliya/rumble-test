@@ -202,6 +202,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onClosePremiumPromo()
     fun onRepostDeleted(repostId: Long)
     fun onRepostedByCurrentUser()
+    fun onRantPopupShown()
 }
 
 data class PlayListState(
@@ -511,6 +512,11 @@ class VideoDetailsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onRantPopupShown() {
+        emitVmEvent(VideoDetailsEvent.HideKeyboard)
+        emoteState.value = EmoteState()
     }
 
     override fun onLoadContent(videoId: Long, playListId: String?, shufflePlayList: Boolean?) {
@@ -1059,6 +1065,7 @@ class VideoDetailsViewModel @Inject constructor(
                 requestFollow = false,
             )
             emitVmEvent(VideoDetailsEvent.HideKeyboard)
+            if (rantLevel != null) onDismissBottomSheet()
             when (result) {
                 is LiveChatMessageResult.Failure -> {
                     alertDialogState.value = AlertDialogState(

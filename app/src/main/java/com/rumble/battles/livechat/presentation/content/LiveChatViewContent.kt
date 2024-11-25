@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -76,6 +77,7 @@ import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.utils.extension.conditional
 import com.rumble.videoplayer.presentation.UiType
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun LiveChatViewContent(
@@ -154,6 +156,12 @@ fun LiveChatViewContent(
         }
     }
 
+    LaunchedEffect(Unit) {
+        snapshotFlow { isKeyboardVisible }.distinctUntilChanged().collectLatest { shown ->
+            if (shown) liveChatHandler.onKeyboardShown()
+        }
+    }
+
     ConstraintLayout(modifier = modifier
         .background(MaterialTheme.colors.surface)
         .clickableNoRipple { liveChatHandler.onDismissBottomSheet() }) {
@@ -207,7 +215,10 @@ fun LiveChatViewContent(
                 liveChatState.rantList.forEach {
                     item {
                         RantView(
-                            modifier = Modifier.clickable { liveChatHandler.onRantClicked(it) },
+                            modifier = Modifier.clickable {
+                                handler.onRantPopupShown()
+                                liveChatHandler.onRantClicked(it)
+                            },
                             rantEntity = it,
                             active = liveChatState.rantPopupMessage == null || it.messageEntity == liveChatState.rantPopupMessage
                         )
@@ -291,7 +302,8 @@ fun LiveChatViewContent(
                             messageEntity = it,
                             badges = liveChatState.badges,
                             onDismiss = liveChatHandler::onDismissBottomSheet,
-                            liveChatConfig = liveChatState.liveChatConfig
+                            liveChatConfig = liveChatState.liveChatConfig,
+                            scrollable = true,
                         )
                     }
                 }
@@ -459,7 +471,8 @@ private fun ContentFooter(
         } else {
             state.userProfile?.let { userProfile ->
                 if ((userProfile.validated && state.hasPremiumRestriction && state.hasLiveGateRestriction.not())
-                    || state.chatMode == ChatMode.PremiumOrSubscribedOnly) {
+                    || state.chatMode == ChatMode.PremiumOrSubscribedOnly
+                ) {
                     GoPremiumToCharOrCommentView(
                         modifier = modifier
                             .fillMaxWidth(),
@@ -480,11 +493,12 @@ private fun ContentFooter(
                                 ?: "",
                             rantsEnabled = liveChatState.liveChatConfig?.rantConfig?.rantsEnabled
                                 ?: false,
-                            displayEmotes = liveChatState.liveChatConfig?.emoteGroups.isNullOrEmpty().not(),
+                            displayEmotes = liveChatState.liveChatConfig?.emoteGroups.isNullOrEmpty()
+                                .not(),
                             focusRequester = focusRequester,
                             onChange = handler::onCommentChanged,
                             onBuyRant = handler::onOpenBuyRantSheet,
-                            emotePickerState = if(emoteSate.showEmoteSelector) EmotePickerState.Selected else EmotePickerState.None,
+                            emotePickerState = if (emoteSate.showEmoteSelector) EmotePickerState.Selected else EmotePickerState.None,
                             onProfileImageClick = {
                                 handler.onLiveChatThumbnailTap(
                                     liveChatState.liveChatConfig?.channels ?: emptyList()
@@ -495,7 +509,10 @@ private fun ContentFooter(
                                     handler.onPostLiveChatMessage(it)
                                 }
                             },
-                            onSelectEmote = handler::onShowEmoteSelector,
+                            onSelectEmote = {
+                                handler.onShowEmoteSelector()
+                                liveChatHandler.onKeyboardShown()
+                            },
                             onTextFieldClicked = {
                                 if (emoteSate.showEmoteSelector) handler.onSwitchToKeyboard()
                             },

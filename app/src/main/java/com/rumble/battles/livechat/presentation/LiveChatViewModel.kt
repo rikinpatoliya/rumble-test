@@ -107,6 +107,7 @@ interface LiveChatHandler {
     fun getEmoteCountInSameGroup(emoteEntity: EmoteEntity?): Int
     fun onEmoteUsed(emoteEntity: EmoteEntity)
     fun onClearRantSelection()
+    fun onKeyboardShown()
 }
 
 data class LiveChatState(
@@ -468,6 +469,12 @@ class LiveChatViewModel @Inject constructor(
 
     override fun onClearRantSelection() {
         state.value = state.value.copy(rantSelected = null)
+    }
+
+    override fun onKeyboardShown() {
+        if (state.value.rantSelected != null) {
+            onDismissBottomSheet()
+        }
     }
 
     private fun emitEvent(event: LiveChatEvent) {

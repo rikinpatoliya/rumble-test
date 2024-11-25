@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -39,6 +41,7 @@ import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusSmall
 import com.rumble.theme.rantCloseButtonSize
+import com.rumble.utils.extension.conditional
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -48,8 +51,11 @@ fun RantMessageView(
     messageEntity: LiveChatMessageEntity,
     badges: Map<String, BadgeEntity>,
     onDismiss: (() -> Unit)? = null,
-    liveChatConfig: LiveChatConfig?
+    liveChatConfig: LiveChatConfig?,
+    scrollable: Boolean = false,
 ) {
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = modifier.clip(RoundedCornerShape(radiusSmall))
     ) {
@@ -99,37 +105,44 @@ fun RantMessageView(
             }
 
             if (messageEntity.deleted) {
-               Text(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .background(messageEntity.background ?: fierceRed)
-                       .padding(
-                           start = paddingXSmall,
-                           bottom = paddingXSmall,
-                           top = paddingXSmall,
-                           end = paddingXSmall
-                       ),
-                   text = stringResource(id = R.string.live_chat_deleted_message),
-                   style = h6LightItalic,
-                   color = messageEntity.textColor ?: MaterialTheme.colors.primary
-               )
-            } else {
-                MessageContentView(modifier = Modifier
-                    .fillMaxWidth()
-                    .background(messageEntity.background ?: fierceRed)
-                    .padding(
-                        start = paddingXSmall,
-                        bottom = paddingXSmall,
-                        top = paddingXSmall,
-                        end = paddingXSmall
-                    ),
-                    messageEntity = messageEntity,
-                    liveChatConfig = liveChatConfig,
-                    style = h6Light,
-                    color = messageEntity.textColor ?: MaterialTheme.colors.primary,
-                    atTextColor = messageEntity.textColor ?: MaterialTheme.colors.primary,
-                    atHighlightColor = Color.White.copy(alpha = 0.3f)
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(messageEntity.background ?: fierceRed)
+                        .padding(
+                            start = paddingXSmall,
+                            bottom = paddingXSmall,
+                            top = paddingXSmall,
+                            end = paddingXSmall
+                        ),
+                    text = stringResource(id = R.string.live_chat_deleted_message),
+                    style = h6LightItalic,
+                    color = messageEntity.textColor ?: MaterialTheme.colors.primary
                 )
+            } else {
+                Column(
+                    modifier = Modifier.conditional(scrollable) {
+                        verticalScroll(scrollState)
+                    }
+                ) {
+                    MessageContentView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(messageEntity.background ?: fierceRed)
+                            .padding(
+                                start = paddingXSmall,
+                                bottom = paddingXSmall,
+                                top = paddingXSmall,
+                                end = paddingXSmall
+                            ),
+                        messageEntity = messageEntity,
+                        liveChatConfig = liveChatConfig,
+                        style = h6Light,
+                        color = messageEntity.textColor ?: MaterialTheme.colors.primary,
+                        atTextColor = messageEntity.textColor ?: MaterialTheme.colors.primary,
+                        atHighlightColor = Color.White.copy(alpha = 0.3f)
+                    )
+                }
             }
         }
     }
