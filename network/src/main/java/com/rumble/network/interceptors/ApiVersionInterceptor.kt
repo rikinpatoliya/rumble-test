@@ -11,7 +11,7 @@ import javax.inject.Inject
 * If the api version param is not present in the query, then ApiVersionInterceptor will add
 * RUMBLE_DEFAULT_API_VERSION api version query param.
 * */
-private const val RUMBLE_DEFAULT_API_VERSION = "6"
+private const val RUMBLE_DEFAULT_API_VERSION = "7"
 
 class ApiVersionInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response = chain.run {

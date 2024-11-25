@@ -6,7 +6,6 @@ import com.rumble.network.api.CameraApi
 import com.rumble.network.api.ChannelApi
 import com.rumble.network.api.DiscoverApi
 import com.rumble.network.api.ReportApi
-import com.rumble.network.api.RepostApi
 import com.rumble.network.api.SearchApi
 import com.rumble.network.api.SubscriptionApi
 import com.rumble.network.api.UserApi
@@ -154,8 +153,4 @@ object NetworkModule {
     @Provides
     fun provideSubscriptionApi(@NetworkRetrofit retrofit: Retrofit): SubscriptionApi =
         retrofit.create(SubscriptionApi::class.java)
-
-    @Provides
-    fun provideRepostApi(@NetworkRetrofit retrofit: Retrofit): RepostApi =
-        retrofit.create(RepostApi::class.java)
 }

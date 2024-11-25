@@ -9,7 +9,6 @@ import com.rumble.network.dto.repost.DeleteRepostResponse
 import com.rumble.network.dto.repost.RepostResponse
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import okhttp3.FormBody
 import retrofit2.Response
 
 class RepostRemoteDataSourceImpl(
@@ -46,6 +45,10 @@ class RepostRemoteDataSourceImpl(
     override suspend fun deleteRepost(repostId: Long): Response<DeleteRepostResponse> =
         repostApi.deleteRepost(repostId)
 
-    override suspend fun addRepost(addRepostBody: FormBody): Response<RepostResponse> =
-        repostApi.addRepost(body = addRepostBody)
+    override suspend fun addRepost(
+        videoId: Long,
+        channelId: Long,
+        message: String,
+    ): Response<RepostResponse> =
+        repostApi.addRepost(videoId, channelId, message)
 }

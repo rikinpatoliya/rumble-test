@@ -109,3 +109,11 @@ annotation class AppFlyerId
 @Retention(AnnotationRetention.BINARY)
 annotation class DebugHttpClient
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class RepostHttpClient
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class RepostRetrofit
+

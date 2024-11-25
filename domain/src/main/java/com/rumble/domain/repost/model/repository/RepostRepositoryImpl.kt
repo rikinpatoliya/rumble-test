@@ -9,7 +9,6 @@ import com.rumble.domain.repost.model.datasource.remote.RepostRemoteDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import okhttp3.FormBody
 
 private const val TAG = "RepostRepositoryImpl"
 
@@ -40,12 +39,7 @@ class RepostRepositoryImpl(
         message: String
     ): AddRepostResult =
         withContext(dispatcher) {
-            val body = FormBody.Builder()
-                .add("video_id", videoId.toString())
-                .add("channel_id", channelId.toString())
-                .add("message", message)
-                .build()
-            val response = remoteDataSource.addRepost(body)
+            val response = remoteDataSource.addRepost(videoId, channelId, message)
             if (response.isSuccessful && response.body() != null) AddRepostResult.Success
             else AddRepostResult.Failure(RumbleError(TAG, response.raw()))
         }
