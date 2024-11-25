@@ -13,10 +13,8 @@ import com.rumble.domain.common.domain.usecase.SendEmailUseCase
 import com.rumble.domain.login.domain.usecases.SaveClearSessionOnAppStartUseCase
 import com.rumble.domain.profile.domain.GetUserProfileUseCase
 import com.rumble.domain.profile.domain.UpdateUserProfileUseCase
-import com.rumble.domain.profile.domainmodel.CountryEntity
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.domain.profile.domainmodel.UserProfileEntity
-import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.UpdateUserProfileResult
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.validation.usecases.BirthdayValidationUseCase
@@ -26,14 +24,12 @@ import com.rumble.utils.extension.toUtcLong
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -152,19 +148,7 @@ class AgeVerificationViewModel @Inject constructor(
                 uiState.update { it.copy(loading = false) }
             }
         }
-
-        viewModelScope.launch {
-            userPreferenceManager.saveColorMode(ColorMode.DARK_MODE)
-        }
     }
-
-    override fun onCleared() {
-        runBlocking {
-            userPreferenceManager.saveColorMode(ColorMode.SYSTEM_DEFAULT)
-        }
-        super.onCleared()
-    }
-
 
     override fun onBirthdayChanged(value: LocalDate) {
         userProfileEntity = userProfileEntity.copy(
