@@ -62,8 +62,8 @@ data class VideoPlayerState(
 sealed class VideoPlayerEvent {
     data object VideoReported : VideoPlayerEvent()
     data object Error : VideoPlayerEvent()
-    data object LoginToLike : VideoPlayerEvent()
-    data object LoginToDislike : VideoPlayerEvent()
+    data class LoginToLike(val errorMessage: String?) : VideoPlayerEvent()
+    data class LoginToDislike(val errorMessage: String?) : VideoPlayerEvent()
     data object ClosePlayer : VideoPlayerEvent()
     data object LoginToAddToPlaylist : VideoPlayerEvent()
     data object AddToPlaylist : VideoPlayerEvent()
@@ -229,7 +229,7 @@ class VideoPlaybackViewModel @Inject constructor(
                         currentVote = getUserCurrentVote(result.updatedFeed),
                         videoEntity = result.updatedFeed
                     )
-                } else eventFlow.emit(VideoPlayerEvent.LoginToLike)
+                } else eventFlow.emit(VideoPlayerEvent.LoginToLike(result.errorMessage))
             }
         }
     }
@@ -243,7 +243,7 @@ class VideoPlaybackViewModel @Inject constructor(
                         currentVote = getUserCurrentVote(result.updatedFeed),
                         videoEntity = result.updatedFeed
                     )
-                } else eventFlow.emit(VideoPlayerEvent.LoginToDislike)
+                } else eventFlow.emit(VideoPlayerEvent.LoginToDislike(result.errorMessage))
             }
         }
     }

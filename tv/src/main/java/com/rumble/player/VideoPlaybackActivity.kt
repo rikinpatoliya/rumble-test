@@ -124,10 +124,16 @@ open class VideoPlaybackActivity : FragmentActivity() {
                         supportFragmentManager.showAlert(context.getString(R.string.error_fragment_message), true)
 
                     is VideoPlayerEvent.LoginToLike ->
-                        supportFragmentManager.showAlert(context.getString(R.string.login_to_like), true)
+                        supportFragmentManager.showAlert(
+                            message = it.errorMessage ?: context.getString(R.string.login_to_like),
+                            showIcon = true
+                        )
 
                     is VideoPlayerEvent.LoginToDislike ->
-                        supportFragmentManager.showAlert(context.getString(R.string.login_to_dislike), true)
+                        supportFragmentManager.showAlert(
+                            message = it.errorMessage ?: context.getString(R.string.login_to_dislike),
+                            showIcon = true
+                        )
 
                     is VideoPlayerEvent.ClosePlayer -> this@VideoPlaybackActivity.finish()
 

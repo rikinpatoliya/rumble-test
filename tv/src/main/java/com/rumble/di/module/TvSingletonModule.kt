@@ -142,7 +142,8 @@ class TvSingletonModule {
         channelViewDao: ChannelViewDao,
         commentRemoteDataSource: CommentRemoteDataSource,
         videoRemoteDataSource: VideoRemoteDataSource,
-        liveVideoPlaylistDataSource: LiveVideoPlaylistDataSource
+        liveVideoPlaylistDataSource: LiveVideoPlaylistDataSource,
+        errorConverter: Converter<ResponseBody, ErrorResponse>?
     ): FeedRepository =
         FeedRepositoryImpl(
             videoApi,
@@ -165,7 +166,8 @@ class TvSingletonModule {
                     TODO("Not yet implemented")
                 }
             },
-            liveVideoPlaylistDataSource = liveVideoPlaylistDataSource
+            liveVideoPlaylistDataSource = liveVideoPlaylistDataSource,
+            errorConverter = errorConverter,
         )
 
     @Provides
