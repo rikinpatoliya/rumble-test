@@ -4,13 +4,13 @@ import com.google.gson.JsonPrimitive
 import com.google.gson.annotations.SerializedName
 import com.rumble.network.NetworkRumbleConstants.EMAIL_UPDATE_SUCCESS_MESSAGE
 import com.rumble.network.NetworkRumbleConstants.UNVERIFIED_EMAIL_UPDATE_SUCCESS_MESSAGE
-import com.rumble.network.dto.ErrorResponse
+import com.rumble.network.dto.ErrorResponseItem
 
 data class UpdateUserEmailResponse(
     @SerializedName("return")
     private val _success: JsonPrimitive?,
     @SerializedName("error")
-    val error: ErrorResponse?,
+    val error: ErrorResponseItem?,
 ) {
     val success: Boolean
         get() {

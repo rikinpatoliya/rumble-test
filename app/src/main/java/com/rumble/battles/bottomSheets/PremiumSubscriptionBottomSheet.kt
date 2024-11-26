@@ -36,6 +36,7 @@ import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.premium.presentation.SubscriptionTypeView
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscription
 import com.rumble.theme.RumbleTypography
+import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.RumbleTypography.tinyBody
 import com.rumble.theme.enforcedDarkest
@@ -157,7 +158,7 @@ fun PremiumSubscriptionBottomSheet(
                 textModifier = Modifier.padding(vertical = paddingMedium),
                 text = stringResource(id = R.string.subscribe_now),
                 textColor = enforcedDarkmo,
-                textStyle = RumbleTypography.h3Bold,
+                textStyle = h3,
                 onClick = {
                     selected?.let {
                         handler.onSubscribe(it)

@@ -67,12 +67,6 @@ object RumbleTypography {
         fontSize = 16.sp
     )
 
-    val h3Bold = TextStyle(
-        fontFamily = interFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 16.sp
-    )
-
     val h4 = TextStyle(
         fontFamily = interFontFamily,
         fontWeight = FontWeight.Bold,
@@ -236,7 +230,7 @@ object RumbleTypography {
         fontSize = 12.sp
     )
 
-    val onboardingTitle = TextStyle(
+    val titleLarge = TextStyle(
         fontFamily = interFontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 32.sp

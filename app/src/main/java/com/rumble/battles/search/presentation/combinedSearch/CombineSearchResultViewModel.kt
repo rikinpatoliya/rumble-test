@@ -21,9 +21,7 @@ import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
-import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.search.domain.useCases.SearchCombineUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.sort.DurationType
@@ -53,8 +51,6 @@ interface CombineSearchResultHandler: LazyListStateHandler {
     val eventFlow: Flow<CombinedSearchEvent>
 
     fun onSelectionMade(newSelection: SortFilterSelection)
-    fun onLike(video: VideoEntity)
-    fun onDislike(video: VideoEntity)
     fun onVideoCardImpression(video: VideoEntity)
     fun onFullyVisibleFeedChanged(video: VideoEntity?)
     fun onCreatePlayerForVisibleFeed()
@@ -97,7 +93,6 @@ private const val TAG = "CombineSearchResultViewModel"
 class CombineSearchResultViewModel @Inject constructor(
     stateHandle: SavedStateHandle,
     private val searchCombineUseCase: SearchCombineUseCase,
-    private val voteVideoUseCase: VoteVideoUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase,
     private val initVideoCardPlayerUseCase: InitVideoCardPlayerUseCase,
@@ -140,20 +135,6 @@ class CombineSearchResultViewModel @Inject constructor(
             fetchData(selection)
         }
         observeSoundState()
-    }
-
-    override fun onLike(video: VideoEntity) {
-        viewModelScope.launch(updateErrorHandler) {
-            val result = voteVideoUseCase(video, UserVote.LIKE)
-            if (result.success) updateState(result.updatedFeed)
-        }
-    }
-
-    override fun onDislike(video: VideoEntity) {
-        viewModelScope.launch(updateErrorHandler) {
-            val result = voteVideoUseCase(video, UserVote.DISLIKE)
-            if (result.success) updateState(result.updatedFeed)
-        }
     }
 
     override fun onSelectionMade(newSelection: SortFilterSelection) {

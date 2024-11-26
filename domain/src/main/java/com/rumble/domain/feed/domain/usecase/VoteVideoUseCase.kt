@@ -32,33 +32,30 @@ class VoteVideoUseCase @Inject constructor(
             videoEntityId = videoEntity.id,
             userVote = userVote
         )
-        return VoteResult(
-            success = voteResult.success,
-            updatedFeed = videoEntity.copy(
-                likeNumber = increaseCounter(userVote, videoEntity.likeNumber),
-                dislikeNumber = newDislikeNumber,
-                userVote = userVote,
-            ),
-            rumbleError = voteResult.rumbleError
+        return mapVoteResult(
+            voteResponseResult = voteResult,
+            videoEntity = videoEntity,
+            userVote = userVote,
+            likeNumber = increaseCounter(userVote, videoEntity.likeNumber),
+            dislikeNumber = newDislikeNumber,
         )
     }
 
     private suspend fun dislikeVideo(videoEntity: VideoEntity): VoteResult {
-        val userVote = if (videoEntity.userVote == UserVote.DISLIKE) UserVote.NONE else UserVote.DISLIKE
+        val userVote =
+            if (videoEntity.userVote == UserVote.DISLIKE) UserVote.NONE else UserVote.DISLIKE
         val newLikeNumber =
             if (videoEntity.userVote == UserVote.LIKE) decreaseCounter(videoEntity.likeNumber) else videoEntity.likeNumber
         val voteResult: VoteResponseResult = feedRepository.voteVideo(
             videoEntityId = videoEntity.id,
             userVote = userVote
         )
-        return VoteResult(
-            success = voteResult.success,
-            updatedFeed = videoEntity.copy(
-                likeNumber = newLikeNumber,
-                dislikeNumber = increaseCounter(userVote, videoEntity.dislikeNumber),
-                userVote = userVote,
-            ),
-            rumbleError = voteResult.rumbleError
+        return mapVoteResult(
+            voteResponseResult = voteResult,
+            videoEntity = videoEntity,
+            userVote = userVote,
+            likeNumber = newLikeNumber,
+            dislikeNumber = increaseCounter(userVote, videoEntity.dislikeNumber),
         )
     }
 
@@ -68,5 +65,38 @@ class VoteVideoUseCase @Inject constructor(
             else -> number.plus(1)
         }
     }
+
     private fun decreaseCounter(number: Long): Long = max(0, number.minus(1))
+
+    private fun mapVoteResult(
+        voteResponseResult: VoteResponseResult,
+        videoEntity: VideoEntity,
+        userVote: UserVote,
+        likeNumber: Long,
+        dislikeNumber: Long,
+    ) = when (voteResponseResult) {
+        is VoteResponseResult.Success -> {
+            VoteResult(
+                success = true,
+                updatedFeed = videoEntity.copy(
+                    likeNumber = likeNumber,
+                    dislikeNumber = dislikeNumber,
+                    userVote = userVote,
+                ),
+            )
+        }
+
+        is VoteResponseResult.Failure -> {
+            VoteResult(
+                success = false,
+                updatedFeed = videoEntity.copy(
+                    likeNumber = likeNumber,
+                    dislikeNumber = dislikeNumber,
+                    userVote = userVote,
+                ),
+                rumbleError = voteResponseResult.rumbleError,
+                errorMessage = voteResponseResult.errorMessage,
+            )
+        }
+    }
 }

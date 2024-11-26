@@ -26,6 +26,7 @@ import com.rumble.domain.discover.domain.usecase.GetDiscoverPlayerVideoListUseCa
 import com.rumble.domain.discover.model.DiscoverPlayerVideoListSource
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.comments.CommentEntity
+import com.rumble.domain.feed.domain.domainmodel.comments.CommentVoteResult
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.DeleteCommentUseCase
@@ -245,7 +246,7 @@ class DiscoverPlayerViewModel @Inject constructor(
             loadStates.append,
             loadStates.prepend,
             loadStates.refresh
-        ).filterIsInstance(LoadState.Error::class.java).firstOrNull()?.let { errorState ->
+        ).filterIsInstance<LoadState.Error>().firstOrNull()?.let { errorState ->
             unhandledErrorUseCase(TAG, errorState.error)
         }
     }
@@ -470,7 +471,7 @@ class DiscoverPlayerViewModel @Inject constructor(
     override fun onLikeComment(commentEntity: CommentEntity) {
         viewModelScope.launch(errorHandler) {
             val result = likeCommentUseCase(commentEntity)
-            if (result.success) {
+            if (result is CommentVoteResult.Success) {
                 commentsUIState.update {
                     it.copy(
                         commentList = updateCommentVoteUseCase(

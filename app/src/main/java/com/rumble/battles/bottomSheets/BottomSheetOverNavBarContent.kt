@@ -10,6 +10,7 @@ import com.rumble.battles.R
 import com.rumble.battles.commonViews.ReportBottomSheet
 import com.rumble.battles.content.presentation.BottomSheetContent
 import com.rumble.battles.content.presentation.ContentHandler
+import com.rumble.battles.feed.presentation.repost.RepostUpsellScreen
 import com.rumble.battles.landing.RumbleActivityHandler
 import com.rumble.battles.library.presentation.playlist.PlayListAction
 import com.rumble.battles.login.presentation.AuthHandler
@@ -226,6 +227,13 @@ fun BottomSheetOverNavBarContent(
                 onReport = {
                     contentHandler.onReportRepost(bottomSheetData.repost, it)
                 }
+            )
+        }
+
+        is BottomSheetContent.RepostUpsell -> {
+            RepostUpsellScreen(
+                onGoPremium = contentHandler::onGetPremium,
+                onClose = onHideBottomSheet,
             )
         }
 

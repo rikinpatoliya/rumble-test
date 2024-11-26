@@ -30,7 +30,6 @@ import com.rumble.domain.discover.domain.usecase.GetLiveCategoryListUseCase
 import com.rumble.domain.discover.domain.usecase.GetLiveVideoListUseCase
 import com.rumble.domain.discover.domain.usecase.GetPopularVideosUseCase
 import com.rumble.domain.discover.domain.usecase.GetTopChannelsUseCase
-import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -65,8 +64,6 @@ interface DiscoverHandler: LazyListStateHandler {
     fun refreshHurryDoNotMissItVideo()
     fun refreshPopularVideos()
     fun refreshCategoryList()
-    fun like(videoEntity: VideoEntity)
-    fun dislike(videoEntity: VideoEntity)
     fun onVideoPlayerImpression()
     fun onVideoCardImpression(videoEntity: VideoEntity, cardSize: CardSize)
     fun onSoundClick()
@@ -98,7 +95,6 @@ class DiscoverViewModel @Inject constructor(
     private val getTopChannelsUseCase: GetTopChannelsUseCase,
     private val getHurryDoNotMissItVideoUseCase: GetHurryDoNotMissItVideoUseCase,
     private val getPopularVideosUseCase: GetPopularVideosUseCase,
-    private val voteVideoUseCase: VoteVideoUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val logVideoPlayerImpressionUseCase: LogVideoPlayerImpressionUseCase,
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase,
@@ -184,20 +180,6 @@ class DiscoverViewModel @Inject constructor(
         refreshHurryDoNotMissItVideo()
         refreshPopularVideos()
         refreshCategoryList()
-    }
-
-    override fun like(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.LIKE)
-            if (result.success) updateLikeDislike(result.updatedFeed)
-        }
-    }
-
-    override fun dislike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.DISLIKE)
-            if (result.success) updateLikeDislike(result.updatedFeed)
-        }
     }
 
     override fun onVideoPlayerImpression() {

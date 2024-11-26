@@ -10,6 +10,7 @@ import com.rumble.domain.feed.model.getVideoCollectionEntity
 import com.rumble.domain.feed.model.getVideoEntity
 import com.rumble.network.NetworkRumbleConstants.USER_HAS_ALREADY_VOTED_ON_THIS_CONTENT_ERROR_CODE
 import com.rumble.network.api.VideoApi
+import com.rumble.network.dto.livechat.ErrorResponse
 import com.rumble.network.dto.video.RelatedVideoResponse
 import com.rumble.network.dto.video.Video
 import com.rumble.network.dto.video.VideoVoteBody
@@ -19,12 +20,15 @@ import com.rumble.network.queryHelpers.LiveVideoFront
 import com.rumble.network.queryHelpers.Options
 import com.rumble.network.queryHelpers.Sort
 import com.rumble.network.queryHelpers.VideoCollectionId
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import retrofit2.Response
 
 private const val TAG = "VideoRemoteDataSourceImpl"
 
 class VideoRemoteDataSourceImpl(
-    private val videoApi: VideoApi
+    private val videoApi: VideoApi,
+    private val errorConverter: Converter<ResponseBody, ErrorResponse>?,
 ) : VideoRemoteDataSource {
 
     override suspend fun fetchVideoCollections(): VideoCollectionsEntityResult {
@@ -142,10 +146,17 @@ class VideoRemoteDataSourceImpl(
         )
         val response = videoApi.likeVideo(vote)
         val success = response.isSuccessful || response.code() == USER_HAS_ALREADY_VOTED_ON_THIS_CONTENT_ERROR_CODE
-        return VoteResponseResult(
-            success = success,
-            rumbleError = if (success.not()) RumbleError(tag = TAG, response = response.raw()) else null
-        )
+        return if (success) {
+            VoteResponseResult.Success
+        } else {
+            VoteResponseResult.Failure(
+                rumbleError = RumbleError(tag = TAG, response = response.raw()),
+                errorMessage = response.errorBody()?.let {
+                    val error = errorConverter?.convert(it)
+                    error?.errors?.firstOrNull()?.message ?: ""
+                } ?: "",
+            )
+        }
     }
 
     override suspend fun fetchRelatedVideoList(videoId: Long): Response<RelatedVideoResponse> =

@@ -6,6 +6,7 @@ import androidx.paging.map
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
 import com.rumble.domain.channels.model.datasource.ChannelRemoteDataSource
 import com.rumble.domain.channels.model.datasource.VideoPagingSource
+import com.rumble.domain.common.model.RumbleError
 import com.rumble.domain.common.model.datasource.VideoRemoteDataSource
 import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.database.getRoomVideoCollectionView
@@ -40,6 +41,7 @@ import com.rumble.domain.feed.model.getWatchingNowEntity
 import com.rumble.network.api.RepostApi
 import com.rumble.network.api.VideoApi
 import com.rumble.network.dto.collection.VideoCollection
+import com.rumble.network.dto.livechat.ErrorResponse
 import com.rumble.network.dto.livevideo.LiveReportBody
 import com.rumble.network.dto.livevideo.LiveReportBodyData
 import com.rumble.network.dto.video.Video
@@ -49,7 +51,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import java.time.ZoneOffset
+
+private const val TAG = "FeedRepositoryImpl"
 
 class FeedRepositoryImpl(
     private val videoApi: VideoApi,
@@ -61,6 +67,7 @@ class FeedRepositoryImpl(
     private val videoRemoteDataSource: VideoRemoteDataSource,
     private val homeCategoryViewDao: HomeCategoryViewDao,
     private val liveVideoPlaylistDataSource: LiveVideoPlaylistDataSource,
+    private val errorConverter: Converter<ResponseBody, ErrorResponse>?,
 ) : FeedRepository {
 
     override fun fetchLiveFeedList(shortList: Boolean, pageSize: Int): Flow<PagingData<Feed>> {
@@ -232,12 +239,21 @@ class FeedRepositoryImpl(
     }
 
     override suspend fun likeComment(commentId: Long, userVote: UserVote): CommentVoteResult {
-        val result = commentRemoteDataSource.likeComment(commentId, userVote)
-        return CommentVoteResult(
-            success = result.isSuccessful,
-            commentId = result.body()?.data?.commentId ?: 0,
-            userVote = UserVote.getByVote(result.body()?.data?.vote ?: 0)
-        )
+        val response = commentRemoteDataSource.likeComment(commentId, userVote)
+        return if (response.isSuccessful) {
+            CommentVoteResult.Success(
+                commentId = response.body()?.data?.commentId ?: commentId,
+                userVote = userVote
+            )
+        } else {
+            CommentVoteResult.Failure(
+                rumbleError = RumbleError(tag = TAG, response = response.raw()),
+                errorMessage = response.errorBody()?.let {
+                    val error = errorConverter?.convert(it)
+                    error?.errors?.firstOrNull()?.message ?: ""
+                } ?: "",
+            )
+        }
     }
 
     override suspend fun fetchVideoCollections(): VideoCollectionsEntityResult {

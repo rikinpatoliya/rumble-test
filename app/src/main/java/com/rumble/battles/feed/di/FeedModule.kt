@@ -14,11 +14,14 @@ import com.rumble.domain.feed.model.repository.FeedRepository
 import com.rumble.domain.feed.model.repository.FeedRepositoryImpl
 import com.rumble.network.api.RepostApi
 import com.rumble.network.api.VideoApi
+import com.rumble.network.dto.livechat.ErrorResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import javax.inject.Singleton
 
 @Module
@@ -56,6 +59,7 @@ object FeedModule {
         videoRemoteDataSource: VideoRemoteDataSource,
         homeCategoryViewDao: HomeCategoryViewDao,
         liveVideoPlaylistDataSource: LiveVideoPlaylistDataSource,
+        errorConverter: Converter<ResponseBody, ErrorResponse>?,
     ): FeedRepository =
         FeedRepositoryImpl(
             videoApi = videoApi,
@@ -67,5 +71,6 @@ object FeedModule {
             videoRemoteDataSource = videoRemoteDataSource,
             homeCategoryViewDao = homeCategoryViewDao,
             liveVideoPlaylistDataSource = liveVideoPlaylistDataSource,
+            errorConverter = errorConverter,
         )
 }

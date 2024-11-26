@@ -186,7 +186,7 @@ fun DiscoverScreen(
                         end = CalculatePaddingForTabletWidth(maxWidth),
                     )
                 ) {
-                    items(ContentSection.values()) {
+                    items(ContentSection.entries) {
                         when (it) {
 
                             ContentSection.HurryDontMiss -> DontMissItView(
@@ -206,8 +206,6 @@ fun DiscoverScreen(
                                         discoverHandler.onVideoItemClick(videoEntity)
                                     }
                                 },
-                                onLike = discoverHandler::like,
-                                onDislike = discoverHandler::dislike,
                                 onRefresh = discoverHandler::refreshHurryDoNotMissItVideo,
                                 onImpression = { video ->
                                     discoverHandler.onVideoCardImpression(video, CardSize.REGULAR)

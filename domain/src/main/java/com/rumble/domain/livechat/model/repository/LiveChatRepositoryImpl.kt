@@ -17,7 +17,7 @@ import com.rumble.domain.livechat.model.datasource.remote.LiveChatRemoteDataSour
 import com.rumble.domain.livechat.model.toEmoteEntityList
 import com.rumble.domain.livechat.model.toEmoteGroupList
 import com.rumble.network.dto.livechat.LiveChatBodyData
-import com.rumble.network.dto.livechat.LiveChatErrorResponse
+import com.rumble.network.dto.livechat.ErrorResponse
 import com.rumble.network.dto.livechat.LiveChatMessageBody
 import com.rumble.network.dto.livechat.LiveChatMessageRant
 import com.rumble.network.dto.livechat.LiveChatMessageText
@@ -36,7 +36,7 @@ private const val TAG = "LiveChatRepositoryImpl"
 
 class LiveChatRepositoryImpl(
     private val remoteDataSource: LiveChatRemoteDataSource,
-    private val errorConverter: Converter<ResponseBody, LiveChatErrorResponse>?,
+    private val errorConverter: Converter<ResponseBody, ErrorResponse>?,
     private val baseUrl: String,
     private val dispatcher: CoroutineDispatcher,
 ) : LiveChatRepository {

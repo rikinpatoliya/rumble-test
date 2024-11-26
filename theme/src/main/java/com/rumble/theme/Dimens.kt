@@ -31,6 +31,7 @@ val collapsedSpacerPadding = collapsedImageSize + collapsingImageVerticalPadding
 val profileItemIconContentPadding = paddingXSmall + paddingXXXXSmall
 val rantTopPadding = 5.dp
 val rantStartPadding = 10.dp
+val paddingUpsellMessageTablet = 120.dp
 
 // Button Height
 val buttonHeight = 56.dp
@@ -218,3 +219,7 @@ val liveDotIconSize = 6.dp
 
 val tvPlayerGradientHeight = 114.dp
 val maxWidthForceUpdateText = 400.dp
+
+// Reposts
+val repostUpsellIcon = 250.dp
+val repostUpsellIconTablet = 380.dp

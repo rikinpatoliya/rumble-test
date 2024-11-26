@@ -215,6 +215,7 @@ sealed class BottomSheetContent {
     data object AuthMenu : BottomSheetContent()
     data class RepostMoreActions(val repost: RepostEntity, val userId: String) : BottomSheetContent()
     data class ReportRepost(val repost: RepostEntity) : BottomSheetContent()
+    data object RepostUpsell : BottomSheetContent()
 }
 
 sealed class ContentScreenVmEvent {
@@ -553,9 +554,15 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onRepostClicked(videoEntity: VideoEntity) {
-        updateBottomSheetUiState(
-            BottomSheetContent.RepostVideo(videoEntity)
-        )
+        if (userUIState.value.isPremiumUser) {
+            updateBottomSheetUiState(
+                BottomSheetContent.RepostVideo(videoEntity)
+            )
+        } else {
+            updateBottomSheetUiState(
+                BottomSheetContent.RepostUpsell
+            )
+        }
     }
 
     override fun onEnterPipMode() {
@@ -753,7 +760,6 @@ class ContentViewModel @Inject constructor(
         }
         resetRepostState()
     }
-
     // endregion
 
     // region EditPlayListHandler

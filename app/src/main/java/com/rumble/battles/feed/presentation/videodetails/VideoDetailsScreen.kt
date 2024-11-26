@@ -613,7 +613,7 @@ fun VideoDetailsScreen(
                                     handler.onUpdateLayoutState(
                                         CollapsableLayoutState.Collapsed
                                     )
-                                }
+                                },
                             )
 
                             if (playerTarget?.value == PlayerTarget.REMOTE) {
@@ -889,7 +889,7 @@ fun VideoDetailsView(
                             coroutineScope = coroutineScope,
                             contentPadding = contentPadding,
                             activityHandler = activityHandler,
-                            contentListState = contentListState
+                            contentListState = contentListState,
                         )
                     }
                     Box(
@@ -921,7 +921,7 @@ private fun ChannelContentView(
     onTagClick: (String) -> Unit,
     coroutineScope: CoroutineScope,
     contentPadding: Dp,
-    contentListState: LazyListState
+    contentListState: LazyListState,
 ) {
     val state by handler.state
     val playerTarget = state.rumblePlayer?.playerTarget
@@ -960,7 +960,7 @@ private fun ChannelContentView(
                 handler = handler,
                 coroutineScope = coroutineScope,
                 onChannelClick = onChannelClick,
-                activityHandler = activityHandler
+                activityHandler = activityHandler,
             )
             Divider(
                 modifier = Modifier.fillMaxWidth(),
@@ -1391,7 +1391,7 @@ private fun VideoDetailsHeaderView(
     handler: VideoDetailsHandler,
     coroutineScope: CoroutineScope,
     onChannelClick: (String) -> Unit,
-    activityHandler: RumbleActivityHandler
+    activityHandler: RumbleActivityHandler,
 ) {
     val state by handler.state
 
@@ -1487,9 +1487,11 @@ private fun VideoDetailsHeaderView(
                         onClick = {
                             state.videoEntity?.let {
                                 if (state.repostedByUser) {
-                                    //TODO: @Igor handle when docs will be updated.
+                                    contentHandler.onUndoRepost(it.userRepost?.id)
                                 }
-                                else contentHandler.onRepostClicked(it)
+                                else {
+                                    contentHandler.onRepostClicked(it)
+                                }
                             }
                         }
                     )

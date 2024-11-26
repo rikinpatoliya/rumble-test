@@ -21,7 +21,7 @@ import com.rumble.network.di.AppVersion
 import com.rumble.network.di.IoDispatcher
 import com.rumble.network.di.OsVersion
 import com.rumble.network.di.VersionCode
-import com.rumble.network.dto.livechat.LiveChatErrorResponse
+import com.rumble.network.dto.livechat.ErrorResponse
 import com.rumble.network.session.SessionManager
 import dagger.Module
 import dagger.Provides
@@ -86,7 +86,7 @@ object LiveChatModule {
     @Provides
     fun provideLiveChatRepository(
         liveChatRemoteDataSource: LiveChatRemoteDataSource,
-        errorConverter: Converter<ResponseBody, LiveChatErrorResponse>?,
+        errorConverter: Converter<ResponseBody, ErrorResponse>?,
         baseUrl: String,
         @IoDispatcher dispatcher: CoroutineDispatcher,
     ): LiveChatRepository {

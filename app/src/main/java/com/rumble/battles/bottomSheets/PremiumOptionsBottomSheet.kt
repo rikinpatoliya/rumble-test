@@ -29,7 +29,7 @@ import com.rumble.battles.R
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.DrawerCloseIndicatorView
 import com.rumble.theme.RumbleTypography.h1
-import com.rumble.theme.RumbleTypography.h3Bold
+import com.rumble.theme.RumbleTypography.h3
 import com.rumble.theme.RumbleTypography.h5
 import com.rumble.theme.enforcedDarkest
 import com.rumble.theme.enforcedDarkmo
@@ -116,7 +116,7 @@ fun PremiumOptionsBottomSheet(
                 textModifier = Modifier.padding(vertical = paddingMedium),
                 text = stringResource(id = if (isPremiumUser) R.string.manage_subscription else R.string.get_premium),
                 textColor = enforcedDarkmo,
-                textStyle = h3Bold,
+                textStyle = h3,
                 onClick = onActionButtonClicked
             )
         }

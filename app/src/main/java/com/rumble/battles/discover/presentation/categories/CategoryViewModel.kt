@@ -48,9 +48,7 @@ import com.rumble.domain.discover.domain.usecase.GetCategoryUseCase
 import com.rumble.domain.discover.domain.usecase.GetCategoryVideoListUseCase
 import com.rumble.domain.discover.domain.usecase.GetLiveCategoryListUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
-import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoCardPlayerUseCase
@@ -79,8 +77,6 @@ interface CategoryHandler : LazyListStateHandler, LazyGridStateHandler {
 
     fun fetchCategoryData()
     fun onDisplayTypeSelected(displayType: CategoryDisplayType)
-    fun onLike(videoEntity: VideoEntity)
-    fun onDislike(videoEntity: VideoEntity)
     fun onFullyVisibleFeedChanged(feed: Feed?)
     fun onCreatePlayerForVisibleFeed()
     fun onSoundClick()
@@ -129,7 +125,6 @@ class CategoryViewModel @Inject constructor(
     private val getCategoryUseCase: GetCategoryUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val getCategoryVideoListUseCase: GetCategoryVideoListUseCase,
-    private val voteVideoUseCase: VoteVideoUseCase,
     private val initVideoCardPlayerUseCase: InitVideoCardPlayerUseCase,
     private val userPreferenceManager: UserPreferenceManager,
     private val getLastPositionUseCase: GetLastPositionUseCase,
@@ -228,24 +223,6 @@ class CategoryViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
-            }
-        }
-    }
-
-    override fun onLike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.LIKE)
-            if (result.success) state.update {
-                state.value.copy(updatedVideo = result.updatedFeed)
-            }
-        }
-    }
-
-    override fun onDislike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.DISLIKE)
-            if (result.success) state.update {
-                state.value.copy(updatedVideo = result.updatedFeed)
             }
         }
     }

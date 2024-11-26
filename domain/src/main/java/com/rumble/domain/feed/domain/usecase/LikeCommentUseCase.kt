@@ -11,6 +11,6 @@ class LikeCommentUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(commentEntity: CommentEntity): CommentVoteResult {
         val vote = if (commentEntity.userVote == UserVote.LIKE) UserVote.NONE else UserVote.LIKE
-        return feedRepository.likeComment(commentEntity.commentId, vote).copy(userVote = vote)
+        return feedRepository.likeComment(commentEntity.commentId, vote)
     }
 }

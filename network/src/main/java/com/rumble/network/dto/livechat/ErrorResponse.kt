@@ -1,9 +1,9 @@
 package com.rumble.network.dto.livechat
 
 import com.google.gson.annotations.SerializedName
-import com.rumble.network.dto.ErrorResponse
+import com.rumble.network.dto.ErrorResponseItem
 
-data class LiveChatErrorResponse(
+data class ErrorResponse(
     @SerializedName("errors")
-    val errors: List<ErrorResponse>
+    val errors: List<ErrorResponseItem>
 )

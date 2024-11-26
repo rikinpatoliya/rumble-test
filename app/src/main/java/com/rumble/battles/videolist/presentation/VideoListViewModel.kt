@@ -24,9 +24,7 @@ import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
-import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
@@ -65,8 +63,6 @@ interface VideoListHandler: LazyListStateHandler {
     val alertDialogState: State<AlertDialogState>
 
     fun onToggleVideoViewStyle(listToggleViewStyle: ListToggleViewStyle)
-    fun onLike(videoEntity: VideoEntity)
-    fun onDislike(videoEntity: VideoEntity)
     fun handleLoadState(loadStates: LoadStates)
     fun onVideoCardImpression(videoEntity: VideoEntity, cardSize: CardSize)
     fun onPlayerImpression(videoEntity: VideoEntity)
@@ -95,7 +91,6 @@ private const val TAG = "VideoListViewModel"
 class VideoListViewModel @Inject constructor(
     private val stateHandle: SavedStateHandle,
     getVideoListUseCase: GetVideoListUseCase,
-    private val voteVideoUseCase: VoteVideoUseCase,
     private val userPreferenceManager: UserPreferenceManager,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase,
@@ -137,7 +132,7 @@ class VideoListViewModel @Inject constructor(
             loadStates.append,
             loadStates.prepend,
             loadStates.refresh
-        ).filterIsInstance(LoadState.Error::class.java).firstOrNull()?.let { errorState ->
+        ).filterIsInstance<LoadState.Error>().firstOrNull()?.let { errorState ->
             unhandledErrorUseCase(TAG, errorState.error)
         }
     }
@@ -174,20 +169,6 @@ class VideoListViewModel @Inject constructor(
     override fun onToggleVideoViewStyle(listToggleViewStyle: ListToggleViewStyle) {
         viewModelScope.launch(errorHandler) {
             userPreferenceManager.saveVideosListToggleViewStyle(listToggleViewStyle)
-        }
-    }
-
-    override fun onLike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.LIKE)
-            if (result.success) updatedEntity.value = result.updatedFeed
-        }
-    }
-
-    override fun onDislike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.DISLIKE)
-            if (result.success) updatedEntity.value = result.updatedFeed
         }
     }
 

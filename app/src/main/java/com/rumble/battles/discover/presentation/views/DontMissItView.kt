@@ -33,8 +33,6 @@ fun DontMissItView(
     onSoundClick: () -> Unit,
     onChannelClick: (channelId: String) -> Unit,
     onVideoClick: () -> Unit,
-    onLike: (VideoEntity) -> Unit,
-    onDislike: (VideoEntity) -> Unit,
     onRefresh: () -> Unit,
     onImpression: (VideoEntity) -> Unit,
     onInvisible: () -> Unit

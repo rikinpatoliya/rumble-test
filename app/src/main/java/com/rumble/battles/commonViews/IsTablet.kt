@@ -12,7 +12,7 @@ fun IsTablet(): Boolean {
 
 private fun isTablet(configuration: Configuration): Boolean =
     if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        configuration.screenHeightDp > 600
+        configuration.screenHeightDp >= 600
     } else {
-        configuration.screenWidthDp > 600
+        configuration.screenWidthDp >= 600
     }

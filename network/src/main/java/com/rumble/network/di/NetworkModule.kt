@@ -11,6 +11,7 @@ import com.rumble.network.api.SubscriptionApi
 import com.rumble.network.api.UserApi
 import com.rumble.network.api.VideoApi
 import com.rumble.network.deserializer.FeedItemDeserializer
+import com.rumble.network.dto.livechat.ErrorResponse
 import com.rumble.network.dto.video.FeedItem
 import com.rumble.network.interceptors.AcceptJsonHeadersInterceptor
 import com.rumble.network.interceptors.ApiVersionInterceptor
@@ -28,7 +29,9 @@ import io.harkema.retrofitcurlprinter.Logger
 import io.harkema.retrofitcurlprinter.RetrofitCurlPrinterInterceptor
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
@@ -153,4 +156,8 @@ object NetworkModule {
     @Provides
     fun provideSubscriptionApi(@NetworkRetrofit retrofit: Retrofit): SubscriptionApi =
         retrofit.create(SubscriptionApi::class.java)
+
+    @Provides
+    fun provideErrorBodyConverter(@NetworkRetrofit retrofit: Retrofit?): Converter<ResponseBody, ErrorResponse>? =
+        retrofit?.responseBodyConverter(ErrorResponse::class.java, emptyArray())
 }

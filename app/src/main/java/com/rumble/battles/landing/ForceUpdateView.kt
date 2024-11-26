@@ -24,7 +24,7 @@ import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.IsTablet
 import com.rumble.theme.RumbleTypography.body1
 import com.rumble.theme.RumbleTypography.h3
-import com.rumble.theme.RumbleTypography.onboardingTitle
+import com.rumble.theme.RumbleTypography.titleLarge
 import com.rumble.theme.enforcedDarkmo
 import com.rumble.theme.enforcedGray100
 import com.rumble.theme.enforcedGray950
@@ -94,7 +94,7 @@ fun ForceUpdateView(
                         bottom = paddingMedium,
                     ),
                 text = stringResource(id = R.string.app_update_required),
-                style = onboardingTitle,
+                style = titleLarge,
                 color = enforcedWhite,
                 textAlign = TextAlign.Center
             )

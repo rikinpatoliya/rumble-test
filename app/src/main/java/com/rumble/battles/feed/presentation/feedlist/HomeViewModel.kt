@@ -29,7 +29,6 @@ import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
 import com.rumble.domain.feed.domain.domainmodel.channel.FreshChannel
 import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionResult
 import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
-import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.feed.domain.usecase.ColumnsNumberUseCase
 import com.rumble.domain.feed.domain.usecase.GetFeedListUseCase
@@ -95,8 +94,6 @@ interface HomeHandler: LazyListStateHandler {
     val eventFlow: Flow<HomeEvent>
 
     fun onRefreshAll()
-    fun onLike(videoEntity: VideoEntity)
-    fun onDislike(videoEntity: VideoEntity)
     fun onRumbleAdImpression(rumbleAd: RumbleAdEntity)
     fun onVideoCardImpression(videoEntity: VideoEntity)
     fun onPlayerImpression(videoEntity: VideoEntity)
@@ -123,7 +120,6 @@ class HomeViewModel @Inject constructor(
     application: Application,
     private val sessionManager: SessionManager,
     private val getFeedListUseCase: GetFeedListUseCase,
-    private val voteVideoUseCase: VoteVideoUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
     private val adFeedImpressionUseCase: RumbleAdFeedImpressionUseCase,
     private val logVideoCardImpressionUseCase: LogVideoCardImpressionUseCase,
@@ -177,20 +173,6 @@ class HomeViewModel @Inject constructor(
         observeSoundState()
         observePlaybackInFeedMode()
         observeIfContentLoadAllowed()
-    }
-
-    override fun onLike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.LIKE)
-            if (result.success) updatedEntity.value = result.updatedFeed
-        }
-    }
-
-    override fun onDislike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.DISLIKE)
-            if (result.success) updatedEntity.value = result.updatedFeed
-        }
     }
 
     override fun onRumbleAdImpression(rumbleAd: RumbleAdEntity) {

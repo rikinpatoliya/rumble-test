@@ -73,6 +73,7 @@ import com.rumble.network.api.RumbleBannerApi
 import com.rumble.network.api.SearchApi
 import com.rumble.network.api.UserApi
 import com.rumble.network.api.VideoApi
+import com.rumble.network.dto.livechat.ErrorResponse
 import com.rumble.network.dto.login.RegisterErrorResponse
 import com.rumble.utils.HashCalculator
 import dagger.Module
@@ -125,8 +126,8 @@ class TvSingletonModule {
         CommentRemoteDataSourceImpl(videoApi)
 
     @Provides
-    fun provideVideoRemoteDataSource(videoApi: VideoApi): VideoRemoteDataSource =
-        VideoRemoteDataSourceImpl(videoApi)
+    fun provideVideoRemoteDataSource(videoApi: VideoApi, errorConverter: Converter<ResponseBody, ErrorResponse>?): VideoRemoteDataSource =
+        VideoRemoteDataSourceImpl(videoApi, errorConverter)
 
     @Provides
     fun provideLiveVideoPlaylistDataSource(videoApi: VideoApi): LiveVideoPlaylistDataSource =

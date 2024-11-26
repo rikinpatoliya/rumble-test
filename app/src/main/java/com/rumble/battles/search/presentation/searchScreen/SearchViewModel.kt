@@ -70,6 +70,10 @@ class SearchViewModel @Inject constructor(
     override var listState: MutableState<LazyListState> = mutableStateOf(LazyListState(0, 0))
 
     init {
+        getRecentQueries()
+    }
+
+    private fun getRecentQueries() {
         viewModelScope.launch {
             val recentQueryList = getRecentQueriesUseCase()
             state.update {
@@ -86,7 +90,10 @@ class SearchViewModel @Inject constructor(
     }
 
     override fun updateQuery(recentQuery: RecentQuery) {
-        viewModelScope.launch { updateQueryUseCase(recentQuery) }
+        viewModelScope.launch {
+            updateQueryUseCase(recentQuery)
+            getRecentQueries()
+        }
     }
 
     override fun onQueryChanged(query: String) {

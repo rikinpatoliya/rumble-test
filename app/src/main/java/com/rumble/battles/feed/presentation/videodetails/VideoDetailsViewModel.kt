@@ -46,6 +46,7 @@ import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.ads.RumbleAdEntity
 import com.rumble.domain.feed.domain.domainmodel.comments.CommentEntity
+import com.rumble.domain.feed.domain.domainmodel.comments.CommentVoteResult
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
@@ -649,6 +650,7 @@ class VideoDetailsViewModel @Inject constructor(
                     val result = voteVideoUseCase(it, UserVote.LIKE)
                     if (result.success) state.value =
                         state.value.copy(videoEntity = result.updatedFeed)
+                    else emitVmEvent(VideoDetailsEvent.VideoDetailsError(result.errorMessage))
                 }
             }
         }
@@ -663,6 +665,7 @@ class VideoDetailsViewModel @Inject constructor(
                     val result = voteVideoUseCase(it, UserVote.DISLIKE)
                     if (result.success) state.value =
                         state.value.copy(videoEntity = result.updatedFeed)
+                    else emitVmEvent(VideoDetailsEvent.VideoDetailsError(result.errorMessage))
                 }
             }
         }
@@ -675,6 +678,7 @@ class VideoDetailsViewModel @Inject constructor(
             viewModelScope.launch(errorHandler) {
                 val result = voteVideoUseCase(videoEntity, UserVote.LIKE)
                 if (result.success) updateRelatedVideo(videoEntity, result)
+                else emitVmEvent(VideoDetailsEvent.VideoDetailsError(result.errorMessage))
             }
         }
     }
@@ -686,6 +690,7 @@ class VideoDetailsViewModel @Inject constructor(
             viewModelScope.launch(errorHandler) {
                 val result = voteVideoUseCase(videoEntity, UserVote.DISLIKE)
                 if (result.success) updateRelatedVideo(videoEntity, result)
+                else emitVmEvent(VideoDetailsEvent.VideoDetailsError(result.errorMessage))
             }
         }
     }
@@ -955,18 +960,23 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onLikeComment(commentEntity: CommentEntity) {
         viewModelScope.launch(errorHandler) {
-            val result = likeCommentUseCase(commentEntity)
-            if (result.success) {
-                state.value.videoEntity?.let { videoEntity ->
-                    state.value = state.value.copy(
-                        videoEntity = videoEntity.copy(
-                            commentList = updateCommentVoteUseCase(
-                                result.commentId,
-                                result.userVote,
-                                videoEntity.commentList ?: emptyList()
+            when(val result = likeCommentUseCase(commentEntity)) {
+                is CommentVoteResult.Success -> {
+                    state.value.videoEntity?.let { videoEntity ->
+                        state.value = state.value.copy(
+                            videoEntity = videoEntity.copy(
+                                commentList = updateCommentVoteUseCase(
+                                    result.commentId,
+                                    result.userVote,
+                                    videoEntity.commentList ?: emptyList()
+                                )
                             )
                         )
-                    )
+                    }
+                }
+
+                is CommentVoteResult.Failure -> {
+                    emitVmEvent(VideoDetailsEvent.VideoDetailsError(result.errorMessage))
                 }
             }
         }

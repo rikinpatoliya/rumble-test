@@ -34,9 +34,7 @@ import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.discover.domain.domainmodel.CategoryDisplayType
 import com.rumble.domain.feed.domain.domainmodel.Feed
-import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.repost.domain.usecases.FetchRepostListUseCase
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
 import com.rumble.domain.settings.model.UserPreferenceManager
@@ -77,8 +75,6 @@ interface ChannelDetailsHandler : LazyListStateHandler {
     val soundState: Flow<Boolean>
 
     fun onToggleVideoViewStyle(listToggleViewStyle: ListToggleViewStyle)
-    fun onLike(videoEntity: VideoEntity)
-    fun onDislike(videoEntity: VideoEntity)
     fun onVideoClick(feed: Feed)
     fun onCancelRestricted()
     fun onWatchRestricted(videoEntity: VideoEntity)
@@ -162,7 +158,6 @@ class ChannelDetailsViewModel @Inject constructor(
     private val getChannelDataUseCase: GetChannelDataUseCase,
     private val logChannelViewUseCase: LogChannelViewUseCase,
     private val getChannelVideosUseCase: GetChannelVideosUseCase,
-    private val voteVideoUseCase: VoteVideoUseCase,
     private val stateHandle: SavedStateHandle,
     private val reportChannelUseCase: ReportChannelUseCase,
     private val userPreferenceManager: UserPreferenceManager,
@@ -274,20 +269,6 @@ class ChannelDetailsViewModel @Inject constructor(
             userPreferenceManager.saveChannelDetailsListToggleViewStyle(listToggleViewStyle)
             if (listToggleViewStyle == ListToggleViewStyle.LIST)
                 onPauseCurrentPlayer()
-        }
-    }
-
-    override fun onLike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.LIKE)
-            if (result.success) updateVotedVideoEntity(result.updatedFeed)
-        }
-    }
-
-    override fun onDislike(videoEntity: VideoEntity) {
-        viewModelScope.launch(errorHandler) {
-            val result = voteVideoUseCase(videoEntity, UserVote.DISLIKE)
-            if (result.success) updateVotedVideoEntity(result.updatedFeed)
         }
     }
 
