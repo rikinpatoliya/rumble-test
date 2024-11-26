@@ -31,6 +31,7 @@ import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionResul
 import com.rumble.domain.feed.domain.domainmodel.collection.VideoCollectionType
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
+import com.rumble.domain.feed.domain.usecase.ColumnsNumberUseCase
 import com.rumble.domain.feed.domain.usecase.GetFeedListUseCase
 import com.rumble.domain.feed.domain.usecase.GetFreshChannelsUseCase
 import com.rumble.domain.feed.domain.usecase.GetVideoCollectionsUseCase
@@ -71,6 +72,7 @@ data class HomeScreenState(
     val connectionState: InternetConnectionState = InternetConnectionState.CONNECTED,
     val freshChannels: List<FreshChannel> = emptyList(),
     val freshContentLoadingState: LoadingState = LoadingState.None,
+    val numberOfColumns: Int = 1,
 )
 
 sealed class HomeAlertReason : AlertDialogReason {
@@ -110,6 +112,8 @@ interface HomeHandler: LazyListStateHandler {
     fun onRumbleAdResumed(rumbleAd: RumbleAdEntity)
     fun onDismissPremiumBanner()
     fun onRepostDeleted()
+    fun updateNumberOfGridColumns()
+    fun onRefreshOnlyVideoList()
 }
 
 private const val TAG = "HomeViewModel"
@@ -135,6 +139,7 @@ class HomeViewModel @Inject constructor(
     private val analyticsEventUseCase: AnalyticsEventUseCase,
     private val internetConnectionObserver: InternetConnectionObserver,
     private val internetConnectionUseCase: InternetConnectionUseCase,
+    private val columnsNumberUseCase: ColumnsNumberUseCase,
 ) : AndroidViewModel(application), HomeHandler {
 
     override val homeScreenState: MutableStateFlow<HomeScreenState> = MutableStateFlow(
@@ -244,7 +249,8 @@ class HomeViewModel @Inject constructor(
                     getViewCollectionTitleUseCase(
                         viewCollectionType = videoCollection,
                         defaultTitle = getApplication<Application>().getString(R.string.home_category_my_feed)
-                    )
+                    ),
+                    homeScreenState.value.numberOfColumns
                 ).cachedIn(viewModelScope)
             )
         }
@@ -360,6 +366,12 @@ class HomeViewModel @Inject constructor(
         onRefreshOnlyVideoList()
     }
 
+    override fun updateNumberOfGridColumns() {
+        homeScreenState.value = homeScreenState.value.copy(
+            numberOfColumns = columnsNumberUseCase()
+        )
+    }
+
     private fun observeUserAuthState() {
         viewModelScope.launch {
             sessionManager.cookiesFlow.distinctUntilChanged().collectLatest { cookies ->
@@ -431,7 +443,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun onRefreshOnlyVideoList() {
+    override fun onRefreshOnlyVideoList() {
         homeScreenState.value.selectedCollection?.let {
             homeScreenState.value = homeScreenState.value.copy(
                 feedList = getFeedListUseCase(
@@ -439,7 +451,8 @@ class HomeViewModel @Inject constructor(
                     getViewCollectionTitleUseCase(
                         it,
                         getApplication<Application>().getString(R.string.home_category_my_feed)
-                    )
+                    ),
+                    homeScreenState.value.numberOfColumns
                 ).cachedIn(viewModelScope)
             )
         }
@@ -500,7 +513,8 @@ class HomeViewModel @Inject constructor(
                                 getViewCollectionTitleUseCase(
                                     result.videoCollections[0],
                                     getApplication<Application>().getString(R.string.home_category_my_feed)
-                                )
+                                ),
+                                homeScreenState.value.numberOfColumns
                             ).cachedIn(
                                 viewModelScope
                             ),

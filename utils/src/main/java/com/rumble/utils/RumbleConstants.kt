@@ -21,7 +21,6 @@ object RumbleConstants {
     const val RUMBLE_AD_CARD_ASPECT_RATION = 336f / 280f
     const val FACEBOOK_REGISTRATION_TO_FACEBOOK_LOGIN_DELAY = 2000L
     const val FACEBOOK_REGISTRATION_EMAIL_REQUEST_FIELD = "email"
-    const val RUMBLE_CAMERA_REDIRECT_URL = "https://rumble.com/upload.php"
     const val RUMBLE_ANALYTICS_TAG = "com.rumble.analytics"
     const val EMAIL_VALIDATION_REGEX = "[A-Z0-9a-z._+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
     const val URL_PATTERN_REGEX = "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)"
@@ -39,6 +38,11 @@ object RumbleConstants {
     const val GALLERY_ROWS_QUANTITY = 3
     const val MAIN_CATEGORY_ITEMS_IN_ROW_QUANTITY = 2
     const val SUBCATEGORY_ROWS_QUANTITY = 3
+    const val SCREEN_WIDTH_THRESHOLD_600 = 600
+    const val SCREEN_WIDTH_THRESHOLD_1000 = 1000
+    const val HOME_SCREEN_ROWS_3 = 3
+    const val HOME_SCREEN_ROWS_2 = 2
+    const val HOME_SCREEN_ROWS_1 = 1
     const val RECOMMENDED_CHANNELS_COLUMNS_QUANTITY = 2
     const val GALLERY_THUMB_SIZE = 600
     const val ACTIVITY_RESULT_CONTRACT_IMAGE_INPUT_TYPE = "image/*"
@@ -83,7 +87,6 @@ object RumbleConstants {
     const val TV_LIBRARY_SCREEN_GRID_WIDTH = 3
     const val TV_RECOMMENDED_CHANNELS_GRID_WIDTH = 4
     const val HTTP_CONFLICT = 409
-    const val DEFAULT_VIDEO_DETAILS_NAV_PATH_NON_PLAYLIST = -1
     const val SEARCH_INITIAL_MAX_LENGTH = 100
     const val SEARCH_UPDATE_DELAY_MS = 500L
     const val SUPPORT_EMAIL = "support@rumble.com"
@@ -110,7 +113,6 @@ object RumbleConstants {
     const val HTTP_PREFIX = "http://"
     const val HTTPS_PREFIX = "https://"
     const val MAX_COMMENT_FIELD_LINES = 3
-    const val HIDE_MINIPLAYER_DURATION = 50L
     const val FULLSCREEN_VIDEO_DRAG_THRESHOLD = 0.33f
     const val VIDEO_DRAG_CANCEL_ANIMATION_DURATION = 200
     const val EMOTES_ROW_NUMBER = 3

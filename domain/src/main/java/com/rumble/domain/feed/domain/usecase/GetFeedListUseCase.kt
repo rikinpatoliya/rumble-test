@@ -16,7 +16,6 @@ import com.rumble.domain.profile.domainmodel.AgeBracket
 import com.rumble.domain.profile.domainmodel.Gender
 import com.rumble.domain.repost.domain.domainmodel.RepostEntity
 import com.rumble.domain.rumbleads.model.repository.RumbleAdRepository
-import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.AD_STEP
 import com.rumble.utils.RumbleConstants.FIRST_AD_VIDEO_INDEX
@@ -34,16 +33,23 @@ class GetFeedListUseCase @Inject constructor(
     private val getKeywordsUseCase: CreateKeywordsUseCase,
     private val getVideoPageSizeUseCase: GetVideoPageSizeUseCase,
     private val sessionManager: SessionManager,
-    private val userPreferenceManager: UserPreferenceManager,
+    private val premiumBannerInjectUseCase: PremiumBannerInjectUseCase,
     override val rumbleErrorUseCase: RumbleErrorUseCase,
 ) : RumbleUseCase {
 
     private val maxItemCount = 10
     private val cachedVideoList = mutableListOf<Feed>()
 
-    operator fun invoke(videoCollectionType: VideoCollectionType, category: String): Flow<PagingData<Feed>> {
+    operator fun invoke(
+        videoCollectionType: VideoCollectionType,
+        category: String,
+        numberOfColumns: Int
+    ): Flow<PagingData<Feed>> {
         val isPremium by lazy { runBlocking { sessionManager.isPremiumUserFlow.first() } }
-        return feedRepository.fetchFeedList(videoCollectionType = videoCollectionType, pageSize = getVideoPageSizeUseCase())
+        return feedRepository.fetchFeedList(
+            videoCollectionType = videoCollectionType,
+            pageSize = getVideoPageSizeUseCase()
+        )
             .map { pagingData ->
                 pagingData.insertSeparators { _, after ->
                     if (after is VideoEntity) {
@@ -64,7 +70,8 @@ class GetFeedListUseCase @Inject constructor(
                             when (val nextAd = rumbleAdRepository.getNextAd(
                                 keywords = getKeywordsUseCase(cachedVideoList),
                                 categories = category,
-                                currentUserId = sessionManager.userIdFlow.first().ifBlank { null }?.getUserId(),
+                                currentUserId = sessionManager.userIdFlow.first().ifBlank { null }
+                                    ?.getUserId(),
                                 gender = Gender.getByValue(sessionManager.userGenderFlow.first()),
                                 ageBracket = AgeBracket.findBracketForAge(sessionManager.userAgeFlow.first())
                             )) {
@@ -87,11 +94,8 @@ class GetFeedListUseCase @Inject constructor(
                 }
             }
             .map { pagingData ->
-                pagingData.insertSeparators { before, _ ->
-                    if ((before is VideoEntity || before is RepostEntity) &&
-                        before.index == 0 &&
-                        isPremium.not() &&
-                        runBlocking { userPreferenceManager.displayPremiumBannerFlow.first() }) {
+                pagingData.insertSeparators { before, after ->
+                    if (premiumBannerInjectUseCase(before, after, numberOfColumns, isPremium)) {
                         PremiumBanner
                     } else null
                 }

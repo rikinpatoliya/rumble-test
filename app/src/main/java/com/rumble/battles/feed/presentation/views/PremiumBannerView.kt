@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,7 @@ import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.enforcedLite
 import com.rumble.theme.enforcedWhite
+import com.rumble.theme.imageXXLarge
 import com.rumble.theme.imageXXXSmall
 import com.rumble.theme.paddingGiant
 import com.rumble.theme.paddingMedium
@@ -48,7 +50,9 @@ fun PremiumBannerView(
     var visible by remember { mutableStateOf(true) }
 
     AnimatedVisibility(visible = visible) {
-        Box(modifier = modifier.clip(RoundedCornerShape(radiusSmall))) {
+        Box(modifier = modifier
+            .heightIn(max = imageXXLarge)
+            .clip(RoundedCornerShape(radiusSmall))) {
             Image(
                 modifier = Modifier.fillMaxWidth(),
                 painter = painterResource(id = R.drawable.premium_banner_ackground),

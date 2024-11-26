@@ -1,6 +1,8 @@
 package com.rumble.battles.feed.presentation.feedlist
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -43,7 +51,6 @@ import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
 import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
-import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
 import com.rumble.battles.commonViews.RumbleLogoSearchHeaderView
@@ -54,6 +61,7 @@ import com.rumble.battles.commonViews.dialogs.DialogActionType
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.battles.content.presentation.ContentScreenVmEvent
+import com.rumble.battles.content.presentation.UserUIState
 import com.rumble.battles.discover.presentation.views.ErrorView
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelsHandler
 import com.rumble.battles.feed.presentation.views.FeaturedChannelListView
@@ -81,6 +89,7 @@ import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXMedium
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXSmall
+import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.PLAYER_MIN_VISIBILITY
 import com.rumble.utils.extension.findFirstFullyVisibleItemIndex
 import kotlinx.coroutines.flow.collectLatest
@@ -105,6 +114,8 @@ fun HomeScreen(
     onViewNotifications: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
+
+    val screenWidth = configuration.screenWidthDp.dp
 
     val categories by homeHandler.homeCategories.collectAsStateWithLifecycle()
 
@@ -156,9 +167,14 @@ fun HomeScreen(
         if (videoDetailsState.visible.not()) homeHandler.onCreatePlayerForVisibleFeed()
     }
 
+    LaunchedEffect(screenWidth) {
+        homeHandler.updateNumberOfGridColumns()
+    }
+
+
     LaunchedEffect(Unit) {
         contentHandler.eventFlow.collectLatest {
-            when(it) {
+            when (it) {
                 is ContentScreenVmEvent.ScrollToTop -> {
                     listState.animateScrollToItem(0)
                 }
@@ -230,7 +246,7 @@ fun HomeScreen(
             .fillMaxSize()
             .systemBarsPadding()
     ) {
-        val (header, list) = createRefs()
+        val (header, list, recommendedChannels) = createRefs()
 
         RumbleLogoSearchHeaderView(
             modifier = Modifier
@@ -253,7 +269,10 @@ fun HomeScreen(
                 .constrainAs(list) {
                     top.linkTo(header.bottom)
                     bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(recommendedChannels.start)
                     height = Dimension.fillToConstraints
+                    width = Dimension.fillToConstraints
                 },
             state = rememberSwipeRefreshState(
                 isRefreshing = videoListItems.loadState.refresh == LoadState.Loading || state.freshContentLoadingState == LoadingState.Loading
@@ -264,204 +283,58 @@ fun HomeScreen(
             },
             indicator = { state, trigger -> RumbleSwipeRefreshIndicator(state, trigger) }
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(listConnection),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                state = listState,
-                contentPadding = PaddingValues(
-                    horizontal = CalculatePaddingForTabletWidth(
-                        configuration.screenWidthDp.dp
-                    )
+            if (state.numberOfColumns == RumbleConstants.HOME_SCREEN_ROWS_1) {
+                HomeSmallScreenContent(
+                    listConnection,
+                    listState,
+                    userUIState,
+                    state,
+                    onFreshContentChannelClick,
+                    onViewAllRecommendedChannelsClick,
+                    categories,
+                    homeHandler,
+                    videoListItems,
+                    contentHandler,
+                    recommendedChannelsHandler,
+                    onChannelClick,
+                    soundOn,
+                    activityHandler
                 )
-            ) {
-                if (userUIState.isLoggedIn) {
-                    item {
-                        FreshChannelListView(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colors.onPrimary),
-                            freshChannels = state.freshChannels,
-                            onFreshContentChannelClick = onFreshContentChannelClick,
-                            onPlusChannelsClick = onViewAllRecommendedChannelsClick
-                        )
-                    }
+            } else {
+                HomeBigScreenContent(
+                    userUIState,
+                    onFreshContentChannelClick,
+                    onViewAllRecommendedChannelsClick,
+                    categories,
+                    homeHandler,
+                    videoListItems,
+                    contentHandler,
+                    recommendedChannelsHandler,
+                    onChannelClick,
+                    soundOn,
+                    activityHandler
+                )
+
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .constrainAs(recommendedChannels) {
+                    top.linkTo(header.bottom)
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(parent.end)
+                    height = Dimension.fillToConstraints
                 }
-
-                item {
-                    VideoCollectionSelectorView(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colors.surface)
-                            .padding(
-                                top = paddingXSmall,
-                                bottom = paddingSmall
-                            ),
-                        videoCollections = categories,
-                        onCollectionClick = {
-                            homeHandler.onVideoCollectionClick(it)
-                        },
-                        selectedCollection = state.selectedCollection
-                    )
-                }
-
-                items(
-                    count = videoListItems.itemCount,
-                    key = videoListItems.itemKey(),
-                    contentType = videoListItems.itemContentType()
-                ) { index ->
-                    val feed = videoListItems[index]
-                    feed?.let {
-                        when (it) {
-                            is FeaturedChannelsFeedItem -> {
-                                FeaturedChannelListView(
-                                    modifier = Modifier
-                                        .padding(top = paddingLarge, bottom = paddingSmall)
-                                        .background(MaterialTheme.colors.onPrimary),
-                                    contentHandler = contentHandler,
-                                    recommendedChannelsHandler = recommendedChannelsHandler,
-                                    onChannelClick = onChannelClick,
-                                    onViewAllClick = onViewAllRecommendedChannelsClick
-                                )
-                            }
-
-                            is VideoEntity -> {
-                                VideoView(
-                                    modifier = Modifier
-                                        .padding(
-                                            top = paddingXXSmall,
-                                            bottom = paddingXXSmall
-                                        )
-                                        .fillMaxWidth(homeWidthRatio),
-                                    videoEntity = it,
-                                    rumblePlayer = homeHandler.currentPlayerState.value,
-                                    soundOn = soundOn,
-                                    onChannelClick = { onChannelClick(it.channelId) },
-                                    onMoreClick = { videoEntity ->
-                                        contentHandler.onMoreVideoOptionsClicked(
-                                            videoEntity
-                                        )
-                                    },
-                                    onImpression = homeHandler::onVideoCardImpression,
-                                    onPlayerImpression = homeHandler::onPlayerImpression,
-                                    onClick = homeHandler::onVideoClick,
-                                    onSoundClick = homeHandler::onSoundClick,
-                                    isPremiumUser = contentHandler.isPremiumUser(),
-                                )
-                            }
-
-                            is RumbleAdEntity -> {
-                                RumbleAdView(
-                                    modifier = Modifier.padding(
-                                        horizontal = paddingMedium,
-                                        vertical = paddingXMedium
-                                    ),
-                                    rumbleAdEntity = it,
-                                    onClick = { addEntity ->
-                                        activityHandler.onOpenWebView(addEntity.clickUrl)
-                                    },
-                                    onLaunch = homeHandler::onRumbleAdImpression,
-                                    onResumed = homeHandler::onRumbleAdResumed
-                                )
-                            }
-
-                            is PremiumBanner -> {
-                                PremiumBannerView(
-                                    modifier = Modifier.padding(
-                                        horizontal = paddingXMedium,
-                                        vertical = paddingXSmall
-                                    ),
-                                    onClick = {
-                                        contentHandler.onShowSubscriptionOptions(
-                                            videoId = null,
-                                            source = SubscriptionSource.Home
-                                        )
-                                    },
-                                    onDismiss = homeHandler::onDismissPremiumBanner
-                                )
-                            }
-
-                            is RepostEntity -> {
-                                RepostFeedView(
-                                    modifier = Modifier.padding(
-                                        horizontal = paddingXMedium,
-                                        vertical = paddingXSmall
-                                    ),
-                                    repost = it,
-                                    onChannelClick = { id ->
-                                        onChannelClick(id)
-                                    },
-                                    onVideoClick = homeHandler::onVideoClick,
-                                    onMoreClick = { contentHandler.onOpenRepostMoreActions(it) }
-                                )
-                            }
-                        }
-                    }
-                }
-                videoListItems.apply {
-                    when {
-                        loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
-                            item {
-                                Column(modifier = Modifier.fillParentMaxSize()) {
-                                    EmptyView(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .fillMaxWidth()
-                                            .padding(paddingMedium),
-                                        title = getEmptyStateTitle(state.selectedCollection),
-                                        text = getEmptyStateMessage(state.selectedCollection)
-                                    )
-                                    BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
-                                }
-                            }
-                        }
-
-                        loadState.refresh is LoadState.Error ->
-                            item {
-                                Column(modifier = Modifier.fillParentMaxSize()) {
-                                    ErrorView(
-                                        modifier = Modifier
-                                            .fillParentMaxSize()
-                                            .padding(paddingMedium),
-                                        backgroundColor = MaterialTheme.colors.onSecondary,
-                                        onRetry = homeHandler::onRefreshAll
-                                    )
-                                    BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
-                                }
-                            }
-
-                        loadState.append is LoadState.Loading -> {
-                            item {
-                                PageLoadingView(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
-                                        .padding(paddingMedium)
-                                )
-                            }
-                        }
-
-                        loadState.append is LoadState.Error -> {
-                            item {
-                                Column(modifier = Modifier.fillParentMaxSize()) {
-                                    ErrorView(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .wrapContentHeight()
-                                            .padding(paddingMedium),
-                                        backgroundColor = MaterialTheme.colors.onSecondary,
-                                        onRetry = videoListItems::retry,
-                                    )
-                                    BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
-                                }
-                            }
-                        }
-                    }
-                }
-                item {
-                    BottomNavigationBarScreenSpacer()
-                }
+                .background(MaterialTheme.colors.onPrimary),
+        ) {
+            if (state.numberOfColumns == RumbleConstants.HOME_SCREEN_ROWS_3) {
+                FreshChannelListView(
+                    freshChannels = state.freshChannels,
+                    numberOfColumns = state.numberOfColumns,
+                    onFreshContentChannelClick = onFreshContentChannelClick,
+                    onPlusChannelsClick = onViewAllRecommendedChannelsClick
+                )
             }
         }
     }
@@ -471,6 +344,455 @@ fun HomeScreen(
             reason = alertDialogState.alertDialogReason,
             handler = homeHandler
         )
+    }
+}
+
+@Composable
+private fun HomeSmallScreenContent(
+    listConnection: NestedScrollConnection,
+    listState: LazyListState,
+    userUIState: UserUIState,
+    state: HomeScreenState,
+    onFreshContentChannelClick: (id: String) -> Unit,
+    onViewAllRecommendedChannelsClick: () -> Unit,
+    categories: List<VideoCollectionType>,
+    homeHandler: HomeHandler,
+    videoListItems: LazyPagingItems<Feed>,
+    contentHandler: ContentHandler,
+    recommendedChannelsHandler: RecommendedChannelsHandler,
+    onChannelClick: (id: String) -> Unit,
+    soundOn: Boolean,
+    activityHandler: RumbleActivityHandler
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(listConnection),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        state = listState,
+    ) {
+        if (userUIState.isLoggedIn && state.numberOfColumns < RumbleConstants.HOME_SCREEN_ROWS_3) {
+            item {
+                FreshChannelListView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colors.onPrimary),
+                    freshChannels = state.freshChannels,
+                    numberOfColumns = state.numberOfColumns,
+                    onFreshContentChannelClick = onFreshContentChannelClick,
+                    onPlusChannelsClick = onViewAllRecommendedChannelsClick
+                )
+            }
+        }
+
+        item {
+            VideoCollectionSelectorView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colors.surface)
+                    .padding(
+                        top = paddingXSmall,
+                        bottom = paddingSmall
+                    ),
+                videoCollections = categories,
+                onCollectionClick = {
+                    homeHandler.onVideoCollectionClick(it)
+                },
+                selectedCollection = state.selectedCollection
+            )
+        }
+
+        items(
+            count = videoListItems.itemCount,
+            key = videoListItems.itemKey(),
+            contentType = videoListItems.itemContentType()
+        ) { index ->
+            val feed = videoListItems[index]
+            feed?.let {
+                when (it) {
+                    is FeaturedChannelsFeedItem -> {
+                        FeaturedChannelListView(
+                            modifier = Modifier
+                                .padding(top = paddingLarge, bottom = paddingSmall),
+                            contentHandler = contentHandler,
+                            recommendedChannelsHandler = recommendedChannelsHandler,
+                            onChannelClick = onChannelClick,
+                            onViewAllClick = onViewAllRecommendedChannelsClick
+                        )
+                    }
+
+                    is VideoEntity -> {
+                        VideoView(
+                            modifier = Modifier
+                                .padding(
+                                    top = paddingXXSmall,
+                                    bottom = paddingXXSmall
+                                )
+                                .fillMaxWidth(homeWidthRatio),
+                            videoEntity = it,
+                            rumblePlayer = homeHandler.currentPlayerState.value,
+                            soundOn = soundOn,
+                            onChannelClick = { onChannelClick(it.channelId) },
+                            onMoreClick = { videoEntity ->
+                                contentHandler.onMoreVideoOptionsClicked(
+                                    videoEntity
+                                )
+                            },
+                            onImpression = homeHandler::onVideoCardImpression,
+                            onPlayerImpression = homeHandler::onPlayerImpression,
+                            onClick = homeHandler::onVideoClick,
+                            onSoundClick = homeHandler::onSoundClick,
+                            isPremiumUser = contentHandler.isPremiumUser(),
+                        )
+                    }
+
+                    is RumbleAdEntity -> {
+                        RumbleAdView(
+                            modifier = Modifier.padding(
+                                horizontal = paddingMedium,
+                                vertical = paddingXMedium
+                            ),
+                            rumbleAdEntity = it,
+                            onClick = { addEntity ->
+                                activityHandler.onOpenWebView(addEntity.clickUrl)
+                            },
+                            onLaunch = homeHandler::onRumbleAdImpression,
+                            onResumed = homeHandler::onRumbleAdResumed
+                        )
+                    }
+
+                    is PremiumBanner -> {
+                        PremiumBannerView(
+                            modifier = Modifier.padding(
+                                horizontal = paddingXMedium,
+                            ),
+                            onClick = {
+                                contentHandler.onShowSubscriptionOptions(
+                                    videoId = null,
+                                    source = SubscriptionSource.Home
+                                )
+                            },
+                            onDismiss = homeHandler::onDismissPremiumBanner
+                        )
+                    }
+
+                    is RepostEntity -> {
+                        RepostFeedView(
+                            modifier = Modifier.padding(
+                                horizontal = paddingXMedium,
+                                vertical = paddingXSmall
+                            ),
+                            repost = it,
+                            onChannelClick = { id ->
+                                onChannelClick(id)
+                            },
+                            onVideoClick = homeHandler::onVideoClick,
+                            onMoreClick = { contentHandler.onOpenRepostMoreActions(it) }
+                        )
+                    }
+                }
+            }
+        }
+        videoListItems.apply {
+            when {
+                loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
+                    item {
+                        Column(modifier = Modifier.fillParentMaxSize()) {
+                            EmptyView(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .padding(paddingMedium),
+                                title = getEmptyStateTitle(state.selectedCollection),
+                                text = getEmptyStateMessage(state.selectedCollection)
+                            )
+                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                        }
+                    }
+                }
+
+                loadState.refresh is LoadState.Error ->
+                    item {
+                        Column(modifier = Modifier.fillParentMaxSize()) {
+                            ErrorView(
+                                modifier = Modifier
+                                    .fillParentMaxSize()
+                                    .padding(paddingMedium),
+                                backgroundColor = MaterialTheme.colors.onSecondary,
+                                onRetry = homeHandler::onRefreshAll
+                            )
+                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                        }
+                    }
+
+                loadState.append is LoadState.Loading -> {
+                    item {
+                        PageLoadingView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(paddingMedium)
+                        )
+                    }
+                }
+
+                loadState.append is LoadState.Error -> {
+                    item {
+                        Column(modifier = Modifier.fillParentMaxSize()) {
+                            ErrorView(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .padding(paddingMedium),
+                                backgroundColor = MaterialTheme.colors.onSecondary,
+                                onRetry = videoListItems::retry,
+                            )
+                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            BottomNavigationBarScreenSpacer()
+        }
+    }
+}
+
+@Composable
+private fun HomeBigScreenContent(
+    userUIState: UserUIState,
+    onFreshContentChannelClick: (id: String) -> Unit,
+    onViewAllRecommendedChannelsClick: () -> Unit,
+    categories: List<VideoCollectionType>,
+    homeHandler: HomeHandler,
+    videoListItems: LazyPagingItems<Feed>,
+    contentHandler: ContentHandler,
+    recommendedChannelsHandler: RecommendedChannelsHandler,
+    onChannelClick: (id: String) -> Unit,
+    soundOn: Boolean,
+    activityHandler: RumbleActivityHandler
+) {
+    val gridState: LazyGridState = rememberLazyGridState()
+    val state by homeHandler.homeScreenState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.numberOfColumns) {
+        homeHandler.onRefreshOnlyVideoList()
+    }
+
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
+        columns = GridCells.Fixed(state.numberOfColumns),
+        state = gridState,
+        contentPadding = PaddingValues(paddingSmall),
+        horizontalArrangement = Arrangement.spacedBy(paddingMedium)
+    ) {
+        if (userUIState.isLoggedIn && state.numberOfColumns < RumbleConstants.HOME_SCREEN_ROWS_3) {
+            item(
+                span = { GridItemSpan(state.numberOfColumns) }
+            ) {
+                FreshChannelListView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colors.onPrimary),
+                    freshChannels = state.freshChannels,
+                    numberOfColumns = state.numberOfColumns,
+                    onFreshContentChannelClick = onFreshContentChannelClick,
+                    onPlusChannelsClick = onViewAllRecommendedChannelsClick
+                )
+            }
+        }
+
+        item(
+            span = { GridItemSpan(state.numberOfColumns) }
+        ) {
+            VideoCollectionSelectorView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colors.surface)
+                    .padding(
+                        top = paddingXSmall,
+                        bottom = paddingSmall
+                    ),
+                videoCollections = categories,
+                onCollectionClick = {
+                    homeHandler.onVideoCollectionClick(it)
+                },
+                selectedCollection = state.selectedCollection
+            )
+        }
+
+        items(
+            count = videoListItems.itemCount,
+            key = videoListItems.itemKey(),
+            contentType = videoListItems.itemContentType(),
+            span = { index ->
+                videoListItems[index]?.let { feed ->
+                    when (feed) {
+                        is FeaturedChannelsFeedItem, PremiumBanner -> GridItemSpan(state.numberOfColumns)
+                        else -> GridItemSpan(RumbleConstants.HOME_SCREEN_ROWS_1)
+                    }
+                } ?: GridItemSpan(RumbleConstants.HOME_SCREEN_ROWS_1)
+            }
+        ) { index ->
+            val feed = videoListItems[index]
+            feed?.let {
+                when (it) {
+                    is FeaturedChannelsFeedItem -> {
+                        FeaturedChannelListView(
+                            modifier = Modifier
+                                .padding(top = paddingLarge, bottom = paddingSmall),
+                            contentHandler = contentHandler,
+                            recommendedChannelsHandler = recommendedChannelsHandler,
+                            onChannelClick = onChannelClick,
+                            onViewAllClick = onViewAllRecommendedChannelsClick
+                        )
+                    }
+
+                    is VideoEntity -> {
+                        VideoView(
+                            modifier = Modifier
+                                .padding(
+                                    top = paddingXXSmall,
+                                    bottom = paddingXXSmall
+                                )
+                                .fillMaxWidth(homeWidthRatio),
+                            videoEntity = it,
+                            rumblePlayer = homeHandler.currentPlayerState.value,
+                            soundOn = soundOn,
+                            onChannelClick = { onChannelClick(it.channelId) },
+                            onMoreClick = { videoEntity ->
+                                contentHandler.onMoreVideoOptionsClicked(
+                                    videoEntity
+                                )
+                            },
+                            onImpression = homeHandler::onVideoCardImpression,
+                            onPlayerImpression = homeHandler::onPlayerImpression,
+                            onClick = homeHandler::onVideoClick,
+                            onSoundClick = homeHandler::onSoundClick,
+                            isPremiumUser = contentHandler.isPremiumUser(),
+                        )
+                    }
+
+                    is RumbleAdEntity -> {
+                        RumbleAdView(
+                            modifier = Modifier.padding(paddingXXSmall),
+                            rumbleAdEntity = it,
+                            onClick = { addEntity ->
+                                activityHandler.onOpenWebView(addEntity.clickUrl)
+                            },
+                            onLaunch = homeHandler::onRumbleAdImpression,
+                            onResumed = homeHandler::onRumbleAdResumed
+                        )
+                    }
+
+                    is PremiumBanner -> {
+                        PremiumBannerView(
+                            onClick = {
+                                contentHandler.onShowSubscriptionOptions(
+                                    videoId = null,
+                                    source = SubscriptionSource.Home
+                                )
+                            },
+                            onDismiss = homeHandler::onDismissPremiumBanner
+                        )
+                    }
+
+                    is RepostEntity -> {
+                        RepostFeedView(
+                            modifier = Modifier.padding(
+                                horizontal = paddingXMedium,
+                                vertical = paddingXSmall
+                            ),
+                            repost = it,
+                            onChannelClick = { id ->
+                                onChannelClick(id)
+                            },
+                            onVideoClick = homeHandler::onVideoClick,
+                            onMoreClick = { contentHandler.onOpenRepostMoreActions(it) }
+                        )
+                    }
+                }
+            }
+        }
+        videoListItems.apply {
+            when {
+                loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(paddingMedium)
+                        ) {
+                            EmptyView(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .padding(paddingMedium),
+                                title = getEmptyStateTitle(state.selectedCollection),
+                                text = getEmptyStateMessage(state.selectedCollection)
+                            )
+                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                        }
+                    }
+                }
+
+                loadState.refresh is LoadState.Error ->
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(paddingMedium)
+                        ) {
+                            ErrorView(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(paddingMedium),
+                                backgroundColor = MaterialTheme.colors.onSecondary,
+                                onRetry = homeHandler::onRefreshAll
+                            )
+                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                        }
+                    }
+
+                loadState.append is LoadState.Loading -> {
+                    item {
+                        PageLoadingView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(paddingMedium)
+                        )
+                    }
+                }
+
+                loadState.append is LoadState.Error -> {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(paddingMedium)
+                        ) {
+                            ErrorView(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .padding(paddingMedium),
+                                backgroundColor = MaterialTheme.colors.onSecondary,
+                                onRetry = videoListItems::retry,
+                            )
+                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            BottomNavigationBarScreenSpacer()
+        }
     }
 }
 
@@ -505,14 +827,14 @@ private fun HomeScreenDialog(reason: AlertDialogReason, handler: HomeHandler) {
 
 @Composable
 private fun getEmptyStateTitle(type: VideoCollectionType?): String =
-    when(type) {
+    when (type) {
         is VideoCollectionType.Reposts -> stringResource(R.string.no_reposts)
         else -> stringResource(id = R.string.nothing_to_see_here)
     }
 
 @Composable
 private fun getEmptyStateMessage(type: VideoCollectionType?): String =
-    when(type) {
+    when (type) {
         is VideoCollectionType.Reposts -> stringResource(R.string.no_reposts_from_your_categories)
         else -> ""
     }

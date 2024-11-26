@@ -32,6 +32,8 @@ import com.rumble.theme.RumbleTypography.h4
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.RumbleTypography.h6Light
 import com.rumble.theme.enforcedDarkmo
+import com.rumble.theme.enforcedGray25
+import com.rumble.theme.enforcedGray950
 import com.rumble.theme.imageWidthXXLarge
 import com.rumble.theme.paddingLarge
 import com.rumble.theme.paddingMedium
@@ -56,7 +58,7 @@ fun FeaturedChannelListView(
 
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colors.onPrimary)
+                .background(if (MaterialTheme.colors.isLight) enforcedGray25 else enforcedGray950)
                 .padding(bottom = paddingLarge)
         ) {
 
