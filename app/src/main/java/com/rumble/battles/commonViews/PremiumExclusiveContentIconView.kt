@@ -32,7 +32,7 @@ fun PremiumExclusiveContentIconView(
                 .size(iconSize)
                 .align(Alignment.Center),
             painter = painterResource(id = R.drawable.ic_lock),
-            contentDescription = stringResource(id = R.string.premium_only),
+            contentDescription = stringResource(id = R.string.premium),
             tint = enforcedWhite
         )
     }

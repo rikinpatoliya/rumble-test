@@ -24,7 +24,8 @@ import com.rumble.theme.radiusXXSmall
 
 @Composable
 fun VideoCardPremiumTagView(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hasLiveGate: Boolean
 ) {
     Row(
         modifier = modifier
@@ -41,7 +42,7 @@ fun VideoCardPremiumTagView(
         )
 
         androidx.compose.material3.Text(
-            text = stringResource(R.string.premium),
+            text = stringResource(if (hasLiveGate) R.string.premium else R.string.premium_only),
             color = RumbleCustomTheme.colors.primary,
             style = h6,
         )

@@ -101,7 +101,8 @@ fun VideoCardFooter(
         if (videoEntity.isPremiumExclusiveContent) {
             VideoCardPremiumTagView(
                 modifier = Modifier
-                    .padding(top = paddingXXSmall, start = paddingXSmall)
+                    .padding(top = paddingXXSmall, start = paddingXSmall),
+                hasLiveGate = videoEntity.hasLiveGate
             )
         }
     }

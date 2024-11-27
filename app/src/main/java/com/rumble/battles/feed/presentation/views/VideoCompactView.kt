@@ -214,7 +214,7 @@ fun VideoCompactView(
                 )
             }
 
-            if (videoEntity.isPremiumExclusiveContent) {
+            if (videoEntity.isPremiumExclusiveContent && videoEntity.hasLiveGate.not()) {
                 PremiumExclusiveContentIconView(
                     modifier = Modifier
                         .padding(paddingXSmall)
@@ -286,7 +286,7 @@ fun VideoCompactView(
                     listToggleViewStyle = listToggleViewStyle,
                 )
                 if (videoEntity.isPremiumExclusiveContent) {
-                    PremiumTagCompactView()
+                    PremiumTagCompactView(videoEntity.hasLiveGate)
                 }
             }
         }
@@ -310,7 +310,9 @@ fun VideoCompactView(
 }
 
 @Composable
-private fun PremiumTagCompactView() {
+private fun PremiumTagCompactView(
+    hasLiveGate: Boolean
+) {
     Row(
         modifier = Modifier
             .padding(top = paddingXXXXSmall)
@@ -330,13 +332,13 @@ private fun PremiumTagCompactView() {
                     .padding(paddingXXXXSmall)
                     .align(Alignment.Center),
                 painter = painterResource(id = R.drawable.ic_discover),
-                contentDescription = stringResource(id = R.string.premium_only),
+                contentDescription = stringResource(id = if (hasLiveGate) R.string.premium else R.string.premium_only),
                 tint = MaterialTheme.colors.onSurface
             )
         }
         Text(
             modifier = Modifier.padding(end = paddingXXXSmall),
-            text = stringResource(id = R.string.premium_only),
+            text = stringResource(id = if (hasLiveGate) R.string.premium else R.string.premium_only),
             color = rumbleGreen,
             style = tinyBodySemiBold
         )

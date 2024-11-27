@@ -183,7 +183,7 @@ fun VideoView(
                 )
             }
 
-            if (videoEntity.isPremiumExclusiveContent) {
+            if (videoEntity.isPremiumExclusiveContent && videoEntity.hasLiveGate.not()) {
                 PremiumExclusiveContentIconView(
                     modifier = Modifier
                         .padding(paddingSmall)
