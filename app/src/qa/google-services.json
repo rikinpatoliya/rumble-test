@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "306673963950",
     "project_id": "rumble-mobile-dev",
-    "storage_bucket": "rumble-mobile-dev.firebasestorage.app"
+    "storage_bucket": "rumble-mobile-dev.appspot.com"
   },
   "client": [
     {
@@ -13,14 +13,6 @@
         }
       },
       "oauth_client": [
-        {
-          "client_id": "306673963950-o43tm9qghs63f9h9nd7mvo1pbaquvfoa.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.rumble.battles.dev",
-            "certificate_hash": "207a1e3f35709fb0e49ed3844f2fcd7a18badf7a"
-          }
-        },
         {
           "client_id": "306673963950-i57sc439b5l1gl0iqrkdauhmolr0400e.apps.googleusercontent.com",
           "client_type": 3
@@ -57,14 +49,6 @@
         }
       },
       "oauth_client": [
-        {
-          "client_id": "306673963950-5qola227q8dbkmo6rbs6gfhja1q03seq.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.rumble.battles.qa",
-            "certificate_hash": "207a1e3f35709fb0e49ed3844f2fcd7a18badf7a"
-          }
-        },
         {
           "client_id": "306673963950-i57sc439b5l1gl0iqrkdauhmolr0400e.apps.googleusercontent.com",
           "client_type": 3
