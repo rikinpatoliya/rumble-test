@@ -30,7 +30,6 @@ import com.rumble.domain.sort.SortType
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoCardPlayerUseCase
 import com.rumble.domain.video.domain.usecases.SaveLastPositionUseCase
-import com.rumble.utils.extension.navigationSafeDecode
 import com.rumble.videoplayer.player.RumblePlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -117,7 +116,7 @@ class CombineSearchResultViewModel @Inject constructor(
         durationSelection = DurationType.entries.first()
     )
     override val query: String =
-        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "").navigationSafeDecode()
+        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "")
     override val state: MutableState<CombineSearchResultState> =
         mutableStateOf(CombineSearchResultState(searchState = SearchState.LOADING))
     override val alertDialogState: MutableState<AlertDialogState> =

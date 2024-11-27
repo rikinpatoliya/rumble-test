@@ -26,7 +26,6 @@ import com.rumble.domain.search.domain.useCases.SearchVideosUseCase
 import com.rumble.domain.sort.DurationType
 import com.rumble.domain.sort.FilterType
 import com.rumble.domain.sort.SortType
-import com.rumble.utils.extension.navigationSafeDecode
 import com.rumble.utils.valueOfOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -69,7 +68,7 @@ class VideosSearchViewModel @Inject constructor(
 ) : ViewModel(), VideosSearchHandler {
 
     override val query: String =
-        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "").navigationSafeDecode()
+        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "")
 
     override var selection: SortFilterSelection = SortFilterSelection(
         sortSelection = valueOfOrNull<SortType>(stateHandle.get<String>(RumblePath.SORT.path))

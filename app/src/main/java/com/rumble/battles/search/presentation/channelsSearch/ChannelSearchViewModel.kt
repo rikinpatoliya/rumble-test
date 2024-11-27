@@ -12,7 +12,6 @@ import com.rumble.battles.common.presentation.LazyListStateHandler
 import com.rumble.battles.navigation.RumblePath
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.search.domain.useCases.SearchChannelsUseCase
-import com.rumble.utils.extension.navigationSafeDecode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -29,7 +28,7 @@ class ChannelSearchViewModel @Inject constructor(
 ) : ViewModel(), ChannelSearchHandler {
 
     override val query: String =
-        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "").navigationSafeDecode()
+        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "")
 
     override val channelList: Flow<PagingData<CreatorEntity>> =
         searchChannelsUseCase(query).cachedIn(viewModelScope)
