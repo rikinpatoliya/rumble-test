@@ -56,7 +56,7 @@ sealed class RumbleScreens(val rootName: String) {
                 "${RumblePath.QUERY.path}={${RumblePath.QUERY.path}}"
     ) {
         fun getPath(query: String): String =
-            "channelSearch?${RumblePath.QUERY.path}=${query}"
+            "channelSearch?${RumblePath.QUERY.path}=${query.navigationSafeEncode()}"
     }
 
     object VideoSearchScreen : RumbleScreens(
@@ -68,7 +68,7 @@ sealed class RumbleScreens(val rootName: String) {
     ) {
         fun getPath(query: String, sort: String, uploadDate: String, duration: String): String =
             "videoSearch?" +
-                    "${RumblePath.QUERY.path}=${query}" +
+                    "${RumblePath.QUERY.path}=${query.navigationSafeEncode()}" +
                     "&${RumblePath.SORT.path}=${sort}" +
                     "&${RumblePath.UPLOAD_DATE.path}=${uploadDate}" +
                     "&${RumblePath.DURATION.path}=${duration}"

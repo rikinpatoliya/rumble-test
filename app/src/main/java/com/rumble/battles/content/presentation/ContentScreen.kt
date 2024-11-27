@@ -1298,7 +1298,7 @@ private fun createNavigationGraph(
                 onSearch = { query ->
                     currentNavController.navigate(
                         RumbleScreens.Search.getPath(
-                            query.navigationSafeEncode(),
+                            query,
                             RumbleScreens.ChannelSearchScreen.getPath(RumblePath.QUERY.path)
                         )
                     )
@@ -1322,7 +1322,7 @@ private fun createNavigationGraph(
                 onSearch = { query ->
                     currentNavController.navigate(
                         RumbleScreens.Search.getPath(
-                            query.navigationSafeEncode(),
+                            query,
                             RumbleScreens.VideoSearchScreen.getPath("", "", "", "")
                         )
                     )
