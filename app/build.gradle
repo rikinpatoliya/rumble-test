@@ -63,6 +63,8 @@ ext.loadBuildConfig = { buildType, env ->
         buildType.buildConfigField("String", "OPEN_SOURCE_LICENCES_FILENAME", "\"$openSourceLicencesFilename\"")
         buildType.buildConfigField("String", "APPS_FLYER_API_ID", keysProperties['APPS_FLYER_API_ID'])
         buildType.buildConfigField("String", "ONE_SIGNAL_APP_ID", keysProperties['ONE_SIGNAL_APP_ID'])
+        buildType.buildConfigField("String", "AIRSHIP_API_KEY", keysProperties['AIRSHIP_API_KEY'])
+        buildType.buildConfigField("String", "AIRSHIP_SECRET", keysProperties['AIRSHIP_SECRET'])
 
         buildType.resValue("string", "FACEBOOK_ID", keysProperties['FACEBOOK_ID'])
         buildType.resValue("string", "FACEBOOK_LOGIN_PROTOCOL_SCHEME", keysProperties['FACEBOOK_LOGIN_PROTOCOL_SCHEME'])
@@ -260,11 +262,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
     // Data store
-    implementation "androidx.datastore:datastore-preferences:1.1.0"
+    implementation "androidx.datastore:datastore-preferences:1.1.1"
 
     // Default testing dependencies
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 
     // Mockk framework
     def mockk_version = "1.12.5"
@@ -285,6 +287,11 @@ dependencies {
 
     //Splash screen
     implementation "androidx.core:core-splashscreen:1.0.1"
+
+    // Airship
+    def airshipVersion = "17.8.0"
+    implementation "com.urbanairship.android:urbanairship-fcm:$airshipVersion"
+    implementation "com.urbanairship.android:urbanairship-adm:$airshipVersion"
 }
 
 /*

@@ -1428,7 +1428,7 @@ private fun VideoDetailsHeaderView(
                 style = RumbleTypography.h3,
                 color = MaterialTheme.colors.primary
             )
-            if (videoEntity.isPremiumExclusiveContent) {
+            if (videoEntity.isPremiumExclusiveContent || videoEntity.hasLiveGate) {
                 VideoCardPremiumTagView(
                     modifier = Modifier
                         .padding(top = paddingXXSmall, start = paddingMedium),
