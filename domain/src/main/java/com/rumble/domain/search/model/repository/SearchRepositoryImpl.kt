@@ -33,7 +33,7 @@ class SearchRepositoryImpl(
 
     override suspend fun saveQuery(recentQuery: RecentQuery) = withContext(dispatcher) {
         queryDao.getQuery(recentQuery.query)?.let {
-            updateQuery(recentQuery)
+            updateQuery(recentQuery.copy(id = it.id ?: 0))
         } ?: run {
             queryDao.saveQuery(
                 RoomQuery(
