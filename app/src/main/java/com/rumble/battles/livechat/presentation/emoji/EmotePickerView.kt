@@ -35,6 +35,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
@@ -75,6 +76,7 @@ fun EmotePickerView(
     var selectedTab by remember { mutableStateOf(tabs.firstOrNull()) }
     val coroutineScope = rememberCoroutineScope()
     val contentListState = rememberLazyListState()
+    val scrollOffset = with(LocalDensity.current) { paddingXSmall.toPx() }.toInt()
 
     LaunchedEffect(contentListState, tabs) {
         snapshotFlow { contentListState.firstVisibleItemIndex }
@@ -201,7 +203,10 @@ fun EmotePickerView(
                     onTabSelected = {
                         selectedTab = it
                         coroutineScope.launch {
-                            contentListState.animateScrollToItem(it.index)
+                            contentListState.animateScrollToItem(
+                                index = it.index,
+                                scrollOffset = scrollOffset
+                            )
                         }
                         onDismissRemoteRequest()
                     }

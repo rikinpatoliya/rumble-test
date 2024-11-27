@@ -11,10 +11,24 @@ import com.rumble.battles.R
 
 @Composable
 @Preview
-fun RumbleLogoView(modifier: Modifier = Modifier, darkMode: Boolean = MaterialTheme.colors.isLight.not()) {
+fun RumbleLogoView(
+    modifier: Modifier = Modifier,
+    darkMode: Boolean = MaterialTheme.colors.isLight.not(),
+    isPremiumUser: Boolean = false
+) {
     Image(
-        painter = painterResource(id = if (darkMode) R.drawable.ic_logo_dark else R.drawable.ic_logo),
+        painter = painterResource(
+            id = getLogoIconId(darkMode, isPremiumUser)
+        ),
         contentDescription = stringResource(id = R.string.splash_icon),
         modifier = modifier,
     )
 }
+
+@Composable
+private fun getLogoIconId(darkMode: Boolean, isPremiumUser: Boolean): Int =
+    if (isPremiumUser) {
+        if (darkMode) R.drawable.ic_logo_premium else R.drawable.ic_logo_premium//TODO: WIP@Kostia - Update when logo for premium dark is provided
+    } else {
+        if (darkMode) R.drawable.ic_logo_dark else R.drawable.ic_logo
+    }

@@ -21,6 +21,7 @@ import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE
 import com.rumble.analytics.VIDEO_VISIBILITY_PERCENTAGE_KEY
 import com.rumble.battles.common.RumbleAppsFlyerConversionListener
 import com.rumble.battles.deeplinks.RumbleDeepLinkListener
+import com.rumble.battles.notifications.pushnotifications.RumbleNotificationListener
 import com.rumble.battles.notifications.pushnotifications.RumbleNotificationOpenedHandler
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.landing.usecases.FirstAppLaunchSetPropertiesUseCase
@@ -29,6 +30,8 @@ import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_P
 import com.rumble.network.NetworkRumbleConstants.FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD
 import com.rumble.utils.RumbleConstants.LOGIN_PROMPT_PERIOD_KEY
+import com.urbanairship.AirshipConfigOptions
+import com.urbanairship.UAirship
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -69,6 +72,7 @@ class RumbleApplication : Application(), Configuration.Provider {
         initFirebaseConfig()
         initLogging()
         setupCoil()
+        setupAirship()
         firstAppLaunchSetPropertiesUseCase()
     }
 
@@ -132,5 +136,23 @@ class RumbleApplication : Application(), Configuration.Provider {
             }
             .build()
         Coil.setImageLoader(imageLoader)
+    }
+
+    private fun setupAirship() {
+        val airshipKey = BuildConfig.AIRSHIP_API_KEY
+        val airshipSecret = BuildConfig.AIRSHIP_SECRET
+        if (airshipKey.isNotEmpty() and airshipSecret.isNotEmpty()) {
+            val options = AirshipConfigOptions.Builder()
+                .setAppKey(airshipKey)
+                .setAppSecret(airshipSecret)
+                .build()
+            UAirship.takeOff(this, options, ) { airship ->
+                airship.pushManager.userNotificationsEnabled = true
+                airship.pushManager.notificationListener = RumbleNotificationListener
+
+                val channelId = airship.channel.id
+                print(channelId)
+            }
+        }
     }
 }

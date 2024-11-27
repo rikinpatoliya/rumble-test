@@ -146,6 +146,7 @@ fun DiscoverScreen(
                 activityHandler.clearNotifications()
                 onViewNotifications()
             },
+            isPremiumUser = contentHandler.isPremiumUser()
         )
 
         SwipeRefresh(

@@ -183,6 +183,7 @@ fun ProfileScreen(
                                 width = if (tablet) logoWidthTablet else logoWidth,
                                 height = if (tablet) logoHeightTablet else logoHeight
                             ),
+                        isPremiumUser = contentHandler.isPremiumUser()
                     )
 
                     if (appVersion.visibility == AppVersionVisibility.Visible) {

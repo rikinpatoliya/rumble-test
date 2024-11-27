@@ -152,6 +152,7 @@ fun LibraryScreen(
                     activityHandler.clearNotifications()
                     onViewNotifications()
                 },
+                isPremiumUser = contentHandler.isPremiumUser()
             )
 
             SwipeRefresh(

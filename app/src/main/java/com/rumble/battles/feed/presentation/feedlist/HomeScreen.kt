@@ -261,6 +261,7 @@ fun HomeScreen(
             onSearchIconGlobalMeasured = onSearchIconGlobalMeasured,
             onFollowingIconGlobalMeasured = onFollowingIconGlobalMeasured,
             onFollowing = onFollowingClicked,
+            isPremiumUser = contentHandler.isPremiumUser()
         )
 
         SwipeRefresh(

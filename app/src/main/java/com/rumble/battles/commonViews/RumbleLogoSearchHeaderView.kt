@@ -45,6 +45,7 @@ fun RumbleLogoSearchHeaderView(
     onSearchIconGlobalMeasured: ((Offset) -> Unit)? = null,
     onFollowingIconGlobalMeasured: ((Offset) -> Unit)? = null,
     onFollowing: (() -> Unit)? = null,
+    isPremiumUser: Boolean = false
 ) {
     val tablet = IsTablet()
     val height = if (tablet) logoHeaderHeightTablets else logoHeaderHeight
@@ -68,6 +69,7 @@ fun RumbleLogoSearchHeaderView(
                     width = if (tablet) logoWidthTablet else logoWidth,
                     height = if (tablet) logoHeightTablet else logoHeight
                 ),
+            isPremiumUser = isPremiumUser
         )
 
         Row(modifier = Modifier
