@@ -204,6 +204,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onRepostDeleted(repostId: Long)
     fun onRepostedByCurrentUser()
     fun onRantPopupShown()
+    fun onExpendMiniPlayer()
 }
 
 data class PlayListState(
@@ -378,6 +379,7 @@ class VideoDetailsViewModel @Inject constructor(
     private var videoLoadTimeTrace: Trace? = null
     private var videoStarted: Boolean = false
     private var preRollAdStarted: Boolean = false
+    private var sensorBasedOrientation: Int = 0
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         unhandledErrorUseCase(TAG, throwable)
@@ -401,6 +403,7 @@ class VideoDetailsViewModel @Inject constructor(
             if (state.value.screenOrientationLocked && getSensorBasedOrientationChangeEnabledUseCase()) {
                 onScreenOrientationChanged(it)
             }
+            sensorBasedOrientation = it
         }
 
         observeLoginState()
@@ -557,6 +560,13 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
+    override fun onExpendMiniPlayer() {
+        onUpdateLayoutState(CollapsableLayoutState.Expended(
+            animated = sensorBasedOrientation != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                && sensorBasedOrientation != ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+        )
+    }
+
     override fun onDismissBottomSheet() {
         state.value = state.value.copy(bottomSheetReason = null)
         emitVmEvent(VideoDetailsEvent.HideBottomSheet)
@@ -696,8 +706,8 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     private fun updateUid(orientation: Int) {
-        if (DeviceProperties.isTablet(application.resources)
-                .not() && orientation != state.value.screenOrientation
+        if (DeviceProperties.isTablet(application.resources).not()
+            && orientation != state.value.screenOrientation
         ) {
             val isLandscape = isLandscape(orientation)
             val uiType = if (isLandscape) {

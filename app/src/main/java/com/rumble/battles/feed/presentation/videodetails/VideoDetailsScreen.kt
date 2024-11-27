@@ -556,7 +556,7 @@ fun VideoDetailsScreen(
                         },
                         onClick = {
                             collapsePaddingVisible = false
-                            handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
+                            handler.onExpendMiniPlayer()
                         }
                     )
                 }
