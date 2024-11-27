@@ -18,7 +18,6 @@ import com.rumble.domain.search.domain.useCases.GetFilteredQueriesUseCase
 import com.rumble.domain.search.domain.useCases.GetRecentQueriesUseCase
 import com.rumble.domain.search.domain.useCases.SaveQueryUseCase
 import com.rumble.domain.search.domain.useCases.UpdateQueryUseCase
-import com.rumble.utils.extension.navigationSafeDecode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,12 +57,12 @@ class SearchViewModel @Inject constructor(
 ) : ViewModel(), SearchHandler {
 
     override val initialQuery: String =
-        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "").navigationSafeDecode()
+        (stateHandle.get<String>(RumblePath.QUERY.path) ?: "")
 
     override val state = MutableStateFlow(SearchQueryUIState(query = initialQuery))
 
     override val navDest: String =
-        stateHandle.get<String>(RumblePath.NAVIGATION.path) ?: "".navigationSafeDecode()
+        stateHandle.get<String>(RumblePath.NAVIGATION.path) ?: ""
 
     override val parentScreen: String = stateHandle.get<String>(RumblePath.PARAMETER.path) ?: ""
 
