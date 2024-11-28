@@ -699,6 +699,7 @@
     <string name="no_reposts_from_your_categories">It looks like there aren’t any reposts from creators you follow yet.</string>
     <string name="error_message_repost_text_too_long">The repost text is too long</string>
     <string name="go_premium">Go Premium</string>
+    <string name="reposted">Reposted</string>
 
     <!-- Deep Links -->
     <string name="deep_link_host">rumble-dev.onelink.me</string>

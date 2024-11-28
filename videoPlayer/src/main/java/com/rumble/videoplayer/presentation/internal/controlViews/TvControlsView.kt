@@ -250,7 +250,7 @@ fun TvControlsView(
                 )
 
                 if ((rumblePlayer.rumbleVideo?.isPremiumExclusiveContent == true ||
-                    rumblePlayer.rumbleVideo?.hasLiveGate == true) &&
+                            rumblePlayer.rumbleVideo?.hasLiveGate == true) &&
                     rumblePlayer.userIsPremium != null
                 ) {
                     Row(
@@ -269,19 +269,22 @@ fun TvControlsView(
                                 }
                                 .conditional(rumblePlayer.userIsPremium == false) {
                                     padding(bottom = paddingMedium)
-                                }
+                                },
+                            hasLiveGate = rumblePlayer.rumbleVideo?.hasLiveGate == true
                         )
 
                         Spacer(modifier = Modifier.weight(1f))
 
                         if (rumblePlayer.userIsPremium == false) {
                             PremiumNoteView(
-                                text = if (rumblePlayer.rumbleVideo?.hasLiveGate == true) stringResource(R.string.preview_message)
+                                text = if (rumblePlayer.rumbleVideo?.hasLiveGate == true) stringResource(
+                                    R.string.preview_message
+                                )
                                 else stringResource(R.string.premium_only_content_message)
                             )
                         }
                     }
-                } 
+                }
 
                 if (playerState is PlayerPlaybackState.Finished && isLive.not()) {
                     ReplayButton(
@@ -674,13 +677,13 @@ private fun handleKeyEvent(
         true
     } else {
         (event.nativeKeyEvent.keyCode == KEYCODE_DPAD_UP && rumblePlayer.isFinished().not() &&
-            (focusedElement == Focusable.REPORT ||
-                focusedElement == Focusable.SPEED ||
-                focusedElement == Focusable.QUALITY ||
-                focusedElement == Focusable.LIKE ||
-                focusedElement == Focusable.DISLIKE ||
-                focusedElement == Focusable.CHANNEL)) ||
-            (event.nativeKeyEvent.keyCode == KEYCODE_DPAD_RIGHT && focusedElement == Focusable.LIVE)
+                (focusedElement == Focusable.REPORT ||
+                        focusedElement == Focusable.SPEED ||
+                        focusedElement == Focusable.QUALITY ||
+                        focusedElement == Focusable.LIKE ||
+                        focusedElement == Focusable.DISLIKE ||
+                        focusedElement == Focusable.CHANNEL)) ||
+                (event.nativeKeyEvent.keyCode == KEYCODE_DPAD_RIGHT && focusedElement == Focusable.LIVE)
     }
 }
 

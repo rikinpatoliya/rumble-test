@@ -4,5 +4,4 @@ enum class LastBottomSheet {
     NONE,
     LIVECHAT,
     COMMENTS,
-    PREMIUM_PROMO
 }

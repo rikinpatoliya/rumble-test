@@ -28,7 +28,7 @@ fun RumbleLogoView(
 @Composable
 private fun getLogoIconId(darkMode: Boolean, isPremiumUser: Boolean): Int =
     if (isPremiumUser) {
-        if (darkMode) R.drawable.ic_logo_premium else R.drawable.ic_logo_premium//TODO: WIP@Kostia - Update when logo for premium dark is provided
+        if (darkMode) R.drawable.ic_logo_premium_dark else R.drawable.ic_logo_premium
     } else {
         if (darkMode) R.drawable.ic_logo_dark else R.drawable.ic_logo
     }

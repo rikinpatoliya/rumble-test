@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
@@ -110,6 +109,7 @@ fun VideoCard(
         livestreamedOn = videoEntity.liveStreamedOn,
         liveDateTime = videoEntity.liveDateTime,
         isPremiumExclusiveContent = videoEntity.isPremiumExclusiveContent,
+        hasLiveGate = videoEntity.hasLiveGate,
     )
 }
 
@@ -158,10 +158,10 @@ fun VideoCard(
         livestreamedOn = video.liveStreamedOn,
         liveDateTime = video.liveDateTime,
         isPremiumExclusiveContent = video.isPremiumExclusiveContent,
+        hasLiveGate = video.hasLiveGate,
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoCard(
     videoStatus: VideoStatus,
@@ -181,6 +181,7 @@ fun VideoCard(
     livestreamedOn: LocalDateTime?,
     liveDateTime: LocalDateTime?,
     isPremiumExclusiveContent: Boolean,
+    hasLiveGate: Boolean,
     onFocused: () -> Unit,
     onSelected: () -> Unit,
     focusRequester: FocusRequester,
@@ -260,7 +261,7 @@ fun VideoCard(
                     start.linkTo(parent.start, margin = paddingSmall)
                 },
                 painter = painterResource(id = R.drawable.ic_locked_content),
-                contentDescription = stringResource(id = R.string.premium_only),
+                contentDescription = stringResource(id = R.string.premium),
                 tint = Color.Unspecified
             )
         }
@@ -292,7 +293,12 @@ fun VideoCard(
 
         LiveTagView(
             modifier = Modifier
-                .padding(start = paddingNone, top = paddingNone, end = paddingMedium, bottom = paddingMedium)
+                .padding(
+                    start = paddingNone,
+                    top = paddingNone,
+                    end = paddingMedium,
+                    bottom = paddingMedium
+                )
                 .constrainAs(live) {
                     bottom.linkTo(videoThumb.bottom)
                     end.linkTo(parent.end)
@@ -337,7 +343,6 @@ fun VideoCard(
                 }
                 .padding(horizontal = paddingXXSmall),
             isFocused = isFocused,
-            videoStatus = videoStatus,
             title = title,
             channelName = channelName,
             verifiedBadge = verifiedBadge,
@@ -349,16 +354,15 @@ fun VideoCard(
             liveDateTime = liveDateTime,
             watchingNow = watchingNow,
             isPremiumExclusiveContent = isPremiumExclusiveContent,
+            hasLiveGate = hasLiveGate,
         )
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun VideoCardMetaData(
     modifier: Modifier,
     isFocused: Boolean,
-    videoStatus: VideoStatus,
     title: String,
     channelName: String,
     verifiedBadge: Boolean,
@@ -370,6 +374,7 @@ fun VideoCardMetaData(
     liveDateTime: LocalDateTime?,
     watchingNow: Long,
     isPremiumExclusiveContent: Boolean,
+    hasLiveGate: Boolean,
 ) {
     ConstraintLayout(modifier) {
         val (titleRef, dot, username, viewsStats) = createRefs()
@@ -419,7 +424,13 @@ fun VideoCardMetaData(
         ) {
 
             if (isPremiumExclusiveContent) {
-                PremiumTag(modifier = Modifier.background(enforcedGray950, shape = RoundedCornerShape(radiusXXSmall)))
+                PremiumTag(
+                    modifier = Modifier.background(
+                        enforcedGray950,
+                        shape = RoundedCornerShape(radiusXXSmall)
+                    ),
+                    hasLiveGate = hasLiveGate
+                )
                 Spacer(modifier = Modifier.size(paddingXXSmall))
             }
 
@@ -440,7 +451,6 @@ fun VideoCardMetaData(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MetadataLabelText(modifier: Modifier = Modifier, text: String) {
     Text(

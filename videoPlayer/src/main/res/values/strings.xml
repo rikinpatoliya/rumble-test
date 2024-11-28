@@ -67,7 +67,8 @@
     <string name="scheduled_for">Scheduled for</string>
     <string name="at">at</string>
 
-    <string name="premium_only">Premium</string>
+    <string name="premium">Premium</string>
+    <string name="premium_only">Premium Only</string>
     <string name="premium_only_content">Premium Only Content</string>
     <string name="premium_only_content_message">This video is only available to Rumble \nPremium subscribers. Subscribe to enjoy \nexclusive content and ad-free viewing.</string>
     <string name="preview_message">The rest of this video is only available to Rumble \nPremium subscribers. Subscribe to continue \nwatching this video and enjoy ad-free viewing.</string>

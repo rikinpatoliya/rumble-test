@@ -211,7 +211,7 @@
             android:layout_marginStart="@dimen/video_card_content_lock_margin"
             android:layout_marginTop="@dimen/video_card_content_lock_margin"
             android:src="@drawable/ic_locked_content"
-            android:visibility="@{item.isPremiumExclusiveContent ? View.VISIBLE : View.GONE}"
+            android:visibility="@{item.isPremiumExclusiveContent &amp;&amp; !item.hasLiveGate ? View.VISIBLE : View.GONE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -325,7 +325,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="@string/premium_only"
+                android:text="@{item.hasLiveGate ? @string/premium : @string/premium_only}"
                 android:textAppearance="@style/TextAppearance.Rumble.Headline6"
                 android:textColor="@color/white" />
 

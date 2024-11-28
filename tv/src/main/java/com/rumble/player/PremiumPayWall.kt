@@ -85,7 +85,10 @@ fun PremiumPayWall(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                PremiumTag(modifier = Modifier.padding(bottom = paddingMedium))
+                PremiumTag(
+                    modifier = Modifier.padding(bottom = paddingMedium),
+                    hasLiveGate = videoEntity.hasLiveGate
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 PremiumNoteView(
                     text = if (videoEntity.hasLiveGate) stringResource(R.string.preview_message)
@@ -95,7 +98,12 @@ fun PremiumPayWall(
 
             Text(
                 modifier = Modifier
-                    .padding(top = paddingLarge, start = paddingLarge, end = paddingLarge, bottom = paddingXXSmall)
+                    .padding(
+                        top = paddingLarge,
+                        start = paddingLarge,
+                        end = paddingLarge,
+                        bottom = paddingXXSmall
+                    )
                     .constrainAs(title) {
                         start.linkTo(parent.start)
                         end.linkTo(premiumNote.end)

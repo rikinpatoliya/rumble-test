@@ -1,5 +1,6 @@
 package com.rumble.battles.feed.presentation.views
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -37,10 +40,11 @@ import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
 import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTheme
+import com.rumble.theme.RumbleTypography.h4
 import com.rumble.theme.RumbleTypography.h5Medium
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.borderXXSmall
-import com.rumble.theme.paddingNone
+import com.rumble.theme.imageXXSmall
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.paddingXXXXSmall
@@ -104,7 +108,7 @@ private fun RepostFeedHeader(
     onMoreClick: () -> Unit = {},
 ) {
     ConstraintLayout(modifier = modifier) {
-        val (icon, channelInfo, more, text) = createRefs()
+        val (icon, channelInfo, more, text, repostIcon, reposted) = createRefs()
 
         ProfileImageComponent(
             modifier = Modifier
@@ -117,6 +121,22 @@ private fun RepostFeedHeader(
             profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
             userName = repost.channel?.name ?: repost.user.username,
             userPicture = repost.channel?.picture ?: repost.user.thumbnail ?: "",
+        )
+
+        Image(
+            modifier = Modifier
+                .padding(end = paddingXXSmall)
+                .offset(y = paddingXXSmall)
+                .size(imageXXSmall)
+                .constrainAs(repostIcon) {
+                    bottom.linkTo(icon.bottom)
+                    end.linkTo(icon.end)
+                },
+            painter = painterResource(
+                if (RumbleCustomTheme.isLightMode) R.drawable.repost_light
+                else R.drawable.repost_dark
+            ),
+            contentDescription = stringResource(R.string.repost),
         )
 
         Icon(
@@ -133,7 +153,6 @@ private fun RepostFeedHeader(
 
         Row(
             modifier = Modifier
-                .padding(top = if (repost.message.isEmpty()) paddingXSmall else paddingNone)
                 .constrainAs(channelInfo) {
                     start.linkTo(icon.end)
                     top.linkTo(parent.top)
@@ -162,7 +181,7 @@ private fun RepostFeedHeader(
         if (repost.message.isNotBlank()) {
             Text(
                 modifier = Modifier
-                    .padding(top = paddingXSmall)
+                    .padding(top = paddingXXSmall)
                     .constrainAs(text) {
                         top.linkTo(channelInfo.bottom)
                         start.linkTo(channelInfo.start)
@@ -173,7 +192,44 @@ private fun RepostFeedHeader(
                 color = RumbleCustomTheme.colors.primary,
                 style = h5Medium,
             )
+        } else {
+            RepostedView(
+                modifier = Modifier
+                    .padding(horizontal = paddingXXSmall)
+                    .padding(top = paddingXXSmall)
+                    .constrainAs(reposted) {
+                        top.linkTo(channelInfo.bottom)
+                        start.linkTo(channelInfo.start)
+                        end.linkTo(parent.end)
+                        width = Dimension.fillToConstraints
+                    },
+                channelName = repost.video.channelName
+            )
         }
+    }
+}
+
+@Composable
+private fun RepostedView(
+    modifier: Modifier,
+    channelName: String,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(paddingXXSmall)
+    ) {
+        Text(
+            text = stringResource(R.string.reposted),
+            style = h5Medium,
+            color = RumbleCustomTheme.colors.secondary,
+        )
+
+        Text(
+            text = channelName,
+            style = h4,
+            color = RumbleCustomTheme.colors.secondary,
+        )
     }
 }
 
@@ -233,7 +289,7 @@ private fun Preview() {
     val channel = UserEntity()
     val repost = RepostEntity(
         id = 0,
-        message = "Check out this amazing new podcast. I need to watch more @Shawn Ryan Show. Joe does not disappoint with this new episode and more text.",
+        message = "",
         video = video,
         user = channel,
         channel = null,

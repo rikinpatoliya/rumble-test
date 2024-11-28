@@ -97,7 +97,6 @@ import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.VideoDetails
 import com.rumble.battles.VideoPlayerViewTag
-import com.rumble.battles.bottomSheets.PremiumOptionsBottomSheet
 import com.rumble.battles.comments.CommentsView
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
@@ -366,10 +365,6 @@ fun VideoDetailsScreen(
 
                 is VideoDetailsEvent.CloseComments -> liveChatBottomSheetState.hide()
 
-                is VideoDetailsEvent.OpenPremiumPromo -> liveChatBottomSheetState.show()
-
-                is VideoDetailsEvent.ClosePremiumPromo -> liveChatBottomSheetState.hide()
-
                 is VideoDetailsEvent.InitLiveChat -> {
                     liveChatHandler.onInitLiveChat(it.videoEntity)
                     if (state.hasPremiumRestriction.not() && state.inComments.not() && state.inLiveChat)
@@ -385,10 +380,9 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    handler.onOpenPremiumPromo()
-                    contentHandler.onUpdateCurrentSubscriptionParams(
-                        state.videoEntity?.id,
-                        SubscriptionSource.Video
+                    contentHandler.onShowPremiumPromo(
+                        videoId = state.videoEntity?.id,
+                        source = SubscriptionSource.Video
                     )
                 }
 
@@ -837,21 +831,6 @@ fun VideoDetailsView(
                                 padding(horizontal = paddingXXMedium)
                             }
                         when (state.lastBottomSheet) {
-                            LastBottomSheet.PREMIUM_PROMO -> {
-                                PremiumOptionsBottomSheet(
-                                    bottomSheetState = liveChatBottomSheetState,
-                                    isPremiumUser = false,
-                                    onClose = {
-                                        handler.onClosePremiumPromo()
-                                        contentHandler.onClosePremiumPromo()
-                                    },
-                                    onActionButtonClicked = {
-                                        handler.onClosePremiumPromo()
-                                        contentHandler.onGetPremium()
-                                    }
-                                )
-                            }
-
                             LastBottomSheet.LIVECHAT -> {
                                 LiveChatView(
                                     modifier = sheetContentModifier,

@@ -29,7 +29,10 @@ import com.rumble.theme.rumbleGreen
 import com.rumble.videoplayer.R
 
 @Composable
-fun PremiumTag(modifier: Modifier = Modifier) {
+fun PremiumTag(
+    modifier: Modifier = Modifier,
+    hasLiveGate: Boolean
+) {
     Row(
         modifier = modifier
             .wrapContentSize()
@@ -39,12 +42,12 @@ fun PremiumTag(modifier: Modifier = Modifier) {
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_premium_content),
-            contentDescription = stringResource(id = R.string.premium_only),
+            contentDescription = stringResource(id = if (hasLiveGate) R.string.premium else R.string.premium_only),
             tint = rumbleGreen
         )
         Spacer(modifier = Modifier.width(paddingXXSmall))
         Text(
-            text = stringResource(id = R.string.premium_only),
+            text = stringResource(id = if (hasLiveGate) R.string.premium else R.string.premium_only),
             color = enforcedWhite,
             style = RumbleTypography.tinyBodySemiBold
         )
@@ -62,7 +65,8 @@ private fun Preview() {
             PremiumTag(
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(paddingLarge)
+                    .padding(paddingLarge),
+                false
             )
         }
     }

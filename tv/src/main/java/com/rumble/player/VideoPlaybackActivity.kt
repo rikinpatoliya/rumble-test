@@ -9,12 +9,10 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -24,7 +22,6 @@ import com.rumble.R
 import com.rumble.network.connection.InternetConnectionState
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.enforcedDarkmo
-import com.rumble.theme.paddingLarge
 import com.rumble.ui3.library.VideoCard
 import com.rumble.ui3.main.InternetConnectionLostDialogFragment
 import com.rumble.util.Constant.FINISH_ACTION
@@ -32,8 +29,6 @@ import com.rumble.util.Utils
 import com.rumble.util.showAlert
 import com.rumble.videoplayer.presentation.RumbleVideoView
 import com.rumble.videoplayer.presentation.UiType
-import com.rumble.videoplayer.presentation.internal.controlViews.PremiumNoteView
-import com.rumble.videoplayer.presentation.internal.controlViews.PremiumTag
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -104,7 +99,12 @@ open class VideoPlaybackActivity : FragmentActivity() {
 
     private fun registerReceiver() {
         val filter = IntentFilter(FINISH_ACTION)
-        ContextCompat.registerReceiver(this, broadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(
+            this,
+            broadcastReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     @Composable
@@ -118,10 +118,16 @@ open class VideoPlaybackActivity : FragmentActivity() {
             viewModel.eventFlow.collect {
                 when (it) {
                     is VideoPlayerEvent.VideoReported ->
-                        supportFragmentManager.showAlert(context.getString(R.string.video_has_been_reported), false)
+                        supportFragmentManager.showAlert(
+                            context.getString(R.string.video_has_been_reported),
+                            false
+                        )
 
                     is VideoPlayerEvent.Error ->
-                        supportFragmentManager.showAlert(context.getString(R.string.error_fragment_message), true)
+                        supportFragmentManager.showAlert(
+                            context.getString(R.string.error_fragment_message),
+                            true
+                        )
 
                     is VideoPlayerEvent.LoginToLike ->
                         supportFragmentManager.showAlert(
@@ -131,14 +137,18 @@ open class VideoPlaybackActivity : FragmentActivity() {
 
                     is VideoPlayerEvent.LoginToDislike ->
                         supportFragmentManager.showAlert(
-                            message = it.errorMessage ?: context.getString(R.string.login_to_dislike),
+                            message = it.errorMessage
+                                ?: context.getString(R.string.login_to_dislike),
                             showIcon = true
                         )
 
                     is VideoPlayerEvent.ClosePlayer -> this@VideoPlaybackActivity.finish()
 
                     is VideoPlayerEvent.OpenChannelDetails -> {
-                        Utils.navigateToChannelDetails(this@VideoPlaybackActivity, it.channelDetailsEntity)
+                        Utils.navigateToChannelDetails(
+                            this@VideoPlaybackActivity,
+                            it.channelDetailsEntity
+                        )
                     }
 
                     VideoPlayerEvent.AddToPlaylist -> {
@@ -146,7 +156,10 @@ open class VideoPlaybackActivity : FragmentActivity() {
                     }
 
                     VideoPlayerEvent.LoginToAddToPlaylist ->
-                        supportFragmentManager.showAlert(context.getString(R.string.login_to_add_to_playlist), true)
+                        supportFragmentManager.showAlert(
+                            context.getString(R.string.login_to_add_to_playlist),
+                            true
+                        )
                 }
             }
         }
@@ -191,7 +204,12 @@ open class VideoPlaybackActivity : FragmentActivity() {
                     if (saveToPlaylistState.visible) {
                         SaveToPlaylistDialog(
                             viewModel = saveToPlaylistViewModel,
-                            onShowAlertDialog = { message -> supportFragmentManager.showAlert(message, true) }
+                            onShowAlertDialog = { message ->
+                                supportFragmentManager.showAlert(
+                                    message,
+                                    true
+                                )
+                            }
                         )
                     }
                 }

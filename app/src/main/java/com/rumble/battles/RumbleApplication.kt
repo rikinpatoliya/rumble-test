@@ -149,9 +149,6 @@ class RumbleApplication : Application(), Configuration.Provider {
             UAirship.takeOff(this, options, ) { airship ->
                 airship.pushManager.userNotificationsEnabled = true
                 airship.pushManager.notificationListener = RumbleNotificationListener
-
-                val channelId = airship.channel.id
-                print(channelId)
             }
         }
     }
