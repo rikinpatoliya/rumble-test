@@ -304,7 +304,7 @@ sealed class VideoDetailsEvent {
     data class InitLiveChat(val videoEntity: VideoEntity) : VideoDetailsEvent()
     data class StartBuyRantFlow(val pendingMessageInfo: PendingMessageInfo) : VideoDetailsEvent()
     data object ScrollToTop : VideoDetailsEvent()
-    data object ShowPremiumPromo : VideoDetailsEvent()
+    data class ShowPremiumPromo(val isOverAllContent: Boolean) : VideoDetailsEvent()
     data object OpenMuteMenu : VideoDetailsEvent()
     data object CloseMuteMenu : VideoDetailsEvent()
     data object OpenPremiumSubscriptionOptions : VideoDetailsEvent()
@@ -1794,8 +1794,14 @@ class VideoDetailsViewModel @Inject constructor(
 
     private suspend fun showPremiumPromo() {
         if (shouldShowPremiumPromoUseCase())
-            emitVmEvent(VideoDetailsEvent.ShowPremiumPromo)
+            emitVmEvent(VideoDetailsEvent.ShowPremiumPromo(isVerticalVideo()))
     }
+
+    private fun isVerticalVideo(): Boolean =
+        state.value.videoEntity?.let {
+            it.videoHeight > it.videoWidth
+        } ?: false
+
 
     private suspend fun getRumbleAd() {
         if (sessionManager.isPremiumUserFlow.first().not()) {

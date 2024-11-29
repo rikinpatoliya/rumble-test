@@ -385,11 +385,18 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    handler.onOpenPremiumPromo()
-                    contentHandler.onUpdateCurrentSubscriptionParams(
-                        state.videoEntity?.id,
-                        SubscriptionSource.Video
-                    )
+                    if (it.isOverAllContent) {
+                        contentHandler.onShowPremiumPromo(
+                            videoId = state.videoEntity?.id,
+                            source = SubscriptionSource.Video
+                        )
+                    } else {
+                        handler.onOpenPremiumPromo()
+                        contentHandler.onUpdateCurrentSubscriptionParams(
+                            state.videoEntity?.id,
+                            SubscriptionSource.Video
+                        )
+                    }
                 }
 
                 is VideoDetailsEvent.OpenMuteMenu -> {
