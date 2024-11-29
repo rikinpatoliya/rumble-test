@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -29,30 +32,29 @@ import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography.h6
 import com.rumble.theme.RumbleTypography.tinyBody
 import com.rumble.theme.elevation
+import com.rumble.theme.indicatorWidthMini
 import com.rumble.theme.miniPlayerActionSize
 import com.rumble.theme.miniPlayerHeight
 import com.rumble.theme.miniPlayerWidth
 import com.rumble.theme.paddingMedium
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusXXXXMedium
+import com.rumble.theme.rumbleGreen
 import com.rumble.utils.extension.clickableNoRipple
 import com.rumble.videoplayer.R
 import com.rumble.videoplayer.player.RumblePlayer
-import com.rumble.videoplayer.player.config.PlayerPlaybackState
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.presentation.RumbleVideoView
-import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.internal.defaults.miniPlayerSeekBarHeight
 import com.rumble.videoplayer.presentation.internal.views.EmbeddedSeekBar
 
 @Composable
 fun MiniPlayerView(
     modifier: Modifier = Modifier,
-    rumblePlayer: RumblePlayer,
+    rumblePlayer: RumblePlayer?,
     onClose: () -> Unit = {},
     onClick: () -> Unit = {},
 ) {
-    val showUpNext by rumblePlayer.showUpNext
     Surface(
         modifier = modifier
             .clickable { onClick() }
@@ -62,49 +64,76 @@ fun MiniPlayerView(
     ) {
         Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .height(miniPlayerHeight),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(RumbleCustomTheme.colors.background),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RumbleVideoView(
+            rumblePlayer?.let {
+                val showUpNext by rumblePlayer.showUpNext
+                Row(
                     modifier = Modifier
-                        .width(miniPlayerWidth)
-                        .height(miniPlayerHeight),
-                    rumblePlayer = rumblePlayer
-                )
+                        .fillMaxSize()
+                        .background(RumbleCustomTheme.colors.background),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RumbleVideoView(
+                        modifier = Modifier
+                            .width(miniPlayerWidth)
+                            .height(miniPlayerHeight),
+                        rumblePlayer = rumblePlayer
+                    )
 
-                MiniPlayerInfoView(
+                    MiniPlayerInfoView(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = paddingMedium),
+                        rumblePlayer = rumblePlayer,
+                        showUpNext = showUpNext
+                    )
+
+                    MiniPlayerControlsView(
+                        modifier = Modifier.padding(end = paddingMedium),
+                        playerTarget = rumblePlayer.playerTarget.value,
+                        isPlaying = rumblePlayer.isPlaying(),
+                        showPlayPause = !showUpNext,
+                        onPause = { rumblePlayer.pauseVideo() },
+                        onPlay = { rumblePlayer.playVideo() },
+                        onClose = onClose
+                    )
+                }
+
+                EmbeddedSeekBar(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = paddingMedium),
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
                     rumblePlayer = rumblePlayer,
-                    showUpNext = showUpNext
+                    seekBarHeight = miniPlayerSeekBarHeight,
+                    increaseSeekArea = false,
                 )
-
-                MiniPlayerControlsView(
-                    modifier = Modifier.padding(end = paddingMedium),
-                    playerTarget = rumblePlayer.playerTarget.value,
-                    isPlaying = rumblePlayer.isPlaying(),
-                    showPlayPause = !showUpNext,
-                    onPause = { rumblePlayer.pauseVideo() },
-                    onPlay = { rumblePlayer.playVideo() },
-                    onClose = onClose
-                )
+            } ?: run {
+                MiniPlayerPlaceholder()
             }
+        }
+    }
+}
 
-            EmbeddedSeekBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
-                rumblePlayer = rumblePlayer,
-                seekBarHeight = miniPlayerSeekBarHeight,
-                increaseSeekArea = false,
+@Composable
+private fun MiniPlayerPlaceholder() {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .background(RumbleCustomTheme.colors.background)) {
+        Box(modifier = Modifier
+            .width(miniPlayerWidth)
+            .height(miniPlayerHeight)
+            .background(MaterialTheme.colors.primaryVariant)
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = rumbleGreen,
+                strokeWidth = indicatorWidthMini
             )
         }
+
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 

@@ -61,6 +61,7 @@ val borderWidth = 4.dp
 // Progress indicator size
 val progressIndicatorSize = 64.dp
 val indicatorWidth = 6.dp
+val indicatorWidthMini = 4.dp
 val progressBarHeight = 4.dp
 val progressBarHeightVideoView = 6.dp
 

@@ -7,11 +7,21 @@ import com.rumble.network.dto.profile.ProfileResponse
 import com.rumble.network.dto.profile.UpdateProfileResponse
 import com.rumble.network.dto.profile.UpdateUserImageResponse
 import com.rumble.network.dto.referral.ReferralsResponse
-import com.rumble.network.dto.settings.*
+import com.rumble.network.dto.settings.AuthProvidersResponse
+import com.rumble.network.dto.settings.Earnings
+import com.rumble.network.dto.settings.NotificationSettingsResponse
+import com.rumble.network.dto.settings.UpdateNotificationSettingsResponse
+import com.rumble.network.dto.settings.UpdateUserEmailResponse
+import com.rumble.network.dto.settings.UpdateUserPasswordResponse
 import okhttp3.FormBody
 import okhttp3.MultipartBody
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
+import retrofit2.http.Query
 
 interface UserApi {
 
@@ -108,4 +118,7 @@ interface UserApi {
     suspend fun requestEmailVerification(
         @Body body: FormBody,
     ): Response<Any>
+
+    @POST("service.php?name=user.expire_other_sessions")
+    suspend fun expireSessions(): Response<Any>
 }

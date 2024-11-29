@@ -124,6 +124,16 @@ fun SettingsScreen(
                         messageId = R.string.version_copied_message,
                     )
                 }
+
+                is SettingsScreenVmEvent.CopySessionToClipboard -> {
+                    clipboard.setText(AnnotatedString(event.currentSession))
+                }
+
+                is SettingsScreenVmEvent.SessionsExpired -> {
+                    contentHandler.onShowSnackBar(
+                        messageId = R.string.user_sessions_expired,
+                    )
+                }
             }
         }
     }
@@ -534,6 +544,58 @@ private fun DebugSection(
             ) {
                 Text(
                     text = stringResource(R.string.share_logs),
+                    style = RumbleTypography.body1,
+                )
+            }
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = paddingMedium),
+                color = MaterialTheme.colors.secondaryVariant
+            )
+        }
+
+        Column {
+            Row(
+                modifier = Modifier
+                    .height(settingItemRowHeight)
+                    .fillMaxWidth()
+                    .padding(
+                        start = paddingMedium,
+                        end = paddingMedium
+                    )
+                    .clickable {
+                        settingsHandler.onCopyCurrentSession()
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.copy_session_to_clipboard),
+                    style = RumbleTypography.body1,
+                )
+            }
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = paddingMedium),
+                color = MaterialTheme.colors.secondaryVariant
+            )
+        }
+
+        Column {
+            Row(
+                modifier = Modifier
+                    .height(settingItemRowHeight)
+                    .fillMaxWidth()
+                    .padding(
+                        start = paddingMedium,
+                        end = paddingMedium
+                    )
+                    .clickable { settingsHandler.onExpireSessions() },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.expire_sessions),
                     style = RumbleTypography.body1,
                 )
             }

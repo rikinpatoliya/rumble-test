@@ -97,6 +97,7 @@ import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.VideoDetails
 import com.rumble.battles.VideoPlayerViewTag
+import com.rumble.battles.bottomSheets.PremiumOptionsBottomSheet
 import com.rumble.battles.comments.CommentsView
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
@@ -365,6 +366,10 @@ fun VideoDetailsScreen(
 
                 is VideoDetailsEvent.CloseComments -> liveChatBottomSheetState.hide()
 
+                is VideoDetailsEvent.OpenPremiumPromo -> liveChatBottomSheetState.show()
+
+                is VideoDetailsEvent.ClosePremiumPromo -> liveChatBottomSheetState.hide()
+
                 is VideoDetailsEvent.InitLiveChat -> {
                     liveChatHandler.onInitLiveChat(it.videoEntity)
                     if (state.hasPremiumRestriction.not() && state.inComments.not() && state.inLiveChat)
@@ -380,9 +385,10 @@ fun VideoDetailsScreen(
                 }
 
                 is VideoDetailsEvent.ShowPremiumPromo -> {
-                    contentHandler.onShowPremiumPromo(
-                        videoId = state.videoEntity?.id,
-                        source = SubscriptionSource.Video
+                    handler.onOpenPremiumPromo()
+                    contentHandler.onUpdateCurrentSubscriptionParams(
+                        state.videoEntity?.id,
+                        SubscriptionSource.Video
                     )
                 }
 
@@ -537,23 +543,21 @@ fun VideoDetailsScreen(
             }
         ) {
             if (collapsed) {
-                state.rumblePlayer?.let { rumblePlayer ->
-                    MiniPlayerView(
-                        modifier = Modifier.fillMaxWidth(),
-                        rumblePlayer = rumblePlayer,
-                        onClose = {
-                            if (state.currentComment.isNotEmpty()) {
-                                collapsePaddingVisible = false
-                                handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
-                            }
-                            handler.onClearVideo()
-                        },
-                        onClick = {
+                MiniPlayerView(
+                    modifier = Modifier.fillMaxWidth(),
+                    rumblePlayer = state.rumblePlayer,
+                    onClose = {
+                        if (state.currentComment.isNotEmpty()) {
                             collapsePaddingVisible = false
-                            handler.onExpendMiniPlayer()
+                            handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
                         }
-                    )
-                }
+                        handler.onClearVideo()
+                    },
+                    onClick = {
+                        collapsePaddingVisible = false
+                        handler.onExpendMiniPlayer()
+                    }
+                )
             } else {
                 RumbleModalBottomSheetLayout(
                     sheetState = muteBottomSheetState,
@@ -660,12 +664,6 @@ fun VideoDetailsView(
             .collectLatest {
                 if (it == ModalBottomSheetValue.Hidden) handler.onLiveChatHidden()
             }
-    }
-
-    LaunchedEffect(liveChatBottomSheetState.targetValue) {
-        if (liveChatBottomSheetState.targetValue == ModalBottomSheetValue.Hidden) {
-            handler.onCloseLiveChat()
-        }
     }
 
     val actualWidth: Dp by animateDpAsState(
@@ -831,6 +829,21 @@ fun VideoDetailsView(
                                 padding(horizontal = paddingXXMedium)
                             }
                         when (state.lastBottomSheet) {
+                            LastBottomSheet.PREMIUM_PROMO -> {
+                                PremiumOptionsBottomSheet(
+                                    bottomSheetState = liveChatBottomSheetState,
+                                    isPremiumUser = false,
+                                    onClose = {
+                                        handler.onClosePremiumPromo()
+                                        contentHandler.onClosePremiumPromo()
+                                    },
+                                    onActionButtonClicked = {
+                                        handler.onClosePremiumPromo()
+                                        contentHandler.onGetPremium()
+                                    }
+                                )
+                            }
+
                             LastBottomSheet.LIVECHAT -> {
                                 LiveChatView(
                                     modifier = sheetContentModifier,

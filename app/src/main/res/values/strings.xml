@@ -196,6 +196,9 @@
     <string name="notification_settings">Notification Settings</string>
     <string name="app_appearance">App appearance</string>
     <string name="autoplay">Autoplay</string>
+    <string name="copy_session_to_clipboard">Copy session to clipboard</string>
+    <string name="expire_sessions">Expire other sessions</string>
+    <string name="user_sessions_expired">Other user\'s sessions have been expired.</string>
 
     <!-- Ad Settings -->
     <string name="ad_settings_title">Ads</string>

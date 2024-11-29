@@ -22,8 +22,10 @@ import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.CanSubmitLogsResult
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
 import com.rumble.domain.settings.domain.domainmodel.DebugAdType
+import com.rumble.domain.settings.domain.domainmodel.ExpireUserSessionsResult
 import com.rumble.domain.settings.domain.domainmodel.PlaybackInFeedsMode
 import com.rumble.domain.settings.domain.domainmodel.UploadQuality
+import com.rumble.domain.settings.domain.usecase.ExpireUserSessionsUseCase
 import com.rumble.domain.settings.domain.usecase.GetAuthProvidersUseCase
 import com.rumble.domain.settings.domain.usecase.GetCanSubmitLogsUseCase
 import com.rumble.domain.settings.domain.usecase.GetNotificationSettingsUseCase
@@ -80,6 +82,8 @@ interface SettingsHandler: LazyListStateHandler {
     fun onSendFeedback()
     fun onChangeColorMode(colorMode: ColorMode)
     fun onAutoplayOn(on: Boolean)
+    fun onCopyCurrentSession()
+    fun onExpireSessions()
 }
 
 sealed class SettingsAlertDialogReason : AlertDialogReason {
@@ -105,6 +109,7 @@ data class DebugUIState(
     val authProviderEntity: AuthProviderEntity? = null,
     val canSubmitLogs: Boolean = false,
     val canUseAdsDebugMode: Boolean = false,
+    val currentSession: String = "",
 )
 
 sealed class SettingsScreenVmEvent {
@@ -112,6 +117,8 @@ sealed class SettingsScreenVmEvent {
     data class AccountUnlinkSuccess(val loginType: LoginType) : SettingsScreenVmEvent()
     data object ScrollToPlaybackSettings : SettingsScreenVmEvent()
     data class CopyVersionToClipboard(val version: String) : SettingsScreenVmEvent()
+    data class CopySessionToClipboard(val currentSession: String) : SettingsScreenVmEvent()
+    data object SessionsExpired : SettingsScreenVmEvent()
 }
 
 private const val TAG = "SettingsViewModel"
@@ -133,6 +140,7 @@ class SettingsViewModel @Inject constructor(
     private val restartUploadVideoUseCase: RestartUploadVideoUseCase,
     private val isDevelopModeUseCase: IsDevelopModeUseCase,
     private val sendFeedbackUseCase: SendFeedbackUseCase,
+    private val expireUserSessionsUseCase: ExpireUserSessionsUseCase,
 ) : ViewModel(), SettingsHandler {
 
     private val scrollToPlayback = savedState.get<Boolean>(RumblePath.PARAMETER.path) ?: false
@@ -345,10 +353,32 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    override fun onCopyCurrentSession() {
+        emitVmEvent(SettingsScreenVmEvent.CopySessionToClipboard(uiState.value.debugState.currentSession))
+    }
+
+    override fun onExpireSessions() {
+        viewModelScope.launch(errorHandler) {
+            when(expireUserSessionsUseCase()) {
+                is ExpireUserSessionsResult.Success -> {
+                    emitVmEvent(SettingsScreenVmEvent.SessionsExpired)
+                }
+                is ExpireUserSessionsResult.Failure -> {
+                    emitVmEvent(SettingsScreenVmEvent.Error())
+                }
+            }
+        }
+    }
+
     private fun observeCookies() {
         viewModelScope.launch {
             sessionManager.cookiesFlow.distinctUntilChanged().collectLatest { cookie ->
-                uiState.update { it.copy(userLoggedIn = cookie.isNotEmpty()) }
+                uiState.update {
+                    it.copy(
+                        userLoggedIn = cookie.isNotEmpty(),
+                        debugState = it.debugState.copy(currentSession = cookie)
+                    )
+                }
                 fetchInitialSettings(cookie)
             }
         }

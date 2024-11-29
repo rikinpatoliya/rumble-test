@@ -8,6 +8,7 @@ import com.rumble.domain.settings.domain.domainmodel.AuthProviderEntity
 import com.rumble.domain.settings.domain.domainmodel.AuthProvidersResult
 import com.rumble.domain.settings.domain.domainmodel.CanSubmitLogsResult
 import com.rumble.domain.settings.domain.domainmodel.CloseAccountResult
+import com.rumble.domain.settings.domain.domainmodel.ExpireUserSessionsResult
 import com.rumble.domain.settings.domain.domainmodel.NotificationSettingsEntity
 import com.rumble.domain.settings.domain.domainmodel.NotificationSettingsResult
 import com.rumble.domain.settings.domain.domainmodel.UpdateUserDetailsResult
@@ -172,6 +173,12 @@ class SettingsRemoteDataSourceImpl(
             success = response.isSuccessful,
             rumbleError = if (response.isSuccessful.not()) RumbleError(tag = TAG, response = response.raw()) else null
         )
+    }
+
+    override suspend fun expireUserSessions(): ExpireUserSessionsResult {
+        val response = userApi.expireSessions()
+        return if (response.isSuccessful) ExpireUserSessionsResult.Success
+        else ExpireUserSessionsResult.Failure
     }
 
     private fun getError(responseBody: UpdateNotificationsDataResponse): String? {

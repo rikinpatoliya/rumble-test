@@ -129,6 +129,7 @@ data class LiveChatState(
     val raidEntity: RaidEntity? = null,
     val streamRaided: Boolean = false,
     val recentEmoteList: List<EmoteEntity> = emptyList(),
+    val isLoadingMessages: Boolean = true,
 )
 
 sealed class LiveChatEvent {
@@ -530,6 +531,7 @@ class LiveChatViewModel @Inject constructor(
                         canModerate = (if (updatedResult.canModerate != null) updatedResult.canModerate else state.value.canModerate)
                             ?: false,
                         raidEntity = result.raidEntity ?: state.value.raidEntity,
+                        isLoadingMessages = false,
                     )
                     if (result.raidEntity != null) startUpdateRaidTimeOut()
                     delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())

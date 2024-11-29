@@ -47,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.RoundTextButton
+import com.rumble.battles.commonViews.RumbleProgressIndicator
 import com.rumble.battles.commonViews.keyboardAsState
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsEvent
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsHandler
@@ -319,7 +320,13 @@ fun LiveChatViewContent(
                     )
                 }
 
-                if (liveChatState.messageList.isEmpty()) {
+                if (liveChatState.isLoadingMessages) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        RumbleProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                } else if (liveChatState.messageList.isEmpty()) {
                     EmptyView(
                         modifier = Modifier
                             .padding(paddingMedium)
