@@ -10,6 +10,7 @@ import com.rumble.battles.commonViews.IsTablet
 import com.rumble.battles.content.presentation.ContentHandler
 import com.rumble.theme.enforcedBlack
 import com.rumble.theme.enforcedWhite
+import com.rumble.utils.extension.rumbleUitTestTag
 
 @Composable
 fun BottomNavigationBar(
@@ -31,6 +32,7 @@ fun BottomNavigationBar(
                 icon = {
                     if (IsTablet()) {
                         RumbleBottomNavigationTabletItem(
+                            modifier = Modifier.rumbleUitTestTag(navItem.testTag),
                             contentHandler = contentHandler,
                             selectedTabIndex = selectedTabIndex,
                             navItem = navItem,
@@ -38,6 +40,7 @@ fun BottomNavigationBar(
                         )
                     } else {
                         RumbleBottomNavigationPhoneItem(
+                            modifier = Modifier.rumbleUitTestTag(navItem.testTag),
                             contentHandler = contentHandler,
                             selectedTabIndex = selectedTabIndex,
                             navItem = navItem,

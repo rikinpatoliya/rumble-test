@@ -45,6 +45,7 @@ import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants.SCREEN_OFF_DELAY
 import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_FLAG
 import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_PASSWORD
+import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_SHOW_AUTH_LANDING
 import com.rumble.utils.RumbleConstants.TESTING_LAUNCH_UIT_USERNAME
 import com.rumble.utils.extension.isScreenOn
 import com.rumble.videoplayer.player.PlayerTargetChangeListener
@@ -441,7 +442,8 @@ class RumbleActivityViewModel @Inject constructor(
             if (uitFlag != null) {
                 val uitUserName: String? = savedStateHandle[TESTING_LAUNCH_UIT_USERNAME]
                 val uitPassword: String? = savedStateHandle[TESTING_LAUNCH_UIT_PASSWORD]
-                onPrepareAppForTesting(uitUserName, uitPassword)
+                val uitShowAuthLanding: String? = savedStateHandle[TESTING_LAUNCH_UIT_SHOW_AUTH_LANDING]
+                onPrepareAppForTesting(uitUserName, uitPassword, uitShowAuthLanding)
                 clearBundleKeys(savedStateHandle)
                 true
             } else false
@@ -450,9 +452,10 @@ class RumbleActivityViewModel @Inject constructor(
 
     private fun onPrepareAppForTesting(
         uitUserName: String?,
-        uitPassword: String?
+        uitPassword: String?,
+        uitShowAuthLanding: String?
     ) {
-        viewModelScope.launch { prepareAppForTestingUseCase(uitUserName, uitPassword) }
+        viewModelScope.launch { prepareAppForTestingUseCase(uitUserName, uitPassword, uitShowAuthLanding) }
     }
 
     override fun handleNotifications(bundle: Bundle?) {

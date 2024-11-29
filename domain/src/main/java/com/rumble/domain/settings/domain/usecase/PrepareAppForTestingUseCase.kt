@@ -22,19 +22,30 @@ class PrepareAppForTestingUseCase @Inject constructor(
     override val rumbleErrorUseCase: RumbleErrorUseCase,
 ) : RumbleUseCase {
 
-    suspend operator fun invoke(uitUserName: String?, uitPassword: String?) {
+    suspend operator fun invoke(
+        uitUserName: String?,
+        uitPassword: String?,
+        uitShowAuthLanding: String?
+    ) {
         saveFeedOnboardingUseCase(OnboardingType.values().toList())
         updateSubdomainUseCase(TESTING_SUBDOMAIN)
-        userPreferenceManager.saveLastPremiumPromoTimeStamp(System.currentTimeMillis())
-        userPreferenceManager.savePlaybackInFeedsMode(PlaybackInFeedsMode.OFF)
-        userPreferenceManager.saveUitTestingMode(true)
-        sessionManager.saveLastLoginPromptTime(
+        userPreferenceManager.saveLastPremiumPromoTimeStamp(
             LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
         )
-        signOutUseCase()
+        userPreferenceManager.savePlaybackInFeedsMode(PlaybackInFeedsMode.OFF)
+        userPreferenceManager.saveUitTestingMode(true)
+        if (uitShowAuthLanding.isNullOrEmpty()) {
+            sessionManager.saveLastLoginPromptTime(
+                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+            )
+        }
         if (uitUserName != null && uitPassword != null) {
-            sessionManager.saveUserName(uitUserName)
-            sessionManager.savePassword(uitPassword)
+            if (uitUserName.isNotEmpty() && uitPassword.isNotEmpty()) {
+                sessionManager.saveUserName(uitUserName)
+                sessionManager.savePassword(uitPassword)
+            } else {
+                signOutUseCase()
+            }
         }
     }
 }

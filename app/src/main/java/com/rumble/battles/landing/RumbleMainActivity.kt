@@ -95,7 +95,6 @@ class RumbleMainActivity : FragmentActivity() {
         initGeneralErrorHandler()
         initializePlayService(savedInstanceState)
         initializeTimeRangeService(savedInstanceState)
-        initializeCleanupService()
         initializeMediaSession()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -144,6 +143,7 @@ class RumbleMainActivity : FragmentActivity() {
     override fun onResume() {
         viewModel.onAppResumed()
         viewModel.currentPlayer?.enableControls()
+        initializeCleanupService() // Moved to onResume to make sure that app is fully foreground.
         super.onResume()
     }
 
@@ -417,7 +417,11 @@ class RumbleMainActivity : FragmentActivity() {
     }
 
     private fun initializeCleanupService() {
-        startService(Intent(this@RumbleMainActivity, CleanupService::class.java))
+        try {
+            startService(Intent(this@RumbleMainActivity, CleanupService::class.java))
+        } catch (t: Throwable) {
+            viewModel.onError(t)
+        }
     }
 
     private fun initializeMediaSession() {

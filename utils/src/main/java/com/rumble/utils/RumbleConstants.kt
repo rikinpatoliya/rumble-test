@@ -101,6 +101,7 @@ object RumbleConstants {
     const val TESTING_LAUNCH_UIT_FLAG = "uit"
     const val TESTING_LAUNCH_UIT_USERNAME = "uit_username"
     const val TESTING_LAUNCH_UIT_PASSWORD = "uit_password"
+    const val TESTING_LAUNCH_UIT_SHOW_AUTH_LANDING = "uit_show_auth_landing"
     const val TESTING_SUBDOMAIN = "webe27"
     const val TV_MAIN_MENU_FOCUS_DELAY_TIME = 300L
     const val NAV_BAR_ANIMATION_DURATION = 150
