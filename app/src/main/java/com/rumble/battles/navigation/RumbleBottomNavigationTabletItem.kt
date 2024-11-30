@@ -21,16 +21,13 @@ import com.rumble.theme.paddingXXSmall
 
 @Composable
 fun RumbleBottomNavigationTabletItem(
-    modifier: Modifier,
     contentHandler: ContentHandler,
     selectedTabIndex: Int,
     navItem: NavItem,
     navItemIndex: Int,
 ) {
 
-    ConstraintLayout(
-        modifier = modifier
-    ) {
+    ConstraintLayout {
         val (guide, icon, label, dot) = createRefs()
 
         Spacer(

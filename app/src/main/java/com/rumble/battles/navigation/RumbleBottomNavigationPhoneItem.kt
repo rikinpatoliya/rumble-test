@@ -17,16 +17,13 @@ import com.rumble.theme.paddingXXMedium
 
 @Composable
 fun RumbleBottomNavigationPhoneItem(
-    modifier: Modifier,
     contentHandler: ContentHandler,
     selectedTabIndex: Int,
     navItem: NavItem,
     navItemIndex: Int,
 ) {
 
-    ConstraintLayout(
-        modifier = modifier
-    ) {
+    ConstraintLayout {
         val (icon, label, dot, guideLine) = createRefs()
 
         RumbleBottomNavigationIcon(
