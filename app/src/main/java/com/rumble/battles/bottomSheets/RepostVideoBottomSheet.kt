@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
+import com.rumble.battles.common.getUserOrChannelPrefix
 import com.rumble.battles.commonViews.ChannelSelectionBottomSheet
 import com.rumble.battles.commonViews.ChannelSelectionBottomSheetItem
 import com.rumble.battles.commonViews.MainActionButton
@@ -148,7 +149,10 @@ fun RepostVideoBottomSheet(
                     )
                     SelectChannelRowView(
                         title = state.selectedRepostChannelEntity.title,
-                        description = stringResource(id = R.string.username_prefix) + state.selectedRepostChannelEntity.name
+                        description = getUserOrChannelPrefix(
+                            userUIState.userChannel.id,
+                            state.selectedRepostChannelEntity.id
+                        ) + state.selectedRepostChannelEntity.name,
                     ) {
                         coroutineScope.launch {
                             bottomSheetState.show()

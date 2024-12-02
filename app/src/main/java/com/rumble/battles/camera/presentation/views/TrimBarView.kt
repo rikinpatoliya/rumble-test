@@ -83,11 +83,6 @@ fun TrimBarView(
                 RumbleProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         } else {
-            if (sliderDragInProgress.not())
-                PreviewPlaybackSlider(//TODO: work on better solution for UI
-                    duration = duration,
-                    currentPosition = trimBarData.currentPosition
-                )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,8 +107,7 @@ fun TrimBarView(
                 }
                 if (sliderDragInProgress.not())
                     PreviewPlaybackSlider(//TODO: work on better solution for UI
-                        duration = duration,
-                        currentPosition = trimBarData.currentPosition
+                        duration = duration, trimBarData = trimBarData
                     )
                 RangeSliderWithCustomComponents(
                     duration = duration,
@@ -330,13 +324,11 @@ fun TrimmerEdge(start: Boolean) {
 @Composable
 fun PreviewPlaybackSlider(
     duration: Long,
-    currentPosition: Float,
+    trimBarData: TrimBarData,
 ) {
     androidx.compose.material3.Slider(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = paddingMedium),
-        value = currentPosition,
+        modifier = Modifier.fillMaxSize(),
+        value = trimBarData.currentPosition.coerceIn(trimBarData.sliderPosition),
         onValueChange = {},
         onValueChangeFinished = {},
         valueRange = 0f..duration.toFloat(),

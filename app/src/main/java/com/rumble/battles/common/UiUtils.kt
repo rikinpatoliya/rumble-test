@@ -158,3 +158,11 @@ private fun getRelativeTimeString(videoEntity: VideoEntity) =
     (videoEntity.liveStreamedOn ?: videoEntity.liveDateTime ?: videoEntity.uploadDate).agoString(
         LocalContext.current
     )
+
+@Composable
+fun getUserOrChannelPrefix(userId: String, selectedId: String) =
+    stringResource(
+        id = if (userId == selectedId)
+            R.string.username_prefix
+        else R.string.channel_name_prefix
+    )
