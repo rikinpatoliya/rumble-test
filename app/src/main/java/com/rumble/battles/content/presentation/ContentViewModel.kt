@@ -717,12 +717,12 @@ class ContentViewModel @Inject constructor(
 
     override fun onUndoRepostConfirmed(repostId: Long) {
         viewModelScope.launch(errorHandler) {
-            when(deleteRepostUseCase(repostId)) {
+            when(val result = deleteRepostUseCase(repostId)) {
                 is DeleteRepostResult.Success -> {
                     emitVmEvent(ContentScreenVmEvent.OnRepostDeleted(repostId))
                 }
                 is DeleteRepostResult.Failure -> {
-                    emitVmEvent(ContentScreenVmEvent.Error())
+                    emitVmEvent(ContentScreenVmEvent.Error(result.errorMessage))
                 }
             }
         }
@@ -753,8 +753,8 @@ class ContentViewModel @Inject constructor(
     override fun onRepost(videoId: Long, channelId: Long, message: String) {
         updateBottomSheetUiState(BottomSheetContent.HideBottomSheet)
         viewModelScope.launch(errorHandler) {
-            when (addRepostUseCase(videoId = videoId, channelId = channelId, message = message)) {
-                is AddRepostResult.Failure -> emitVmEvent(ContentScreenVmEvent.Error())
+            when (val result = addRepostUseCase(videoId = videoId, channelId = channelId, message = message)) {
+                is AddRepostResult.Failure -> emitVmEvent(ContentScreenVmEvent.Error(result.errorMessage))
                 is AddRepostResult.Success -> emitVmEvent(ContentScreenVmEvent.VideoRepostedByCurrentUser)
             }
         }

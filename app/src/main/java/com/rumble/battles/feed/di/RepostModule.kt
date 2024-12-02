@@ -6,11 +6,14 @@ import com.rumble.domain.repost.model.repository.RepostRepository
 import com.rumble.domain.repost.model.repository.RepostRepositoryImpl
 import com.rumble.network.api.RepostApi
 import com.rumble.network.di.IoDispatcher
+import com.rumble.network.dto.livechat.ErrorResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import javax.inject.Singleton
 
 @Module
@@ -32,9 +35,11 @@ object RepostModule {
     @Singleton
     fun provideRepostRepository(
         repostRemoteDataSource: RepostRemoteDataSource,
+        errorConverter: Converter<ResponseBody, ErrorResponse>?,
         @IoDispatcher dispatcher: CoroutineDispatcher,
     ): RepostRepository = RepostRepositoryImpl(
         remoteDataSource = repostRemoteDataSource,
+        errorConverter = errorConverter,
         dispatcher = dispatcher
     )
 }

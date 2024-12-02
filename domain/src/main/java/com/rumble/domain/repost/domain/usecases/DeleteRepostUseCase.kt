@@ -13,7 +13,7 @@ class DeleteRepostUseCase @Inject constructor(
     suspend operator fun invoke(repostId: Long): DeleteRepostResult {
         val result = repostRepository.deleteRepost(repostId)
         if (result is DeleteRepostResult.Failure) {
-            rumbleErrorUseCase(result.error)
+            rumbleErrorUseCase(result.rumbleError)
         }
         return result
     }
