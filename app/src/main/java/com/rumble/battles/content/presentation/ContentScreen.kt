@@ -458,6 +458,7 @@ fun ContentScreen(
 
     RumbleModalBottomSheetLayout(
         sheetState = bottomSheetState,
+        scrimColor = bottomSheetUiState.bottomSheetScrimColor,
         sheetContent = {
             BottomSheetOverNavBarContent(
                 bottomSheetState = bottomSheetState,

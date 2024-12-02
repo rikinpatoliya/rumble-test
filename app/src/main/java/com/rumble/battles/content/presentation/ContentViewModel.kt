@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.BillingClient
@@ -115,6 +116,7 @@ import com.rumble.network.dto.channel.ReportContentType
 import com.rumble.network.queryHelpers.PlayListType
 import com.rumble.network.queryHelpers.SubscriptionSource
 import com.rumble.network.session.SessionManager
+import com.rumble.theme.RumbleCustomTheme
 import com.rumble.utils.RumbleConstants
 import com.rumble.videoplayer.player.config.ReportType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -143,7 +145,7 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     val userUIState: StateFlow<UserUIState>
 
     fun updateColorMode(colorMode: ColorMode)
-    fun updateBottomSheetUiState(data: BottomSheetContent)
+    fun updateBottomSheetUiState(data: BottomSheetContent, bottomSheetScrimColor: Color? = null)
     fun notifyUserAboutUploads(list: List<UploadVideoEntity>)
     fun onDeepLinkNavigated()
     fun onContentResumed()
@@ -167,7 +169,11 @@ data class VideoDetailsState(
     val isTablet: Boolean = false,
 )
 
-data class BottomSheetUIState(val data: BottomSheetContent)
+data class BottomSheetUIState(
+    val data: BottomSheetContent,
+    val bottomSheetScrimColor: Color? = null
+)
+
 data class UserUIState(
     val userId: String = "",
     val userName: String = "",
@@ -470,10 +476,13 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    override fun updateBottomSheetUiState(data: BottomSheetContent) {
+    override fun updateBottomSheetUiState(data: BottomSheetContent, bottomSheetScrimColor: Color?) {
         viewModelScope.launch(errorHandler) {
             bottomSheetUiState.update {
-                it.copy(data = data)
+                it.copy(
+                    data = data,
+                    bottomSheetScrimColor = bottomSheetScrimColor
+                )
             }
             if (data is BottomSheetContent.HideBottomSheet)
                 emitVmEvent(ContentScreenVmEvent.HideBottomSheetEvent)
@@ -560,7 +569,8 @@ class ContentViewModel @Inject constructor(
             )
         } else {
             updateBottomSheetUiState(
-                BottomSheetContent.RepostUpsell
+                data = BottomSheetContent.RepostUpsell,
+                bottomSheetScrimColor = RumbleCustomTheme.colors.background,
             )
         }
     }

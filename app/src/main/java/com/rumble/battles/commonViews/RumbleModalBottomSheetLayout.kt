@@ -15,6 +15,7 @@ import com.rumble.theme.noElevation
 fun RumbleModalBottomSheetLayout(
     modifier: Modifier = Modifier,
     sheetState: ModalBottomSheetState,
+    scrimColor: Color? = null,
     sheetContent: @Composable ColumnScope.() -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -23,7 +24,7 @@ fun RumbleModalBottomSheetLayout(
         sheetState = sheetState,
         sheetElevation = noElevation,
         sheetBackgroundColor = Color.Transparent,
-        scrimColor = enforcedGray950.copy(alpha = 0.6f),
+        scrimColor = scrimColor ?: enforcedGray950.copy(alpha = 0.6f),
         sheetContent = sheetContent,
         content = content,
     )
