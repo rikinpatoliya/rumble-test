@@ -178,6 +178,7 @@ fun RepostVideoBottomSheet(
                         modifier = Modifier
                             .padding(paddingXSmall),
                         videoEntity = videoEntity,
+                        showMoreAction = false,
                         onMoreClick = { },
                         onImpression = { },
                     )
