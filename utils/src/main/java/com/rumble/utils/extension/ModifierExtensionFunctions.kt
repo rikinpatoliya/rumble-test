@@ -1,6 +1,7 @@
 package com.rumble.utils.extension
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -10,6 +11,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -103,3 +105,9 @@ fun Modifier.rumbleUitTestTag(testTag: String): Modifier {
 fun Modifier.rumbleUitTestTag(screenTag: String, elementTag: String): Modifier {
     return this.semantics { contentDescription = "${screenTag}_$elementTag" }
 }
+
+fun Modifier.ignoreDragGestures(): Modifier = this.then(
+    Modifier.pointerInput(Unit) {
+        detectDragGestures { _, _ ->  }
+    }
+)

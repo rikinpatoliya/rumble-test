@@ -53,6 +53,7 @@ import com.rumble.theme.paddingSmall
 import com.rumble.theme.paddingXSmall
 import com.rumble.theme.paddingXXXSmall
 import com.rumble.utils.RumbleConstants.EMOTES_CONTROL_VISIBILITY_THRESHOLD
+import com.rumble.utils.extension.ignoreDragGestures
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -90,6 +91,7 @@ fun EmotePickerView(
         modifier = modifier
             .wrapContentHeight()
             .background(RumbleCustomTheme.colors.background)
+            .ignoreDragGestures()
     ) {
         Divider(
             modifier = Modifier.fillMaxWidth(),

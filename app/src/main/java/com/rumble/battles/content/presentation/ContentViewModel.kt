@@ -34,6 +34,7 @@ import com.rumble.battles.library.presentation.playlist.PlayListSettingsBottomSh
 import com.rumble.battles.library.presentation.playlist.UpdatePlaylist
 import com.rumble.battles.onboarding.presentation.OnboardingHandler
 import com.rumble.battles.premium.presentation.PremiumSubscriptionHandler
+import com.rumble.battles.premium.presentation.SubscriptionUIState
 import com.rumble.battles.subscriptions.presentation.NotificationsHandler
 import com.rumble.battles.subscriptions.presentation.SortFollowingHandler
 import com.rumble.battles.subscriptions.presentation.SubscriptionHandler
@@ -216,6 +217,7 @@ sealed class BottomSheetContent {
 
     data object PremiumPromo : BottomSheetContent()
     data object PremiumOptions : BottomSheetContent()
+    data object PremiumSubscriptionDetails : BottomSheetContent()
     data object PremiumSubscription : BottomSheetContent()
     data class SortFollowingSheet(val sortFollowingType: SortFollowingType) : BottomSheetContent()
     data object AuthMenu : BottomSheetContent()
@@ -330,6 +332,7 @@ class ContentViewModel @Inject constructor(
         getUploadNotificationVideoUseCase()
     override val userUIState = MutableStateFlow(UserUIState())
     override var subscriptionList: List<PremiumSubscriptionData> = emptyList()
+    override val subscriptionUiState: State<SubscriptionUIState> = mutableStateOf(SubscriptionUIState())
     override val onboardingViewState: MutableStateFlow<OnboardingViewState> = MutableStateFlow(None)
     override val popupsListIndex = MutableStateFlow(0)
     override val discoverIconLocationState = MutableStateFlow(Offset.Zero)

@@ -91,7 +91,6 @@ import com.rumble.battles.feed.presentation.feedlist.HomeScreen
 import com.rumble.battles.feed.presentation.feedlist.HomeViewModel
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelScreen
 import com.rumble.battles.feed.presentation.recommended_channels.RecommendedChannelsViewModel
-import com.rumble.battles.feed.presentation.repost.RepostUpsellScreen
 import com.rumble.battles.feed.presentation.videodetails.CollapsableLayoutState
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsScreen
 import com.rumble.battles.feed.presentation.videodetails.VideoDetailsViewModel
@@ -748,6 +747,21 @@ private fun ContentScreenDialog(
                 actionItems = listOf(
                     DialogActionItem(
                         text = stringResource(id = R.string.ok),
+                        action = handler::onDismissDialog,
+                        dialogActionType = DialogActionType.Positive
+                    )
+                )
+            )
+        }
+
+        is RumbleActivityAlertReason.AppleInAppSubscription -> {
+            RumbleAlertDialog(
+                onDismissRequest = handler::onDismissDialog,
+                title = stringResource(id = R.string.apple_in_app_subscription),
+                text = stringResource(id = R.string.apple_in_app_subscription_description),
+                actionItems = listOf(
+                    DialogActionItem(
+                        text = stringResource(id = R.string.close),
                         action = handler::onDismissDialog,
                         dialogActionType = DialogActionType.Positive
                     )

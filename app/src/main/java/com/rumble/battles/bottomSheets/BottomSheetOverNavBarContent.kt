@@ -158,10 +158,20 @@ fun BottomSheetOverNavBarContent(
         is BottomSheetContent.PremiumOptions -> {
             PremiumOptionsBottomSheet(
                 bottomSheetState = bottomSheetState,
-                isPremiumUser = true
+                isPremiumUser = true,
+                onClose = onHideBottomSheet
             ) {
                 activityHandler.onOpenWebView(PremiumSubscription.RESTORE_SUBSCRIPTION_LINK)
             }
+        }
+
+        is BottomSheetContent.PremiumSubscriptionDetails -> {
+            PremiumSubscriptionDetailsBottomSheet(
+                bottomSheetState = bottomSheetState,
+                contentHandler = contentHandler,
+                activityHandler = activityHandler,
+                onClose = onHideBottomSheet
+            )
         }
 
         is BottomSheetContent.PremiumSubscription -> {

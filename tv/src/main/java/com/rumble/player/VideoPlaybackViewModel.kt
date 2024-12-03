@@ -122,7 +122,7 @@ class VideoPlaybackViewModel @Inject constructor(
                     videoId = updatedVideoEntity.id,
                     screenId = videoDetailsScreen,
                     saveLastPosition = saveLastPositionUseCase::invoke,
-                    autoplay = updatedVideoEntity.hasLiveGate.not(),
+                    autoplay = updatedVideoEntity.hasLiveGate.not() || hasPremiumRestrictionUseCase(videoEntity).not(),
                     requestLiveGateData = true,
                     onNextVideo = { videoId, channelId, autoPlay ->
                         onNextVideo(videoId, channelId, autoPlay, true)

@@ -300,7 +300,7 @@ fun ProfileScreen(
                                 labelId = R.string.rumble_premium_plan,
                                 onClick = {
                                     contentHandler.updateBottomSheetUiState(
-                                        BottomSheetContent.PremiumOptions
+                                        BottomSheetContent.PremiumOptions//TODO: WIP use when api is ready BottomSheetContent.PremiumSubscriptionDetails
                                     )
                                 },
                                 tint = rumbleGreen
@@ -316,7 +316,10 @@ fun ProfileScreen(
                                 iconId = R.drawable.ic_discover,
                                 labelId = R.string.get_rumble_premium_plan,
                                 onClick = {
-                                    contentHandler.onShowSubscriptionOptions(videoId = null, source = SubscriptionSource.Profile)
+                                    contentHandler.onShowSubscriptionOptions(
+                                        videoId = null,
+                                        source = SubscriptionSource.Profile
+                                    )
                                 }
                             )
                         }

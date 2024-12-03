@@ -1,10 +1,12 @@
 package com.rumble.domain.premium.domain.domainmodel
 
-enum class SubscriptionType(val productId: String) {
-    Annually("rumble-premium-yearly"),
-    Monthly("rumble-premium-monthly");
+import com.rumble.domain.R
+
+enum class SubscriptionType(val productId: String, val titleId: Int) {
+    Annually("rumble-premium-yearly", R.string.rumble_premium_yearly),
+    Monthly("rumble-premium-monthly", R.string.rumble_premium_monthly);
 
     companion object {
-        fun findByProductId(productId: String) = values().find { it.productId == productId }
+        fun findByProductId(productId: String) = entries.find { it.productId == productId }
     }
 }

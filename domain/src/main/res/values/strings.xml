@@ -124,4 +124,8 @@
     <string name="email_verification_needed">Email verification needed…</string>
     <string name="error_failed_to_upload_thumbnail">Failed to upload the thumbnail</string>
 
+    <!-- Premium Subscription -->
+    <string name="rumble_premium_yearly">Rumble Premium - Annual</string>
+    <string name="rumble_premium_monthly">Rumble Premium - Monthly</string>
+
 </resources>

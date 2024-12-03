@@ -147,6 +147,7 @@ sealed class RumbleActivityAlertReason : AlertDialogReason {
     data object PremiumPurchaseMade : RumbleActivityAlertReason()
     data object SubscriptionNotAvailable : RumbleActivityAlertReason()
     data class UndoRepostWarning(val repostId: Long) : RumbleActivityAlertReason()
+    data object AppleInAppSubscription : RumbleActivityAlertReason()
 }
 
 data class ActivityHandlerState(
