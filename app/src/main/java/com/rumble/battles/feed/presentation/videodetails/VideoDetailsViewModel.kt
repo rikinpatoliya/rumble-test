@@ -187,7 +187,6 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     )
 
     fun onUpdateLayoutState(layoutState: CollapsableLayoutState)
-    fun onClearVideo()
     fun onEnforceLiveGatePremiumRestriction(liveGateEntity: LiveGateEntity? = null)
     fun onLiveGateEvent(liveGateEntity: LiveGateEntity)
     fun getVideoAspectRatio(): Int
@@ -828,15 +827,6 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onCloseVideoDetails() {
-        if (state.value.currentComment.isNotEmpty()) {
-            showDiscardDialog(true)
-        } else {
-            dismissResources()
-            emitVmEvent(VideoDetailsEvent.CloseVideoDetails)
-        }
-    }
-
-    override fun onClearVideo() {
         if (state.value.currentComment.isNotEmpty()) {
             showDiscardDialog(true)
         } else {

@@ -54,7 +54,6 @@ import com.rumble.domain.livechat.domain.usecases.UpdateChannelEmoteLockStateUse
 import com.rumble.network.connection.InternetConnectionObserver
 import com.rumble.network.connection.InternetConnectionState
 import com.rumble.network.session.SessionManager
-import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.EMOTE_BADGES
 import com.rumble.utils.RumbleConstants.LIVE_CHAT_MAX_MESSAGE_COUNT
 import com.rumble.utils.RumbleConstants.RANT_STATE_UPDATE_RATIO
@@ -108,6 +107,7 @@ interface LiveChatHandler {
     fun onEmoteUsed(emoteEntity: EmoteEntity)
     fun onClearRantSelection()
     fun onKeyboardShown()
+    fun onCloseVideo()
 }
 
 data class LiveChatState(
@@ -478,6 +478,10 @@ class LiveChatViewModel @Inject constructor(
         }
     }
 
+    override fun onCloseVideo() {
+        eventsJob.cancel()
+    }
+
     private fun emitEvent(event: LiveChatEvent) {
         viewModelScope.launch { eventFlow.emit(event) }
     }
@@ -534,7 +538,6 @@ class LiveChatViewModel @Inject constructor(
                         isLoadingMessages = false,
                     )
                     if (result.raidEntity != null) startUpdateRaidTimeOut()
-                    delay(RumbleConstants.LIVE_CHAT_ANIMATION_DURATION.toLong())
                     emitEvent(LiveChatEvent.ScrollLiveChat(max(messageList.size - 1, 0)))
                 }
             }

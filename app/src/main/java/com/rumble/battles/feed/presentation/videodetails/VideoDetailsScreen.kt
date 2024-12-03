@@ -558,7 +558,8 @@ fun VideoDetailsScreen(
                             collapsePaddingVisible = false
                             handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
                         }
-                        handler.onClearVideo()
+                        handler.onCloseVideoDetails()
+                        liveChatHandler.onCloseVideo()
                     },
                     onClick = {
                         collapsePaddingVisible = false
@@ -753,7 +754,10 @@ fun VideoDetailsView(
                             ),
                         text = stringResource(id = R.string.this_video_only_rumble_premium),
                         url = state.videoEntity?.videoThumbnail ?: "",
-                        onBack = { handler.onCloseVideoDetails() },
+                        onBack = {
+                            handler.onCloseVideoDetails()
+                            liveChatHandler.onCloseVideo()
+                        },
                         onSubscribeNow = {
                             contentHandler.onShowSubscriptionOptions(
                                 videoId = state.videoEntity?.id,
@@ -769,7 +773,10 @@ fun VideoDetailsView(
                             ),
                         text = stringResource(id = R.string.rest_video_premium_only),
                         url = state.videoEntity?.videoThumbnail ?: "",
-                        onBack = { handler.onCloseVideoDetails() },
+                        onBack = {
+                            handler.onCloseVideoDetails()
+                            liveChatHandler.onCloseVideo()
+                        },
                         onSubscribeNow = {
                             contentHandler.onShowSubscriptionOptions(
                                 videoId = state.videoEntity?.id,
@@ -1488,8 +1495,7 @@ private fun VideoDetailsHeaderView(
                             state.videoEntity?.let {
                                 if (state.repostedByUser) {
                                     contentHandler.onUndoRepost(it.userRepost?.id)
-                                }
-                                else {
+                                } else {
                                     contentHandler.onRepostClicked(it)
                                 }
                             }
@@ -1646,7 +1652,7 @@ private fun RepostActionButton(
         leadingIconPainter = painterResource(id = R.drawable.ic_repeat),
         backgroundColor = if (repostedByUser) rumbleGreen else MaterialTheme.colors.onSurface,
         borderColor = if (repostedByUser) rumbleGreen else MaterialTheme.colors.onSurface,
-        textColor =  if (repostedByUser) enforcedBlack else MaterialTheme.colors.secondary,
+        textColor = if (repostedByUser) enforcedBlack else MaterialTheme.colors.secondary,
         onClick = onClick,
         enabled = true,
     )

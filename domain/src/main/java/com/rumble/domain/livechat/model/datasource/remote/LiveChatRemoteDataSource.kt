@@ -11,6 +11,7 @@ import com.rumble.network.NetworkRumbleConstants.APP_REQUEST_NAME
 import com.rumble.network.NetworkRumbleConstants.APP_VERSION
 import com.rumble.network.NetworkRumbleConstants.COOKIES_HEADER
 import com.rumble.network.NetworkRumbleConstants.OS_VERSION
+import com.rumble.network.NetworkRumbleConstants.RUMBLE_DEFAULT_API_VERSION
 import com.rumble.network.NetworkRumbleConstants.USER_AGENT
 import com.rumble.network.api.EmoteApi
 import com.rumble.network.api.LiveChatApi
@@ -29,7 +30,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -81,11 +81,9 @@ class LiveChatRemoteDataSourceImpl(
             .appendQueryParameter(APP_REQUEST_NAME, packageName)
             .appendQueryParameter(APP_VERSION, appVersion)
             .appendQueryParameter(OS_VERSION, osVersion)
-            .appendQueryParameter(API, "6")
+            .appendQueryParameter(API, RUMBLE_DEFAULT_API_VERSION)
             .build()
             .toString()
-
-        val stringBuffer = StringBuilder()
 
         withContext(dispatcher) {
             val connection = (URL(chatFullUrl).openConnection() as HttpURLConnection).also {
@@ -100,21 +98,18 @@ class LiveChatRemoteDataSourceImpl(
                 val metric = createLiveStreamMetricUseCase()
                 metric.start()
                 connection.connect()
-                while (isActive) {
-                    val line = input.readLine()
-                    if (line.isNullOrEmpty() and stringBuffer.isEmpty().not()) {
-                        val jsonString = stringBuffer.toString()
-                        getLiveChatEvent(jsonString)?.let {
-                            if (measured.not()) {
-                                measured = true
-                                metric.setHttpResponseCode(connection.responseCode)
-                                metric.stop()
+                input.useLines { lines ->
+                    lines.forEach { line ->
+                        if (line.startsWith(dataElement)) {
+                            getLiveChatEvent(line.substring(dataOffset).trim())?.let {
+                                if (measured.not()) {
+                                    measured = true
+                                    metric.setHttpResponseCode(connection.responseCode)
+                                    metric.stop()
+                                }
+                                trySend(it)
                             }
-                            trySend(it)
                         }
-                        stringBuffer.clear()
-                    } else if (line.startsWith(dataElement)) {
-                        stringBuffer.append(line.substring(dataOffset).trim())
                     }
                 }
             } catch (e: IOException) {

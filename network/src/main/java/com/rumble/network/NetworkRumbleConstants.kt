@@ -50,4 +50,5 @@ object NetworkRumbleConstants {
     const val URL_ENCODED_VALUE = "application/x-www-form-urlencoded"
     const val ERROR_RESPONSE_CODE = 1001
     const val RETROFIT_STACK_TRACE = "retrofit2.KotlinExtensions"
+    const val RUMBLE_DEFAULT_API_VERSION = "7"
 }

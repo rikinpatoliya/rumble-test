@@ -16,8 +16,8 @@ import com.rumble.domain.livechat.model.LiveChatNetworkModelMapper
 import com.rumble.domain.livechat.model.datasource.remote.LiveChatRemoteDataSource
 import com.rumble.domain.livechat.model.toEmoteEntityList
 import com.rumble.domain.livechat.model.toEmoteGroupList
-import com.rumble.network.dto.livechat.LiveChatBodyData
 import com.rumble.network.dto.livechat.ErrorResponse
+import com.rumble.network.dto.livechat.LiveChatBodyData
 import com.rumble.network.dto.livechat.LiveChatMessageBody
 import com.rumble.network.dto.livechat.LiveChatMessageRant
 import com.rumble.network.dto.livechat.LiveChatMessageText
@@ -26,7 +26,7 @@ import com.rumble.network.dto.livechat.PaymentProofData
 import com.rumble.network.queryHelpers.MuteType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -43,7 +43,7 @@ class LiveChatRepositoryImpl(
 
     override suspend fun fetchChatEvents(videoId: Long, currentUserId: String, cookies: String): Flow<LiveChatResult> =
         remoteDataSource.fetchChatEvents(videoId, cookies)
-            .map {
+            .transform {
                 var liveChatResult = LiveChatNetworkModelMapper.mapToLiveChatResult(
                     it,
                     baseUrl,
@@ -61,7 +61,7 @@ class LiveChatRepositoryImpl(
                         }
                     }
                 }
-                liveChatResult
+                emit(liveChatResult)
             }
 
     override suspend fun postMessage(
