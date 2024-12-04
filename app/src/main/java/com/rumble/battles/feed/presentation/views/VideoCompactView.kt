@@ -339,7 +339,7 @@ private fun PremiumTagCompactView(
         Text(
             modifier = Modifier.padding(end = paddingXXXSmall),
             text = stringResource(id = if (hasLiveGate) R.string.premium else R.string.premium_only),
-            color = rumbleGreen,
+            color = MaterialTheme.colors.primary,
             style = tinyBodySemiBold
         )
     }
