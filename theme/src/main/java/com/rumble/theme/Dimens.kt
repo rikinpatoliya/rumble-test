@@ -69,6 +69,7 @@ val progressBarHeightVideoView = 6.dp
 val noElevation = 0.dp
 val elevation = 8.dp
 val elevationMedium = 12.dp
+val elevationLarge = 18.dp
 
 // Sizes
 val bottomBarHeight = 65.dp
@@ -104,7 +105,7 @@ val loginContentWidthTablet = 380.dp
 val miniPlayerHeight = 48.dp
 val miniPlayerWidth = 86.dp
 val miniPlayerBottomPadding = paddingXXSmall + bottomBarHeight + paddingXXXSmall
-val miniPlayerBottomThreshold = miniPlayerBottomPadding + miniPlayerHeight
+val miniPlayerBottomThreshold = bottomBarHeight + miniPlayerHeight + paddingLarge + paddingXXXSmall
 val miniPlayerActionSize = 24.dp
 val commentViewHeight = 48.dp
 val raidMessageHeight = 48.dp

@@ -155,6 +155,7 @@ import com.rumble.theme.RumbleTypography.tinyBodySemiBold
 import com.rumble.theme.brandedLocalsRed
 import com.rumble.theme.brandedPlayerBackground
 import com.rumble.theme.commentActionButtonWidth
+import com.rumble.theme.elevationLarge
 import com.rumble.theme.enforcedBlack
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageMedium
@@ -525,6 +526,7 @@ fun VideoDetailsScreen(
                 .conditional(state.isFullScreen.not()) {
                     systemBarsPadding()
                 },
+            shadowElevation = elevationLarge,
             collapseAvailable = state.isFullScreen.not(),
             enforcedState = state.layoutState,
             bottomThreshold = miniPlayerBottomThreshold,
@@ -550,22 +552,28 @@ fun VideoDetailsScreen(
             }
         ) {
             if (collapsed) {
-                MiniPlayerView(
-                    modifier = Modifier.fillMaxWidth(),
-                    rumblePlayer = state.rumblePlayer,
-                    onClose = {
-                        if (state.currentComment.isNotEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    MiniPlayerView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(BottomCenter),
+                        rumblePlayer = state.rumblePlayer,
+                        onClose = {
+                            if (state.currentComment.isNotEmpty()) {
+                                collapsePaddingVisible = false
+                                handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
+                            }
+                            handler.onCloseVideoDetails()
+                            liveChatHandler.onCloseVideo()
+                        },
+                        onClick = {
                             collapsePaddingVisible = false
-                            handler.onUpdateLayoutState(CollapsableLayoutState.Expended())
+                            handler.onExpendMiniPlayer()
                         }
-                        handler.onCloseVideoDetails()
-                        liveChatHandler.onCloseVideo()
-                    },
-                    onClick = {
-                        collapsePaddingVisible = false
-                        handler.onExpendMiniPlayer()
-                    }
-                )
+                    )
+                }
             } else {
                 RumbleModalBottomSheetLayout(
                     sheetState = muteBottomSheetState,
