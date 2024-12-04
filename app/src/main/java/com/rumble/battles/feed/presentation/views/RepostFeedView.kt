@@ -71,7 +71,7 @@ fun RepostFeedView(
                 shape = RoundedCornerShape(radiusXMedium),
                 color = RumbleCustomTheme.colors.backgroundHighlight
             )
-            .clickable { onVideoClick(repost.video) }
+            .clickable { repost.video?.let(onVideoClick) }
     ) {
         RepostFeedHeader(
             modifier = Modifier
@@ -89,13 +89,15 @@ fun RepostFeedView(
                 .clip(RoundedCornerShape(radiusXMedium))
                 .background(RumbleCustomTheme.colors.subtleHighlight)
         ) {
-            VideoCompactView(
-                modifier = Modifier.padding(paddingXSmall),
-                videoEntity = repost.video,
-                showMoreAction = false,
-                listToggleViewStyle = ListToggleViewStyle.GRID,
-                onViewVideo = onVideoClick
-            )
+            repost.video?.let { videoEntity ->
+                VideoCompactView(
+                    modifier = Modifier.padding(paddingXSmall),
+                    videoEntity = videoEntity,
+                    showMoreAction = false,
+                    listToggleViewStyle = ListToggleViewStyle.GRID,
+                    onViewVideo = onVideoClick
+                )
+            }
         }
     }
 }
@@ -117,7 +119,7 @@ private fun RepostFeedHeader(
                     start.linkTo(parent.start)
                     top.linkTo(parent.top)
                 }
-                .clickable { onChannelClick(repost.user.id) },
+                .clickable { onChannelClick(repost.channel?.id ?: repost.user.id) },
             profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
             userName = repost.channel?.name ?: repost.user.username,
             userPicture = repost.channel?.picture ?: repost.user.thumbnail ?: "",
@@ -203,7 +205,7 @@ private fun RepostFeedHeader(
                         end.linkTo(parent.end)
                         width = Dimension.fillToConstraints
                     },
-                channelName = repost.video.channelName
+                channelName = repost.video?.channelName ?: ""
             )
         }
     }

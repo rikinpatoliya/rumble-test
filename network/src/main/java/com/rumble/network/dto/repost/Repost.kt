@@ -13,7 +13,7 @@ data class Repost(
     @SerializedName("message")
     val message: String,
     @SerializedName("video")
-    val video: Video,
+    val video: Video?,
     @SerializedName("user")
     val user: User,
     @SerializedName("channel")

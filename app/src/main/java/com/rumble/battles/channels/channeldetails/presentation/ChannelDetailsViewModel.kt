@@ -479,29 +479,6 @@ class ChannelDetailsViewModel @Inject constructor(
         channelId = stateHandle.get<String>(RumblePath.CHANNEL.path) ?: "",
     )
 
-    private fun updateVotedVideoEntity(
-        updatedFeed: VideoEntity
-    ) {
-        updatedEntity.value = updatedFeed
-        uiState.value.channelDetailsEntity?.let { channelDetailsEntity ->
-            channelDetailsEntity.featuredVideo?.let { featuredVideo ->
-                if (featuredVideo.id == updatedFeed.id) {
-                    uiState.update {
-                        it.copy(
-                            channelDetailsEntity = channelDetailsEntity.copy(
-                                featuredVideo = featuredVideo.copy(
-                                    userVote = updatedFeed.userVote,
-                                    likeNumber = updatedFeed.likeNumber,
-                                    dislikeNumber = updatedFeed.dislikeNumber
-                                )
-                            )
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     private fun observeLoginState() {
         viewModelScope.launch {
             sessionManager.cookiesFlow.distinctUntilChanged().collectLatest {

@@ -1695,7 +1695,7 @@ class VideoDetailsViewModel @Inject constructor(
                     it,
                     it.liveGateEntity?.chatMode ?: ChatMode.Free
                 ),
-                repostedByUser = it.userRepost?.video?.id == videoId
+                repostedByUser = it.userRepost != null
             )
             onVideoPlayerImpression()
             initLiveChat(it)

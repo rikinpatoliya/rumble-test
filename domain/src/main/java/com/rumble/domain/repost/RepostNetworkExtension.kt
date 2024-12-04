@@ -7,13 +7,13 @@ import com.rumble.domain.repost.domain.domainmodel.RepostEntity
 import com.rumble.network.dto.creator.Channel
 import com.rumble.network.dto.repost.Repost
 import com.rumble.utils.extension.convertUtcToLocal
-import com.rumble.utils.extension.toUserIdString
+import com.rumble.utils.extension.toChannelIdString
 
 fun Repost.getRepostEntity() =
     RepostEntity(
         id = id.toLong(),
         message = message,
-        video = video.getVideoEntity(),
+        video = video?.getVideoEntity(),
         user = user.getPlayListUserEntity(),
         channel = channel?.getChannelEntity(),
         creationDate = createdOn.convertUtcToLocal(),
@@ -21,7 +21,7 @@ fun Repost.getRepostEntity() =
 
 fun Channel.getChannelEntity() =
     ChannelEntity(
-        id = id.toUserIdString(),
+        id = id.toChannelIdString(),
         url = url,
         title = title,
         name = name,

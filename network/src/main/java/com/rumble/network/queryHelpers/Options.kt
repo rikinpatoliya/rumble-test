@@ -7,7 +7,7 @@ enum class Options(val value: String) {
     RELATED("related"),
     COMMENTS("comments"),
     CATEGORIES("categories"),
-    USER_REPOSTS("video.user_reposts");
+    USER_REPOST("video.user_repost");
 
     override fun toString(): String = this.value
 }

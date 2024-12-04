@@ -12,7 +12,7 @@ data class RepostEntity(
     override val index: Int = 0,
     override val id: Long,
     val message: String,
-    val video: VideoEntity,
+    val video: VideoEntity?,
     val user: UserEntity,
     val channel: ChannelEntity?,
     val creationDate: LocalDateTime

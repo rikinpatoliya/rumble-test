@@ -15,7 +15,7 @@ class GetVideoDetailsUseCase @Inject constructor(
     override val rumbleErrorUseCase: RumbleErrorUseCase
 ) : RumbleUseCase {
     private val optionList = listOf(
-        Options.EXTENDED, Options.RELATED, Options.COMMENTS, Options.CATEGORIES, Options.WATCHING_PROGRESS, Options.FULL, Options.USER_REPOSTS
+        Options.EXTENDED, Options.RELATED, Options.COMMENTS, Options.CATEGORIES, Options.WATCHING_PROGRESS, Options.FULL, Options.USER_REPOST
     )
     suspend operator fun invoke(videoId: Long): VideoEntity? {
         val videoDetailsResult = feedRepository.fetchVideoDetails(

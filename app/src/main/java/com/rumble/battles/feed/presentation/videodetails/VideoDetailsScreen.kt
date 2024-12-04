@@ -1497,7 +1497,6 @@ private fun VideoDetailsHeaderView(
 
                 item {
                     RepostActionButton(
-                        repostCount = state.videoEntity?.repostCount ?: 0,
                         repostedByUser = state.repostedByUser,
                         onClick = {
                             state.videoEntity?.let {
@@ -1642,12 +1641,11 @@ private fun VideoDetailsActionButton(
 
 @Composable
 private fun RepostActionButton(
-    repostCount: Int,
     repostedByUser: Boolean,
     onClick: () -> Unit,
 ) {
     ActionButton(
-        text = repostCount.toString(),
+        text = stringResource(R.string.repost),
         contentModifier = Modifier
             .padding(
                 top = paddingXXSmall,
