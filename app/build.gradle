@@ -289,7 +289,7 @@ dependencies {
     implementation "androidx.core:core-splashscreen:1.0.1"
 
     // Airship
-    def airshipVersion = "17.8.0"
+    def airshipVersion = "18.4.0"
     implementation "com.urbanairship.android:urbanairship-fcm:$airshipVersion"
     implementation "com.urbanairship.android:urbanairship-adm:$airshipVersion"
 }
