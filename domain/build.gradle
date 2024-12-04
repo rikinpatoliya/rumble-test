@@ -47,16 +47,11 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp-sse:4.9.3"
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    // Data store
-    implementation "androidx.datastore:datastore-preferences:1.1.0"
-
     // Backward support for time classes
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
     // Firebase config
-    api platform('com.google.firebase:firebase-bom:32.8.1')
     api 'com.google.firebase:firebase-config-ktx'
-    api 'com.google.firebase:firebase-perf-ktx'
 
     // region local modules
     implementation project(path: ':network')
@@ -96,7 +91,6 @@ dependencies {
     // endregion
 
     // region Logging
-    implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.slf4j:slf4j-api:2.0.7'
     implementation 'com.github.tony19:logback-android:3.0.0'
     // endregion

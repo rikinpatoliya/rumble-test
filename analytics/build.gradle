@@ -41,18 +41,12 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
-    // BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:32.8.1')
-
     // Crashlytics and Analytics libraries
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     //ApsFlyer
     api 'com.appsflyer:af-android-sdk:6.13.0'
-
-    // Logging
-    implementation 'com.jakewharton.timber:timber:5.0.1'
 
     // Backward support for time classes
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'

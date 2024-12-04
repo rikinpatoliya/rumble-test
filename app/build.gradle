@@ -261,9 +261,6 @@ dependencies {
     // Kotlin serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    // Data store
-    implementation "androidx.datastore:datastore-preferences:1.1.1"
-
     // Default testing dependencies
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
@@ -278,9 +275,6 @@ dependencies {
 
     // Gson
     implementation 'com.google.code.gson:gson:2.10.1'
-
-    // Logging
-    implementation 'com.jakewharton.timber:timber:5.0.1'
 
     // Date picker wheel style
     implementation 'com.github.commandiron:WheelPickerCompose:1.1.11'
