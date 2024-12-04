@@ -70,7 +70,7 @@ fun RumbleVideoView(
     rumblePlayer: RumblePlayer,
     aspectRatioMode: Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
     playerBackgroundColor: Color = brandedPlayerBackground,
-    uiType: UiType = UiType.DISCOVER,
+    uiType: UiType = UiType.EMBEDDED,
     dismissControlsDelay: Long = controlsInactiveDelay,
     isFullScreen: Boolean = false,
     isCollapsingMiniPlayerInProgress: Boolean = false,
@@ -173,39 +173,41 @@ fun RumbleVideoView(
                 rumblePlayer = rumblePlayer
             )
         } else if (playbackState !is PlayerPlaybackState.Idle) {
-            AndroidView(
-                modifier = Modifier
-                    .focusable(enabled = true)
-                    .conditional(uiType == UiType.TV) {
-                        focusRequester(focusRequester)
-                    }
-                    .fillMaxSize()
-                    .clickableNoRipple {
-                        if (uiType != UiType.DISCOVER && uiType != UiType.IN_LIST && uiType != UiType.TV)
-                            showControls = showControls.not()
-                        onClick()
-                    }
-                    .onKeyEvent { event ->
-                        if (event.nativeKeyEvent.keyCode != android.view.KeyEvent.KEYCODE_BACK) {
-                            if (uiType == UiType.TV) handleKeyEvent(event, rumblePlayer)
-                            if (event.nativeKeyEvent.action == ACTION_UP) showControls = true
-                        } else {
-                            focusManager.clearFocus(force = true)
+            if (playerTarget != PlayerTarget.AD || uiType == UiType.TV) {
+                AndroidView(
+                    modifier = Modifier
+                        .focusable(enabled = true)
+                        .conditional(uiType == UiType.TV) {
+                            focusRequester(focusRequester)
                         }
-                        false
+                        .fillMaxSize()
+                        .clickableNoRipple {
+                            if (uiType != UiType.DISCOVER && uiType != UiType.IN_LIST && uiType != UiType.TV)
+                                showControls = showControls.not()
+                            onClick()
+                        }
+                        .onKeyEvent { event ->
+                            if (event.nativeKeyEvent.keyCode != android.view.KeyEvent.KEYCODE_BACK) {
+                                if (uiType == UiType.TV) handleKeyEvent(event, rumblePlayer)
+                                if (event.nativeKeyEvent.action == ACTION_UP) showControls = true
+                            } else {
+                                focusManager.clearFocus(force = true)
+                            }
+                            false
+                        },
+                    factory = {
+                        playerView
                     },
-                factory = {
-                    playerView
-                },
-                update = { playerView ->
-                    if (isFullScreen)
-                        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                    else if (isCollapsingMiniPlayerInProgress)
-                        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-                    else
-                        playerView.resizeMode = aspectRatioMode
-                }
-            )
+                    update = { playerView ->
+                        if (isFullScreen)
+                            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                        else if (isCollapsingMiniPlayerInProgress)
+                            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                        else
+                            playerView.resizeMode = aspectRatioMode
+                    }
+                )
+            }
 
             LoadingScreen(
                 modifier = modifier,
@@ -215,7 +217,7 @@ fun RumbleVideoView(
                     || (playbackState is PlayerPlaybackState.Paused && uiType == UiType.IN_LIST)
             )
 
-            if (playbackState !is PlayerPlaybackState.Fetching) {
+            if (playbackState !is PlayerPlaybackState.Fetching && playerTarget != PlayerTarget.AD) {
                 if (playbackState is PlayerPlaybackState.Finished && hasRelatedVideos) {
                     rumblePlayer.nextRelatedVideo?.let {
                         PlayNextView(
