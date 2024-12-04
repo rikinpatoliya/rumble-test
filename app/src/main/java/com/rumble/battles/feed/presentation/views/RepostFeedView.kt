@@ -117,7 +117,7 @@ private fun RepostFeedHeader(
                     start.linkTo(parent.start)
                     top.linkTo(parent.top)
                 }
-                .clickable { onChannelClick(repost.channel?.id ?: repost.user.id) },
+                .clickable { onChannelClick(repost.user.id) },
             profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
             userName = repost.channel?.name ?: repost.user.username,
             userPicture = repost.channel?.picture ?: repost.user.thumbnail ?: "",
