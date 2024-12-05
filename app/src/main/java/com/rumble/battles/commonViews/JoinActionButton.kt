@@ -1,6 +1,6 @@
 package com.rumble.battles.commonViews
 
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -11,6 +11,7 @@ import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.brandedLocalsRed
 import com.rumble.theme.channelActionsButtonWidth
 import com.rumble.theme.enforcedWhite
+import kotlin.math.min
 
 @Composable
 fun JoinActionButton(
@@ -21,7 +22,7 @@ fun JoinActionButton(
     when (joinActionData.joinActionType) {
         JoinActionType.WITH_TEXT -> {
             ActionButton(
-                modifier = Modifier.width(channelActionsButtonWidth),
+                modifier = Modifier.widthIn(min = channelActionsButtonWidth),
                 text = joinActionData.localsCommunityEntity.joinButtonText.takeIf { it.isNotBlank() }
                     ?: stringResource(id = R.string.join),
                 backgroundColor = brandedLocalsRed,
