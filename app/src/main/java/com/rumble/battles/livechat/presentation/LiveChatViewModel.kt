@@ -133,7 +133,7 @@ data class LiveChatState(
 )
 
 sealed class LiveChatEvent {
-    data object Error : LiveChatEvent()
+    data class Error(val errorMessage: String? = null) : LiveChatEvent()
     data class ScrollLiveChat(val index: Int) : LiveChatEvent()
     data class ScrollRant(val index: Int) : LiveChatEvent()
     data object CloseBottomSheet : LiveChatEvent()
@@ -215,20 +215,20 @@ class LiveChatViewModel @Inject constructor(
                         emitEvent(LiveChatEvent.RantPurchaseSucceeded(it))
                     }
                     state.value.pendingMessageInfo?.let {
-                        when (postPaymentProofUseCase(it, result.purchaseToken)) {
+                        when (val proofResult = postPaymentProofUseCase(it, result.purchaseToken)) {
                             is PaymentProofResult.Success -> {
                                 state.value = state.value.copy(pendingMessageInfo = null)
                             }
 
                             is PaymentProofResult.Failure -> {
-                                emitEvent(LiveChatEvent.Error)
+                                emitEvent(LiveChatEvent.Error(errorMessage = proofResult.errorMessage))
                             }
                         }
                     }
                 }
             } else if (result is PurchaseResult.Failure) {
                 rumbleErrorUseCase(RumbleError(IAP_FAILED, result.errorMessage, result.code))
-                emitEvent(LiveChatEvent.Error)
+                emitEvent(LiveChatEvent.Error())
             }
         }
     }
@@ -277,7 +277,7 @@ class LiveChatViewModel @Inject constructor(
                         )
                     )
                 } ?: run {
-                    emitEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error())
                 }
             }
         }
@@ -328,7 +328,7 @@ class LiveChatViewModel @Inject constructor(
             viewModelScope.launch(errorHandler) {
                 val result = pinMessageUseCase(videoId = videoId, messageId = it.messageId)
                 if (result is MessageModerationResult.Failure) {
-                    emitEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error())
                 }
                 state.value = state.value.copy(
                     selectedMessage = null
@@ -350,7 +350,7 @@ class LiveChatViewModel @Inject constructor(
             viewModelScope.launch(errorHandler) {
                 val result = unpinMessageUseCase(videoId = videoId, messageId = it.messageId)
                 if (result is MessageModerationResult.Failure) {
-                    emitEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error())
                 }
                 state.value = state.value.copy(
                     selectedMessage = null
@@ -381,7 +381,7 @@ class LiveChatViewModel @Inject constructor(
                 state.value.selectedMessage?.let { message ->
                     val result = deleteMessageUseCase(chatId = chatId, message.messageId)
                     if (result is DeleteMessageResult.Failure) {
-                        emitEvent(LiveChatEvent.Error)
+                        emitEvent(LiveChatEvent.Error())
                     }
                     state.value = state.value.copy(
                         selectedMessage = null
@@ -401,7 +401,7 @@ class LiveChatViewModel @Inject constructor(
                     mutePeriod = mutePeriod
                 )
                 if (result is MuteUserResult.Failure) {
-                    emitEvent(LiveChatEvent.Error)
+                    emitEvent(LiveChatEvent.Error())
                 } else if (result is MuteUserResult.MuteFailure) {
                     alertDialogState.value = alertDialogState.value.copy(
                         show = true,

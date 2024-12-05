@@ -8,7 +8,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.rumble.videoplayer.R
 import com.rumble.videoplayer.presentation.UiType
-import com.rumble.videoplayer.presentation.internal.defaults.isLiveShift
+import com.rumble.videoplayer.presentation.internal.defaults.liveShift
 
 @Composable
 fun LiveButton(
@@ -22,7 +22,7 @@ fun LiveButton(
     IconButton(
         modifier = modifier,
         onClick = { if (dvrSupported) onClick() }) {
-        if ((totalDuration - currentPosition) > isLiveShift && dvrSupported) {
+        if ((totalDuration - currentPosition) > liveShift && dvrSupported) {
             when (type) {
                 UiType.EMBEDDED -> {
                     Image(

@@ -39,7 +39,7 @@ fun LiveChatView(
                 }
 
                 is LiveChatEvent.Error -> {
-                    handler.onError()
+                    handler.onError(it.errorMessage)
                 }
 
                 else -> return@collectLatest

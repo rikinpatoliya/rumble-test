@@ -79,6 +79,7 @@ import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.internal.defaults.adCheckDelta
 import com.rumble.videoplayer.presentation.internal.defaults.adPauseDelay
 import com.rumble.videoplayer.presentation.internal.defaults.countDownDelay
+import com.rumble.videoplayer.presentation.internal.defaults.liveShift
 import com.rumble.videoplayer.presentation.internal.defaults.liveVideoSeekBuffer
 import com.rumble.videoplayer.presentation.internal.defaults.maxBufferSize
 import com.rumble.videoplayer.presentation.internal.defaults.maxCountDown
@@ -1215,8 +1216,19 @@ class RumblePlayer(
                     withContext(Dispatchers.Main) {
                         updateProgressValues(exoPlayer)
                         updateWatchedTime(exoPlayer)
+                        handleLiveVideSpeed()
                     }
                 }
+            }
+        }
+    }
+
+    private fun handleLiveVideSpeed() {
+        if (isLiveVideo && currentPlaybackSpeed != PlaybackSpeed.NORMAL) {
+            if ((totalTime.value.toLong() - currentPosition.value.toLong()) < liveShift) {
+                player.setPlaybackSpeed(PlaybackSpeed.NORMAL.value)
+            } else {
+                player.setPlaybackSpeed(currentPlaybackSpeed.value)
             }
         }
     }

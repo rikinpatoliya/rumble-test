@@ -166,7 +166,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onWatchRestricted(videoEntity: VideoEntity)
     fun onEnableOrientationChangeListener()
     fun onDisableOrientationChangeListener()
-    fun onError()
+    fun onError(errorMessage: String?)
     fun onLoopPlayList(loopPlayList: Boolean)
     fun onShufflePlayList(shufflePlayList: Boolean)
     fun onPlayListVideoClick(videoEntity: VideoEntity, videoNumber: Int)
@@ -1263,8 +1263,8 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onError() {
-        emitVmEvent(VideoDetailsEvent.VideoDetailsError())
+    override fun onError(errorMessage: String?) {
+        emitVmEvent(VideoDetailsEvent.VideoDetailsError(errorMessage))
         onDismissBottomSheet()
     }
 

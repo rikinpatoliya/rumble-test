@@ -21,7 +21,7 @@ import com.rumble.theme.paddingXXSmall
 import com.rumble.theme.radiusXMedium
 import com.rumble.utils.extension.conditional
 import com.rumble.videoplayer.R
-import com.rumble.videoplayer.presentation.internal.defaults.isLiveShift
+import com.rumble.videoplayer.presentation.internal.defaults.liveShift
 
 @Composable
 fun TvLiveButton(
@@ -33,7 +33,7 @@ fun TvLiveButton(
     onSeek: () -> Unit = {},
     onPlayPause: () -> Unit = {}
 ) {
-    val isNotLiveNow = (totalDuration - currentPosition) > isLiveShift && dvrSupported
+    val isNotLiveNow = (totalDuration - currentPosition) > liveShift && dvrSupported
     Box(modifier = modifier
         .clip(RoundedCornerShape(radiusXMedium))
         .conditional(isFocused) {

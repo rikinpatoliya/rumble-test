@@ -119,7 +119,13 @@ class LiveChatRepositoryImpl(
             body
         )
         if (response?.isSuccessful == true) PaymentProofResult.Success
-        else PaymentProofResult.Failure(response?.raw()?.let { RumbleError(IAP_FAILED, it) })
+        else {
+            response?.errorBody()?.let {
+                val error = errorConverter?.convert(it)
+                val errorMessage = error?.errors?.firstOrNull()?.message ?: ""
+                PaymentProofResult.Failure( RumbleError(IAP_FAILED, response.raw()), errorMessage = errorMessage)
+            } ?: PaymentProofResult.Failure(response?.raw()?.let { RumbleError(IAP_FAILED, it) })
+        }
     }
 
     override suspend fun pinMessage(videoId: Long, messageId: Long): MessageModerationResult = withContext(dispatcher) {
