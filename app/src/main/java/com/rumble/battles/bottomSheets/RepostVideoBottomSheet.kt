@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
@@ -34,12 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rumble.battles.R
 import com.rumble.battles.common.getUserOrChannelPrefix
+import com.rumble.battles.commonViews.BottomSheetHeader
 import com.rumble.battles.commonViews.ChannelSelectionBottomSheet
 import com.rumble.battles.commonViews.ChannelSelectionBottomSheetItem
 import com.rumble.battles.commonViews.MainActionButton
@@ -121,25 +119,12 @@ fun RepostVideoBottomSheet(
             var spacerHeight by remember { mutableIntStateOf(0) }
             val density = LocalContext.current.resources.displayMetrics.density
             Column {
-                Row(
+                BottomSheetHeader(
                     modifier = Modifier
-                        .padding(top = paddingMedium, start = paddingMedium),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = context.getString(R.string.repost_video),
-                        color = RumbleCustomTheme.colors.primary,
-                        style = RumbleTypography.h3
-                    )
-                    Spacer(modifier = Modifier.weight(1F))
-                    IconButton(onClick = onClose) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_close),
-                            contentDescription = stringResource(id = R.string.close),
-                            tint = MaterialTheme.colors.primary
-                        )
-                    }
-                }
+                        .padding(paddingMedium),
+                    title = stringResource(R.string.repost_video),
+                    onClose = onClose
+                )
                 if (userUIState.userUploadChannels.isNotEmpty()) {
                     Text(
                         text = stringResource(id = R.string.channel).uppercase(),

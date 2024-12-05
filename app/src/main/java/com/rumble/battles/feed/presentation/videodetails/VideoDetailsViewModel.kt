@@ -146,6 +146,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onVideoSettings()
     fun reportVideo(videoEntity: VideoEntity, reportType: ReportType)
     fun onDismissDialog()
+    fun onCloseBottomSheet()
     fun onOrientationChanged(orientation: Int)
     fun onOpenLiveChat()
     fun onLiveChatHidden()
@@ -174,6 +175,8 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
     fun onRantPurchaseSucceeded(rantLevel: RantLevel)
     fun onOpenBuyRantSheet()
+    fun onGiftRumblePremiumSheet()
+    fun onOpenSupportChannelSheet()
     fun onOpenModerationMenu()
     fun onMuteUser()
     fun onDismissMuteMenu()
@@ -271,6 +274,8 @@ sealed class BottomSheetReason {
     data class CommentAuthorSwitcher(val channels: List<CommentAuthorEntity>) : BottomSheetReason()
     data object BuyRant : BottomSheetReason()
     data object ModerationMenu : BottomSheetReason()
+    data object SupportChannel : BottomSheetReason()
+    data object GiftRumblePremium : BottomSheetReason()
 }
 
 sealed class VideoDetailsAlertReason : AlertDialogReason {
@@ -567,8 +572,7 @@ class VideoDetailsViewModel @Inject constructor(
     }
 
     override fun onDismissBottomSheet() {
-        state.value = state.value.copy(bottomSheetReason = null)
-        emitVmEvent(VideoDetailsEvent.HideBottomSheet)
+        onCloseBottomSheet()
     }
 
     override fun onReport() {
@@ -1021,6 +1025,11 @@ class VideoDetailsViewModel @Inject constructor(
         alertDialogState.value = AlertDialogState()
     }
 
+    override fun onCloseBottomSheet() {
+        state.value = state.value.copy(bottomSheetReason = null)
+        emitVmEvent(VideoDetailsEvent.HideBottomSheet)
+    }
+
     override fun onOpenLiveChat() {
         state.value = state.value.copy(
             inLiveChat = true,
@@ -1392,6 +1401,16 @@ class VideoDetailsViewModel @Inject constructor(
 
     override fun onOpenBuyRantSheet() {
         state.value = state.value.copy(bottomSheetReason = BottomSheetReason.BuyRant)
+        emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
+    }
+
+    override fun onGiftRumblePremiumSheet() {
+        state.value = state.value.copy(bottomSheetReason = BottomSheetReason.GiftRumblePremium)
+        emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
+    }
+
+    override fun onOpenSupportChannelSheet() {
+        state.value = state.value.copy(bottomSheetReason = BottomSheetReason.SupportChannel)
         emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
     }
 

@@ -143,7 +143,7 @@ fun AddMessageView(
                         painter = painterResource(id = R.drawable.ic_dollar),
                         backgroundColor = MaterialTheme.colors.onSurface,
                         tintColor = rumbleGreen,
-                        contentDescription = stringResource(id = R.string.send_rant),
+                        contentDescription = stringResource(id = R.string.send_a_rant),
                         onClick = onBuyRant
                     )
                 } else {

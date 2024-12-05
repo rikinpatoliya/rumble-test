@@ -35,13 +35,6 @@ fun BottomSheetOverNavBarContent(
     val coroutineScope = rememberCoroutineScope()
 
     when (bottomSheetData) {
-        is BottomSheetContent.ChangeAppearance -> {
-            ChangeAppearanceBottomSheet(
-                onUpdateColorMode = { contentHandler.updateColorMode(it) },
-                onHideBottomSheet = onHideBottomSheet
-            )
-        }
-
         is BottomSheetContent.UserUploadChannelSwitcher -> {
             ChannelSwitchBottomSheet(
                 channelEntityList = bottomSheetData.channels,

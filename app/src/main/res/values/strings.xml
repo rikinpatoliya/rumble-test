@@ -369,7 +369,8 @@
     <string name="email_sent_instructions">Please check your email “%s” and follow the instructions to verify your email.</string>
     <string name="сongratulations">Congratulations!</string>
     <string name="email_successfully_verified_message">Your email address has been successfully verified</string>
-    <string name="send_rant">Send a Rant</string>
+    <string name="send_a_rant">Send a Rant</string>
+    <string name="send_rant">Send Rant</string>
     <string name="rant_will_stick">The rant will stick for</string>
     <plurals name="minutes_duration">
         <item quantity="one">1 minute</item>
@@ -377,6 +378,14 @@
     </plurals>
     <string name="buy_send">Buy And Send</string>
     <string name="rants">Rants</string>
+    <string name="support_channel">Support Channel</string>
+    <string name="gift_subscription">Gift Subscription</string>
+    <string name="show_support_make_your_message_stand_out">Show your support and make your message stand out.</string>
+    <string name="gift_rumble_premium_subscriptions_to_community">Gift out Rumble Premium subscriptions to the community.</string>
+    <string name="gift_rumble_premium">Gift Rumble Premium</string>
+    <string name="gift_rumble_premium_description">Gift up to 50 Rumble Premium subscriptions. Once purchased Rumble will randomize the recipients.</string>
+    <string name="gift_x_premium_sub">Gift %d Premium Sub</string>">
+    <string name="dollar_sign">$</string>">
     <string name="about">About</string>
     <string name="by_continuing">By continuing, you verify that, in addition to the Rumble Website Terms and Conditions of Use and Rumble Privacy Policy (both of which you agreed to upon creating your Rumble account), you also agree to the following</string>
     <string name="watching">watching</string>

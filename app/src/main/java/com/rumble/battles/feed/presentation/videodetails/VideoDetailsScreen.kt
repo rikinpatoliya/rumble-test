@@ -97,7 +97,9 @@ import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.VideoDetails
 import com.rumble.battles.VideoPlayerViewTag
+import com.rumble.battles.bottomSheets.GiftRumblePremiumBottomSheet
 import com.rumble.battles.bottomSheets.PremiumOptionsBottomSheet
+import com.rumble.battles.bottomSheets.SupportChannelBottomSheet
 import com.rumble.battles.comments.CommentsView
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
@@ -1760,6 +1762,18 @@ private fun BottomSheetDialog(
                     }
                 )
             }
+
+            BottomSheetReason.SupportChannel -> SupportChannelBottomSheet(
+                onRantsClick = handler::onOpenBuyRantSheet,
+                onGiftClick = handler::onGiftRumblePremiumSheet,
+                onClose = handler::onCloseBottomSheet
+            )
+
+            BottomSheetReason.GiftRumblePremium -> GiftRumblePremiumBottomSheet(
+                channelName = state.channelDetailsEntity?.channelTitle ?: "",
+                imageUrl = state.channelDetailsEntity?.thumbnail ?: "",
+                verifiedBadge = state.channelDetailsEntity?.verifiedBadge ?: false,
+            )
         }
     }
 }

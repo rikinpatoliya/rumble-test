@@ -36,7 +36,6 @@ import com.rumble.domain.feed.domain.usecase.GetFreshChannelsUseCase
 import com.rumble.domain.feed.domain.usecase.GetVideoCollectionsUseCase
 import com.rumble.domain.feed.domain.usecase.GetViewCollectionTitleUseCase
 import com.rumble.domain.feed.domain.usecase.SaveVideoCollectionViewUseCase
-import com.rumble.domain.feed.domain.usecase.VoteVideoUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.domain.video.domain.usecases.GetLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.InitVideoCardPlayerUseCase
@@ -223,16 +222,17 @@ class HomeViewModel @Inject constructor(
                     collectionType = videoCollection
                 )
             }
-
+            val numberOfColumns = columnsNumberUseCase(videoCollection)
             homeScreenState.value = homeScreenState.value.copy(
                 selectedCollection = videoCollection,
+                numberOfColumns = numberOfColumns,
                 feedList = getFeedListUseCase(
                     videoCollection,
                     getViewCollectionTitleUseCase(
                         viewCollectionType = videoCollection,
                         defaultTitle = getApplication<Application>().getString(R.string.home_category_my_feed)
                     ),
-                    homeScreenState.value.numberOfColumns
+                    numberOfColumns
                 ).cachedIn(viewModelScope)
             )
         }
@@ -350,7 +350,9 @@ class HomeViewModel @Inject constructor(
 
     override fun updateNumberOfGridColumns() {
         homeScreenState.value = homeScreenState.value.copy(
-            numberOfColumns = columnsNumberUseCase()
+            numberOfColumns = columnsNumberUseCase(
+                homeScreenState.value.selectedCollection
+            )
         )
     }
 

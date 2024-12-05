@@ -145,7 +145,6 @@ interface ContentHandler : VideoOptionsHandler, AddToPlayListHandler, EditPlayLi
     val videoDetailsState: State<VideoDetailsState>
     val userUIState: StateFlow<UserUIState>
 
-    fun updateColorMode(colorMode: ColorMode)
     fun updateBottomSheetUiState(data: BottomSheetContent, bottomSheetScrimColor: Color? = null)
     fun notifyUserAboutUploads(list: List<UploadVideoEntity>)
     fun onDeepLinkNavigated()
@@ -187,7 +186,6 @@ data class UserUIState(
 
 sealed class BottomSheetContent {
     data object HideBottomSheet : BottomSheetContent()
-    data object ChangeAppearance : BottomSheetContent()
     data class UserUploadChannelSwitcher(val channels: List<UserUploadChannelEntity>) :
         BottomSheetContent()
 
@@ -472,12 +470,6 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun isPremiumUser() = userUIState.value.isPremiumUser
-
-    override fun updateColorMode(colorMode: ColorMode) {
-        viewModelScope.launch(errorHandler) {
-            userPreferenceManager.saveColorMode(colorMode)
-        }
-    }
 
     override fun updateBottomSheetUiState(data: BottomSheetContent, bottomSheetScrimColor: Color?) {
         viewModelScope.launch(errorHandler) {

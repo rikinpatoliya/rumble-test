@@ -231,7 +231,7 @@ private fun HeaderView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = R.string.send_rant),
+                text = stringResource(id = R.string.send_a_rant),
                 style = h3,
                 color = MaterialTheme.colors.primary
             )

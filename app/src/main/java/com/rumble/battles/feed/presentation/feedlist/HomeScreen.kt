@@ -3,6 +3,7 @@ package com.rumble.battles.feed.presentation.feedlist
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,6 +52,7 @@ import com.rumble.battles.MatureContentPopupTag
 import com.rumble.battles.R
 import com.rumble.battles.SwipeRefreshTag
 import com.rumble.battles.commonViews.BottomNavigationBarScreenSpacer
+import com.rumble.battles.commonViews.CalculatePaddingForTabletWidth
 import com.rumble.battles.commonViews.EmptyView
 import com.rumble.battles.commonViews.PageLoadingView
 import com.rumble.battles.commonViews.RumbleLogoSearchHeaderView
@@ -365,197 +367,203 @@ private fun HomeSmallScreenContent(
     soundOn: Boolean,
     activityHandler: RumbleActivityHandler
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(listConnection),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        state = listState,
-    ) {
-        if (userUIState.isLoggedIn && state.numberOfColumns < RumbleConstants.HOME_SCREEN_ROWS_3) {
+    BoxWithConstraints {
+        val contentPadding = CalculatePaddingForTabletWidth(maxWidth = maxWidth)
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(listConnection),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            state = listState,
+        ) {
+            if (userUIState.isLoggedIn && state.numberOfColumns < RumbleConstants.HOME_SCREEN_ROWS_3) {
+                item {
+                    FreshChannelListView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colors.onPrimary),
+                        freshChannels = state.freshChannels,
+                        numberOfColumns = state.numberOfColumns,
+                        onFreshContentChannelClick = onFreshContentChannelClick,
+                        onPlusChannelsClick = onViewAllRecommendedChannelsClick
+                    )
+                }
+            }
+
             item {
-                FreshChannelListView(
+                VideoCollectionSelectorView(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colors.onPrimary),
-                    freshChannels = state.freshChannels,
-                    numberOfColumns = state.numberOfColumns,
-                    onFreshContentChannelClick = onFreshContentChannelClick,
-                    onPlusChannelsClick = onViewAllRecommendedChannelsClick
+                        .background(MaterialTheme.colors.surface)
+                        .padding(
+                            top = paddingXSmall,
+                            bottom = paddingSmall
+                        ),
+                    videoCollections = categories,
+                    onCollectionClick = {
+                        homeHandler.onVideoCollectionClick(it)
+                    },
+                    selectedCollection = state.selectedCollection
                 )
             }
-        }
 
-        item {
-            VideoCollectionSelectorView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.surface)
-                    .padding(
-                        top = paddingXSmall,
-                        bottom = paddingSmall
-                    ),
-                videoCollections = categories,
-                onCollectionClick = {
-                    homeHandler.onVideoCollectionClick(it)
-                },
-                selectedCollection = state.selectedCollection
-            )
-        }
+            items(
+                count = videoListItems.itemCount,
+                key = videoListItems.itemKey(),
+                contentType = videoListItems.itemContentType()
+            ) { index ->
+                val feed = videoListItems[index]
+                feed?.let {
+                    when (it) {
+                        is FeaturedChannelsFeedItem -> {
+                            FeaturedChannelListView(
+                                modifier = Modifier
+                                    .padding(horizontal = contentPadding)
+                                    .padding(top = paddingLarge, bottom = paddingSmall),
+                                contentHandler = contentHandler,
+                                recommendedChannelsHandler = recommendedChannelsHandler,
+                                onChannelClick = onChannelClick,
+                                onViewAllClick = onViewAllRecommendedChannelsClick
+                            )
+                        }
 
-        items(
-            count = videoListItems.itemCount,
-            key = videoListItems.itemKey(),
-            contentType = videoListItems.itemContentType()
-        ) { index ->
-            val feed = videoListItems[index]
-            feed?.let {
-                when (it) {
-                    is FeaturedChannelsFeedItem -> {
-                        FeaturedChannelListView(
-                            modifier = Modifier
-                                .padding(top = paddingLarge, bottom = paddingSmall),
-                            contentHandler = contentHandler,
-                            recommendedChannelsHandler = recommendedChannelsHandler,
-                            onChannelClick = onChannelClick,
-                            onViewAllClick = onViewAllRecommendedChannelsClick
-                        )
-                    }
+                        is VideoEntity -> {
+                            VideoView(
+                                modifier = Modifier
+                                    .padding(horizontal = contentPadding)
+                                    .padding(
+                                        top = paddingXXSmall,
+                                        bottom = paddingXXSmall
+                                    )
+                                    .fillMaxWidth(homeWidthRatio),
+                                videoEntity = it,
+                                rumblePlayer = homeHandler.currentPlayerState.value,
+                                soundOn = soundOn,
+                                onChannelClick = { onChannelClick(it.channelId) },
+                                onMoreClick = { videoEntity ->
+                                    contentHandler.onMoreVideoOptionsClicked(
+                                        videoEntity
+                                    )
+                                },
+                                onImpression = homeHandler::onVideoCardImpression,
+                                onPlayerImpression = homeHandler::onPlayerImpression,
+                                onClick = homeHandler::onVideoClick,
+                                onSoundClick = homeHandler::onSoundClick,
+                                isPremiumUser = contentHandler.isPremiumUser(),
+                            )
+                        }
 
-                    is VideoEntity -> {
-                        VideoView(
-                            modifier = Modifier
-                                .padding(
-                                    top = paddingXXSmall,
-                                    bottom = paddingXXSmall
-                                )
-                                .fillMaxWidth(homeWidthRatio),
-                            videoEntity = it,
-                            rumblePlayer = homeHandler.currentPlayerState.value,
-                            soundOn = soundOn,
-                            onChannelClick = { onChannelClick(it.channelId) },
-                            onMoreClick = { videoEntity ->
-                                contentHandler.onMoreVideoOptionsClicked(
-                                    videoEntity
-                                )
-                            },
-                            onImpression = homeHandler::onVideoCardImpression,
-                            onPlayerImpression = homeHandler::onPlayerImpression,
-                            onClick = homeHandler::onVideoClick,
-                            onSoundClick = homeHandler::onSoundClick,
-                            isPremiumUser = contentHandler.isPremiumUser(),
-                        )
-                    }
+                        is RumbleAdEntity -> {
+                            RumbleAdView(
+                                modifier = Modifier
+                                    .padding(horizontal = contentPadding)
+                                    .padding(vertical = paddingXMedium)
+                                    .fillMaxWidth(homeWidthRatio),
+                                rumbleAdEntity = it,
+                                onClick = { addEntity ->
+                                    activityHandler.onOpenWebView(addEntity.clickUrl)
+                                },
+                                onLaunch = homeHandler::onRumbleAdImpression,
+                                onResumed = homeHandler::onRumbleAdResumed
+                            )
+                        }
 
-                    is RumbleAdEntity -> {
-                        RumbleAdView(
-                            modifier = Modifier.padding(
-                                horizontal = paddingMedium,
-                                vertical = paddingXMedium
-                            ),
-                            rumbleAdEntity = it,
-                            onClick = { addEntity ->
-                                activityHandler.onOpenWebView(addEntity.clickUrl)
-                            },
-                            onLaunch = homeHandler::onRumbleAdImpression,
-                            onResumed = homeHandler::onRumbleAdResumed
-                        )
-                    }
+                        is PremiumBanner -> {
+                            PremiumBannerView(
+                                modifier = Modifier
+                                    .padding(horizontal = contentPadding),
+                                onClick = {
+                                    contentHandler.onShowSubscriptionOptions(
+                                        videoId = null,
+                                        source = SubscriptionSource.Home
+                                    )
+                                },
+                                onDismiss = homeHandler::onDismissPremiumBanner
+                            )
+                        }
 
-                    is PremiumBanner -> {
-                        PremiumBannerView(
-                            modifier = Modifier.padding(
-                                horizontal = paddingXMedium,
-                            ),
-                            onClick = {
-                                contentHandler.onShowSubscriptionOptions(
-                                    videoId = null,
-                                    source = SubscriptionSource.Home
-                                )
-                            },
-                            onDismiss = homeHandler::onDismissPremiumBanner
-                        )
-                    }
-
-                    is RepostEntity -> {
-                        RepostFeedView(
-                            modifier = Modifier.padding(
-                                horizontal = paddingXMedium,
-                                vertical = paddingXSmall
-                            ),
-                            repost = it,
-                            onChannelClick = { id ->
-                                onChannelClick(id)
-                            },
-                            onVideoClick = homeHandler::onVideoClick,
-                            onMoreClick = { contentHandler.onOpenRepostMoreActions(it) }
-                        )
+                        is RepostEntity -> {
+                            RepostFeedView(
+                                modifier = Modifier
+                                    .padding(
+                                        horizontal = contentPadding + paddingSmall,
+                                        vertical = paddingXSmall
+                                    ),
+                                repost = it,
+                                onChannelClick = { id ->
+                                    onChannelClick(id)
+                                },
+                                onVideoClick = homeHandler::onVideoClick,
+                                onMoreClick = { contentHandler.onOpenRepostMoreActions(it) }
+                            )
+                        }
                     }
                 }
             }
-        }
-        videoListItems.apply {
-            when {
-                loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
-                    item {
-                        Column(modifier = Modifier.fillParentMaxSize()) {
-                            EmptyView(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                                    .padding(paddingMedium),
-                                title = getEmptyStateTitle(state.selectedCollection),
-                                text = getEmptyStateMessage(state.selectedCollection)
-                            )
-                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
-                        }
-                    }
-                }
-
-                loadState.refresh is LoadState.Error ->
-                    item {
-                        Column(modifier = Modifier.fillParentMaxSize()) {
-                            ErrorView(
-                                modifier = Modifier
-                                    .fillParentMaxSize()
-                                    .padding(paddingMedium),
-                                backgroundColor = MaterialTheme.colors.onSecondary,
-                                onRetry = homeHandler::onRefreshAll
-                            )
-                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+            videoListItems.apply {
+                when {
+                    loadState.refresh is LoadState.NotLoading && videoListItems.itemCount == 0 -> {
+                        item {
+                            Column(modifier = Modifier.fillParentMaxSize()) {
+                                EmptyView(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .padding(paddingMedium),
+                                    title = getEmptyStateTitle(state.selectedCollection),
+                                    text = getEmptyStateMessage(state.selectedCollection)
+                                )
+                                BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                            }
                         }
                     }
 
-                loadState.append is LoadState.Loading -> {
-                    item {
-                        PageLoadingView(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .padding(paddingMedium)
-                        )
-                    }
-                }
+                    loadState.refresh is LoadState.Error ->
+                        item {
+                            Column(modifier = Modifier.fillParentMaxSize()) {
+                                ErrorView(
+                                    modifier = Modifier
+                                        .fillParentMaxSize()
+                                        .padding(paddingMedium),
+                                    backgroundColor = MaterialTheme.colors.onSecondary,
+                                    onRetry = homeHandler::onRefreshAll
+                                )
+                                BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                            }
+                        }
 
-                loadState.append is LoadState.Error -> {
-                    item {
-                        Column(modifier = Modifier.fillParentMaxSize()) {
-                            ErrorView(
+                    loadState.append is LoadState.Loading -> {
+                        item {
+                            PageLoadingView(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .wrapContentHeight()
-                                    .padding(paddingMedium),
-                                backgroundColor = MaterialTheme.colors.onSecondary,
-                                onRetry = videoListItems::retry,
+                                    .padding(paddingMedium)
                             )
-                            BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                        }
+                    }
+
+                    loadState.append is LoadState.Error -> {
+                        item {
+                            Column(modifier = Modifier.fillParentMaxSize()) {
+                                ErrorView(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .padding(paddingMedium),
+                                    backgroundColor = MaterialTheme.colors.onSecondary,
+                                    onRetry = videoListItems::retry,
+                                )
+                                BottomNavigationBarScreenSpacer(bottomBarSpacerListEmptyState)
+                            }
                         }
                     }
                 }
             }
-        }
-        item {
-            BottomNavigationBarScreenSpacer()
+            item {
+                BottomNavigationBarScreenSpacer()
+            }
         }
     }
 }
