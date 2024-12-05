@@ -21,7 +21,6 @@ fun JoinActionButton(
     when (joinActionData.joinActionType) {
         JoinActionType.WITH_TEXT -> {
             ActionButton(
-                modifier = Modifier.width(channelActionsButtonWidth),
                 text = joinActionData.localsCommunityEntity.joinButtonText.takeIf { it.isNotBlank() }
                     ?: stringResource(id = R.string.join),
                 backgroundColor = brandedLocalsRed,
