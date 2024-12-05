@@ -27,8 +27,8 @@ class RepostRemoteDataSourceImpl(
             }).flow
 
     override fun fetchRepostData(
-        userId: String,
-        channelId: String,
+        userId: String?,
+        channelId: String?,
         pageSize: Int
     ): Flow<PagingData<Feed>> =
         Pager(

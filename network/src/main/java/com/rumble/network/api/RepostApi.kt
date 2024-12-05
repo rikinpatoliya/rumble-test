@@ -22,8 +22,8 @@ interface RepostApi {
 
     @GET("service.php?name=video_repost.list")
     suspend fun fetchReposts(
-        @Query("user_id") userId: String,
-        @Query("channel_id") channelId: String,
+        @Query("user_id") userId: String? = null,
+        @Query("channel_id") channelId: String? = null,
         @Query("offset") offset: Int? = null,
         @Query("limit") limit: Int? = null,
         @Query("options") options: String = Options.FULL.value

@@ -16,17 +16,16 @@ class FetchRepostListUseCase @Inject constructor(
     operator fun invoke(): Flow<PagingData<Feed>> =
         repostRepository.fetchFeedRepostData(pageSize = getVideoPageSizeUseCase())
 
-    //TODO: waiting for docs ro be updated. Current implementation is a guess method that gave some results
     operator fun invoke(userId: String, channelId: String?): Flow<PagingData<Feed>> =
         repostRepository.fetchRepostData(
-            userId = getChannelId(channelId),
-            channelId = "",
+            userId = getUserId(userId, channelId),
+            channelId = getChannelId(channelId),
             pageSize = getVideoPageSizeUseCase()
         )
 
-    private fun getChannelId(channelId: String?): String =
-        if (channelId.isNullOrEmpty()) "" else channelId.getChannelId().toString()
+    private fun getChannelId(channelId: String?): String? =
+        if (channelId.isNullOrEmpty()) null else channelId.getChannelId().toString()
 
-    private fun getUserId(userId: String): String =
-        if (userId.isEmpty()) "" else userId.getUserId().toString()
+    private fun getUserId(userId: String, channelId: String?): String? =
+        if (channelId.isNullOrEmpty().not()) null else userId.getUserId().toString()
 }

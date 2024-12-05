@@ -10,8 +10,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 class RepostPagingSource(
-    private val userId: String,
-    private val channelId: String,
+    private val userId: String?,
+    private val channelId: String?,
     private val repostApi: RepostApi,
     private val dispatcher: CoroutineDispatcher,
 ) : RumblePagingSource<Int, Feed>() {
