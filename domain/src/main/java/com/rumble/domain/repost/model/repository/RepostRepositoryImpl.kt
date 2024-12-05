@@ -25,8 +25,8 @@ class RepostRepositoryImpl(
         remoteDataSource.fetchFeedRepostData(pageSize)
 
     override fun fetchRepostData(
-        userId: String,
-        channelId: String,
+        userId: String?,
+        channelId: String?,
         pageSize: Int
     ): Flow<PagingData<Feed>> = remoteDataSource.fetchRepostData(userId, channelId, pageSize)
 

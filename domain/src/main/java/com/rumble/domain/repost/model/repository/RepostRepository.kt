@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RepostRepository {
     fun fetchFeedRepostData(pageSize: Int): Flow<PagingData<Feed>>
-    fun fetchRepostData(userId: String, channelId: String, pageSize: Int): Flow<PagingData<Feed>>
+    fun fetchRepostData(userId: String?, channelId: String?, pageSize: Int): Flow<PagingData<Feed>>
     suspend fun deleteRepost(repostId: Long): DeleteRepostResult
     suspend fun addRepost(videoId: Long, channelId: Long?, message: String): AddRepostResult
 }

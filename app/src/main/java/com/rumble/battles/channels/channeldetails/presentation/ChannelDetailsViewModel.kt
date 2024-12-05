@@ -23,6 +23,7 @@ import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoPlayerImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.camera.UploadVideoEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
@@ -457,8 +458,8 @@ class ChannelDetailsViewModel @Inject constructor(
                     getChannelVideosUseCase(uiState.value.channelId)
                 } else {
                     fetchRepostListUseCase(
-                        userId = "",
-                        channelId = uiState.value.channelDetailsEntity?.channelId
+                        userId = if (uiState.value.channelDetailsEntity?.type == ChannelType.USER) uiState.value.channelDetailsEntity?.channelId ?: "" else "",
+                        channelId =  if (uiState.value.channelDetailsEntity?.type == ChannelType.CHANNEL) uiState.value.channelDetailsEntity?.channelId ?: "" else "",
                     )
                 }).cachedIn(viewModelScope)
             )
