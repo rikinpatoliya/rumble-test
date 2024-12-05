@@ -1,15 +1,12 @@
 package com.rumble.battles.commonViews
 
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.brandedLocalsRed
-import com.rumble.theme.channelActionsButtonWidth
 import com.rumble.theme.enforcedWhite
 
 @Composable
