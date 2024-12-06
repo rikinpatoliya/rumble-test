@@ -472,7 +472,7 @@ private fun HomeSmallScreenContent(
                         is PremiumBanner -> {
                             PremiumBannerView(
                                 modifier = Modifier
-                                    .padding(horizontal = contentPadding),
+                                    .padding(horizontal = contentPadding + paddingMedium),
                                 onClick = {
                                     contentHandler.onShowSubscriptionOptions(
                                         videoId = null,

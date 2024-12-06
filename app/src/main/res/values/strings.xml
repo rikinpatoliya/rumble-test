@@ -385,6 +385,8 @@
     <string name="gift_rumble_premium">Gift Rumble Premium</string>
     <string name="gift_rumble_premium_description">Gift up to 50 Rumble Premium subscriptions. Once purchased Rumble will randomize the recipients.</string>
     <string name="gift_x_premium_sub">Gift %d Premium Sub</string>">
+    <string name="your_gift">Your Gift</string>">
+    <string name="gifted_you_a">&#x20;gifted you a&#x20;</string>">
     <string name="dollar_sign">$</string>">
     <string name="about">About</string>
     <string name="by_continuing">By continuing, you verify that, in addition to the Rumble Website Terms and Conditions of Use and Rumble Privacy Policy (both of which you agreed to upon creating your Rumble account), you also agree to the following</string>

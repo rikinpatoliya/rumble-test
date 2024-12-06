@@ -94,7 +94,6 @@ import com.rumble.domain.video.domain.usecases.SaveLastPositionUseCase
 import com.rumble.domain.video.domain.usecases.UpdateVideoPlayerSourceUseCase
 import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.network.dto.channel.ReportContentType
-import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.PAGINATION_VIDEO_PAGE_SIZE_PLAYLIST_VIDEO_DETAILS
@@ -1326,7 +1325,6 @@ class VideoDetailsViewModel @Inject constructor(
                 playListState.value = playListState.value?.copy(playListVideoList = videoList)
                 val playList = createRumblePlayListUseCase(
                     feedList = videoList,
-                    publisherId = PublisherId.AndroidApp,
                     shuffle = playListState.value?.inShuffleMode ?: false,
                     loop = playListState.value?.inLoopPlayListMode ?: false
                 )

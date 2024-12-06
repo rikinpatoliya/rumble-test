@@ -16,6 +16,7 @@ import com.rumble.domain.rumbleads.domain.domainmodel.VideoAdListResult
 import com.rumble.domain.rumbleads.model.repository.RumbleAdRepository
 import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.model.UserPreferenceManager
+import com.rumble.network.di.Publisher
 import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.videoplayer.domain.model.VideoAdDataEntity
 import kotlinx.coroutines.flow.first
@@ -30,13 +31,13 @@ class FetchVideoAdListUseCase @Inject constructor(
     private val createPreRollVideoIdUseCase: CreatePreRollVideoIdUseCase,
     private val userPreferenceManager: UserPreferenceManager,
     private val developModeUseCase: IsDevelopModeUseCase,
-    override val rumbleErrorUseCase: RumbleErrorUseCase
+    override val rumbleErrorUseCase: RumbleErrorUseCase,
+    @Publisher private val publisherId: PublisherId,
 ) : RumbleUseCase {
     suspend operator fun invoke(
         videoId: Long,
         watchedTime: Float = 0f,
         initTime: Long,
-        publisherId: PublisherId = PublisherId.AndroidApp,
         autoPlay: Boolean
     ): VideoAdDataEntity {
         return if (userPreferenceManager.disableAdsFlow.first()) {

@@ -7,8 +7,6 @@ import com.rumble.domain.feed.domain.usecase.GetVideoDetailsUseCase
 import com.rumble.domain.rumbleads.domain.usecase.FetchVideoAdListUseCase
 import com.rumble.domain.rumbleads.domain.usecase.SendAdEventUseCase
 import com.rumble.domain.timerange.domain.usecases.SaveTimeRangeUseCase
-import com.rumble.network.di.Publisher
-import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.VideoStartMethod
 import com.rumble.videoplayer.player.config.LiveVideoReportResult
@@ -27,7 +25,6 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
     private val fetchVideoAdListUseCase: FetchVideoAdListUseCase,
     private val sendAdEventUseCase: SendAdEventUseCase,
     private val lastPositionCanBeSavedUseCase: LastPositionCanBeSavedUseCase,
-    @Publisher private val publisherId: PublisherId
 ) {
     suspend operator fun invoke(
         videoId: Long,
@@ -61,7 +58,6 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                     videoStartMethod = videoStartMethod,
                     useLowQuality = useLowQuality,
                     relatedVideoList = emptyList(),
-                    publisherId = publisherId,
                     screenId = screenId,
                     includeMetadata = false,
                     requestLiveGateData = requestLiveGateData,
@@ -78,7 +74,6 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                     videoStartMethod = videoStartMethod,
                     useLowQuality = useLowQuality,
                     relatedVideoList = relatedVideoList,
-                    publisherId = publisherId,
                     screenId = screenId,
                     includeMetadata = videoEntity.includeMetadata,
                     requestLiveGateData = requestLiveGateData,

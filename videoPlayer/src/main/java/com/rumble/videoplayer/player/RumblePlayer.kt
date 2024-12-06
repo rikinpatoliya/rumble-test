@@ -49,7 +49,6 @@ import com.rumble.analytics.PRE_ROLL_FAILED
 import com.rumble.analytics.VideoPlaybackStalledEvent
 import com.rumble.analytics.VideoPlaybackUnstalledEvent
 import com.rumble.network.connection.NetworkTypeResolver
-import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
 import com.rumble.utils.RumbleConstants.PLAYER_STATE_UPDATE_RATIO
@@ -154,7 +153,7 @@ class RumblePlayer(
     // External callbacks
     private var reportLiveVideo: (suspend (Long, String, String, Boolean) -> LiveVideoReportResult?)? =
         null
-    private var fetchPreRollData: (suspend (Long, Float, Long, PublisherId, Boolean) -> VideoAdDataEntity)? =
+    private var fetchPreRollData: (suspend (Long, Float, Long, Boolean) -> VideoAdDataEntity)? =
         null
     private var onLiveVideoReport: ((Long, LiveVideoReportResult) -> Unit)? = null
     private var saveLastPosition: ((Long, Long) -> Unit)? = null
@@ -418,7 +417,7 @@ class RumblePlayer(
         if (inProgress and isPlaying()) {
             pauseVideo()
             resumeAfterSeek = true
-        } else if (inProgress.not() and resumeAfterSeek) {
+        } else if (inProgress.not()) {
             _playbackSate.value = PlayerPlaybackState.Playing(false)
             playVideo()
             resumeAfterSeek = false
@@ -481,7 +480,7 @@ class RumblePlayer(
         onTrackWatchedTime: (suspend () -> Unit)?,
         onTimeRange: ((TimeRangeData) -> Unit)?,
         onNextVideo: ((Long, String, Boolean) -> Unit)?,
-        fetchPreRollList: (suspend (Long, Float, Long, PublisherId, Boolean) -> VideoAdDataEntity)?,
+        fetchPreRollList: (suspend (Long, Float, Long, Boolean) -> VideoAdDataEntity)?,
         reportAdEvent: (suspend (List<String>, Long) -> Unit)?,
         preRollAdLoadingEvent: (() -> Unit)?,
         preRollAdStartedEvent: (() -> Unit)?,
@@ -832,7 +831,6 @@ class RumblePlayer(
                     it.videoId,
                     sessionManager.watchedTimeSinceLastAd.first(),
                     initTime,
-                    it.publisherId,
                     autoPlay
                 ) ?: VideoAdDataEntity()
                 playerAdsHelper.initPreRollList(
@@ -982,7 +980,7 @@ class RumblePlayer(
                     }
 
                     AdEvent.AdEventType.CLICKED -> {
-                        if (rumbleVideo?.publisherId == PublisherId.AndroidTv) {
+                        if (uiType == UiType.TV) {
                             if (adsPlayer?.isPlaying == true) adsPlayer?.pause()
                             else playAd()
                         } else {
@@ -1245,10 +1243,8 @@ class RumblePlayer(
 
     private fun handleAdAfterSeek() {
         if (playerTarget.value == PlayerTarget.LOCAL && _adPlaybackState.value !is AdPlaybackState.Buffering) {
-            if (player.currentPosition >= (player.duration - adCheckDelta)) {
-                countDownJob.cancel()
-                _currentCountDownValue.value = 0
-            } else if (playerAdsHelper.hasPreRollAfterSeek(player.currentPosition)) {
+            if (playerAdsHelper.hasPreRollAfterSeek(player.currentPosition) &&
+                (player.currentPosition < (player.duration - adCheckDelta))) {
                 loadAd(playerAdsHelper.currentIsMidRoll())
             }
         }

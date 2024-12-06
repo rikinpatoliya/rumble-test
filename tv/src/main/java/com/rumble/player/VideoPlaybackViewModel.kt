@@ -30,7 +30,6 @@ import com.rumble.network.connection.InternetConnectionObserver
 import com.rumble.network.connection.InternetConnectionState
 import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.network.dto.channel.ReportContentType
-import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
 import com.rumble.videoplayer.domain.model.VoteData
 import com.rumble.videoplayer.player.RumblePlayer
@@ -160,7 +159,6 @@ class VideoPlaybackViewModel @Inject constructor(
             val playList = createRumblePlayListUseCase(
                 title = title,
                 feedList = videoList,
-                publisherId = PublisherId.AndroidTv,
                 shuffle = shuffle,
                 loop = true,
                 requestLiveGateData = true,

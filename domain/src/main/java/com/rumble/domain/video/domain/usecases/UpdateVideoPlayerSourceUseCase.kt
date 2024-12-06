@@ -1,9 +1,7 @@
 package com.rumble.domain.video.domain.usecases
 
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
-import com.rumble.network.di.Publisher
 import com.rumble.network.dto.LiveStreamStatus
-import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.VideoStartMethod
 import javax.inject.Inject
@@ -11,7 +9,6 @@ import javax.inject.Inject
 class UpdateVideoPlayerSourceUseCase @Inject constructor(
     private val createRumbleVideoUseCase: CreateRumbleVideoUseCase,
     private val fetchRelatedVideoUseCase: FetchRelatedVideoListUseCase,
-    @Publisher private val publisherId: PublisherId
 ) {
 
     suspend operator fun invoke(
@@ -40,7 +37,6 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
                     videoStartMethod = videoStartMethod,
                     useLowQuality = useLowQuality,
                     relatedVideoList = emptyList(),
-                    publisherId = publisherId,
                     screenId = screenId,
                     includeMetadata = false,
                     requestLiveGateData = requestLiveGateData,
@@ -57,7 +53,6 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
                     videoStartMethod = videoStartMethod,
                     useLowQuality = useLowQuality,
                     relatedVideoList = relatedVideoList,
-                    publisherId = publisherId,
                     screenId = screenId,
                     includeMetadata = videoEntity.includeMetadata,
                     requestLiveGateData = requestLiveGateData,

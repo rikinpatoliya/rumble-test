@@ -1,6 +1,5 @@
 package com.rumble.videoplayer.player
 
-import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.videoplayer.player.config.BackgroundMode
 import com.rumble.videoplayer.player.config.PlayerVideoSource
 import com.rumble.videoplayer.player.config.RumbleVideoStatus
@@ -30,7 +29,6 @@ data class RumbleVideo(
     val displayVerifiedBadge: Boolean = false,
     val relatedVideoList: List<RumbleVideo> = emptyList(),
     val duration: Long = 0,
-    val publisherId: PublisherId = PublisherId.AndroidApp,
     val screenId: String = "",
     val verifiedBadge: Boolean = false,
     val uploadDate: LocalDateTime,

@@ -5,7 +5,6 @@ import com.rumble.domain.feed.domain.domainmodel.video.VideoStatus
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.network.dto.LiveStreamStatus
-import com.rumble.network.queryHelpers.PublisherId
 import com.rumble.network.session.SessionManager
 import com.rumble.videoplayer.player.RumbleLiveStreamStatus
 import com.rumble.videoplayer.player.RumbleVideo
@@ -31,7 +30,6 @@ class CreateRumbleVideoUseCase @Inject constructor(
         videoStartMethod: VideoStartMethod,
         useLowQuality: Boolean,
         relatedVideoList: List<RumbleVideo>,
-        publisherId: PublisherId,
         screenId: String,
         includeMetadata: Boolean,
         requestLiveGateData: Boolean,
@@ -91,7 +89,6 @@ class CreateRumbleVideoUseCase @Inject constructor(
             relatedVideoList = relatedVideoList,
             channelId = videoEntity.channelId,
             duration = videoEntity.duration,
-            publisherId = publisherId,
             screenId = screenId,
             verifiedBadge = videoEntity.verifiedBadge,
             uploadDate = videoEntity.uploadDate,

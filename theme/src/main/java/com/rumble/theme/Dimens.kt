@@ -225,3 +225,7 @@ val maxWidthForceUpdateText = 400.dp
 // Reposts
 val repostUpsellIcon = 250.dp
 val repostUpsellIconTablet = 380.dp
+
+//Premium
+val giftImageWidth = 29.dp
+val giftImageHeight = imageMedium
