@@ -30,6 +30,7 @@ import com.rumble.utils.RumbleConstants.COLLAPSE_ANIMATION_DURATION
 import com.rumble.utils.extension.toPx
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 enum class CollapseDirection {
     UP,
@@ -145,7 +146,7 @@ fun CollapsableLayout(
 
     Surface(
         modifier = modifier
-            .padding(top = (sheetOffset.value / LocalDensity.current.density).dp)
+            .padding(top = (max(sheetOffset.value / LocalDensity.current.density, 0f)).dp)
             .onGloballyPositioned { coordinates ->
                 if (maxOffset == 0f) {
                     containerHeight = coordinates.size.height.toFloat()
