@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -122,11 +123,17 @@ fun DebugSettings(settingsHandler: SettingsHandler) {
             onCheckedChange = settingsHandler::onDisplayDebugAdChanged,
             enabled = state.disableAds.not()
         )
+        val focusDirection = if (state.rumbleSubdomain.canResetSubdomain) {
+            FocusDirection.Down
+        } else {
+            FocusDirection.Up
+        }
 
         ChangeSubdomainInputField(
             value = state.subdomain,
             onValueChange = settingsHandler::onSubdomainChanged,
-            onSave = settingsHandler::onUpdateSubdomain
+            onSave = settingsHandler::onUpdateSubdomain,
+            focusDirection = focusDirection
         )
 
         if (state.rumbleSubdomain.canResetSubdomain) {
@@ -198,7 +205,8 @@ fun ChangeSubdomainInputField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    focusDirection: FocusDirection
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -239,6 +247,8 @@ fun ChangeSubdomainInputField(
                 // required for FireTV to hide keyboard on back pressed
                 hideKeyboard(context)
                 focusManager.clearFocus()
+                focusManager.moveFocus(focusDirection)
+
             }
         ),
         modifier = modifier
