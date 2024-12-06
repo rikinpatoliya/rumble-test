@@ -9,7 +9,6 @@ import coil.Coil
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
-import com.appsflyer.AppsFlyerConsent
 import com.appsflyer.AppsFlyerLib
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
@@ -80,14 +79,6 @@ class RumbleApplication : Application(), Configuration.Provider {
         val appsFlyerLib = AppsFlyerLib.getInstance()
         appsFlyerLib.subscribeForDeepLink(rumbleDeepLinkListener)
         appsFlyerLib.init(BuildConfig.APPS_FLYER_API_ID, rumbleAppsFlyerConversionListener, this)
-        val hasConsentForDataUsage = false
-        val hasConsentForAdsPersonalization = false
-        appsFlyerLib.setConsentData(
-            AppsFlyerConsent.forGDPRUser(
-                hasConsentForDataUsage,
-                hasConsentForAdsPersonalization
-            )
-        )
         appsFlyerLib.start(this)
     }
 

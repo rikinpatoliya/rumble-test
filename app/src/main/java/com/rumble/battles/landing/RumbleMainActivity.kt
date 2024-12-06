@@ -290,7 +290,7 @@ class RumbleMainActivity : FragmentActivity() {
                     activityHandler = viewModel,
                     contentHandler = contentViewModel,
                     authHandler = authViewModel,
-                    parentController = navController
+                    parentController = navController,
                 )
             }
             composable(LandingScreens.RegisterScreen.screenName) {

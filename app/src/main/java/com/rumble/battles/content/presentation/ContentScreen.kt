@@ -69,6 +69,7 @@ import com.rumble.battles.channels.channeldetails.presentation.ChannelDetailsVie
 import com.rumble.battles.commonViews.DefaultSystemBarIconsColor
 import com.rumble.battles.commonViews.RumbleModalBottomSheetLayout
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
+import com.rumble.battles.commonViews.dialogs.ConsentDialog
 import com.rumble.battles.commonViews.dialogs.DeletePlayListConfirmationAlertDialog
 import com.rumble.battles.commonViews.dialogs.DeleteWatchHistoryConfirmationAlertDialog
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
@@ -186,7 +187,7 @@ fun ContentScreen(
     activityHandler: RumbleActivityHandler,
     contentHandler: ContentHandler,
     authHandler: AuthHandler,
-    parentController: NavController
+    parentController: NavController,
 ) {
     val homeNavController = rememberNavController()
     val discoverNavController = rememberNavController()
@@ -444,6 +445,8 @@ fun ContentScreen(
                     )
                 }
 
+                is ContentScreenVmEvent.ShowConsentDialog -> activityHandler.onShowConsentDialog()
+
                 is ContentScreenVmEvent.PlayListUpdated -> {}
                 is ContentScreenVmEvent.PlayListCreated -> {}
                 is ContentScreenVmEvent.ChannelNotificationsUpdated -> {}
@@ -649,7 +652,7 @@ fun ContentScreen(
         ContentScreenDialog(
             reason = alertDialogState.alertDialogReason,
             handler = activityHandler,
-            contentHandler = contentHandler
+            contentHandler = contentHandler,
         )
     }
 
@@ -695,7 +698,7 @@ fun TabNavHost(
 private fun ContentScreenDialog(
     reason: AlertDialogReason,
     handler: RumbleActivityHandler,
-    contentHandler: ContentHandler
+    contentHandler: ContentHandler,
 ) {
     when (reason) {
         is RumbleActivityAlertReason.VideoDetailsFromNotificationFailedReason -> {
@@ -793,6 +796,10 @@ private fun ContentScreenDialog(
                     )
                 )
             )
+        }
+
+        is RumbleActivityAlertReason.ShowConsentDialog -> {
+            ConsentDialog(handler = handler)
         }
     }
 }

@@ -9,9 +9,9 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.domain.domainmodel.BackgroundPlay
 import com.rumble.domain.settings.domain.domainmodel.ColorMode
+import com.rumble.domain.settings.domain.domainmodel.DebugAdType
 import com.rumble.domain.settings.domain.domainmodel.ListToggleViewStyle
 import com.rumble.domain.settings.domain.domainmodel.PlaybackInFeedsMode
 import com.rumble.domain.settings.domain.domainmodel.UploadQuality
@@ -54,6 +54,7 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
     private val uitTestingModeKey = booleanPreferencesKey("uitTestingModeKey")
     private val previousVersionCodeKey = intPreferencesKey("previousVersionCodeKey")
     private val currentVersionCodeKey = intPreferencesKey("currentVersionCodeKey")
+    private val tosAcceptedKey = booleanPreferencesKey("tosAcceptedKey")
 
     val backgroundPlayFlow: Flow<BackgroundPlay> = context.dataStore.data
         .map { prefs ->
@@ -226,6 +227,12 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
         .catch {
             Timber.tag(TAG).e(it)
             emit(-1)
+        }
+    val tosAcceptedFlow: Flow<Boolean> = context.dataStore.data
+        .map { prefs -> prefs[tosAcceptedKey] ?: false }
+        .catch {
+            Timber.tag(TAG).e(it)
+            emit(false)
         }
 
     suspend fun saveBackgroundPlay(backgroundPlay: BackgroundPlay) {
@@ -461,10 +468,21 @@ class UserPreferenceManager @Inject constructor(@ApplicationContext private val 
             Timber.tag(TAG).e(e)
         }
     }
+
     suspend fun saveCurrentVersionCode(versionCode: Int) {
         try {
             context.dataStore.edit { prefs ->
                 prefs[currentVersionCodeKey] = versionCode
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun setTosAccepted() {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[tosAcceptedKey] = true
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)

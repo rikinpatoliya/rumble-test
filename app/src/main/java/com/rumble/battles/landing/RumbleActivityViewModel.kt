@@ -20,6 +20,7 @@ import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntit
 import com.rumble.domain.common.domain.usecase.AnnotatedStringUseCase
 import com.rumble.domain.common.domain.usecase.AnnotatedStringWithActionsList
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
+import com.rumble.domain.common.domain.usecase.SetConsentDataUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.landing.usecases.GetUserCookiesUseCase
 import com.rumble.domain.landing.usecases.LoginRequiredUseCase
@@ -113,6 +114,8 @@ interface RumbleActivityHandler {
     fun onLogException(e: Exception)
     fun handleNotifications(bundle: Bundle?)
     fun onDisplayRepostUndoWarning(repostId: Long)
+    fun onShowConsentDialog()
+    fun onAcceptTos()
 }
 
 
@@ -148,6 +151,7 @@ sealed class RumbleActivityAlertReason : AlertDialogReason {
     data object SubscriptionNotAvailable : RumbleActivityAlertReason()
     data class UndoRepostWarning(val repostId: Long) : RumbleActivityAlertReason()
     data object AppleInAppSubscription : RumbleActivityAlertReason()
+    data object ShowConsentDialog : RumbleActivityAlertReason()
 }
 
 data class ActivityHandlerState(
@@ -180,6 +184,7 @@ class RumbleActivityViewModel @Inject constructor(
     private val saveVersionCodeUseCase: SaveVersionCodeUseCase,
     private val prepareAppForTestingUseCase: PrepareAppForTestingUseCase,
     private val developModeUseCase: IsDevelopModeUseCase,
+    private val setConsentDataUseCase: SetConsentDataUseCase,
     application: Application,
 ) : AndroidViewModel(application), RumbleActivityHandler, PlayerTargetChangeListener {
 
@@ -480,6 +485,20 @@ class RumbleActivityViewModel @Inject constructor(
             show = true,
             alertDialogReason = RumbleActivityAlertReason.UndoRepostWarning(repostId)
         )
+    }
+
+    override fun onShowConsentDialog() {
+        alertDialogState.value = AlertDialogState(
+            show = true,
+            alertDialogReason = RumbleActivityAlertReason.ShowConsentDialog
+        )
+    }
+
+    override fun onAcceptTos() {
+        viewModelScope.launch {
+            setConsentDataUseCase(true)
+            alertDialogState.value = AlertDialogState()
+        }
     }
 
     private fun clearBundleKeys(savedStateHandle: SavedStateHandle) {

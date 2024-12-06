@@ -2,6 +2,7 @@ package com.rumble.domain.login.domain.usecases
 
 import com.rumble.domain.analytics.domain.usecases.RumbleErrorUseCase
 import com.rumble.domain.common.domain.usecase.RumbleUseCase
+import com.rumble.domain.common.domain.usecase.SetConsentDataUseCase
 import com.rumble.domain.landing.usecases.AppsFlySetUserIdUseCase
 import com.rumble.domain.landing.usecases.ExtractCookiesUseCase
 import com.rumble.domain.landing.usecases.OneSignalExternalUserIdUseCase
@@ -23,6 +24,7 @@ class SSOLoginUseCase @Inject constructor(
     private val appsFlySetUserIdUseCase: AppsFlySetUserIdUseCase,
     override val rumbleErrorUseCase: RumbleErrorUseCase,
     private val setUserPropertiesUseCase: SetUserPropertiesUseCase,
+    private val setConsentDataUseCase: SetConsentDataUseCase,
 ) : RumbleUseCase {
     suspend operator fun invoke(
         loginType: LoginType,
@@ -44,6 +46,7 @@ class SSOLoginUseCase @Inject constructor(
                 result.userPicture?.let { sessionManager.saveUserPicture(it) }
             sessionManager.saveLoginType(loginType.value)
             setOneSignalUserTagsUseCase(true)
+            setConsentDataUseCase(true)
         } else {
             result.rumbleError?.let {
                 rumbleErrorUseCase(it)

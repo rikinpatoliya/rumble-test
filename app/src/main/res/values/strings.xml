@@ -733,4 +733,10 @@
     <string name="new_app_update_available">New App Update Available</string>
     <string name="new_app_update_available_description">We just released a new version of the Rumble app. In order to access new features you’ll need to update.</string>
 
+    <!-- Consent dialog -->
+    <string name="accept_rumble_terms">Accept Rumble Terms</string>
+    <string name="consent_dialog_message">In order to provide you with a more tailored expense while using Rumble, please review and accept our</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
+
 </resources>

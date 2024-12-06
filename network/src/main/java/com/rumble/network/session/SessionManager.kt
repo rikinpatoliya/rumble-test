@@ -62,6 +62,7 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     private val firstAppLaunchKey = booleanPreferencesKey("firstAppLaunchKey")
     private val minEligibleAgeKey = intPreferencesKey("minEligibleAgeKey")
     private val disablePipKey = booleanPreferencesKey("disablePipKey")
+    private val consentDialogShwonKey = booleanPreferencesKey("showConsentDialogKey")
 
     val cookiesFlow: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[cookiesKey] ?: ""
@@ -243,7 +244,12 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         Timber.tag(TAG).e(it)
         emit(value = false)
     }
-
+    val consentDialogShownFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[consentDialogShwonKey] ?: false
+    }.catch {
+        Timber.tag(TAG).e(it)
+        emit(value = false)
+    }
 
     suspend fun saveWatchedTimeSinceLastAd(value: Float) {
         try {
@@ -616,6 +622,16 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         try {
             context.dataStore.edit { prefs ->
                 prefs[disablePipKey] = disable
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e)
+        }
+    }
+
+    suspend fun setConsentDialogShown() {
+        try {
+            context.dataStore.edit { prefs ->
+                prefs[consentDialogShwonKey] = true
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e)
