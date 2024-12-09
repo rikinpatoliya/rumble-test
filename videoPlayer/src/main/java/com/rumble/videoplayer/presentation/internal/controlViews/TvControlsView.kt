@@ -142,6 +142,12 @@ fun TvControlsView(
         }
     }
 
+    LaunchedEffect(menuVisible) {
+        if (!menuVisible) {
+            seekFocus.requestFocus()
+        }
+    }
+
     LaunchedEffect(focusedElement, menuVisible, actionInProgress) {
         onActionInProgress(true)
         delay(controlsInactiveDelay)
