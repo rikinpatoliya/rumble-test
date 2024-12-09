@@ -66,8 +66,8 @@
     <string name="and">and</string>
     <string name="rumble_terms_and_conditions">Rumble’s Website Terms and Conditions of Use and Agency Agreement</string>
     <string name="rumble_terms_and_conditions_url">https://rumble.com/s/terms?layout=bare</string>
-    <string name="rumble_privacy_policy">Rumble’s Privacy Policy</string>
-    <string name="rumble_privacy_policy_url">https://rumble.com/s/privacy?layout=bare</string>
+    <string name="rumbles_privacy_policy">Rumble’s Privacy Policy</string>
+    <string name="rumbles_privacy_policy_url">https://rumble.com/s/privacy?layout=bare</string>
     <string name="you_agree_to_our">You agree to our</string>
     <string name="terms_of_service">terms of service</string>
     <string name="choose_username">Please choose a username\nto complete registration</string>
@@ -389,7 +389,10 @@
     <string name="gifted_you_a">&#x20;gifted you a&#x20;</string>">
     <string name="dollar_sign">$</string>">
     <string name="about">About</string>
-    <string name="by_continuing">By continuing, you verify that, in addition to the Rumble Website Terms and Conditions of Use and Rumble Privacy Policy (both of which you agreed to upon creating your Rumble account), you also agree to the following</string>
+    <string name="by_continuing_part_1">By continuing, you verify that, in addition to the</string>
+    <string name="by_continuing_part_2">(both of which you agreed to upon creating your Rumble account), you also agree to the following</string>
+    <string name="rumble_website_terms_and_conditions_of_use">Rumble Website Terms and Conditions of Use</string>
+    <string name="rumble_privacy_policy">Rumble Privacy Policy</string>
     <string name="watching">watching</string>
     <string name="waiting">waiting</string>
     <string name="live_chat_deleted_message">Message was removed by moderator</string>

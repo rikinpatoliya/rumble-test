@@ -36,6 +36,7 @@ import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.CountDownType
 import com.rumble.videoplayer.player.config.LiveVideoReportResult
 import com.rumble.videoplayer.player.config.ReportType
+import com.rumble.videoplayer.player.config.VideoScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -123,6 +124,7 @@ class VideoPlaybackViewModel @Inject constructor(
                     saveLastPosition = saveLastPositionUseCase::invoke,
                     autoplay = updatedVideoEntity.hasLiveGate.not() || hasPremiumRestrictionUseCase(videoEntity).not(),
                     requestLiveGateData = true,
+                    videoScope = VideoScope.VideoDetails,
                     onNextVideo = { videoId, channelId, autoPlay ->
                         onNextVideo(videoId, channelId, autoPlay, true)
                     },
@@ -364,6 +366,7 @@ class VideoPlaybackViewModel @Inject constructor(
                         saveLastPosition = saveLastPositionUseCase::invoke,
                         screenId = videoDetailsScreen,
                         autoplay = autoplay,
+                        videoScope = VideoScope.VideoDetails,
                         updatedRelatedVideoList = updatedRelatedVideoList,
                         requestLiveGateData = true,
                         applyLastPosition = applyLastPosition,

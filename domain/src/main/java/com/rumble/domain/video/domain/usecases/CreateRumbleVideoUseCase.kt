@@ -13,6 +13,7 @@ import com.rumble.videoplayer.player.config.BackgroundMode
 import com.rumble.videoplayer.player.config.PlayerVideoSource
 import com.rumble.videoplayer.player.config.RumbleVideoStatus
 import com.rumble.videoplayer.player.config.StreamStatus
+import com.rumble.videoplayer.player.config.VideoScope
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -33,6 +34,7 @@ class CreateRumbleVideoUseCase @Inject constructor(
         screenId: String,
         includeMetadata: Boolean,
         requestLiveGateData: Boolean,
+        videoScope: VideoScope,
     ): RumbleVideo {
         val backgroundPlay =
             if (restrictBackground) BackgroundPlay.OFF
@@ -116,6 +118,7 @@ class CreateRumbleVideoUseCase @Inject constructor(
             liveStreamedOn = videoEntity.liveStreamedOn,
             requestLiveGateData = requestLiveGateData,
             hasLiveGate = videoEntity.hasLiveGate,
+            videoScope = videoScope,
         )
     }
 }

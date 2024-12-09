@@ -4,6 +4,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.network.dto.LiveStreamStatus
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.VideoStartMethod
+import com.rumble.videoplayer.player.config.VideoScope
 import javax.inject.Inject
 
 class UpdateVideoPlayerSourceUseCase @Inject constructor(
@@ -23,6 +24,7 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
         requestLiveGateData: Boolean = false,
         updatedRelatedVideoList: Boolean,
         videoStartMethod: VideoStartMethod = VideoStartMethod.URL_PROVIDED,
+        videoScope: VideoScope,
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
         onPremiumCountdownFinished:  (() -> Unit)? = null,
         onVideoReady: ((Long, RumblePlayer) -> Unit)? = null,
@@ -40,6 +42,7 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
                     screenId = screenId,
                     includeMetadata = false,
                     requestLiveGateData = requestLiveGateData,
+                    videoScope= videoScope,
                 )
             } else emptyList()
         return player.apply {
@@ -56,6 +59,7 @@ class UpdateVideoPlayerSourceUseCase @Inject constructor(
                     screenId = screenId,
                     includeMetadata = videoEntity.includeMetadata,
                     requestLiveGateData = requestLiveGateData,
+                    videoScope= videoScope,
                 ),
                 onSaveLastPosition = if (positionCanBeSaved(videoEntity.livestreamStatus)) { position, videoId ->
                     saveLastPosition(position, videoId)

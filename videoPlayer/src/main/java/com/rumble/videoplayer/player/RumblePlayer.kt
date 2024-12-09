@@ -65,6 +65,7 @@ import com.rumble.videoplayer.player.config.AdPlaybackState
 import com.rumble.videoplayer.player.config.BackgroundMode
 import com.rumble.videoplayer.player.config.CountDownType
 import com.rumble.videoplayer.player.config.DefaultResolution
+import com.rumble.videoplayer.player.config.InMemoryPlayerSpeedManager
 import com.rumble.videoplayer.player.config.LiveVideoReportResult
 import com.rumble.videoplayer.player.config.PlaybackSpeed
 import com.rumble.videoplayer.player.config.PlayerPlaybackState
@@ -72,6 +73,7 @@ import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.PlayerVideoSource
 import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.player.config.StreamStatus
+import com.rumble.videoplayer.player.config.VideoScope
 import com.rumble.videoplayer.player.internal.notification.PlayListType
 import com.rumble.videoplayer.player.internal.notification.RumblePlayList
 import com.rumble.videoplayer.presentation.UiType
@@ -368,12 +370,13 @@ class RumblePlayer(
 
     internal fun getAdsPlayerInstance(): ExoPlayer? = adsPlayer
 
-    internal fun setPlaybackSpeed(speed: PlaybackSpeed) {
+    internal fun setPlaybackSpeed(speed: PlaybackSpeed, scope: VideoScope = VideoScope.VideoDetails) {
         if (speed != currentPlaybackSpeed) {
             if (isPlaying()) {
                 notifyTimeRange()
                 setTimeRangeStartPosition()
             }
+            InMemoryPlayerSpeedManager.setPlayerSpeed(scope, speed)
             currentPlaybackSpeed = speed
             player.setPlaybackSpeed(speed.value)
         }
@@ -508,6 +511,7 @@ class RumblePlayer(
         _hasRelatedVideos.value =
             hasNextRelatedVideoUseCase(video.relatedVideoList, video, getAutoplayValue())
         autoPlayEnabled = relatedVideoList.isNotEmpty()
+        currentPlaybackSpeed = InMemoryPlayerSpeedManager.getPlayerSpeed(video.videoScope)
         resetState()
         initVideoData(video)
         playList?.let {
@@ -535,6 +539,7 @@ class RumblePlayer(
         this.onVideoReady = onVideoReady
         initTime = System.currentTimeMillis()
         saveLastPosition = onSaveLastPosition
+        currentPlaybackSpeed = InMemoryPlayerSpeedManager.getPlayerSpeed(video.videoScope)
         if (updatedRelatedVideoList) {
             relatedVideoList = video.relatedVideoList
             _hasRelatedVideos.value =
@@ -1089,6 +1094,7 @@ class RumblePlayer(
                     }
 
                     Player.STATE_READY -> {
+                        player.setPlaybackSpeed(currentPlaybackSpeed.value)
                         onVideoReady?.invoke(player.duration, this@RumblePlayer)
                         val currentState = this@RumblePlayer.playbackState.value
                         if (currentState is PlayerPlaybackState.Fetching) {

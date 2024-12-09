@@ -147,8 +147,10 @@ fun BuyRantSheet(
             RantMessageView(
                 rantLevelList = liveChatState.liveChatConfig?.rantConfig?.levelList ?: emptyList(),
                 message = rantMessage,
-                userName = if (state.selectedLiveChatAuthor == null) userName else state.selectedLiveChatAuthor?.title ?: "",
-                userThumbnail = if (state.selectedLiveChatAuthor == null) userThumbnail else state.selectedLiveChatAuthor?.thumbnail ?: "",
+                userName = if (state.selectedLiveChatAuthor == null) userName else state.selectedLiveChatAuthor?.title
+                    ?: "",
+                userThumbnail = if (state.selectedLiveChatAuthor == null) userThumbnail else state.selectedLiveChatAuthor?.thumbnail
+                    ?: "",
                 rantSelection = liveChatState.rantSelected,
                 liveChatConfig = liveChatState.liveChatConfig,
                 onChange = {
@@ -204,18 +206,41 @@ private fun HeaderView(
     onTerms: (String) -> Unit,
     onClose: () -> Unit
 ) {
-    val terms = stringResource(id = R.string.terms)
     val termsAnnotatedText = buildAnnotatedString {
         withStyle(SpanStyle(color = MaterialTheme.colors.primary)) {
-            append(stringResource(id = R.string.by_continuing))
+            append(stringResource(id = R.string.by_continuing_part_1))
+            append(" ")
+        }
+        withStyle(SpanStyle(color = wokeGreen)) {
+            pushStringAnnotation(
+                stringResource(id = R.string.rumble_terms_and_conditions_url),
+                stringResource(id = R.string.rumble_website_terms_and_conditions_of_use),
+            )
+            append(stringResource(id = R.string.rumble_website_terms_and_conditions_of_use))
+            append(" ")
+        }
+        withStyle(SpanStyle(color = MaterialTheme.colors.primary)) {
+            append(stringResource(id = R.string.and))
+            append(" ")
+        }
+        withStyle(SpanStyle(color = wokeGreen)) {
+            pushStringAnnotation(
+                stringResource(id = R.string.rumbles_privacy_policy_url),
+                stringResource(id = R.string.rumble_privacy_policy),
+            )
+            append(stringResource(id = R.string.rumble_privacy_policy))
+            append(" ")
+        }
+        withStyle(SpanStyle(color = MaterialTheme.colors.primary)) {
+            append(stringResource(id = R.string.by_continuing_part_2))
             append(" ")
         }
         withStyle(SpanStyle(color = wokeGreen)) {
             pushStringAnnotation(
                 stringResource(id = R.string.rumble_mobile_terms),
-                terms
+                stringResource(id = R.string.terms)
             )
-            append(terms)
+            append(stringResource(id = R.string.terms))
         }
     }
     val keyboardVisible by keyboardAsState()
@@ -241,7 +266,7 @@ private fun HeaderView(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_close),
                     contentDescription = stringResource(id = R.string.info),
-                    tint =  MaterialTheme.colors.primary
+                    tint = MaterialTheme.colors.primary
                 )
             }
         }

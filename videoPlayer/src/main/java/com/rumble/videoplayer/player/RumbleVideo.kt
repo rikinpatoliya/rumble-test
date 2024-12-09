@@ -4,6 +4,7 @@ import com.rumble.videoplayer.player.config.BackgroundMode
 import com.rumble.videoplayer.player.config.PlayerVideoSource
 import com.rumble.videoplayer.player.config.RumbleVideoStatus
 import com.rumble.videoplayer.player.config.StreamStatus
+import com.rumble.videoplayer.player.config.VideoScope
 import java.time.LocalDateTime
 
 data class RumbleVideo(
@@ -43,6 +44,7 @@ data class RumbleVideo(
     val isPremiumExclusiveContent: Boolean = false,
     val requestLiveGateData: Boolean = false,
     val hasLiveGate: Boolean = false,
+    val videoScope: VideoScope = VideoScope.Other,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

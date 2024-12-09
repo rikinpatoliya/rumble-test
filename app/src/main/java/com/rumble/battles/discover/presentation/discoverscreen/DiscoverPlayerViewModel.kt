@@ -51,6 +51,7 @@ import com.rumble.network.dto.channel.ReportContentType
 import com.rumble.network.session.SessionManager
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.ReportType
+import com.rumble.videoplayer.player.config.VideoScope
 import com.rumble.videoplayer.presentation.views.SettingsBottomSheetHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -293,6 +294,7 @@ class DiscoverPlayerViewModel @Inject constructor(
                 loopWhenFinished = true,
                 restrictBackground = true,
                 useLowQuality = true,
+                videoScope = VideoScope.Other,
                 screenId = discoverPlayerScreen,
                 saveLastPosition = { lastPosition, videoId ->
                     saveLastPositionUseCase(lastPosition, videoId)

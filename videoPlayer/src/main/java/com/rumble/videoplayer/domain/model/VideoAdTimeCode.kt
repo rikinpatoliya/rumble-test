@@ -1,9 +1,9 @@
 package com.rumble.videoplayer.domain.model
 
 sealed class VideoAdTimeCode {
-    object None : VideoAdTimeCode()
-    object PostRoll : VideoAdTimeCode()
-    object PreRoll : VideoAdTimeCode()
+    data object None : VideoAdTimeCode()
+    data object PostRoll : VideoAdTimeCode()
+    data object PreRoll : VideoAdTimeCode()
     data class SecondsFromStart(val seconds: Long) : VideoAdTimeCode()
     data class SecondsFromEnd(val seconds: Long) : VideoAdTimeCode()
     data class Percentage(val percentage: Int) : VideoAdTimeCode()

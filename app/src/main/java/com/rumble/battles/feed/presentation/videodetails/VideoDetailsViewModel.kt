@@ -104,6 +104,7 @@ import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.ReportType
 import com.rumble.videoplayer.player.config.RumbleVideoMode
+import com.rumble.videoplayer.player.config.VideoScope
 import com.rumble.videoplayer.presentation.UiType
 import com.rumble.videoplayer.presentation.views.SettingsBottomSheetHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -1555,6 +1556,7 @@ class VideoDetailsViewModel @Inject constructor(
             screenId = videoDetailsScreen,
             onVideoSizeDefined = ::onVideoSizeDefined,
             autoplay = videoEntity.hasLiveGate.not() || hasPremiumRestrictionUseCase(videoEntity).not(),
+            videoScope = VideoScope.VideoDetails,
             onNextVideo = ::onNextVideo,
             showAds = sessionManager.isPremiumUserFlow.first().not(),
             sendInitialPlaybackEvent = {
@@ -1608,6 +1610,7 @@ class VideoDetailsViewModel @Inject constructor(
                         saveLastPosition = saveLastPositionUseCase::invoke,
                         screenId = videoDetailsScreen,
                         autoplay = autoplay,
+                        videoScope = VideoScope.VideoDetails,
                         updatedRelatedVideoList = updatedRelatedVideoList,
                         onPremiumCountdownFinished = {
                             onEnforceLiveGatePremiumRestriction()

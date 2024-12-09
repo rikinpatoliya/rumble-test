@@ -11,6 +11,7 @@ import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.VideoStartMethod
 import com.rumble.videoplayer.player.config.LiveVideoReportResult
 import com.rumble.videoplayer.player.config.StreamStatus
+import com.rumble.videoplayer.player.config.VideoScope
 import com.rumble.videoplayer.player.internal.notification.RumblePlayList
 import javax.inject.Inject
 
@@ -36,6 +37,7 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
         autoplay: Boolean = false,
         showAds: Boolean = false,
         requestLiveGateData: Boolean = false,
+        videoScope: VideoScope,
         videoStartMethod: VideoStartMethod = VideoStartMethod.URL_PROVIDED,
         saveLastPosition: (Long, Long) -> Unit = { _, _ -> },
         liveVideoReport: ((Long, LiveVideoReportResult) -> Unit)? = null,
@@ -61,6 +63,7 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                     screenId = screenId,
                     includeMetadata = false,
                     requestLiveGateData = requestLiveGateData,
+                    videoScope = videoScope,
                 )
             } else emptyList()
         val videoPlayer = createPlayerUseCase()
@@ -77,6 +80,7 @@ class InitVideoPlayerSourceUseCase @Inject constructor(
                     screenId = screenId,
                     includeMetadata = videoEntity.includeMetadata,
                     requestLiveGateData = requestLiveGateData,
+                    videoScope = videoScope,
                 ),
                 reportLiveVideo = reportLiveVideoUseCase::invoke,
                 onLiveVideoReport = liveVideoReport,

@@ -74,7 +74,7 @@ private fun buildConsentStringWithActions(
             val endIndexPrivacy = this.length
             addStringAnnotation(
                 tag = TAG_URL,
-                annotation = stringResource(id = R.string.rumble_privacy_policy_url),
+                annotation = stringResource(id = R.string.rumbles_privacy_policy_url),
                 start = startIndexPrivacy,
                 end = endIndexPrivacy
             )

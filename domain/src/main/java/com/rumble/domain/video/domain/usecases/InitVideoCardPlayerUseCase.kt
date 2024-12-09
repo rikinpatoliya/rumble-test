@@ -6,6 +6,7 @@ import com.rumble.domain.settings.domain.usecase.PlaybackInFeedsEnabledUseCase
 import com.rumble.domain.settings.model.UserPreferenceManager
 import com.rumble.videoplayer.player.RumblePlayer
 import com.rumble.videoplayer.player.config.LiveVideoReportResult
+import com.rumble.videoplayer.player.config.VideoScope
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -29,6 +30,7 @@ class InitVideoCardPlayerUseCase @Inject constructor(
                 restrictBackground = true,
                 useLowQuality = true,
                 screenId = screenId,
+                videoScope = VideoScope.Other,
                 saveLastPosition = { lastPosition, videoId ->
                     if (soundOn) saveLastPositionUseCase(lastPosition, videoId)
                 },

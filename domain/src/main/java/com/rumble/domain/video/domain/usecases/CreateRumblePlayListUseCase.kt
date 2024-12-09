@@ -4,6 +4,7 @@ import com.rumble.domain.analytics.domain.domainmodel.videoDetailsScreen
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.videoplayer.player.VideoStartMethod
+import com.rumble.videoplayer.player.config.VideoScope
 import com.rumble.videoplayer.player.internal.notification.RumblePlayList
 import javax.inject.Inject
 
@@ -32,6 +33,7 @@ class CreateRumblePlayListUseCase @Inject constructor(
                 screenId = videoDetailsScreen,
                 includeMetadata = it.includeMetadata,
                 requestLiveGateData = requestLiveGateData,
+                videoScope = VideoScope.Other,
             )
         },
         shuffle = shuffle,
