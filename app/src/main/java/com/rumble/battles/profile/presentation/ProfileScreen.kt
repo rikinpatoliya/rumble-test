@@ -126,8 +126,8 @@ fun ProfileScreen(
                     )
                 }
 
-                ProfileScreenEvent.Error -> {
-                    contentHandler.onError(null)
+                is ProfileScreenEvent.Error -> {
+                    contentHandler.onError(it.errorMessage)
                 }
 
                 is ProfileScreenEvent.NavigateHome -> {

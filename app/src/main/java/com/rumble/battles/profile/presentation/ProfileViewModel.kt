@@ -14,6 +14,7 @@ import com.rumble.domain.camera.UploadStatus
 import com.rumble.domain.camera.UploadVideoEntity
 import com.rumble.domain.camera.domain.usecases.GetUploadVideoUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.profile.domain.GetAppVersionUseCase
@@ -74,7 +75,7 @@ sealed class ProfileAlertDialogReason : AlertDialogReason {
 }
 
 sealed class ProfileScreenEvent {
-    data object Error : ProfileScreenEvent()
+    data class Error(val errorMessage: String? = null) : ProfileScreenEvent()
     data class CopyVersionToClipboard(val version: String) : ProfileScreenEvent()
     data object NavigateHome: ProfileScreenEvent()
 }
@@ -117,13 +118,15 @@ class ProfileViewModel @Inject constructor(
                 uiState.value = uiState.value.copy(isLoggedIn = it.isNotEmpty())
                 if (it.isNotEmpty()) {
                     val userId = sessionManager.userIdFlow.first()
-                    getChannelDataUseCase(userId)
-                        .onSuccess { channelDetailEntity ->
-                            screenSate.value = ProfileScreenState.LoggedIn(channelDetailEntity)
+                    when(val result = getChannelDataUseCase(userId)) {
+                        is FetchChannelDataResult.Success -> {
+                            screenSate.value = ProfileScreenState.LoggedIn(result.channelData)
                         }
-                        .onFailure { throwable ->
-                            handleError(throwable)
+
+                        is FetchChannelDataResult.Failure -> {
+                            emitVmEvent(ProfileScreenEvent.Error(result.errorMessage))
                         }
+                    }
                 }
             }
         }
@@ -248,7 +251,7 @@ class ProfileViewModel @Inject constructor(
 
     private fun handleError(throwable: Throwable) {
         unhandledErrorUseCase(TAG, throwable)
-        emitVmEvent(ProfileScreenEvent.Error)
+        emitVmEvent(ProfileScreenEvent.Error())
     }
 
     private fun emitVmEvent(vmEvent: ProfileScreenEvent) {

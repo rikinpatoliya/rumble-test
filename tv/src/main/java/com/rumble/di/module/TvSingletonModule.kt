@@ -195,13 +195,15 @@ class TvSingletonModule {
     fun provideChannelRemoteDataSource(
         channelApi: ChannelApi,
         videoApi: VideoApi,
-        userApi: UserApi
+        userApi: UserApi,
+        errorConverter: Converter<ResponseBody, ErrorResponse>?
     ): ChannelRemoteDataSource =
         ChannelRemoteDataSourceImpl(
             channelApi,
             videoApi,
             userApi,
             Dispatchers.IO,
+            errorConverter
         )
 
     @Provides

@@ -1,7 +1,13 @@
 package com.rumble.domain.channels.model.repository
 
 import androidx.paging.PagingData
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.*
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.RoomChannelFollow
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsData
 import com.rumble.domain.channels.model.datasource.ChannelRemoteDataSource
 import com.rumble.domain.channels.model.datasource.local.ChannelFollowDao
@@ -24,7 +30,7 @@ class ChannelRepositoryImpl(
     private val dispatcher: CoroutineDispatcher,
 ) : ChannelRepository {
 
-    override suspend fun fetchChannelData(id: String): Result<CreatorEntity> =
+    override suspend fun fetchChannelData(id: String): FetchChannelDataResult =
         withContext(dispatcher) {
             channelRemoteDataSource.fetchChannelData(id)
         }

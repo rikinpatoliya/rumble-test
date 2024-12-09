@@ -27,6 +27,7 @@ import com.rumble.domain.camera.domain.usecases.DeleteUploadVideoUseCase
 import com.rumble.domain.camera.domain.usecases.GetUploadVideoUseCase
 import com.rumble.domain.camera.domain.usecases.RestartUploadVideoUseCase
 import com.rumble.domain.camera.domain.usecases.RestartWaitingConnectionVideoUploadsUseCase
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
@@ -426,18 +427,21 @@ class MyVideosViewModel @Inject constructor(
     }
 
     private suspend fun fetchUserChannelData() {
-        getChannelDataUseCase(uiState.value.userId)
-            .onSuccess { channelDetailEntity ->
+        when(val result = getChannelDataUseCase(uiState.value.userId)) {
+            is FetchChannelDataResult.Success -> {
                 uiState.update {
                     it.copy(
-                        channelDetailsEntity = channelDetailEntity,
+                        channelDetailsEntity = result.channelData,
                         loading = false
                     )
                 }
             }
-            .onFailure { throwable ->
-                handleFailure(throwable)
+
+            is FetchChannelDataResult.Failure -> {
+                uiState.update { it.copy(loading = false) }
+                emitVmEvent(ChannelDetailsVmEvent.Error(errorMessage = result.errorMessage))
             }
+        }
     }
 
     private suspend fun fetchUserUploadChannels() {

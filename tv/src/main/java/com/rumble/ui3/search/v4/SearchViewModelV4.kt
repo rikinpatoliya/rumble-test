@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.search.domain.useCases.SearchChannelsUseCase
@@ -143,7 +144,12 @@ class SearchViewModelV4 @Inject constructor(
         uiState.value = SearchFragmentStates.List
     }
 
-    fun refreshChannelData(channelObject: CreatorEntity): CreatorEntity?{
-        return runBlocking(errorHandler) { getChannelDataUseCase(channelObject.channelId).getOrNull() }
+    fun refreshChannelData(channelObject: CreatorEntity): CreatorEntity? {
+        return runBlocking(errorHandler) {
+            when(val result = getChannelDataUseCase(channelObject.channelId)) {
+                is FetchChannelDataResult.Success -> result.channelData
+                is FetchChannelDataResult.Failure -> null
+            }
+        }
     }
 }

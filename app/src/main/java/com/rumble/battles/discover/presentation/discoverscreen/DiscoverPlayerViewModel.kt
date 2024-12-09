@@ -17,6 +17,7 @@ import com.rumble.battles.navigation.RumblePath
 import com.rumble.domain.analytics.domain.domainmodel.discoverPlayerScreen
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelSubscriptionUseCase
@@ -254,22 +255,28 @@ class DiscoverPlayerViewModel @Inject constructor(
 
     override fun onFollowChannel(channelId: String) {
         viewModelScope.launch(errorHandler) {
-            getChannelDataUseCase(channelId).getOrNull()?.let { channelDetailsEntity ->
-                updateChannelSubscriptionUseCase(
-                    channelDetailsEntity = channelDetailsEntity,
-                    action = UpdateChannelSubscriptionAction.SUBSCRIBE
-                )
-                    .onSuccess { channelDetailEntity ->
-                        uiState.value.currentVideoEntity?.let {
-                            followedVideoEntity.value = it.copy(
-                                channelFollowed = channelDetailEntity.followed
-                            )
+            when(val result = getChannelDataUseCase(channelId)) {
+                is FetchChannelDataResult.Success -> {
+                    updateChannelSubscriptionUseCase(
+                        channelDetailsEntity = result.channelData,
+                        action = UpdateChannelSubscriptionAction.SUBSCRIBE
+                    )
+                        .onSuccess { channelDetailEntity ->
+                            uiState.value.currentVideoEntity?.let {
+                                followedVideoEntity.value = it.copy(
+                                    channelFollowed = channelDetailEntity.followed
+                                )
+                            }
                         }
-                    }
-                    .onFailure { throwable ->
-                        unhandledErrorUseCase(TAG, throwable)
-                        emitVmEvent(DiscoverPlayerVmEvent.DiscoverPlayerError())
-                    }
+                        .onFailure { throwable ->
+                            unhandledErrorUseCase(TAG, throwable)
+                            emitVmEvent(DiscoverPlayerVmEvent.DiscoverPlayerError())
+                        }
+                }
+
+                is FetchChannelDataResult.Failure -> {
+                    emitVmEvent(DiscoverPlayerVmEvent.DiscoverPlayerError(errorMessage = result.errorMessage))
+                }
             }
         }
     }

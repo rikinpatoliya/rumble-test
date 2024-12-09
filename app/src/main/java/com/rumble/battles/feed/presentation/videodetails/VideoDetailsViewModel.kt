@@ -35,6 +35,7 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorsResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
@@ -1764,10 +1765,12 @@ class VideoDetailsViewModel @Inject constructor(
 
     private suspend fun fetchChannelDetails(channelId: String?) {
         channelId?.let {
-            val result = viewModelScope.async { getChannelDataUseCase(it).getOrNull() }
+            val result = viewModelScope.async { getChannelDataUseCase(it)}
             val isPremium = isPremiumUserFlow.first()
-            result.await()?.let { channel ->
-                updateChannelDetails(channel, isPremium)
+            result.await().let { resultData ->
+                if (resultData is FetchChannelDataResult.Success) {
+                    updateChannelDetails(resultData.channelData, isPremium)
+                }
             }
         }
     }

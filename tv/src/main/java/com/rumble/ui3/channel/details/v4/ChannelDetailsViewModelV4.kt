@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelVideosUseCase
@@ -155,8 +156,19 @@ class ChannelDetailsViewModelV4 @Inject constructor(
 
     override fun onLoadChannelData() {
         viewModelScope.launch(errorHandler) {
-            channelObject = channelId?.let { getChannelDataUseCase(it).getOrNull() }
-            channelDetails.value = channelObject
+            channelId?.let {
+                when(val result = getChannelDataUseCase(it)) {
+                    is FetchChannelDataResult.Success -> {
+                        channelDetails.value = result.channelData
+                    }
+
+                    is FetchChannelDataResult.Failure -> {
+                        channelDetails.value = null
+                    }
+                }
+            } ?: run {
+                channelDetails.value = null
+            }
         }
     }
 

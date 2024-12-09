@@ -67,7 +67,15 @@ fun PremiumSubscriptionBottomSheet(
         withStyle(SpanStyle(color = rumbleGreen)) {
             pushStringAnnotation(TAG_URL, stringResource(id = R.string.rumble_mobile_terms))
             append(stringResource(id = R.string.terms_of_service_capital))
-            pop()
+        }
+        append(" ")
+        withStyle(SpanStyle(color = enforcedLite)) {
+            append(stringResource(id = R.string.and))
+        }
+        append(" ")
+        withStyle(SpanStyle(color = rumbleGreen)) {
+            pushStringAnnotation(TAG_URL, stringResource(id = R.string.rumbles_privacy_policy_url))
+            append(stringResource(id = R.string.privacy_policy))
         }
     }
 

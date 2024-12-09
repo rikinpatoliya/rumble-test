@@ -24,6 +24,7 @@ import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoCardImpressionUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.FollowStatus
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
@@ -171,7 +172,7 @@ class PlayListViewModel @Inject constructor(
             loadStates.append,
             loadStates.prepend,
             loadStates.refresh
-        ).filterIsInstance(LoadState.Error::class.java).firstOrNull()?.let { errorState ->
+        ).filterIsInstance<LoadState.Error>().firstOrNull()?.let { errorState ->
             unhandledErrorUseCase(TAG, errorState.error)
             emitVmEvent(PlayListScreenVmEvent.Error())
         }
@@ -202,10 +203,15 @@ class PlayListViewModel @Inject constructor(
 
     override fun onUpdateSubscription(action: UpdateChannelSubscriptionAction) {
         viewModelScope.launch(errorHandler) {
-            getChannelDataUseCase(state.value.playListEntity.channelId).getOrNull()
-                ?.let { channel ->
-                    emitVmEvent(PlayListScreenVmEvent.UpdateChannelSubscription(channel, action))
+            when(val result = getChannelDataUseCase(state.value.playListEntity.channelId)) {
+                is FetchChannelDataResult.Success -> {
+                    emitVmEvent(PlayListScreenVmEvent.UpdateChannelSubscription(result.channelData, action))
                 }
+
+                is FetchChannelDataResult.Failure -> {
+                    emitVmEvent(PlayListScreenVmEvent.Error(errorMessage = result.errorMessage))
+                }
+            }
         }
     }
 

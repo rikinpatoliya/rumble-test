@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.rumble.R
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetFeaturedChannelsUseCase
 import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
@@ -228,8 +229,13 @@ class HomeViewModelV4 @Inject constructor(
 
     }
 
-    fun refreshChannelData(channelObject: CreatorEntity): CreatorEntity? {
-        return runBlocking(errorHandler) { getChannelDataUseCase(channelObject.channelId).getOrNull() }
+    private fun refreshChannelData(channelObject: CreatorEntity): CreatorEntity? {
+        return runBlocking(errorHandler) {
+            when(val result =  getChannelDataUseCase(channelObject.channelId)) {
+                is FetchChannelDataResult.Success -> result.channelData
+                is FetchChannelDataResult.Failure -> null
+            }
+        }
     }
 
     private fun updateChannelDetails() {

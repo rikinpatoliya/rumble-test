@@ -2,20 +2,22 @@ package com.rumble.domain.channels.model.datasource
 
 import androidx.paging.Pager
 import androidx.paging.PagingData
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsData
-import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.common.model.RumbleError
+import com.rumble.domain.common.model.getRumblePagingConfig
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.domain.feed.model.getCreatorEntity
 import com.rumble.domain.feed.model.getUserUploadChannelEntity
 import com.rumble.network.api.ChannelApi
 import com.rumble.network.api.UserApi
 import com.rumble.network.api.VideoApi
+import com.rumble.network.dto.livechat.ErrorResponse
 import com.rumble.network.queryHelpers.Action
 import com.rumble.network.queryHelpers.Sort
 import com.rumble.network.queryHelpers.Type
@@ -23,6 +25,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
+import okhttp3.ResponseBody
+import retrofit2.Converter
 
 
 private const val TAG = "ChannelRemoteDataSourceImpl"
@@ -32,15 +36,21 @@ class ChannelRemoteDataSourceImpl(
     private val videoApi: VideoApi,
     private val userApi: UserApi,
     private val dispatcher: CoroutineDispatcher,
+    private val errorConverter: Converter<ResponseBody, ErrorResponse>?,
 ) : ChannelRemoteDataSource {
 
-    override suspend fun fetchChannelData(id: String): Result<CreatorEntity> {
+    override suspend fun fetchChannelData(id: String): FetchChannelDataResult {
         val response = channelApi.fetchChannelData(id)
         val responseBody = response.body()
         return if (response.isSuccessful && responseBody != null)
-            Result.success(responseBody.data.getCreatorEntity())
-        else
-            Result.failure(IllegalStateException("fetchChannelData failed"))
+            FetchChannelDataResult.Success(responseBody.data.getCreatorEntity())
+        else {
+            response.errorBody()?.let {
+                val error = errorConverter?.convert(it)
+                val errorMessage = error?.errors?.firstOrNull()?.message ?: ""
+                FetchChannelDataResult.Failure(RumbleError(TAG, response.raw()), errorMessage = errorMessage)
+            } ?: FetchChannelDataResult.Failure(RumbleError(TAG, response.raw()), null)
+        }
     }
 
     override suspend fun fetchUserUploadChannels(): UserUploadChannelsResult {

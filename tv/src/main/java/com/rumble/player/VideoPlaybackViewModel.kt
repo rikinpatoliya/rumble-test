@@ -10,6 +10,7 @@ import com.rumble.domain.analytics.domain.usecases.LogRumbleVideoUseCase
 import com.rumble.domain.analytics.domain.usecases.LogVideoDetailsUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
 import com.rumble.domain.common.domain.usecase.InternetConnectionUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.UserVote
@@ -455,5 +456,9 @@ class VideoPlaybackViewModel @Inject constructor(
         }
 
     private suspend fun fetchChannelDetails(channelId: String): CreatorEntity? =
-        viewModelScope.async { getChannelDataUseCase(channelId).getOrNull() }.await()
+        viewModelScope.async {
+            val result = getChannelDataUseCase(channelId)
+            if (result is FetchChannelDataResult.Success) result.channelData
+            else null
+        }.await()
 }

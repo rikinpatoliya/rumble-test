@@ -9,11 +9,14 @@ import com.rumble.domain.feed.model.datasource.local.ChannelViewDao
 import com.rumble.network.api.ChannelApi
 import com.rumble.network.api.UserApi
 import com.rumble.network.api.VideoApi
+import com.rumble.network.dto.livechat.ErrorResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import javax.inject.Singleton
 
 @Module
@@ -26,12 +29,14 @@ object ChannelModule {
         channelApi: ChannelApi,
         videoApi: VideoApi,
         userApi: UserApi,
+        errorConverter: Converter<ResponseBody, ErrorResponse>?
     ): ChannelRemoteDataSource =
         ChannelRemoteDataSourceImpl(
             channelApi,
             videoApi,
             userApi,
             Dispatchers.IO,
+            errorConverter,
         )
 
     @Provides

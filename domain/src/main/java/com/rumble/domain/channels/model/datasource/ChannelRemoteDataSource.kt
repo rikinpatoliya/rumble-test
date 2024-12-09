@@ -1,7 +1,12 @@
 package com.rumble.domain.channels.model.datasource
 
 import androidx.paging.PagingData
-import com.rumble.domain.channels.channeldetails.domain.domainmodel.*
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelListResult
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.UpdateChannelSubscriptionAction
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelsResult
 import com.rumble.domain.channels.channeldetails.domain.usecase.UpdateChannelNotificationsData
 import com.rumble.domain.feed.domain.domainmodel.Feed
 import com.rumble.network.queryHelpers.Sort
@@ -9,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChannelRemoteDataSource {
 
-    suspend fun fetchChannelData(id: String): Result<CreatorEntity>
+    suspend fun fetchChannelData(id: String): FetchChannelDataResult
 
     suspend fun fetchUserUploadChannels(): UserUploadChannelsResult
 

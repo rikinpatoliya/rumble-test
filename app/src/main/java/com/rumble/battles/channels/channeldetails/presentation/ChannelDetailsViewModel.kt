@@ -25,6 +25,7 @@ import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.camera.UploadVideoEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.ChannelType
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.FetchChannelDataResult
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.LocalsCommunityEntity
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.UserUploadChannelEntity
 import com.rumble.domain.channels.channeldetails.domain.usecase.GetChannelDataUseCase
@@ -243,25 +244,27 @@ class ChannelDetailsViewModel @Inject constructor(
         viewModelScope.launch(errorHandler) {
             uiState.update { it.copy(loading = true) }
             val isPremium = sessionManager.isPremiumUserFlow.first()
-            getChannelDataUseCase(uiState.value.channelId)
-                .onSuccess { channelDetailEntity ->
-                    val showPremiumFlow = channelDetailEntity.localsCommunityEntity?.showPremiumFlow ?: false
+            when( val result = getChannelDataUseCase(uiState.value.channelId)) {
+                is FetchChannelDataResult.Success -> {
+                    val showPremiumFlow = result.channelData.localsCommunityEntity?.showPremiumFlow ?: false
                     // Only log the view on the first load
                     if (uiState.value.channelDetailsEntity == null) {
-                        logChannelViewUseCase(channelDetailEntity.channelId)
+                        logChannelViewUseCase(result.channelData.channelId)
                     }
                     uiState.update {
                         it.copy(
-                            channelDetailsEntity = channelDetailEntity,
+                            channelDetailsEntity = result.channelData,
                             loading = false,
-                            shareAvailable = channelDetailEntity.channelUrl.isNullOrEmpty().not(),
+                            shareAvailable = result.channelData.channelUrl.isNullOrEmpty().not(),
                             showJoinButton = (showPremiumFlow && isPremium.not()) || showPremiumFlow.not()
                         )
                     }
                 }
-                .onFailure { throwable ->
-                    handleFailure(throwable)
+
+                is FetchChannelDataResult.Failure -> {
+                    handleFailure(result.errorMessage)
                 }
+            }
         }
     }
 
@@ -466,10 +469,9 @@ class ChannelDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun handleFailure(throwable: Throwable) {
+    private fun handleFailure(errorMessage: String?) {
         uiState.update { it.copy(loading = false) }
-        unhandledErrorUseCase(TAG, throwable)
-        emitVmEvent(ChannelDetailsVmEvent.Error())
+        emitVmEvent(ChannelDetailsVmEvent.Error(errorMessage = errorMessage))
     }
 
     private fun emitVmEvent(event: ChannelDetailsVmEvent) {
