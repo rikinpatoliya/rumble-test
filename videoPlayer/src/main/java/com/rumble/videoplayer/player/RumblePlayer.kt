@@ -678,14 +678,19 @@ class RumblePlayer(
     }
 
     fun replay() {
-        _playbackSate.value = PlayerPlaybackState.Playing(false)
-        _hasRelatedVideos.value =
-            hasNextRelatedVideoUseCase(relatedVideoList, rumbleVideo, getAutoplayValue())
-        player.setMediaItem(buildMediaItem(currentVideoSource?.videoUrl))
-        player.prepare()
-        player.playWhenReady = true
-        player.seekTo(0)
-        trackTimeRange()
+        try {
+            _playbackSate.value = PlayerPlaybackState.Playing(false)
+            _hasRelatedVideos.value =
+                hasNextRelatedVideoUseCase(relatedVideoList, rumbleVideo, getAutoplayValue())
+            player.setMediaItem(buildMediaItem(currentVideoSource?.videoUrl))
+            player.prepare()
+            player.playWhenReady = true
+            player.seekTo(0)
+            trackTimeRange()
+        } catch(e: Exception) {
+            _playbackSate.value = PlayerPlaybackState.Error()
+            sendErrorReport(e.message ?: "")
+        }
     }
 
     fun isPlaying() =

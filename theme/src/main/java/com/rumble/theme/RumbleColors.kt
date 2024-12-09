@@ -43,6 +43,7 @@ private val gray25 = Color(0xFFF6F7F9)
 private val gray950 = Color(0xFF1B2127)
 private val gray900 = Color(0xFF283139)
 private val gray100 = Color(0xFFCCD4DC)
+private val gray500 = Color(0xFF6B8399)
 
 // Enforced colors - use only if sure about theme-independent color
 val enforcedBlack = black
@@ -58,6 +59,7 @@ val enforcedGray25 = gray25
 val enforcedGray950 = gray950
 val enforcedGray900 = gray900
 val enforcedGray100 = gray100
+val enforcedGray500 = Color(0xFF6B8399)
 
 // Placeholders colors
 val placeholderColor1 = Color(0xFF42A7C7)
