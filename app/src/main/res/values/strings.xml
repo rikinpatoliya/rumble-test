@@ -739,4 +739,10 @@
     <string name="decline">Decline</string>
     <string name="accept">Accept</string>
 
+    <!-- Premium gifts -->
+    <plurals name="gifted_premium_subscriptions">
+        <item quantity="one">Gifted %d Rumble Premium subscription</item>
+        <item quantity="other">Gifted %d Rumble Premium subscriptions</item>
+    </plurals>
+
 </resources>

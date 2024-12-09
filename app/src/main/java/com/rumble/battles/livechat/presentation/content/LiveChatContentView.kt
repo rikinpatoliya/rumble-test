@@ -26,6 +26,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
@@ -58,6 +59,7 @@ fun LiveChatContentView(
     badges: Map<String, BadgeEntity> = emptyMap(),
     atMentionRange: IntRange? = null,
     userNameColor: Color = MaterialTheme.colors.primary,
+    textStyle: TextStyle = RumbleTypography.h6Light,
     onClick: () -> Unit = {},
     onLinkClick: (String) -> Unit = {},
 ) {
@@ -170,7 +172,7 @@ fun LiveChatContentView(
             },
         inlineContent = inlineContent + inlineEmotesContent,
         text = annotatedText,
-        style = RumbleTypography.h6Light,
+        style = textStyle,
         color = MaterialTheme.colors.primary,
         onTextLayout = {
             layoutResult = it
