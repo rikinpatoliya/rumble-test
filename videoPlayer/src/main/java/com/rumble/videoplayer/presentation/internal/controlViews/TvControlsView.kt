@@ -404,12 +404,7 @@ fun TvControlsView(
                     menuType = MenuType.REPORT,
                     isFocused = focusedElement == Focusable.REPORT,
                     onReport = onReport,
-                    onMenuVisibilityChange = { visible ->
-                        menuVisible = visible
-                        if (!visible) {
-                            seekFocus.requestFocus()
-                        }
-                    }
+                    onMenuVisibilityChange = { menuVisible = it }
                 )
 
                 TvSettingsView(
@@ -433,12 +428,7 @@ fun TvControlsView(
                     rumblePlayer = rumblePlayer,
                     menuType = MenuType.SPEED_MENU,
                     isFocused = focusedElement == Focusable.SPEED,
-                    onMenuVisibilityChange = { visible ->
-                        menuVisible = visible
-                        if (!visible) {
-                            seekFocus.requestFocus()
-                        }
-                    }
+                    onMenuVisibilityChange = { menuVisible = it }
                 )
 
                 TvSettingsView(
@@ -460,12 +450,7 @@ fun TvControlsView(
                     rumblePlayer = rumblePlayer,
                     menuType = MenuType.QUALITY_MENU,
                     isFocused = focusedElement == Focusable.QUALITY,
-                    onMenuVisibilityChange = { visible ->
-                        menuVisible = visible
-                        if (!visible) {
-                            seekFocus.requestFocus()
-                        }
-                    }
+                    onMenuVisibilityChange = { menuVisible = it }
                 )
 
                 TvAddToPlaylistButton(
