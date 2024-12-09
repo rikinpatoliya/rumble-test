@@ -142,6 +142,12 @@ fun TvControlsView(
         }
     }
 
+    LaunchedEffect(menuVisible) {
+        if (!menuVisible) {
+            seekFocus.requestFocus()
+        }
+    }
+
     LaunchedEffect(focusedElement, menuVisible, actionInProgress) {
         onActionInProgress(true)
         delay(controlsInactiveDelay)
@@ -398,7 +404,12 @@ fun TvControlsView(
                     menuType = MenuType.REPORT,
                     isFocused = focusedElement == Focusable.REPORT,
                     onReport = onReport,
-                    onMenuVisibilityChange = { menuVisible = it }
+                    onMenuVisibilityChange = { visible ->
+                        menuVisible = visible
+                        if (!visible) {
+                            seekFocus.requestFocus()
+                        }
+                    }
                 )
 
                 TvSettingsView(
@@ -422,7 +433,12 @@ fun TvControlsView(
                     rumblePlayer = rumblePlayer,
                     menuType = MenuType.SPEED_MENU,
                     isFocused = focusedElement == Focusable.SPEED,
-                    onMenuVisibilityChange = { menuVisible = it }
+                    onMenuVisibilityChange = { visible ->
+                        menuVisible = visible
+                        if (!visible) {
+                            seekFocus.requestFocus()
+                        }
+                    }
                 )
 
                 TvSettingsView(
@@ -444,7 +460,12 @@ fun TvControlsView(
                     rumblePlayer = rumblePlayer,
                     menuType = MenuType.QUALITY_MENU,
                     isFocused = focusedElement == Focusable.QUALITY,
-                    onMenuVisibilityChange = { menuVisible = it }
+                    onMenuVisibilityChange = { visible ->
+                        menuVisible = visible
+                        if (!visible) {
+                            seekFocus.requestFocus()
+                        }
+                    }
                 )
 
                 TvAddToPlaylistButton(
