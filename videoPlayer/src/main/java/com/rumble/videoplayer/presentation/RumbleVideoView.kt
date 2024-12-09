@@ -414,28 +414,32 @@ fun RumbleVideoView(
                 if (adPlaybackState is AdPlaybackState.Buffering) {
                     AdLoadingScreen(modifier = Modifier.fillMaxSize())
                 } else {
-                    AndroidView(
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(playerBackgroundColor),
-                        factory = {
-                            rumblePlayer.adPlayerView
-                                .apply { resizeMode = aspectRatioMode }
-                                .also {
-                                    if (uiType != UiType.TV && it.parent != null) {
-                                        (it.parent as? ViewGroup)?.removeView(it)
+                            .background(playerBackgroundColor)
+                    ) {
+                        AndroidView(
+                            modifier = Modifier.fillMaxSize(),
+                            factory = {
+                                rumblePlayer.adPlayerView
+                                    .apply { resizeMode = aspectRatioMode }
+                                    .also {
+                                        if (uiType != UiType.TV && it.parent != null) {
+                                            (it.parent as? ViewGroup)?.removeView(it)
+                                        }
                                     }
-                                }
-                        },
-                        update = { playerView ->
-                            if (isFullScreen)
-                                playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                            else if (isCollapsingMiniPlayerInProgress)
-                                playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-                            else
-                                playerView.resizeMode = aspectRatioMode
-                        }
-                    )
+                            },
+                            update = { playerView ->
+                                if (isFullScreen)
+                                    playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                                else if (isCollapsingMiniPlayerInProgress)
+                                    playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                                else
+                                    playerView.resizeMode = aspectRatioMode
+                            }
+                        )
+                    }
                 }
             }
         }
