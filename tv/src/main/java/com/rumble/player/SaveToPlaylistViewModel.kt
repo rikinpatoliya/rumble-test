@@ -125,8 +125,6 @@ class SaveToPlaylistViewModel @Inject constructor(
                 }
             }
 
-            refreshPlaylists()
-
             if (playlistId == PlayListType.WATCH_LATER.toString()) {
                 fetchWatchLaterPlaylist()
             }
@@ -150,8 +148,6 @@ class SaveToPlaylistViewModel @Inject constructor(
                 }
             }
             
-            refreshPlaylists()
-
             if (playlistId == PlayListType.WATCH_LATER.toString()) {
                 fetchWatchLaterPlaylist()
             }
@@ -160,11 +156,6 @@ class SaveToPlaylistViewModel @Inject constructor(
 
     override fun onDismiss() {
         state.value = state.value.copy(visible = false)
-    }
-
-    private fun refreshPlaylists() {
-        val updatedPlaylists = getLibraryPlayListsPagedUseCase()
-        state.value = state.value.copy(playlists = updatedPlaylists)
     }
 
 }
