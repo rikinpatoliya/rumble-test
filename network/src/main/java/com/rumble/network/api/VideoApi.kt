@@ -1,5 +1,6 @@
 package com.rumble.network.api
 
+import com.rumble.network.NetworkRumbleConstants.RUMBLE_VIDEO_API_VERSION
 import com.rumble.network.dto.collection.CollectionListResponse
 import com.rumble.network.dto.collection.CollectionListWithoutVideosResponse
 import com.rumble.network.dto.comments.CommentVoteBody
@@ -44,6 +45,7 @@ interface VideoApi {
 
     @GET("service.php?name=user.subscription_feed")
     suspend fun fetchSubscriptionVideoList(
+        @Query("api") api: String = RUMBLE_VIDEO_API_VERSION,
         @Query("offset") offset: Int,
         @Query("limit") limit: Int,
         @Query("options") options: String = listOf(Options.WATCHING_PROGRESS).joinToString(separator = ",")
@@ -55,7 +57,7 @@ interface VideoApi {
         @Query("sort") sortType: Sort? = null,
         @Query("offset") offset: Int? = null,
         @Query("limit") limit: Int? = null,
-        @Query("api") apiVersion: String = "7",
+        @Query("api") api: String = RUMBLE_VIDEO_API_VERSION,
         @Query("options") options: String = listOf(Options.FULL, Options.WATCHING_PROGRESS).joinToString(separator = ",")
     ): Response<VideoListResponse>
 
@@ -77,6 +79,7 @@ interface VideoApi {
 
     @GET("service.php?name=media.details")
     suspend fun fetchVideoDetails(
+        @Query("api") api: String = RUMBLE_VIDEO_API_VERSION,
         @Query("id") id: Long? = null,
         @Query("url") url: String? = null,
         @Query("options") options: String? = null

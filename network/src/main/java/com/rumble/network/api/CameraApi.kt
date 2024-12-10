@@ -1,5 +1,6 @@
 package com.rumble.network.api
 
+import com.rumble.network.NetworkRumbleConstants.RUMBLE_UPLOAD_API_VERSION
 import com.rumble.network.NetworkRumbleConstants.VIDEO_UPLOAD_CHUNK_SIZE
 import com.rumble.network.dto.camera.MergeVideoChunksResponse
 import com.rumble.network.dto.camera.SetVideoMetadataResponse
@@ -21,7 +22,7 @@ interface CameraApi {
     @Multipart
     @POST("upload.php")
     suspend fun uploadVideoThumbnail(
-        @Query("api") api: String = "1.3",
+        @Query("api") api: String = RUMBLE_UPLOAD_API_VERSION,
         @Query("cthumb") filename: String,
         @Query("json") json: String = "1",
         @Part thumbnailImage: MultipartBody.Part
@@ -29,7 +30,7 @@ interface CameraApi {
 
     @PUT("upload.php")
     suspend fun uploadVideoChunk(
-        @Query("api") api: String = "1.3",
+        @Query("api") api: String = RUMBLE_UPLOAD_API_VERSION,
         @Query("chunkSz") chunkSize: String = "$VIDEO_UPLOAD_CHUNK_SIZE",
         @Query("chunkQty") chunkQty: String,
         @Query("chunk") chunk: String,
@@ -39,7 +40,7 @@ interface CameraApi {
 
     @PUT("upload.php")
     suspend fun mergeVideoChunks(
-        @Query("api") api: String = "1.3",
+        @Query("api") api: String = RUMBLE_UPLOAD_API_VERSION,
         @Query("chunkSz") chunkSize: String = "$VIDEO_UPLOAD_CHUNK_SIZE",
         @Query("chunkQty") chunkQty: String,
         @Query("chunk") chunk: String,
@@ -49,7 +50,7 @@ interface CameraApi {
 
     @POST("upload.php")
     suspend fun setVideoMetadata(
-        @Query("api") api: String = "1.3",
+        @Query("api") api: String = RUMBLE_UPLOAD_API_VERSION,
         @Query("form") form: String = "1",
         @Query("json") json: String = "1",
         @Body body: FormBody

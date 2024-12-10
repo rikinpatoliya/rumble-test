@@ -18,7 +18,6 @@ object NetworkRumbleConstants {
     const val ENDPOINT_KEY = "endpoint"
     const val DEBUG_KEY = "debug"
     const val CAN_SUBMIT_LOGS_KEY = "can_submit_logs"
-    const val FIRST_VIDEO_START_REPORT_ERROR = 1001
     const val FETCH_CONFIG_INTERVAL_MINUTES_PROD = 60L
     const val FETCH_CONFIG_INTERVAL_MINUTES_QA_DEV = 1L
     const val FIREBASE_CONFIG_SUGGESTED_APP_VERSION = "suggested_app_version"
@@ -37,8 +36,6 @@ object NetworkRumbleConstants {
     const val WATCH_TIME_KEY = "watch_time"
     const val TIME_RANGE_INTERVAL_KEY = "interval"
     const val TIME_RANGE_REPORT_PATH = "-api/watch-time"
-    const val PLAYLIST_ID = "playlist_id"
-    const val ADS_DEBUG_URL = "https://object.us-east-1.rumble.cloud/3201adf86fca4a0db8affdeec1a3c170:vast/test_ad"
     const val EVENT_URL_KEY = "e"
     const val URL_KEY = "url"
     const val WATCH_PROGRESS_INTERVAL_KEY = "watch_progress_interval"
@@ -50,5 +47,7 @@ object NetworkRumbleConstants {
     const val URL_ENCODED_VALUE = "application/x-www-form-urlencoded"
     const val ERROR_RESPONSE_CODE = 1001
     const val RETROFIT_STACK_TRACE = "retrofit2.KotlinExtensions"
-    const val RUMBLE_DEFAULT_API_VERSION = "7"
+    const val RUMBLE_DEFAULT_API_VERSION = "6"
+    const val RUMBLE_UPLOAD_API_VERSION = "1.3"
+    const val RUMBLE_VIDEO_API_VERSION = "7"
 }
