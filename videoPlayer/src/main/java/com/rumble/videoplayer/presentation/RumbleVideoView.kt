@@ -1,6 +1,7 @@
 package com.rumble.videoplayer.presentation
 
 import android.view.KeyEvent.ACTION_UP
+import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -47,6 +48,7 @@ import com.rumble.videoplayer.player.config.AdPlaybackState
 import com.rumble.videoplayer.player.config.PlayerPlaybackState
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.config.ReportType
+import com.rumble.videoplayer.player.config.RumbleVideoMode
 import com.rumble.videoplayer.presentation.internal.controlViews.CastControlView
 import com.rumble.videoplayer.presentation.internal.controlViews.EmbeddedControlsView
 import com.rumble.videoplayer.presentation.internal.controlViews.FullScreenLandscapeControlsView
@@ -437,6 +439,12 @@ fun RumbleVideoView(
                                     playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                                 else
                                     playerView.resizeMode = aspectRatioMode
+
+                                if (rumbleVideoMode == RumbleVideoMode.Normal || uiType == UiType.TV) {
+                                    playerView.adViewGroup.visibility = View.VISIBLE
+                                } else {
+                                    playerView.adViewGroup.visibility = View.GONE
+                                }
                             }
                         )
                     }
