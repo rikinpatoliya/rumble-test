@@ -1141,9 +1141,13 @@ class RumblePlayer(
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                _playbackSate.value = PlayerPlaybackState.Error()
                 sendErrorReport(errorMessage = error.message ?: "Player PlaybackException")
-                exoPlayer.prepare()
+                if (isLiveVideo) {
+                    _playbackSate.value = PlayerPlaybackState.Fetching()
+                } else {
+                    _playbackSate.value = PlayerPlaybackState.Error()
+                    exoPlayer.prepare()
+                }
             }
         })
     }

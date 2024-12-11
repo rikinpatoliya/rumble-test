@@ -205,7 +205,7 @@ fun VideoView(
                     },
                 horizontalArrangement = Arrangement.spacedBy(paddingXSmall),
             ) {
-                if (videoEntity.videoStatus != VideoStatus.UPLOADED) {
+                if (videoEntity.videoStatus != VideoStatus.UPLOADED && videoEntity.videoStatus != VideoStatus.STREAMED) {
                     StateTagView(
                         videoStatus = videoEntity.videoStatus,
                         scheduled = videoEntity.scheduledDate,

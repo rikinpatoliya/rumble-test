@@ -183,7 +183,7 @@ fun VideoCompactView(
             }
 
             when (videoEntity.videoStatus) {
-                VideoStatus.UPLOADED -> {
+                VideoStatus.UPLOADED, VideoStatus.STREAMED -> {
                     DurationTagView(
                         modifier = Modifier
                             .padding(paddingXSmall)

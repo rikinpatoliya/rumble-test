@@ -135,6 +135,11 @@
         <item name="android:verticalSpacing">8dp</item>
     </style>
 
+    <style name="Rumble.Widget.Headers.VerticalGridView.NoPadding" parent="Rumble.Widget.Headers.VerticalGridView">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
+
     <style name="Rumble.Widget.Header">
         <item name="android:minWidth">@dimen/rumble_widget_header_min_width</item>
         <item name="android:textAppearance">@style/TextAppearance.Rumble.Label.Bold</item>

@@ -21,16 +21,14 @@ fun StateTagImageView(
         painter = painterResource(
             id = when (videoStatus) {
                 VideoStatus.SCHEDULED, VideoStatus.UPCOMING, VideoStatus.STARTING -> R.drawable.ic_clock
-                VideoStatus.LIVE -> R.drawable.ic_view
-                else -> R.drawable.ic_streamed
+                else -> R.drawable.ic_view
             }
         ),
         contentDescription = stringResource(
             id = when (videoStatus) {
                 VideoStatus.SCHEDULED, VideoStatus.UPCOMING -> R.string.upcoming
                 VideoStatus.STARTING -> R.string.starting
-                VideoStatus.LIVE -> R.string.live
-                else -> R.string.streamed
+                else -> R.string.live
             }
         ),
         modifier = Modifier.size(if (listToggleViewStyle == ListToggleViewStyle.GRID) imageXSmall14 else imageXXXSmall)
