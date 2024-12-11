@@ -22,7 +22,7 @@
         android:layout_width="@dimen/headers_fragment_vertical_grid_width"
         android:layout_height="wrap_content"
         android:layout_above="@id/browse_footer"
-        style="?attr/headersVerticalGridStyleNoPadding" />
+        style="?attr/headersVerticalGridStyle" />
 
     <View
         android:id="@+id/fade_out_edge"

@@ -48,6 +48,8 @@ import com.rumble.analytics.MediaErrorData
 import com.rumble.analytics.PRE_ROLL_FAILED
 import com.rumble.analytics.VideoPlaybackStalledEvent
 import com.rumble.analytics.VideoPlaybackUnstalledEvent
+import com.rumble.network.connection.InternetConnectionObserver
+import com.rumble.network.connection.InternetConnectionState
 import com.rumble.network.connection.NetworkTypeResolver
 import com.rumble.network.session.SessionManager
 import com.rumble.utils.RumbleConstants
@@ -119,6 +121,7 @@ interface PlayerEntryPoint {
     fun hasNextRelatedVideoUseCase(): HasNextRelatedVideoUseCase
     fun getNextRelatedVideoUseCase(): GetNextRelatedVideoUseCase
     fun getCurrentDeviceVolumeUseCase(): GetCurrentDeviceVolumeUseCase
+    fun getInternetConnectionObserver(): InternetConnectionObserver
 }
 
 private const val TAG = "RumblePlayer"
@@ -182,6 +185,7 @@ class RumblePlayer(
     private val sessionManager: SessionManager
     private var binder: RumblePlayerService.PlayerBinder? = null
     private val playerAdsHelper = PlayerAdsHelper()
+    private val internetConnectionObserver: InternetConnectionObserver
 
     // Private fields
     private var currentPlaybackSpeed: PlaybackSpeed = PlaybackSpeed.NORMAL
@@ -209,6 +213,7 @@ class RumblePlayer(
     private var uiType: UiType = UiType.IN_LIST
     private var livePingInterval: Long = RumbleConstants.PLAYER_LIVE_PING
     private var livePingEndpoint: String = ""
+    private var resumeWhenConnected: Boolean = false
 
     private var _adPlaybackState: MutableState<AdPlaybackState> =
         mutableStateOf(AdPlaybackState.None)
@@ -346,6 +351,8 @@ class RumblePlayer(
             .get(applicationContext, PlayerEntryPoint::class.java).networkTypeResolver()
         sessionManager = EntryPoints
             .get(applicationContext, PlayerEntryPoint::class.java).sessionManager()
+        internetConnectionObserver = EntryPoints
+            .get(applicationContext, PlayerEntryPoint::class.java).getInternetConnectionObserver()
         errorHandler = CoroutineExceptionHandler { _, throwable ->
             sendError(TAG, throwable)
         }
@@ -364,6 +371,7 @@ class RumblePlayer(
             }
         }
         observeLivePing()
+        observerConnectionState()
     }
 
     internal fun getPlayerInstance(): ExoPlayer = player
@@ -898,6 +906,24 @@ class RumblePlayer(
         backgroundScope.launch {
             livePingEndpointFlow.distinctUntilChanged().collectLatest { endpoint ->
                 livePingEndpoint = endpoint
+            }
+        }
+    }
+
+    private fun observerConnectionState() {
+        backgroundScope.launch {
+            internetConnectionObserver.connectivityFlow.distinctUntilChanged().collectLatest { state ->
+                if (state == InternetConnectionState.CONNECTED) {
+                    withContext(Dispatchers.Main) {
+                        if (resumeWhenConnected) {
+                            resumeWhenConnected = false
+                            playVideo()
+                        }
+                    }
+                } else {
+                    resumeWhenConnected = playbackState.value is PlayerPlaybackState.Playing
+                        || adPlaybackState.value == AdPlaybackState.Resumed
+                }
             }
         }
     }

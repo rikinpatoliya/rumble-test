@@ -18,7 +18,6 @@
         <item name="browseTitleViewStyle">@style/Rumble.Widget.TitleView</item>
 
         <item name="headersVerticalGridStyle">@style/Rumble.Widget.Headers.VerticalGridView</item>
-        <item name="headersVerticalGridStyleNoPadding">@style/Rumble.Widget.Headers.VerticalGridView.NoPadding</item>
         <item name="headerStyle">@style/Rumble.Widget.Header.MainMenu</item>
     </style>
 
