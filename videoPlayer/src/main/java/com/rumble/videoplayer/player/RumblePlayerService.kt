@@ -14,6 +14,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
+import com.rumble.videoplayer.player.config.InMemoryPlayerSpeedManager
 import com.rumble.videoplayer.player.config.PlayerTarget
 import com.rumble.videoplayer.player.internal.notification.NotificationData
 import com.rumble.videoplayer.player.internal.notification.RumbleNotificationManager
@@ -47,6 +48,7 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
+        resetPlaybackSpeed()
         stopNotification()
     }
 
@@ -59,6 +61,10 @@ class RumblePlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         stopForeground()
         stopSelf()
         notificationManager.stopNotification()
+    }
+
+    private fun resetPlaybackSpeed() {
+        InMemoryPlayerSpeedManager.resetSpeedValues()
     }
 
     private fun startForegroundWithNotification(notification: Notification) {

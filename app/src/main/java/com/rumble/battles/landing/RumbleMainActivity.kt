@@ -243,6 +243,7 @@ class RumbleMainActivity : FragmentActivity() {
                     onNavigateToHome = {
                         navController.popBackStack()
                         navController.navigate(LandingScreens.ContentScreen.screenName)
+                        viewModel.onNavigatedFromAuth()
                     },
                     onNavigateToRegistration = { loginType, userId, token, email ->
                         navController.navigate(

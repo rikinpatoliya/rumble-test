@@ -738,7 +738,7 @@
 
     <!-- Consent dialog -->
     <string name="accept_rumble_terms">Accept Rumble Terms</string>
-    <string name="consent_dialog_message">In order to provide you with a more tailored expense while using Rumble, please review and accept our</string>
+    <string name="consent_dialog_message">In order to provide you with a more tailored experience while using Rumble, please review and accept our</string>
     <string name="decline">Decline</string>
     <string name="accept">Accept</string>
 

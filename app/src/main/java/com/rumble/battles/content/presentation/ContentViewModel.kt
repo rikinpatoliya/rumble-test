@@ -64,7 +64,6 @@ import com.rumble.domain.common.domain.usecase.AddToPlaylistUseCase
 import com.rumble.domain.common.domain.usecase.IsDevelopModeUseCase
 import com.rumble.domain.common.domain.usecase.OpenPlayStoreUseCase
 import com.rumble.domain.common.domain.usecase.RemoveFromPlaylistUseCase
-import com.rumble.domain.common.domain.usecase.SetConsentDataUseCase
 import com.rumble.domain.common.domain.usecase.ShareUseCase
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntity
 import com.rumble.domain.feed.domain.domainmodel.video.PlayListEntityWithOptions
@@ -275,7 +274,6 @@ sealed class ContentScreenVmEvent {
     data class OnRepostDeleted(val repostId: Long) : ContentScreenVmEvent()
     data object ShowRepostReportedMessage : ContentScreenVmEvent()
     data object VideoRepostedByCurrentUser : ContentScreenVmEvent()
-    data object ShowConsentDialog : ContentScreenVmEvent()
 }
 
 private const val TAG = "ContentViewModel"
@@ -321,7 +319,6 @@ class ContentViewModel @Inject constructor(
     deviceType: DeviceType,
     private val deleteRepostUseCase: DeleteRepostUseCase,
     private val reportContentUseCase: ReportContentUseCase,
-    private val setConsentDataUseCase: SetConsentDataUseCase,
 ) : ViewModel(), ContentHandler {
     override val userNameFlow: Flow<String> = sessionManager.userNameFlow
     override val userPictureFlow: Flow<String> = sessionManager.userPictureFlow
@@ -421,14 +418,7 @@ class ContentViewModel @Inject constructor(
                         isLoggedIn = it.isNotEmpty()
                     )
                 }
-                setConsentDataUseCase(it.isNotEmpty())
-                if (it.isEmpty()) {
-                    if (sessionManager.consentDialogShownFlow.first().not()) {
-                        emitVmEvent(ContentScreenVmEvent.ShowConsentDialog)
-                    }
-                    sessionManager.setConsentDialogShown()
-                } else {
-                    sessionManager.setConsentDialogShown()
+                if (it.isNotEmpty()) {
                     initAdditionalInfoForLoggedInUser()
                 }
             }

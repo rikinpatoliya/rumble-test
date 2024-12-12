@@ -445,8 +445,6 @@ fun ContentScreen(
                     )
                 }
 
-                is ContentScreenVmEvent.ShowConsentDialog -> activityHandler.onShowConsentDialog()
-
                 is ContentScreenVmEvent.PlayListUpdated -> {}
                 is ContentScreenVmEvent.PlayListCreated -> {}
                 is ContentScreenVmEvent.ChannelNotificationsUpdated -> {}

@@ -114,8 +114,8 @@ interface RumbleActivityHandler {
     fun onLogException(e: Exception)
     fun handleNotifications(bundle: Bundle?)
     fun onDisplayRepostUndoWarning(repostId: Long)
-    fun onShowConsentDialog()
     fun onAcceptTos()
+    fun onNavigatedFromAuth()
 }
 
 
@@ -487,17 +487,16 @@ class RumbleActivityViewModel @Inject constructor(
         )
     }
 
-    override fun onShowConsentDialog() {
-        alertDialogState.value = AlertDialogState(
-            show = true,
-            alertDialogReason = RumbleActivityAlertReason.ShowConsentDialog
-        )
-    }
-
     override fun onAcceptTos() {
         viewModelScope.launch {
             setConsentDataUseCase(true)
             alertDialogState.value = AlertDialogState()
+        }
+    }
+
+    override fun onNavigatedFromAuth() {
+        viewModelScope.launch {
+            handleConsentDialogState()
         }
     }
 
@@ -518,7 +517,20 @@ class RumbleActivityViewModel @Inject constructor(
                     readyToStart = true,
                 )
             }
+            if (needLogin.not()) handleConsentDialogState()
         }
+    }
+
+    private suspend fun handleConsentDialogState() {
+        val loggedIn = sessionManager.cookiesFlow.first().isNotEmpty()
+        setConsentDataUseCase(loggedIn)
+        if (loggedIn.not() && sessionManager.consentDialogShownFlow.first().not()) {
+            alertDialogState.value = AlertDialogState(
+                show = true,
+                alertDialogReason = RumbleActivityAlertReason.ShowConsentDialog
+            )
+        }
+        sessionManager.setConsentDialogShown()
     }
 
     private fun saveAppVersion() {

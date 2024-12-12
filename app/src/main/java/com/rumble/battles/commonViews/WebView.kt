@@ -12,12 +12,17 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun RumbleWebView(url: String) {
 
     AndroidView(
-        modifier = Modifier.fillMaxSize().systemBarsPadding(),
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
         factory = {
             WebView(it).apply {
                 settings.javaScriptEnabled = true
                 webViewClient = WebViewClient()
-                loadUrl(url)
             }
-        })
+        },
+        update = { view ->
+            view.loadUrl(url)
+        }
+    )
 }

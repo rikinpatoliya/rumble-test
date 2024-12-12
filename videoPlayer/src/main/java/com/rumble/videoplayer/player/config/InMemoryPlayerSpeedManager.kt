@@ -14,4 +14,10 @@ internal object InMemoryPlayerSpeedManager {
     fun setPlayerSpeed(videoScope: VideoScope, speed: PlaybackSpeed) {
         currentSpeed[videoScope] = speed
     }
+
+    fun resetSpeedValues() {
+        currentSpeed.entries.forEach {
+            it.setValue(PlaybackSpeed.NORMAL)
+        }
+    }
 }
