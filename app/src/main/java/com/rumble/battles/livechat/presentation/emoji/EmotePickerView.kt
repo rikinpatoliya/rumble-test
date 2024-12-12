@@ -225,6 +225,7 @@ fun EmotePickerView(
                 tintColor = RumbleCustomTheme.colors.primary,
                 contentDescription = stringResource(id = R.string.delete),
                 onClick = onDelete,
+                enableLongClick = true,
             )
         }
     }

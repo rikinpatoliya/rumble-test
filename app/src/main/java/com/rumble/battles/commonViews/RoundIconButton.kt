@@ -28,6 +28,7 @@ import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageMedium
 import com.rumble.theme.rumbleGreen
 import com.rumble.utils.RumbleConstants.LONG_PRESS_FREQUENCY
+import com.rumble.utils.extension.conditional
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ fun RoundIconButton(
     size: Dp = imageMedium,
     contentDescription: String = "",
     enabled: Boolean = true,
+    enableLongClick: Boolean = false,
     backgroundColor: Color = MaterialTheme.colors.background,
     tintColor: Color =  MaterialTheme.colors.primaryVariant,
     onClick: () -> Unit = {},
@@ -57,21 +59,23 @@ fun RoundIconButton(
                 .size(size)
                 .clip(CircleShape)
                 .background(if (enabled) backgroundColor else backgroundColor.copy(alpha = 0.5f))
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = { _ ->
-                            isLongPressing = true
-                            job = coroutineScope.launch {
-                                while (isLongPressing) {
-                                    onClick()
-                                    delay(LONG_PRESS_FREQUENCY)
+                .conditional(enableLongClick) {
+                    pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = { _ ->
+                                isLongPressing = true
+                                job = coroutineScope.launch {
+                                    while (isLongPressing) {
+                                        onClick()
+                                        delay(LONG_PRESS_FREQUENCY)
+                                    }
                                 }
-                            }
-                            tryAwaitRelease()
-                            isLongPressing = false
-                            job?.cancel()
-                        },
-                    )
+                                tryAwaitRelease()
+                                isLongPressing = false
+                                job?.cancel()
+                            },
+                        )
+                    }
                 }
         ) {
             Icon(
