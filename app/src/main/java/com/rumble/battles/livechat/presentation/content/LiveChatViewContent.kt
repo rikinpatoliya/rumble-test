@@ -504,7 +504,7 @@ private fun ContentFooter(
                                 .not(),
                             focusRequester = focusRequester,
                             onChange = handler::onCommentChanged,
-                            onBuyRant = handler::onOpenBuyRantSheet,
+                            onBuyRant = handler::onOpenSupportChannelSheet,
                             emotePickerState = if (emoteSate.showEmoteSelector) EmotePickerState.Selected else EmotePickerState.None,
                             onProfileImageClick = {
                                 handler.onLiveChatThumbnailTap(
