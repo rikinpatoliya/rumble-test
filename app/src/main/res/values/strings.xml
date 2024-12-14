@@ -382,9 +382,23 @@
     <string name="gift_subscription">Gift Subscription</string>
     <string name="show_support_make_your_message_stand_out">Show your support and make your message stand out.</string>
     <string name="gift_rumble_premium_subscriptions_to_community">Gift out Rumble Premium subscriptions to the community.</string>
+    <string name="gift_channel_subscriptions_to_community">Gift out channel subscriptions to the community.</string>
+    <string name="gift_1_month_channel_subscription_to_the_community">Gift a 1 month channel subscription to the community</string>
     <string name="gift_rumble_premium">Gift Rumble Premium</string>
     <string name="gift_rumble_premium_description">Gift up to 50 Rumble Premium subscriptions. Once purchased Rumble will randomize the recipients.</string>
-    <string name="gift_x_premium_sub">Gift %d Premium Sub</string>">
+    <!-- Premium gifts -->
+    <plurals name="gift_x_premium_subs">
+        <item quantity="one">Gift %d Premium Sub</item>
+        <item quantity="other">Gift %d Premium Subs</item>
+    </plurals>
+    <plurals name="gift_x_subs">
+        <item quantity="one">Gift %d Sub</item>
+        <item quantity="other">Gift %d Subs</item>
+    </plurals>
+    <plurals name="gifted_premium_subscriptions">
+        <item quantity="one">Gifted %d Rumble Premium subscription</item>
+        <item quantity="other">Gifted %d Rumble Premium subscriptions</item>
+    </plurals>
     <string name="your_gift">Your Gift</string>">
     <string name="gifted_you_a">&#x20;gifted you a&#x20;</string>">
     <string name="dollar_sign">$</string>">
@@ -741,11 +755,4 @@
     <string name="consent_dialog_message">In order to provide you with a more tailored experience while using Rumble, please review and accept our</string>
     <string name="decline">Decline</string>
     <string name="accept">Accept</string>
-
-    <!-- Premium gifts -->
-    <plurals name="gifted_premium_subscriptions">
-        <item quantity="one">Gifted %d Rumble Premium subscription</item>
-        <item quantity="other">Gifted %d Rumble Premium subscriptions</item>
-    </plurals>
-
 </resources>

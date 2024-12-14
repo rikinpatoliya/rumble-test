@@ -72,4 +72,22 @@ sealed class LiveChatEvent {
         @SerializedName("data")
         val data: LiveGate
     ) : LiveChatEvent()
+
+    data class GiftPurchasedEvent(
+        @SerializedName("request_id")
+        val requestId: String,
+        @SerializedName("type")
+        val eventType: LiveChatEventType,
+        @SerializedName("data")
+        val data: PurchasedGiftData,
+    )
+
+    data class GiftReceivedEvent(
+        @SerializedName("request_id")
+        val requestId: String,
+        @SerializedName("type")
+        val eventType: LiveChatEventType,
+        @SerializedName("data")
+        val data: ReceivedGiftData,
+    )
 }

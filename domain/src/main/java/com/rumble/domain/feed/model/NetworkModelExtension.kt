@@ -285,6 +285,7 @@ fun Creator.getCreatorEntity(): CreatorEntity =
     CreatorEntity(
         channelId = id,
         channelTitle = title,
+        description = description,
         name = name,
         type = type?. let { ChannelType.getByValue(it) } ?: ChannelType.CHANNEL,
         thumbnail = thumbnail ?: "",

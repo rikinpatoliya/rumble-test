@@ -33,6 +33,8 @@ data class Creator(
     val type: String?,
     @SerializedName("title")
     val title: String,
+    @SerializedName("description")
+    val description: String?,
     @SerializedName("name")
     val name: String,
     @SerializedName("thumb")

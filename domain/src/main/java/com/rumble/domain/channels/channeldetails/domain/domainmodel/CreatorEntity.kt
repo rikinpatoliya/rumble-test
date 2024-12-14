@@ -10,6 +10,7 @@ import java.util.UUID
 data class CreatorEntity(
     val channelId: String,
     val channelTitle: String,
+    val description: String?,
     val name: String = "",
     val type: ChannelType,
     val thumbnail: String,

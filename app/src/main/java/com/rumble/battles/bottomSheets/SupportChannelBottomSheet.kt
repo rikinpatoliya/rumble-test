@@ -23,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.BottomSheetHeader
 import com.rumble.battles.commonViews.RoundIconButton
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftEntity
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftType
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography.h4
 import com.rumble.theme.RumbleTypography.h6Light
@@ -34,8 +36,9 @@ import com.rumble.theme.radiusMedium
 
 @Composable
 fun SupportChannelBottomSheet(
+    premiumGiftEntity: PremiumGiftEntity,
     onRantsClick: () -> Unit,
-    onGiftClick: () -> Unit,
+    onGiftClick: (premiumGiftEntity: PremiumGiftEntity) -> Unit,
     onClose: () -> Unit
 ) {
 
@@ -63,9 +66,14 @@ fun SupportChannelBottomSheet(
         )
         SupportChannelItemView(
             title = stringResource(R.string.gift_subscription),
-            description = stringResource(R.string.gift_rumble_premium_subscriptions_to_community),
+            description = stringResource(
+                if (premiumGiftEntity.type == PremiumGiftType.Premium)
+                    R.string.gift_rumble_premium_subscriptions_to_community
+                else
+                    R.string.gift_channel_subscriptions_to_community
+            ),
             iconId = R.drawable.ic_gift,
-            onActionClick = onGiftClick
+            onActionClick = { onGiftClick(premiumGiftEntity) }
         )
         Spacer(modifier = Modifier.height(paddingLarge))
     }

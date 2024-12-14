@@ -7,6 +7,9 @@ import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatResult
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftDetails
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftEntity
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftType
 import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
 import com.rumble.domain.livechat.domain.domainmodel.RaidMessageType
 import com.rumble.domain.livechat.domain.domainmodel.RantConfig
@@ -16,6 +19,7 @@ import com.rumble.network.dto.livechat.LiveChatConfigRant
 import com.rumble.network.dto.livechat.LiveChatEvent
 import com.rumble.network.dto.livechat.LiveChatMessage
 import com.rumble.network.dto.livechat.LiveChatUser
+import com.rumble.network.dto.livechat.PremiumGiftList
 import com.rumble.network.dto.livechat.Raid
 import com.rumble.utils.extension.convertUtcToLocal
 import com.rumble.utils.extension.getComposeColor
@@ -54,7 +58,8 @@ object LiveChatNetworkModelMapper {
                         messageMaxLength = event.data.config.messageMaxLength ?: 0,
                         currentUserBadges = userBadges,
                         currencySymbol = CURRENCY,
-                        channels = mapToLiveChatChannelEntity(event.data.channels)
+                        channels = mapToLiveChatChannelEntity(event.data.channels),
+                        premiumGiftEntity = event.data.config.giftList?.let { mapToPremiumGiftEntity(it) },
                     )
                 LiveChatResult(
                     messageList = entities,
@@ -69,7 +74,7 @@ object LiveChatNetworkModelMapper {
                             chatMode = ChatMode.getByValue(it.chatMode),
                         )
                     },
-                    raidEntity = mapToRaidEntity(event.data.raid)
+                    raidEntity = mapToRaidEntity(event.data.raid),
                 )
             }
 
@@ -195,4 +200,16 @@ object LiveChatNetworkModelMapper {
         } ?: listOf(defaultDelay, defaultSpread)
         return (delay + Math.random() * spread).toLong()
     }
+
+    private fun mapToPremiumGiftEntity(giftList: PremiumGiftList) =
+        PremiumGiftEntity(
+            type = PremiumGiftType.getByStringValue(giftList.type),
+            giftList = giftList.productList.map {
+                PremiumGiftDetails(
+                    productId = it.id,
+                    priceCents = it.amountCents,
+                    giftsAmount = it.totalGifts,
+                )
+            }
+        )
 }

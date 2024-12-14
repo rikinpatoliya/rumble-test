@@ -8,5 +8,7 @@ data class LiveChatConfig(
     @SerializedName("badges")
     val badges: Map<String, Badge>?,
     @SerializedName("message_length_max")
-    val messageMaxLength: Int?
+    val messageMaxLength: Int?,
+    @SerializedName("gifts")
+    val giftList: PremiumGiftList?,
 )

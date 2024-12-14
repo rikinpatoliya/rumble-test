@@ -1763,14 +1763,17 @@ private fun BottomSheetDialog(
                 )
             }
 
-            BottomSheetReason.SupportChannel -> SupportChannelBottomSheet(
+            is BottomSheetReason.SupportChannel -> SupportChannelBottomSheet(
+                premiumGiftEntity = reason.premiumGiftEntity,
                 onRantsClick = handler::onOpenBuyRantSheet,
                 onGiftClick = handler::onGiftRumblePremiumSheet,
                 onClose = handler::onCloseBottomSheet
             )
 
-            BottomSheetReason.GiftRumblePremium -> GiftRumblePremiumBottomSheet(
+            is BottomSheetReason.GiftRumblePremium -> GiftRumblePremiumBottomSheet(
+                premiumGiftEntity = reason.premiumGiftEntity,
                 channelName = state.channelDetailsEntity?.channelTitle ?: "",
+                description = state.channelDetailsEntity?.description,
                 imageUrl = state.channelDetailsEntity?.thumbnail ?: "",
                 verifiedBadge = state.channelDetailsEntity?.verifiedBadge ?: false,
             )

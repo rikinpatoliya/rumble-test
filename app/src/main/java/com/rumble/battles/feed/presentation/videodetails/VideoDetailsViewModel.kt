@@ -73,6 +73,7 @@ import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageResult
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
 import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValueUseCase
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
@@ -176,8 +177,8 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
     fun onRantPurchaseSucceeded(rantLevel: RantLevel)
     fun onOpenBuyRantSheet()
-    fun onGiftRumblePremiumSheet()
-    fun onOpenSupportChannelSheet()
+    fun onGiftRumblePremiumSheet(premiumGiftEntity: PremiumGiftEntity)
+    fun onSupportChannelClick(premiumGiftEntity: PremiumGiftEntity?)
     fun onOpenModerationMenu()
     fun onMuteUser()
     fun onDismissMuteMenu()
@@ -275,8 +276,8 @@ sealed class BottomSheetReason {
     data class CommentAuthorSwitcher(val channels: List<CommentAuthorEntity>) : BottomSheetReason()
     data object BuyRant : BottomSheetReason()
     data object ModerationMenu : BottomSheetReason()
-    data object SupportChannel : BottomSheetReason()
-    data object GiftRumblePremium : BottomSheetReason()
+    data class SupportChannel(val premiumGiftEntity: PremiumGiftEntity) : BottomSheetReason()
+    data class GiftRumblePremium(val premiumGiftEntity: PremiumGiftEntity) : BottomSheetReason()
 }
 
 sealed class VideoDetailsAlertReason : AlertDialogReason {
@@ -1404,13 +1405,16 @@ class VideoDetailsViewModel @Inject constructor(
         emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
     }
 
-    override fun onGiftRumblePremiumSheet() {
-        state.value = state.value.copy(bottomSheetReason = BottomSheetReason.GiftRumblePremium)
+    override fun onGiftRumblePremiumSheet(premiumGiftEntity: PremiumGiftEntity) {
+        state.value = state.value.copy(bottomSheetReason = BottomSheetReason.GiftRumblePremium(premiumGiftEntity))
         emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
     }
 
-    override fun onOpenSupportChannelSheet() {
-        state.value = state.value.copy(bottomSheetReason = BottomSheetReason.SupportChannel)
+    override fun onSupportChannelClick(premiumGiftEntity: PremiumGiftEntity?) {
+        if (premiumGiftEntity != null)
+            state.value = state.value.copy(bottomSheetReason = BottomSheetReason.SupportChannel(premiumGiftEntity))
+        else
+            state.value = state.value.copy(bottomSheetReason = BottomSheetReason.BuyRant)
         emitVmEvent(VideoDetailsEvent.ShowBottomSheet)
     }
 

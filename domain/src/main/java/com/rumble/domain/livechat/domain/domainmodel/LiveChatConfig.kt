@@ -10,4 +10,5 @@ data class LiveChatConfig(
     val emoteList: List<EmoteEntity>? = null,
     val channels: List<LiveChatChannelEntity>,
     val emoteGroups: List<EmoteGroupEntity>? = null,
+    val premiumGiftEntity: PremiumGiftEntity? = null,
 )
