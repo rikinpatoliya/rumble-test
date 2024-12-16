@@ -378,6 +378,8 @@
     </plurals>
     <string name="buy_send">Buy And Send</string>
     <string name="rants">Rants</string>
+
+    <!-- Premium gifts -->
     <string name="support_channel">Support Channel</string>
     <string name="gift_subscription">Gift Subscription</string>
     <string name="show_support_make_your_message_stand_out">Show your support and make your message stand out.</string>
@@ -386,7 +388,6 @@
     <string name="gift_1_month_channel_subscription_to_the_community">Gift a 1 month channel subscription to the community</string>
     <string name="gift_rumble_premium">Gift Rumble Premium</string>
     <string name="gift_rumble_premium_description">Gift up to 50 Rumble Premium subscriptions. Once purchased Rumble will randomize the recipients.</string>
-    <!-- Premium gifts -->
     <plurals name="gift_x_premium_subs">
         <item quantity="one">Gift %d Premium Sub</item>
         <item quantity="other">Gift %d Premium Subs</item>
@@ -402,6 +403,13 @@
     <string name="your_gift">Your Gift</string>">
     <string name="gifted_you_a">&#x20;gifted you a&#x20;</string>">
     <string name="dollar_sign">$</string>">
+    <plurals name="gifted_channel_premium_subscriptions">
+        <item quantity="one">Gifted %d subscription to %s</item>
+        <item quantity="other">Gifted %d subscriptions to %s</item>
+    </plurals>
+    <string name="one_month_rumble_subscription">Free 1 Month Rumble Premium Subscription</string>
+    <string name="one_month_channel_subscription">Free 1 Month Channel Subscription</string>
+
     <string name="about">About</string>
     <string name="by_continuing_part_1">By continuing, you verify that, in addition to the</string>
     <string name="by_continuing_part_2">(both of which you agreed to upon creating your Rumble account), you also agree to the following</string>

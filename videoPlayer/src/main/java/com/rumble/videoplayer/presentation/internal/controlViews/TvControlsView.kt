@@ -83,6 +83,7 @@ import com.rumble.videoplayer.presentation.internal.views.TvDislikeButton
 import com.rumble.videoplayer.presentation.internal.views.TvLikeButton
 import com.rumble.videoplayer.presentation.internal.views.TvLiveButton
 import com.rumble.videoplayer.presentation.internal.views.TvSeekBar
+import com.rumble.videoplayer.presentation.utils.requestFocusSafely
 import com.rumble.videoplayer.presentation.views.MenuType
 import com.rumble.videoplayer.presentation.views.TvSettingsView
 import kotlinx.coroutines.delay
@@ -130,7 +131,7 @@ fun TvControlsView(
 
     LaunchedEffect(isVisible) {
         if (isVisible) {
-            seekFocus.requestFocus()
+            seekFocus.requestFocusSafely()
         } else {
             playListHidden = true
         }
@@ -138,13 +139,13 @@ fun TvControlsView(
 
     LaunchedEffect(playListHidden) {
         if (isVisible and playListHidden) {
-            seekFocus.requestFocus()
+            seekFocus.requestFocusSafely()
         }
     }
 
     LaunchedEffect(menuVisible) {
         if (!menuVisible) {
-            seekFocus.requestFocus()
+            seekFocus.requestFocusSafely()
         }
     }
 
@@ -181,7 +182,7 @@ fun TvControlsView(
                             onDisplayPlayList = {
                                 if (rumblePlayer.playList != null) {
                                     playListHidden = false
-                                    playListFocus.requestFocus()
+                                    playListFocus.requestFocusSafely()
                                 }
                             },
                             onHidePlayList = {
@@ -312,7 +313,7 @@ fun TvControlsView(
                         isFocused = focusedElement == Focusable.REPLAY,
                         onClick = {
                             rumblePlayer.replay()
-                            seekFocus.requestFocus()
+                            seekFocus.requestFocusSafely()
                         }
                     )
                 } else {

@@ -1,4 +1,4 @@
-package com.rumble.battles.premium.presentation
+package com.rumble.battles.livechat.presentation.premium
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -23,11 +23,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
+import com.rumble.domain.livechat.domain.domainmodel.GiftPopupMessageEntity
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftType
 import com.rumble.theme.RumbleCustomTheme
 import com.rumble.theme.RumbleTypography
 import com.rumble.theme.RumbleTypography.h4
@@ -43,11 +44,9 @@ import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusSmall
 
 @Composable
-@Preview
 fun YourPremiumGiftView(
     modifier: Modifier = Modifier,
-    giftAuthor: String = "Sam Hernandez",//TODO: WIP@Kostia
-    giftTitle: String = "Free 1 Month Rumble Premium Subscription",//TODO: WIP@Kostia
+    giftPopupMessageEntity: GiftPopupMessageEntity,
     onClose: () -> Unit = {}
 ) {
     val regularStyle = SpanStyle(
@@ -62,17 +61,17 @@ fun YourPremiumGiftView(
     )
     val styledText = buildAnnotatedString {
         withStyle(style = boldStyle) {
-            append(giftAuthor)
+            append(giftPopupMessageEntity.giftAuthor)
         }
         withStyle(style = regularStyle) {
             append(stringResource(R.string.gifted_you_a))
         }
         withStyle(style = boldStyle) {
-            append(giftTitle)
+            append(getGiftDetails(giftPopupMessageEntity.giftType))
         }
     }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(paddingXXSmall)
             .clip(RoundedCornerShape(radiusSmall))
@@ -121,7 +120,7 @@ fun YourPremiumGiftView(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ConstraintLayout() {
+            ConstraintLayout {
                 val (profileImage, gift) = createRefs()
                 ProfileImageComponent(
                     modifier = Modifier.constrainAs(profileImage) {
@@ -129,8 +128,8 @@ fun YourPremiumGiftView(
                         start.linkTo(parent.start)
                     },
                     profileImageComponentStyle = ProfileImageComponentStyle.CircleImageXXXMediumStyle(),
-                    userName = "channelName",
-                    userPicture = "imageUrl"
+                    userName = giftPopupMessageEntity.giftAuthor,
+                    userPicture = giftPopupMessageEntity.giftAuthorImage,
                 )
                 Image(
                     modifier = Modifier
@@ -140,7 +139,7 @@ fun YourPremiumGiftView(
                         }
                         .size(width = giftImageWidth, height = giftImageHeight),
                     painter = painterResource(id = R.drawable.present),
-                    contentDescription = stringResource(id = R.string.go_premium),
+                    contentDescription = stringResource(id = R.string.premium),
                 )
             }
             Text(
@@ -153,4 +152,11 @@ fun YourPremiumGiftView(
         }
     }
 }
+
+@Composable
+private fun getGiftDetails(giftType: PremiumGiftType) =
+    when(giftType) {
+        PremiumGiftType.Rumble -> stringResource(R.string.one_month_rumble_subscription)
+        PremiumGiftType.Premium -> stringResource(R.string.one_month_channel_subscription)
+    }
 

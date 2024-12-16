@@ -26,4 +26,7 @@ data class LiveChatMessageEntity(
     val userNameColor: Color? = null,
     val isRaidMessage: Boolean = false,
     val raidMessageType: RaidMessageType? = null,
+    val giftType: PremiumGiftType? = null,
+    val creatorUserName: String? = null,
+    val giftsAmount: Int? = null,
 )

@@ -835,7 +835,8 @@ fun VideoDetailsView(
                                 .fillMaxHeight(),
                             handler = handler,
                             liveChatHandler = liveChatHandler,
-                            activityHandler = activityHandler
+                            activityHandler = activityHandler,
+                            onChannelClick = onChannelClick,
                         )
                     }
                 }
@@ -873,7 +874,8 @@ fun VideoDetailsView(
                                     modifier = sheetContentModifier,
                                     handler = handler,
                                     liveChatHandler = liveChatHandler,
-                                    activityHandler = activityHandler
+                                    activityHandler = activityHandler,
+                                    onChannelClick = onChannelClick,
                                 )
                             }
 
@@ -1776,6 +1778,7 @@ private fun BottomSheetDialog(
                 description = state.channelDetailsEntity?.description,
                 imageUrl = state.channelDetailsEntity?.thumbnail ?: "",
                 verifiedBadge = state.channelDetailsEntity?.verifiedBadge ?: false,
+                onClick = liveChatHandler::onBuyGift
             )
         }
     }

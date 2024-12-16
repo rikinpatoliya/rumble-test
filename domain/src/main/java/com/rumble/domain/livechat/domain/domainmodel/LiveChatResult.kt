@@ -15,5 +15,6 @@ data class LiveChatResult(
     val canModerate: Boolean? = null,
     val liveGate: LiveGateEntity? = null,
     val raidEntity: RaidEntity? = null,
+    val giftPopupMessageEntity: GiftPopupMessageEntity? = null,
     override val rumbleError: RumbleError? = null
 ) : RumbleResult

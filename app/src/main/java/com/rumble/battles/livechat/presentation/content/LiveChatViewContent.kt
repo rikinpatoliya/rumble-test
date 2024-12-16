@@ -58,6 +58,8 @@ import com.rumble.battles.livechat.presentation.LiveChatHandler
 import com.rumble.battles.livechat.presentation.emoji.EmotePickerState
 import com.rumble.battles.livechat.presentation.emoji.EmotePickerView
 import com.rumble.battles.livechat.presentation.pinnedmessage.PinnedMessageView
+import com.rumble.battles.livechat.presentation.premium.PremiumPurchasedMessageView
+import com.rumble.battles.livechat.presentation.premium.YourPremiumGiftView
 import com.rumble.battles.livechat.presentation.raid.RaidInProgressView
 import com.rumble.battles.livechat.presentation.raid.RaidMessageView
 import com.rumble.battles.livechat.presentation.raid.RaidPopupView
@@ -85,7 +87,8 @@ fun LiveChatViewContent(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
     liveChatHandler: LiveChatHandler,
-    activityHandler: RumbleActivityHandler
+    activityHandler: RumbleActivityHandler,
+    onChannelClick: (String) -> Unit,
 ) {
     val state by remember { handler.state }
     val emoteSate by remember { handler.emoteState }
@@ -242,7 +245,16 @@ fun LiveChatViewContent(
                 ) {
                     liveChatState.messageList.forEach { message ->
                         item {
-                            if (message.rantPrice != null) {
+                            if (message.giftType != null) {
+                                PremiumPurchasedMessageView(
+                                    modifier = Modifier.padding(
+                                        top = paddingXXXSmall,
+                                        start = paddingXXXSmall,
+                                        end = paddingXXXSmall,
+                                    ),
+                                    messageEntity = message
+                                )
+                            } else if (message.rantPrice != null) {
                                 RantMessageView(
                                     modifier = Modifier.padding(top = paddingXXXSmall),
                                     messageEntity = message,
@@ -283,7 +295,8 @@ fun LiveChatViewContent(
                                     badges = liveChatState.badges,
                                     liveChatConfig = liveChatState.liveChatConfig,
                                     onClick = liveChatHandler::onDisplayModerationMenu,
-                                    onLinkClick = activityHandler::onOpenWebView
+                                    onLinkClick = activityHandler::onOpenWebView,
+                                    onChannelClick = onChannelClick,
                                 )
                             }
                         }
@@ -388,6 +401,26 @@ fun LiveChatViewContent(
                         onOptOut = liveChatHandler::onOptOutRaid,
                     )
                 }
+            }
+        }
+
+        liveChatState.giftPopupMessageEntity?.let {
+            AnimatedVisibility(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = paddingXXXSmall)
+                    .constrainAs(pinned) {
+                        top.linkTo(header.bottom)
+                    },
+                visible = liveChatState.pinnedMessageHidden.not(),
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                YourPremiumGiftView(
+                    modifier = Modifier.padding(horizontal = paddingXXXSmall),
+                    giftPopupMessageEntity = it,
+                    onClose = liveChatHandler::onHidePinnedMessage,
+                )
             }
         }
 

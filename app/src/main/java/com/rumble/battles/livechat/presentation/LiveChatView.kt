@@ -20,7 +20,8 @@ fun LiveChatView(
     modifier: Modifier = Modifier,
     handler: VideoDetailsHandler,
     liveChatHandler: LiveChatHandler,
-    activityHandler: RumbleActivityHandler
+    activityHandler: RumbleActivityHandler,
+    onChannelClick: (String) -> Unit,
 ) {
     LaunchedEffect(Unit) {
         liveChatHandler.eventFlow.collectLatest {
@@ -51,7 +52,8 @@ fun LiveChatView(
         modifier = modifier,
         handler = handler,
         liveChatHandler = liveChatHandler,
-        activityHandler = activityHandler
+        activityHandler = activityHandler,
+        onChannelClick = onChannelClick,
     )
 
     LiveChatDialog(handler = handler, liveChatHandler = liveChatHandler)

@@ -41,8 +41,8 @@ import com.rumble.battles.subscriptions.presentation.SubscriptionHandler
 import com.rumble.battles.videos.presentation.VideoOptionsHandler
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
+import com.rumble.domain.billing.model.BillingPurchaseResult
 import com.rumble.domain.billing.model.PurchaseHandler
-import com.rumble.domain.billing.model.PurchaseResult
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
 import com.rumble.domain.camera.UploadStatus
 import com.rumble.domain.camera.UploadVideoEntity
@@ -96,7 +96,7 @@ import com.rumble.domain.onboarding.domain.usecase.FeedOnboardingViewUseCase
 import com.rumble.domain.onboarding.domain.usecase.SaveFeedOnboardingUseCase
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscriptionData
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscriptionParams
-import com.rumble.domain.premium.domain.domainmodel.SubscriptionResult
+import com.rumble.domain.premium.domain.domainmodel.PurchaseResult
 import com.rumble.domain.premium.domain.usecases.BuildPremiumSubscriptionParamsUseCase
 import com.rumble.domain.premium.domain.usecases.FetchPremiumSubscriptionListUseCase
 import com.rumble.domain.premium.domain.usecases.FetchUserInfoUseCase
@@ -1166,10 +1166,10 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    override fun onPurchaseFinished(result: PurchaseResult) {
+    override fun onPurchaseFinished(result: BillingPurchaseResult) {
         if (purchaseInProgress) {
             purchaseInProgress = false
-            if (result is PurchaseResult.Success) {
+            if (result is BillingPurchaseResult.Success) {
                 viewModelScope.launch(errorHandler) {
                     currentSubscriptionParams.subscriptionData?.let {
                         sendPremiumPurchasedEventUseCase(
@@ -1185,7 +1185,7 @@ class ContentViewModel @Inject constructor(
                         creatorId = currentSubscriptionParams.creatorId,
                         source = currentSubscriptionParams.source
                     )) {
-                        is SubscriptionResult.Success -> {
+                        is PurchaseResult.Success -> {
                             sessionManager.saveIsPremiumUser(true)
                             emitVmEvent(
                                 ContentScreenVmEvent.ShowAlertDialogEvent(
@@ -1194,17 +1194,17 @@ class ContentViewModel @Inject constructor(
                             )
                         }
 
-                        is SubscriptionResult.PurchaseFailure -> {
+                        is PurchaseResult.PurchaseFailure -> {
                             emitVmEvent(ContentScreenVmEvent.Error(errorMessage = proofResult.errorMessage))
                         }
 
-                        is SubscriptionResult.Failure -> {
+                        is PurchaseResult.Failure -> {
                             emitVmEvent(ContentScreenVmEvent.Error())
                         }
                     }
                     currentSubscriptionParams = PremiumSubscriptionParams()
                 }
-            } else if (result is PurchaseResult.Failure) {
+            } else if (result is BillingPurchaseResult.Failure) {
                 emitVmEvent(ContentScreenVmEvent.Error())
                 currentSubscriptionParams = PremiumSubscriptionParams()
                 unhandledErrorUseCase(TAG, Error(result.errorMessage))

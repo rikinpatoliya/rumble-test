@@ -79,8 +79,8 @@ sealed class LiveChatEvent {
         @SerializedName("type")
         val eventType: LiveChatEventType,
         @SerializedName("data")
-        val data: PurchasedGiftData,
-    )
+        val data: GiftData,
+    ) : LiveChatEvent()
 
     data class GiftReceivedEvent(
         @SerializedName("request_id")
@@ -88,6 +88,6 @@ sealed class LiveChatEvent {
         @SerializedName("type")
         val eventType: LiveChatEventType,
         @SerializedName("data")
-        val data: ReceivedGiftData,
-    )
+        val data: GiftData,
+    ) : LiveChatEvent()
 }

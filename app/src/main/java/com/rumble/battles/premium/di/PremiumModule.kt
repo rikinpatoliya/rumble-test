@@ -1,10 +1,10 @@
 package com.rumble.battles.premium.di
 
-import com.rumble.domain.premium.model.datasource.SubscriptionRemoteDataSource
-import com.rumble.domain.premium.model.datasource.SubscriptionRemoteDataSourceImpl
-import com.rumble.domain.premium.model.repository.SubscriptionRepository
-import com.rumble.domain.premium.model.repository.SubscriptionRepositoryImpl
-import com.rumble.network.api.SubscriptionApi
+import com.rumble.domain.premium.model.datasource.PurchaseRemoteDataSource
+import com.rumble.domain.premium.model.datasource.PurchaseRemoteDataSourceImpl
+import com.rumble.domain.premium.model.repository.PurchaseRepository
+import com.rumble.domain.premium.model.repository.PurchaseRepositoryImpl
+import com.rumble.network.api.PurchaseApi
 import com.rumble.network.di.IoDispatcher
 import dagger.Module
 import dagger.Provides
@@ -19,18 +19,18 @@ object PremiumModule {
     @Provides
     @Singleton
     fun provideSubscriptionRemoteDataSource(
-        subscriptionApi: SubscriptionApi
-    ): SubscriptionRemoteDataSource =
-        SubscriptionRemoteDataSourceImpl(subscriptionApi)
+        purchaseApi: PurchaseApi
+    ): PurchaseRemoteDataSource =
+        PurchaseRemoteDataSourceImpl(purchaseApi)
 
     @Provides
     @Singleton
     fun provideSubscriptionRepository(
-        subscriptionRemoteDataSource: SubscriptionRemoteDataSource,
+        purchaseRemoteDataSource: PurchaseRemoteDataSource,
         @IoDispatcher dispatcher: CoroutineDispatcher
-    ) : SubscriptionRepository =
-        SubscriptionRepositoryImpl(
-            subscriptionRemoteDataSource,
+    ) : PurchaseRepository =
+        PurchaseRepositoryImpl(
+            purchaseRemoteDataSource,
             dispatcher
         )
 }

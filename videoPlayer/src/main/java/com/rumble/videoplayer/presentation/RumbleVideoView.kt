@@ -63,6 +63,7 @@ import com.rumble.videoplayer.presentation.internal.views.CountDownView
 import com.rumble.videoplayer.presentation.internal.views.LoadingScreen
 import com.rumble.videoplayer.presentation.internal.views.PreviewTagView
 import com.rumble.videoplayer.presentation.internal.views.ReplayScreen
+import com.rumble.videoplayer.presentation.utils.requestFocusSafely
 import kotlinx.coroutines.delay
 
 @Composable
@@ -138,7 +139,7 @@ fun RumbleVideoView(
             if ((playbackState is PlayerPlaybackState.Playing) and seekInProgress.not()) showControls =
                 false
         } else if (uiType == UiType.TV && playerTarget == PlayerTarget.LOCAL) {
-            focusRequester.requestFocus()
+            focusRequester.requestFocusSafely()
         }
 
         val keepOn =

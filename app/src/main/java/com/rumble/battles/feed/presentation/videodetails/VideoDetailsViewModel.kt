@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.paging.PagingData
+import com.android.billingclient.api.ProductDetails
 import com.google.android.gms.common.util.DeviceProperties
 import com.google.firebase.perf.metrics.Trace
 import com.rumble.analytics.CardSize

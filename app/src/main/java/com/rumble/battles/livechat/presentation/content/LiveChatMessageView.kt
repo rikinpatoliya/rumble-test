@@ -1,6 +1,7 @@
 package com.rumble.battles.livechat.presentation.content
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,8 @@ import com.rumble.theme.paddingXXXXSmall
 import com.rumble.theme.radiusMedium
 import com.rumble.utils.RumbleConstants.BADGE_RECURRING_SUBSCRIPTION
 import com.rumble.utils.extension.conditional
+import com.rumble.utils.extension.toChannelIdString
+import com.rumble.utils.extension.toUserIdString
 import java.time.LocalDateTime
 
 @Composable
@@ -37,6 +40,7 @@ fun LiveChatMessageView(
     liveChatConfig: LiveChatConfig?,
     onClick: (LiveChatMessageEntity) -> Unit,
     onLinkClick: (String) -> Unit,
+    onChannelClick: (String) -> Unit = {},
 ) {
     Box(
         modifier = modifier
@@ -65,7 +69,10 @@ fun LiveChatMessageView(
                     .padding(
                         start = paddingXXXXSmall,
                         end = paddingXSmall
-                    ),
+                    )
+                    .clickable {
+                        onChannelClick(messageEntity.channelId?.toChannelIdString() ?: messageEntity.userId.toUserIdString())
+                    },
                 profileImageComponentStyle = ProfileImageComponentStyle.CircleImageXSmallStyle(),
                 userName = messageEntity.userName,
                 userPicture = messageEntity.userThumbnail ?: ""

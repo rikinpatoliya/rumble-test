@@ -1,20 +1,20 @@
-package com.rumble.network.dto.supscription
+package com.rumble.network.dto.purchase
 
 import com.google.gson.annotations.SerializedName
 
-data class SubscriptionResponse(
+data class PurchaseResponse(
     @SerializedName("data")
-    val subscriptionData: SubscriptionData?,
+    val purchaseData: PurchaseData?,
     @SerializedName("errors")
-    val subscriptionErrors: List<SubscriptionError>?
+    val purchaseErrors: List<PurchaseError>?
 )
 
-data class SubscriptionData(
+data class PurchaseData(
     @SerializedName("success")
     val success: Boolean
 )
 
-data class SubscriptionError(
+data class PurchaseError(
     @SerializedName("code")
     val code: String,
     @SerializedName("message")

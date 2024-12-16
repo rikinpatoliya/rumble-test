@@ -1,9 +1,9 @@
 package com.rumble.domain.premium.model.repository
 
-import com.rumble.domain.premium.domain.domainmodel.SubscriptionResult
+import com.rumble.domain.premium.domain.domainmodel.PurchaseResult
 import com.rumble.network.queryHelpers.SubscriptionSource
 
-interface SubscriptionRepository {
+interface PurchaseRepository {
     suspend fun purchaseSubscription(
         productId: String,
         purchaseToken: String,
@@ -12,5 +12,12 @@ interface SubscriptionRepository {
         videoId: Long?,
         creatorId: String?,
         source: SubscriptionSource?,
-    ): SubscriptionResult
+    ): PurchaseResult
+
+    suspend fun purchaseGift(
+        productId: String,
+        purchaseToken: String,
+        appId: String,
+        videoId: Long
+    ): PurchaseResult
 }

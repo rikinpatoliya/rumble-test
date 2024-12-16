@@ -2,6 +2,7 @@ package com.rumble.domain.livechat.model
 
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.ChatMode
+import com.rumble.domain.livechat.domain.domainmodel.GiftPopupMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
@@ -14,6 +15,7 @@ import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
 import com.rumble.domain.livechat.domain.domainmodel.RaidMessageType
 import com.rumble.domain.livechat.domain.domainmodel.RantConfig
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
+import com.rumble.network.dto.livechat.GiftData
 import com.rumble.network.dto.livechat.LiveChatChannel
 import com.rumble.network.dto.livechat.LiveChatConfigRant
 import com.rumble.network.dto.livechat.LiveChatEvent
@@ -38,8 +40,9 @@ object LiveChatNetworkModelMapper {
     ): LiveChatResult =
         when (event) {
             is LiveChatEvent.LiveChatInitEvent -> {
-                val userBadges = event.data.users.find { it.id.toUserIdString() == currentUerId }?.badges
-                    ?: emptyList()
+                val userBadges =
+                    event.data.users.find { it.id.toUserIdString() == currentUerId }?.badges
+                        ?: emptyList()
                 val entities = event.data.messages.map { message ->
                     val user = event.data.users.find { it.id == message.userId }
                     val channel = event.data.channels.find { it.id == message.channelId }
@@ -59,7 +62,11 @@ object LiveChatNetworkModelMapper {
                         currentUserBadges = userBadges,
                         currencySymbol = CURRENCY,
                         channels = mapToLiveChatChannelEntity(event.data.channels),
-                        premiumGiftEntity = event.data.config.giftList?.let { mapToPremiumGiftEntity(it) },
+                        premiumGiftEntity = event.data.config.giftList?.let {
+                            mapToPremiumGiftEntity(
+                                it
+                            )
+                        },
                     )
                 LiveChatResult(
                     messageList = entities,
@@ -127,6 +134,18 @@ object LiveChatNetworkModelMapper {
                 )
             }
 
+            is LiveChatEvent.GiftPurchasedEvent -> {
+                LiveChatResult(
+                    messageList = listOf(createMessageEntity(event.data))
+                )
+            }
+
+            is LiveChatEvent.GiftReceivedEvent -> {
+                LiveChatResult(
+                    giftPopupMessageEntity = mapToGiftPopupMessageEntity(event.data)
+                )
+            }
+
             else -> LiveChatResult(success = false)
         }
 
@@ -154,6 +173,24 @@ object LiveChatNetworkModelMapper {
         isRaidMessage = message.raidNotification != null,
         raidMessageType = if (message.raidNotification != null) RaidMessageType.getRandomType() else null,
     )
+
+    private fun createMessageEntity(giftData: GiftData): LiveChatMessageEntity {
+        val userName = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.userName
+            ?: giftData.users.find { it.id.toLongOrNull() == giftData.userId }?.userName
+            ?: ""
+
+        val creatorUserName = giftData.creatorChannelId?.let { creatorChannelId ->
+            giftData.channels.find { it.id.toLongOrNull() == creatorChannelId }?.userName ?: ""
+        } ?: giftData.users.find { it.id.toLongOrNull() == giftData.creatorUserId }?.userName ?: ""
+
+        return LiveChatMessageEntity(
+            userId = giftData.userId,
+            userName = userName,
+            creatorUserName = creatorUserName,
+            giftsAmount = giftData.totalGifts,
+            giftType = PremiumGiftType.getByStringValue(giftData.giftType)
+        )
+    }
 
     private fun mapToRantConfig(rants: LiveChatConfigRant): RantConfig =
         RantConfig(
@@ -211,5 +248,16 @@ object LiveChatNetworkModelMapper {
                     giftsAmount = it.totalGifts,
                 )
             }
+        )
+
+    private fun mapToGiftPopupMessageEntity(giftData: GiftData) =
+        GiftPopupMessageEntity(
+            giftType = PremiumGiftType.getByStringValue(giftData.giftType),
+            giftAuthor = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.userName
+                ?: giftData.users.find { it.id.toLongOrNull() == giftData.userId }?.userName
+                ?: "",
+            giftAuthorImage = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.userName
+                ?: giftData.users.find { it.id.toLongOrNull() == giftData.userId }?.image
+                ?: "",
         )
 }

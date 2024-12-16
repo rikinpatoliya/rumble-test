@@ -7,7 +7,7 @@ import com.rumble.network.api.ChannelApi
 import com.rumble.network.api.DiscoverApi
 import com.rumble.network.api.ReportApi
 import com.rumble.network.api.SearchApi
-import com.rumble.network.api.SubscriptionApi
+import com.rumble.network.api.PurchaseApi
 import com.rumble.network.api.UserApi
 import com.rumble.network.api.VideoApi
 import com.rumble.network.deserializer.FeedItemDeserializer
@@ -154,8 +154,8 @@ object NetworkModule {
         retrofit.create(CameraApi::class.java)
 
     @Provides
-    fun provideSubscriptionApi(@NetworkRetrofit retrofit: Retrofit): SubscriptionApi =
-        retrofit.create(SubscriptionApi::class.java)
+    fun providePurchaseApi(@NetworkRetrofit retrofit: Retrofit): PurchaseApi =
+        retrofit.create(PurchaseApi::class.java)
 
     @Provides
     fun provideErrorBodyConverter(@NetworkRetrofit retrofit: Retrofit?): Converter<ResponseBody, ErrorResponse>? =

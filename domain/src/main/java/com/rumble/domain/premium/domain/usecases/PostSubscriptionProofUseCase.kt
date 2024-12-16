@@ -5,15 +5,15 @@ import com.appsflyer.AppsFlyerLib
 import com.rumble.domain.analytics.domain.usecases.RumbleErrorUseCase
 import com.rumble.domain.common.domain.usecase.RumbleUseCase
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscription
-import com.rumble.domain.premium.domain.domainmodel.SubscriptionResult
-import com.rumble.domain.premium.model.repository.SubscriptionRepository
+import com.rumble.domain.premium.domain.domainmodel.PurchaseResult
+import com.rumble.domain.premium.model.repository.PurchaseRepository
 import com.rumble.network.di.AppId
 import com.rumble.network.queryHelpers.SubscriptionSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class PostSubscriptionProofUseCase @Inject constructor(
-    private val subscriptionRepository: SubscriptionRepository,
+    private val purchaseRepository: PurchaseRepository,
     override val rumbleErrorUseCase: RumbleErrorUseCase,
     @AppId val appId: String,
     @ApplicationContext private val context: Context,
@@ -24,8 +24,8 @@ class PostSubscriptionProofUseCase @Inject constructor(
         videoId: Long?,
         creatorId: String?,
         source: SubscriptionSource?
-    ): SubscriptionResult {
-        val result = subscriptionRepository.purchaseSubscription(
+    ): PurchaseResult {
+        val result = purchaseRepository.purchaseSubscription(
             appId = appId,
             productId = PremiumSubscription.SUBSCRIPTION_ID,
             purchaseToken = purchaseToken,
@@ -34,7 +34,7 @@ class PostSubscriptionProofUseCase @Inject constructor(
             creatorId = creatorId,
             source = source,
         )
-        if (result is SubscriptionResult.Failure) {
+        if (result is PurchaseResult.Failure) {
             rumbleErrorUseCase(result.rumbleError)
         }
         return result

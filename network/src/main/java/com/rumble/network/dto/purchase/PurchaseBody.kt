@@ -1,13 +1,13 @@
-package com.rumble.network.dto.supscription
+package com.rumble.network.dto.purchase
 
 import com.google.gson.annotations.SerializedName
 
-data class SubscriptionBody(
+data class PurchaseBody(
     @SerializedName("data")
-    val data: SubscriptionBodyData
+    val data: PurchaseBodyData
 )
 
-data class SubscriptionBodyData(
+data class PurchaseBodyData(
     @SerializedName("platform")
     val platform: String = "android",
     @SerializedName("product_id")
@@ -16,12 +16,6 @@ data class SubscriptionBodyData(
     val purchaseToken: String,
     @SerializedName("package_name")
     val packageName: String,
-    @SerializedName("iid")
-    val installationId: String,
     @SerializedName("video_id")
-    val videoId: Long?,
-    @SerializedName("source")
-    val source: String?,
-    @SerializedName("creator_id")
-    val creatorId: String?
+    val videoId: Long,
 )

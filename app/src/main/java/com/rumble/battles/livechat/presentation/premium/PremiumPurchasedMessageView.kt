@@ -1,4 +1,4 @@
-package com.rumble.battles.premium.presentation
+package com.rumble.battles.livechat.presentation.premium
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +25,8 @@ import com.rumble.battles.commonViews.ProfileImageComponent
 import com.rumble.battles.commonViews.ProfileImageComponentStyle
 import com.rumble.battles.livechat.presentation.content.LiveChatContentView
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
+import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftType
 import com.rumble.theme.RumbleTheme
 import com.rumble.theme.RumbleTypography.h6Bold
 import com.rumble.theme.RumbleTypography.h6Light
@@ -36,12 +38,10 @@ import com.rumble.theme.paddingXSmall
 import com.rumble.theme.radiusSmall
 
 @Composable
-fun GiverMessageView(
+fun PremiumPurchasedMessageView(
     modifier: Modifier = Modifier,
-    channelName: String = "",
-    channelAvatar: String? = null,
+    messageEntity: LiveChatMessageEntity,
     badges: Map<String, BadgeEntity> = emptyMap(),
-    subscriptionsNumber: Int = 0,
 ) {
     Box(
         modifier = modifier
@@ -69,24 +69,21 @@ fun GiverMessageView(
             ProfileImageComponent(
                 modifier = Modifier.padding(paddingXSmall),
                 profileImageComponentStyle = ProfileImageComponentStyle.CircleImageMediumStyle(),
-                userName = channelName,
-                userPicture = channelAvatar ?: ""
+                userName = messageEntity.userName,
+                userPicture = messageEntity.userThumbnail ?: ""
             )
 
             Column {
                 LiveChatContentView(
-                    userName = channelName,
+                    userName = messageEntity.userName,
+                    userBadges = messageEntity.badges,
                     badges = badges,
                     userNameColor = enforcedWhite,
                     textStyle = h6Bold
                 )
 
                 Text(
-                    text = pluralStringResource(
-                        R.plurals.gifted_premium_subscriptions,
-                        subscriptionsNumber,
-                        subscriptionsNumber
-                    ),
+                    text = getMessageText(messageEntity),
                     color = enforcedWhite,
                     style = h6Light,
                 )
@@ -96,13 +93,55 @@ fun GiverMessageView(
 }
 
 @Composable
+private fun getMessageText(message: LiveChatMessageEntity): String =
+    when (message.giftType) {
+        PremiumGiftType.Rumble -> pluralStringResource(
+            R.plurals.gifted_premium_subscriptions,
+            message.giftsAmount ?: 0,
+            message.giftsAmount ?: 0,
+        )
+
+        PremiumGiftType.Premium -> pluralStringResource(
+            R.plurals.gifted_channel_premium_subscriptions,
+            message.giftsAmount ?: 0,
+            message.giftsAmount ?: 0,
+            message.creatorUserName ?: ""
+        )
+
+        else -> ""
+    }
+
+@Composable
 @Preview(showBackground = true)
-private fun Preview() {
+private fun PreviewRumblePremium() {
+    val message = LiveChatMessageEntity(
+        userName = "Test user name",
+        giftType = PremiumGiftType.Rumble,
+        giftsAmount = 10
+    )
+
     RumbleTheme {
-        GiverMessageView(
+        PremiumPurchasedMessageView(
             modifier = Modifier.width(400.dp),
-            channelName = "Test channel name",
-            subscriptionsNumber = 10,
+            messageEntity = message,
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewChannelPremium() {
+    val message = LiveChatMessageEntity(
+        userName = "Test user name",
+        giftType = PremiumGiftType.Premium,
+        giftsAmount = 10,
+        creatorUserName = "Creator"
+    )
+
+    RumbleTheme {
+        PremiumPurchasedMessageView(
+            modifier = Modifier.width(400.dp),
+            messageEntity = message,
         )
     }
 }

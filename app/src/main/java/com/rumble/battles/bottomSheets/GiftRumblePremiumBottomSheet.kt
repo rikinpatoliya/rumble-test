@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.android.billingclient.api.ProductDetails
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.DrawerCloseIndicatorView
@@ -57,6 +58,7 @@ fun GiftRumblePremiumBottomSheet(
     description: String?,
     imageUrl: String,
     verifiedBadge: Boolean,
+    onClick: (ProductDetails) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -135,7 +137,7 @@ fun GiftRumblePremiumBottomSheet(
             PremiumGiftItemView(
                 type = premiumGiftEntity.type,
                 premiumGiftDetails = giftDetails,
-                onClick = {}//TODO: WIP@Kostia
+                onClick = onClick
             )
         }
         Spacer(modifier = Modifier.height(paddingLarge))
@@ -146,7 +148,7 @@ fun GiftRumblePremiumBottomSheet(
 private fun PremiumGiftItemView(
     type: PremiumGiftType,
     premiumGiftDetails: PremiumGiftDetails,
-    onClick: (String) -> Unit,
+    onClick: (ProductDetails) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -158,7 +160,11 @@ private fun PremiumGiftItemView(
                 width = borderXXSmall,
                 shape = RoundedCornerShape(radiusSmall)
             )
-            .clickable { onClick(premiumGiftDetails.productId) },
+            .clickable {
+                premiumGiftDetails.productDetails?.let { productDetails ->
+                    onClick(productDetails)
+                }
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -177,10 +183,8 @@ private fun PremiumGiftItemView(
         Spacer(modifier = Modifier.weight(1f))
         ActionButton(
             modifier = Modifier.padding(end = paddingSmall),
-            text = String.format(
-                "${stringResource(R.string.dollar_sign)}%.2f",
-                premiumGiftDetails.priceCents / 100f
-            ),//TODO:WIP@Kostia to be revisited for price display source and handling
+            text = premiumGiftDetails.productDetails?.oneTimePurchaseOfferDetails?.formattedPrice
+                ?: "",
             contentModifier = Modifier
                 .padding(
                     top = paddingXSmall10,
@@ -194,7 +198,11 @@ private fun PremiumGiftItemView(
             backgroundColor = if (type == PremiumGiftType.Premium) rumbleGreen else brandedLocalsRed,
             borderColor = if (type == PremiumGiftType.Premium) rumbleGreen else brandedLocalsRed,
             textColor = if (type == PremiumGiftType.Premium) enforcedBlack else enforcedWhite,
-            onClick = { onClick(premiumGiftDetails.productId) },
+            onClick = {
+                premiumGiftDetails.productDetails?.let { productDetails ->
+                    onClick(productDetails)
+                }
+            },
             enabled = true,
         )
     }

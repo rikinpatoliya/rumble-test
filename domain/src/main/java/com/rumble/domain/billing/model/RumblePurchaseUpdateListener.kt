@@ -6,12 +6,12 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 
 interface PurchaseHandler {
-    fun onPurchaseFinished(result: PurchaseResult)
+    fun onPurchaseFinished(result: BillingPurchaseResult)
 }
 
-sealed class PurchaseResult {
-    data class Success(val purchaseToken: String) : PurchaseResult()
-    data class Failure(val errorMessage: String, val code: Int) : PurchaseResult()
+sealed class BillingPurchaseResult {
+    data class Success(val purchaseToken: String) : BillingPurchaseResult()
+    data class Failure(val errorMessage: String, val code: Int) : BillingPurchaseResult()
 }
 
 class RumblePurchaseUpdateListener : PurchasesUpdatedListener {
@@ -23,9 +23,9 @@ class RumblePurchaseUpdateListener : PurchasesUpdatedListener {
     ) {
         val token =  purchases?.first()?.purchaseToken
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&  token != null) {
-            handlers.forEach { it.onPurchaseFinished(PurchaseResult.Success(token)) }
+            handlers.forEach { it.onPurchaseFinished(BillingPurchaseResult.Success(token)) }
         } else {
-            handlers.forEach { it.onPurchaseFinished(PurchaseResult.Failure(mapBillingResultError(billingResult.responseCode), billingResult.responseCode)) }
+            handlers.forEach { it.onPurchaseFinished(BillingPurchaseResult.Failure(mapBillingResultError(billingResult.responseCode), billingResult.responseCode)) }
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.ProductDetails
 import com.rumble.analytics.IAP_FAILED
 import com.rumble.analytics.RantBuyButtonTapEvent
 import com.rumble.analytics.RantTermsLinkTapEvent
@@ -17,9 +18,10 @@ import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.RumbleErrorUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
 import com.rumble.domain.billing.domain.usecase.BuildProductDetailsParamsUseCase
+import com.rumble.domain.billing.domain.usecase.FetchGiftProductDetailsUseCase
 import com.rumble.domain.billing.domain.usecase.FetchRantProductDetailsUseCase
+import com.rumble.domain.billing.model.BillingPurchaseResult
 import com.rumble.domain.billing.model.PurchaseHandler
-import com.rumble.domain.billing.model.PurchaseResult
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CreatorEntity
 import com.rumble.domain.common.model.RumbleError
@@ -27,6 +29,7 @@ import com.rumble.domain.feed.domain.domainmodel.video.VideoEntity
 import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.DeleteMessageResult
 import com.rumble.domain.livechat.domain.domainmodel.EmoteEntity
+import com.rumble.domain.livechat.domain.domainmodel.GiftPopupMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatResult
@@ -85,6 +88,7 @@ interface LiveChatHandler {
     fun onRantClicked(rantEntity: RantEntity)
     fun onDismissBottomSheet()
     fun onReportRantTermsEvent()
+    fun onBuyGift(productDetails: ProductDetails)
     fun onBuyRant(pendingMessageInfo: PendingMessageInfo)
     fun onRantLevelSelected(rantLevel: RantLevel)
     fun onScrolledToBottom()
@@ -130,6 +134,7 @@ data class LiveChatState(
     val streamRaided: Boolean = false,
     val recentEmoteList: List<EmoteEntity> = emptyList(),
     val isLoadingMessages: Boolean = true,
+    val giftPopupMessageEntity: GiftPopupMessageEntity? = null,
 )
 
 sealed class LiveChatEvent {
@@ -160,6 +165,7 @@ sealed class LiveChatAlertReason : AlertDialogReason {
 @HiltViewModel
 class LiveChatViewModel @Inject constructor(
     private val fetchRantProductDetailsUseCase: FetchRantProductDetailsUseCase,
+    private val fetchGiftProductDetailsUseCase: FetchGiftProductDetailsUseCase,
     private val getUnreadMessageCountTextUseCase: GetUnreadMessageCountTextUseCase,
     private val getLiveChatEventsUseCase: GetLiveChatEventsUseCase,
     private val unhandledErrorUseCase: UnhandledErrorUseCase,
@@ -206,10 +212,10 @@ class LiveChatViewModel @Inject constructor(
         }
     }
 
-    override fun onPurchaseFinished(result: PurchaseResult) {
+    override fun onPurchaseFinished(result: BillingPurchaseResult) {
         if (purchaseInProgress) {
             purchaseInProgress = false
-            if (result is PurchaseResult.Success) {
+            if (result is BillingPurchaseResult.Success) {
                 viewModelScope.launch(errorHandler) {
                     state.value.rantSelected?.let {
                         emitEvent(LiveChatEvent.RantPurchaseSucceeded(it))
@@ -226,7 +232,7 @@ class LiveChatViewModel @Inject constructor(
                         }
                     }
                 }
-            } else if (result is PurchaseResult.Failure) {
+            } else if (result is BillingPurchaseResult.Failure) {
                 rumbleErrorUseCase(RumbleError(IAP_FAILED, result.errorMessage, result.code))
                 emitEvent(LiveChatEvent.Error())
             }
@@ -261,6 +267,19 @@ class LiveChatViewModel @Inject constructor(
 
     override fun onReportRantTermsEvent() {
         analyticsEventUseCase(RantTermsLinkTapEvent)
+    }
+
+    override fun onBuyGift(productDetails: ProductDetails) {
+        //TODO: WIP@Kostia iap purchase flow not implemented yet
+//        viewModelScope.launch(errorHandler) {
+//            purchaseInProgress = true
+//            emitEvent(
+//                LiveChatEvent.StartPurchase(
+//                    billingClient,
+//                    buildProductDetailsParamsUseCase(productDetails)
+//                )
+//            )
+//        }
     }
 
     override fun onBuyRant(pendingMessageInfo: PendingMessageInfo) {
@@ -536,6 +555,7 @@ class LiveChatViewModel @Inject constructor(
                             ?: false,
                         raidEntity = result.raidEntity ?: state.value.raidEntity,
                         isLoadingMessages = false,
+                        giftPopupMessageEntity = result.giftPopupMessageEntity,
                     )
                     if (result.raidEntity != null) startUpdateRaidTimeOut()
                     emitEvent(LiveChatEvent.ScrollLiveChat(max(messageList.size - 1, 0)))
@@ -559,6 +579,15 @@ class LiveChatViewModel @Inject constructor(
             ),
             recentEmoteList = fetchRecentEmoteListUseCase(config.emoteGroups ?: emptyList())
         )
+        config.premiumGiftEntity?.let { giftEntity ->
+            state.value = state.value.copy(
+                liveChatConfig = config.copy(
+                    premiumGiftEntity = giftEntity.copy(
+                        giftList = fetchGiftProductDetailsUseCase(giftEntity)
+                    )
+                )
+            )
+        }
     }
 
     private fun filterExistingMessages(
