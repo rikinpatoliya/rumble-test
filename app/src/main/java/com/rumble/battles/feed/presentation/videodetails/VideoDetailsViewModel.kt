@@ -13,7 +13,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.paging.PagingData
-import com.android.billingclient.api.ProductDetails
 import com.google.android.gms.common.util.DeviceProperties
 import com.google.firebase.perf.metrics.Trace
 import com.rumble.analytics.CardSize
@@ -176,6 +175,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onPlayListVideoClick(videoEntity: VideoEntity, videoNumber: Int)
     fun onPlayListVideoListUpdated(videoList: List<Feed>)
     fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
+    fun onGiftPurchaseSucceeded()
     fun onRantPurchaseSucceeded(rantLevel: RantLevel)
     fun onOpenBuyRantSheet()
     fun onGiftRumblePremiumSheet(premiumGiftEntity: PremiumGiftEntity)
@@ -290,6 +290,7 @@ sealed class VideoDetailsAlertReason : AlertDialogReason {
     data class ShowEmailVerificationSent(val email: String) : VideoDetailsAlertReason()
     data object ShowYourEmailNotVerifiedYet : VideoDetailsAlertReason()
     data class RestrictedContentReason(val videoEntity: VideoEntity) : VideoDetailsAlertReason()
+    data object GiftPurchaseSucceeded : VideoDetailsAlertReason()
 }
 
 sealed class VideoDetailsEvent {
@@ -1389,6 +1390,15 @@ class VideoDetailsViewModel @Inject constructor(
             } else {
                 state.value = state.value.copy(watchingNow = watchingNow)
             }
+        }
+    }
+
+    override fun onGiftPurchaseSucceeded() {
+        onDismissBottomSheet()
+        viewModelScope.launch(errorHandler) {
+            sessionManager.saveDisablePip(false)
+            alertDialogState.value =
+                AlertDialogState(true, VideoDetailsAlertReason.GiftPurchaseSucceeded)
         }
     }
 

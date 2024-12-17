@@ -49,6 +49,11 @@ internal fun PlayButton(
     val state = defineButtonState(uiType, isPlaying)
     val playerState by rumblePlayer.playbackState
 
+    // Hides play pause button when the player is buffering for a smoother UX that avoids overlaying the LoadingScreen that is usually shown at buffering state.
+    if (playerState.isBuffering) {
+        return
+    }
+
     LaunchedEffect(playerState) {
         if (uiType == UiType.TV) {
             if (rumblePlayer.isPlaying()) isPlaying = true

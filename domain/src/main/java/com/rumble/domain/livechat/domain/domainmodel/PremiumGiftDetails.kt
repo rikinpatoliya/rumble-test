@@ -1,6 +1,7 @@
 package com.rumble.domain.livechat.domain.domainmodel
 
 import com.android.billingclient.api.ProductDetails
+import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorEntity
 
 enum class PremiumGiftType {
     Rumble,
@@ -22,4 +23,9 @@ data class PremiumGiftDetails(
     val priceCents: Int,
     val giftsAmount: Int,
     val productDetails: ProductDetails? = null
+)
+
+data class GiftWithAuthorDetails(
+    val premiumGiftDetails: PremiumGiftDetails,
+    val authorEntity: CommentAuthorEntity?,
 )

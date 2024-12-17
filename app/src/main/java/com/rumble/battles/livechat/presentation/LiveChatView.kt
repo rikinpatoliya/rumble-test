@@ -30,6 +30,10 @@ fun LiveChatView(
                     handler.onRantPurchaseSucceeded(it.rantLevel)
                 }
 
+                is LiveChatEvent.GiftPurchaseSucceeded -> {
+                    handler.onGiftPurchaseSucceeded()
+                }
+
                 is LiveChatEvent.OpenModerationMenu -> {
                     handler.onOpenModerationMenu()
                 }

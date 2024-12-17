@@ -41,6 +41,7 @@ import com.rumble.battles.subscriptions.presentation.SubscriptionHandler
 import com.rumble.battles.videos.presentation.VideoOptionsHandler
 import com.rumble.domain.analytics.domain.usecases.AnalyticsEventUseCase
 import com.rumble.domain.analytics.domain.usecases.UnhandledErrorUseCase
+import com.rumble.domain.billing.domain.domainmodel.PurchaseType
 import com.rumble.domain.billing.model.BillingPurchaseResult
 import com.rumble.domain.billing.model.PurchaseHandler
 import com.rumble.domain.billing.model.RumblePurchaseUpdateListener
@@ -329,7 +330,7 @@ class ContentViewModel @Inject constructor(
         getUploadNotificationVideoUseCase()
     override val userUIState = MutableStateFlow(UserUIState())
     override var subscriptionList: List<PremiumSubscriptionData> = emptyList()
-    override val subscriptionUiState: State<SubscriptionUIState> = mutableStateOf(SubscriptionUIState())
+    override val subscriptionUiState: MutableState<SubscriptionUIState> = mutableStateOf(SubscriptionUIState())
     override val onboardingViewState: MutableStateFlow<OnboardingViewState> = MutableStateFlow(None)
     override val popupsListIndex = MutableStateFlow(0)
     override val discoverIconLocationState = MutableStateFlow(Offset.Zero)
@@ -355,7 +356,6 @@ class ContentViewModel @Inject constructor(
         unhandledErrorUseCase(TAG, throwable)
     }
 
-    private var purchaseInProgress: Boolean = false
     private var currentSubscriptionParams: PremiumSubscriptionParams = PremiumSubscriptionParams()
 
     init {
@@ -736,7 +736,8 @@ class ContentViewModel @Inject constructor(
         repostState.update {
             it.copy(
                 post = value,
-                repostError = value.count() > RumbleConstants.MAX_CHARACTERS_REPOST
+                repostMaxCharactersError = value.count() > RumbleConstants.MAX_CHARACTERS_REPOST,
+                repostMinCharactersError = value.count() < RumbleConstants.MIN_CHARACTERS_REPOST && value.isNotEmpty(),
             )
         }
     }
@@ -1167,8 +1168,10 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onPurchaseFinished(result: BillingPurchaseResult) {
-        if (purchaseInProgress) {
-            purchaseInProgress = false
+        if (subscriptionUiState.value.purchaseType == PurchaseType.Premium) {
+            subscriptionUiState.value = subscriptionUiState.value.copy(
+                purchaseType = PurchaseType.None
+            )
             if (result is BillingPurchaseResult.Success) {
                 viewModelScope.launch(errorHandler) {
                     currentSubscriptionParams.subscriptionData?.let {
@@ -1180,7 +1183,7 @@ class ContentViewModel @Inject constructor(
                         )
                     }
                     when (val proofResult = postSubscriptionProofUseCase(
-                        purchaseToken =  result.purchaseToken,
+                        purchaseToken = result.purchaseToken,
                         videoId = currentSubscriptionParams.videoId,
                         creatorId = currentSubscriptionParams.creatorId,
                         source = currentSubscriptionParams.source
@@ -1216,7 +1219,9 @@ class ContentViewModel @Inject constructor(
         viewModelScope.launch(errorHandler) {
             currentSubscriptionParams =
                 currentSubscriptionParams.copy(subscriptionData = premiumSubscriptionData)
-            purchaseInProgress = true
+            subscriptionUiState.value = subscriptionUiState.value.copy(
+                purchaseType = PurchaseType.Premium
+            )
             sessionManager.saveDisablePip(true)
             emitVmEvent(ContentScreenVmEvent.HideBottomSheetEvent)
             emitVmEvent(

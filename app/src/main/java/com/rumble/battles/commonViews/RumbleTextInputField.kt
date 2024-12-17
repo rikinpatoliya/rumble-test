@@ -36,6 +36,7 @@ fun RumbleTextInputField(
     label: String,
     maxLines: Int,
     maxCharacters: Int,
+    minCharacters: Int = 0,
     onValueChange: (String) -> Unit = {},
     hasError: Boolean = false,
     errorMessage: String = "",
@@ -85,7 +86,7 @@ fun RumbleTextInputField(
                 text = it
                 characters = getCharactersText(it, maxCharacters, defaultCharactersCountText)
                 charactersColor =
-                    getCharactersTextColor(it, maxCharacters, defaultCharactersCountTextColor)
+                    getCharactersTextColor(it, maxCharacters, minCharacters, defaultCharactersCountTextColor)
             },
             colors = TextFieldDefaults.textFieldColors(
                 textColor = MaterialTheme.colors.primary,
@@ -109,6 +110,7 @@ fun RumbleTextInputField(
                                 getCharactersTextColor(
                                     "",
                                     maxCharacters,
+                                    minCharacters,
                                     defaultCharactersCountTextColor
                                 )
                         },
@@ -144,9 +146,9 @@ private fun getCharactersText(text: String, maxCharacters: Int, default: String)
     }
 }
 
-private fun getCharactersTextColor(text: String, maxCharacters: Int, default: Color): Color {
+private fun getCharactersTextColor(text: String, maxCharacters: Int, minCharacters: Int, default: Color): Color {
     return when {
-        text.count() > maxCharacters -> fierceRed
+        text.count() > maxCharacters || text.count() < minCharacters -> fierceRed
         else -> default
     }
 }

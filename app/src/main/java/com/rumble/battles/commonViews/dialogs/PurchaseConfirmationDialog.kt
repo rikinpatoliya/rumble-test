@@ -8,7 +8,7 @@ import com.rumble.theme.RumbleTheme
 import com.rumble.theme.commentActionButtonWidth
 
 @Composable
-fun PremiumPurchaseConfirmationDialog(
+fun PurchaseConfirmationDialog(
     onDismiss: () -> Unit
 ) {
     RumbleAlertDialog(
@@ -31,7 +31,7 @@ fun PremiumPurchaseConfirmationDialog(
 @Preview
 private fun Preview() {
     RumbleTheme {
-        PremiumPurchaseConfirmationDialog {
+        PurchaseConfirmationDialog {
 
         }
     }

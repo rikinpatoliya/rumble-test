@@ -412,7 +412,7 @@ class RumblePlayer(
             setTimeRangeStartPosition()
             val cachedPosition = player.currentPosition
             player.setMediaItem(buildMediaItem(videoSource.videoUrl))
-            _playbackSate.value = PlayerPlaybackState.Playing(false)
+            _playbackSate.value = PlayerPlaybackState.Playing(true)
             player.prepare()
             player.playWhenReady = true
             player.seekTo(cachedPosition)
@@ -1096,7 +1096,6 @@ class RumblePlayer(
                                 sendErrorReport(errorMessage = "Player stalled error")
                                 PlayerPlaybackState.Playing(true)
                             }
-
                             is PlayerPlaybackState.Paused -> PlayerPlaybackState.Paused(true)
                             else -> _playbackSate.value
                         }

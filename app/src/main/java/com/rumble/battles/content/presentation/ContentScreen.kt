@@ -74,7 +74,7 @@ import com.rumble.battles.commonViews.dialogs.DeletePlayListConfirmationAlertDia
 import com.rumble.battles.commonViews.dialogs.DeleteWatchHistoryConfirmationAlertDialog
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
-import com.rumble.battles.commonViews.dialogs.PremiumPurchaseConfirmationDialog
+import com.rumble.battles.commonViews.dialogs.PurchaseConfirmationDialog
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.dialogs.UnfollowConfirmationAlertDialog
 import com.rumble.battles.commonViews.snackbar.RumbleSnackbarHost
@@ -735,7 +735,7 @@ private fun ContentScreenDialog(
         }
 
         is RumbleActivityAlertReason.PremiumPurchaseMade -> {
-            PremiumPurchaseConfirmationDialog {
+            PurchaseConfirmationDialog {
                 handler.onDismissDialog()
                 handler.onPremiumPurchased()
             }

@@ -217,7 +217,7 @@ fun RumbleVideoView(
                 thumbnail = rumblePlayer.videoThumbnailUri,
                 uiType = uiType,
                 isVisible = (playbackState is PlayerPlaybackState.Fetching)
-                    || (playbackState is PlayerPlaybackState.Paused && uiType == UiType.IN_LIST)
+                        || (playbackState is PlayerPlaybackState.Paused && uiType == UiType.IN_LIST) || playbackState.isBuffering
             )
 
             if (playbackState !is PlayerPlaybackState.Fetching && playerTarget != PlayerTarget.AD) {

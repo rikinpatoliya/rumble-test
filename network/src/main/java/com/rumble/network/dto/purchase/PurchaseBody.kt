@@ -18,4 +18,6 @@ data class PurchaseBodyData(
     val packageName: String,
     @SerializedName("video_id")
     val videoId: Long,
+    @SerializedName("channel_id")
+    val channelId: Long?,
 )

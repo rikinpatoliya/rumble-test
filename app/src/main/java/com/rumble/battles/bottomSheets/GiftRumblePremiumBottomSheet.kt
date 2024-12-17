@@ -58,7 +58,7 @@ fun GiftRumblePremiumBottomSheet(
     description: String?,
     imageUrl: String,
     verifiedBadge: Boolean,
-    onClick: (ProductDetails) -> Unit,
+    onClick: (PremiumGiftDetails) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -137,7 +137,9 @@ fun GiftRumblePremiumBottomSheet(
             PremiumGiftItemView(
                 type = premiumGiftEntity.type,
                 premiumGiftDetails = giftDetails,
-                onClick = onClick
+                onClick = {
+                    onClick(giftDetails)
+                }
             )
         }
         Spacer(modifier = Modifier.height(paddingLarge))
@@ -148,7 +150,7 @@ fun GiftRumblePremiumBottomSheet(
 private fun PremiumGiftItemView(
     type: PremiumGiftType,
     premiumGiftDetails: PremiumGiftDetails,
-    onClick: (ProductDetails) -> Unit,
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -160,11 +162,7 @@ private fun PremiumGiftItemView(
                 width = borderXXSmall,
                 shape = RoundedCornerShape(radiusSmall)
             )
-            .clickable {
-                premiumGiftDetails.productDetails?.let { productDetails ->
-                    onClick(productDetails)
-                }
-            },
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -198,11 +196,7 @@ private fun PremiumGiftItemView(
             backgroundColor = if (type == PremiumGiftType.Premium) rumbleGreen else brandedLocalsRed,
             borderColor = if (type == PremiumGiftType.Premium) rumbleGreen else brandedLocalsRed,
             textColor = if (type == PremiumGiftType.Premium) enforcedBlack else enforcedWhite,
-            onClick = {
-                premiumGiftDetails.productDetails?.let { productDetails ->
-                    onClick(productDetails)
-                }
-            },
+            onClick = onClick,
             enabled = true,
         )
     }

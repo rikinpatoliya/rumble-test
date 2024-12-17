@@ -23,6 +23,7 @@ interface RepostHandler {
 data class RepostScreenUIState(
     val videoEntity: VideoEntity? = null,
     val post: String = "",
-    val repostError: Boolean = false,
+    val repostMaxCharactersError: Boolean = false,
+    val repostMinCharactersError: Boolean = false,
     val selectedRepostChannelEntity: UserUploadChannelEntity = UserUploadChannelEntity(),
 )

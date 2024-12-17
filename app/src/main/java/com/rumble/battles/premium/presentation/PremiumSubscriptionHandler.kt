@@ -1,6 +1,7 @@
 package com.rumble.battles.premium.presentation
 
 import androidx.compose.runtime.State
+import com.rumble.domain.billing.domain.domainmodel.PurchaseType
 import com.rumble.domain.premium.domain.domainmodel.PremiumSubscriptionData
 import com.rumble.network.queryHelpers.SubscriptionSource
 
@@ -25,5 +26,6 @@ data class SubscriptionUIState(
     val memberSinceDate: String = "",
     val expirationDate: String = "",
     val paymentMethod: String = "",
-    val isSubscribedFromApple: Boolean = false
+    val isSubscribedFromApple: Boolean = false,
+    val purchaseType: PurchaseType = PurchaseType.None,
 )

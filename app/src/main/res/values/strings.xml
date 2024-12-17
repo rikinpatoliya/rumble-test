@@ -747,6 +747,7 @@
     <string name="error_message_repost_text_too_long">The repost text is too long</string>
     <string name="go_premium">Go Premium</string>
     <string name="reposted">Reposted</string>
+    <string name="error_message_repost_text_too_short">At least %d characters required</string>
 
     <!-- Deep Links -->
     <string name="deep_link_host">rumble-dev.onelink.me</string>

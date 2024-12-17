@@ -149,9 +149,11 @@ fun RepostVideoBottomSheet(
                     label = stringResource(id = R.string.post),
                     maxLines = 4,
                     maxCharacters = RumbleConstants.MAX_CHARACTERS_REPOST,
+                    minCharacters = RumbleConstants.MIN_CHARACTERS_REPOST,
                     onValueChange = { contentHandler.onRepostTextChanged(it) },
-                    hasError = state.repostError,
-                    errorMessage = stringResource(id = R.string.error_message_repost_text_too_long)
+                    hasError = state.repostMaxCharactersError || state.repostMinCharactersError,
+                    errorMessage = if (state.repostMaxCharactersError) stringResource(id = R.string.error_message_repost_text_too_long)
+                    else stringResource(id = R.string.error_message_repost_text_too_short,  RumbleConstants.MIN_CHARACTERS_REPOST),
                 )
                 Box(
                     modifier = Modifier
@@ -201,7 +203,7 @@ fun RepostVideoBottomSheet(
                     text = context.getString(R.string.repost),
                     textColor = enforcedDarkmo,
                     onClick = {
-                        if (state.repostError.not()) {
+                        if (state.repostMaxCharactersError.not() && state.repostMinCharactersError.not()) {
                             contentHandler.onRepost(
                                 videoId = videoEntity.id,
                                 channelId = state.selectedRepostChannelEntity.channelId,

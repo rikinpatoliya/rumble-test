@@ -53,12 +53,14 @@ class PurchaseRepositoryImpl(
         purchaseToken: String,
         appId: String,
         videoId: Long,
+        channelId: Long?
     ): PurchaseResult = withContext(dispatcher) {
         val bodyData = PurchaseBodyData(
             productId = productId,
             purchaseToken = purchaseToken,
             packageName = appId,
             videoId = videoId,
+            channelId = channelId,
         )
         val response =
             purchaseRemoteDataSource.purchaseGift(PurchaseBody(data = bodyData))

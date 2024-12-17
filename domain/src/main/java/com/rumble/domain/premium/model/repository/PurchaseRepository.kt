@@ -18,6 +18,7 @@ interface PurchaseRepository {
         productId: String,
         purchaseToken: String,
         appId: String,
-        videoId: Long
+        videoId: Long,
+        channelId: Long?
     ): PurchaseResult
 }

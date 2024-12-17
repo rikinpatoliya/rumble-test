@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName
  * Gets returned by all requests to the /service.php under the user key
  *
  * @param userId Optional. null if "logged_in" is false
- * @param isAdmin Optional.
  * @param debug Optional.
  *
  */
@@ -15,8 +14,6 @@ data class UserState(
     val userId: String?,
     @SerializedName("logged_in")
     val loggedIn: Boolean,
-    @SerializedName("admin")
-    val isAdmin: Boolean?,
     @SerializedName("debug")
     val debug: Debug?,
     @SerializedName("watching_now")

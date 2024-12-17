@@ -117,6 +117,7 @@ import com.rumble.battles.commonViews.ViewsNumberView
 import com.rumble.battles.commonViews.dialogs.AlertDialogReason
 import com.rumble.battles.commonViews.dialogs.DialogActionItem
 import com.rumble.battles.commonViews.dialogs.DialogActionType
+import com.rumble.battles.commonViews.dialogs.PurchaseConfirmationDialog
 import com.rumble.battles.commonViews.dialogs.RumbleAlertDialog
 import com.rumble.battles.commonViews.keyboardAsState
 import com.rumble.battles.content.presentation.BottomSheetContent
@@ -1778,7 +1779,9 @@ private fun BottomSheetDialog(
                 description = state.channelDetailsEntity?.description,
                 imageUrl = state.channelDetailsEntity?.thumbnail ?: "",
                 verifiedBadge = state.channelDetailsEntity?.verifiedBadge ?: false,
-                onClick = liveChatHandler::onBuyGift
+                onClick = { premiumGiftDetails ->
+                    liveChatHandler.onBuyGift(premiumGiftDetails, state.selectedLiveChatAuthor)
+                }
             )
         }
     }
@@ -1930,6 +1933,12 @@ private fun VideoDetailsDialog(reason: AlertDialogReason, handler: VideoDetailsH
                     )
                 )
             )
+        }
+
+        is VideoDetailsAlertReason.GiftPurchaseSucceeded -> {
+            PurchaseConfirmationDialog {
+                handler.onDismissDialog()
+            }
         }
     }
 }
