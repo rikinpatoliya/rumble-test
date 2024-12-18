@@ -1523,6 +1523,7 @@ class VideoDetailsViewModel @Inject constructor(
         if (state.value.isPlayListPlayBackMode)
             fetchPlayListWithVideos(playListId, shouldShufflePlayList, userIdFlow.first())
         fetchDetails(videoId)
+        initLiveChat(state.value.videoEntity)
         state.value.videoEntity?.let { videoEntity ->
             if (state.value.isPlayListPlayBackMode.not()) {
                 initVideoState(videoEntity)
@@ -1638,6 +1639,7 @@ class VideoDetailsViewModel @Inject constructor(
             startVideoLoadTimeTrace(videoId)
             state.value.rumblePlayer?.pauseVideo()
             fetchDetails(videoId)
+            initLiveChat(state.value.videoEntity)
             state.value.rumblePlayer?.let { player ->
                 state.value.videoEntity?.let { video ->
                     updateVideoPlayerSourceUseCase(
@@ -1754,7 +1756,6 @@ class VideoDetailsViewModel @Inject constructor(
                 repostedByUser = it.userRepost != null
             )
             onVideoPlayerImpression()
-            initLiveChat(it)
             if (state.value.lastBottomSheet == LastBottomSheet.COMMENTS && state.value.inComments)
                 onOpenComments()
         } ?: run {
@@ -1915,20 +1916,22 @@ class VideoDetailsViewModel @Inject constructor(
         )
     }
 
-    private suspend fun initLiveChat(videoEntity: VideoEntity) {
-        if (
-            (videoEntity.livestreamStatus == LiveStreamStatus.LIVE || videoEntity.livestreamStatus == LiveStreamStatus.OFFLINE)
-            && videoEntity.liveChatDisabled.not()
-        ) {
-            state.value = state.value.copy(
-                inLiveChat = (isPremiumUserFlow.first() || videoEntity.isPremiumExclusiveContent.not()) && state.value.inComments.not(),
-                lastBottomSheet = if (state.value.inComments) LastBottomSheet.COMMENTS else LastBottomSheet.LIVECHAT,
-                currentComment = "",
-                currentCursorPosition = 0,
-            )
-            emitVmEvent(VideoDetailsEvent.InitLiveChat(videoEntity))
-        } else {
-            emitVmEvent(VideoDetailsEvent.CloseLiveChat)
+    private suspend fun initLiveChat(videoEntity: VideoEntity?) {
+        videoEntity?.let {
+            if (
+                (videoEntity.livestreamStatus == LiveStreamStatus.LIVE || videoEntity.livestreamStatus == LiveStreamStatus.OFFLINE)
+                && videoEntity.liveChatDisabled.not()
+            ) {
+                state.value = state.value.copy(
+                    inLiveChat = (isPremiumUserFlow.first() || videoEntity.isPremiumExclusiveContent.not()) && state.value.inComments.not(),
+                    lastBottomSheet = if (state.value.inComments) LastBottomSheet.COMMENTS else LastBottomSheet.LIVECHAT,
+                    currentComment = "",
+                    currentCursorPosition = 0,
+                )
+                emitVmEvent(VideoDetailsEvent.InitLiveChat(videoEntity))
+            } else {
+                emitVmEvent(VideoDetailsEvent.CloseLiveChat)
+            }
         }
     }
 
@@ -1944,7 +1947,12 @@ class VideoDetailsViewModel @Inject constructor(
     private fun observePremiumState() {
         viewModelScope.launch {
             sessionManager.isPremiumUserFlow.distinctUntilChanged().collectLatest {
-                if (it) onReloadContent()
+                if (it) {
+                    state.value.videoEntity?.let { video ->
+                        fetchDetails(video.id)
+                        fetchChannelDetails(video.channelId)
+                    }
+                }
             }
         }
     }
