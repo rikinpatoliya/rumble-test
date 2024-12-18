@@ -1780,7 +1780,11 @@ private fun BottomSheetDialog(
                 imageUrl = state.channelDetailsEntity?.thumbnail ?: "",
                 verifiedBadge = state.channelDetailsEntity?.verifiedBadge ?: false,
                 onClick = { premiumGiftDetails ->
-                    liveChatHandler.onBuyGift(premiumGiftDetails, state.selectedLiveChatAuthor)
+                    liveChatHandler.onBuyGift(
+                        premiumGiftDetails,
+                        reason.premiumGiftEntity.type,
+                        state.selectedLiveChatAuthor
+                    )
                 }
             )
         }

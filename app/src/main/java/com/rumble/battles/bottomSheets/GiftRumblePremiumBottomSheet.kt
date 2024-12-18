@@ -22,7 +22,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.android.billingclient.api.ProductDetails
 import com.rumble.battles.R
 import com.rumble.battles.commonViews.ActionButton
 import com.rumble.battles.commonViews.DrawerCloseIndicatorView
@@ -115,7 +114,7 @@ fun GiftRumblePremiumBottomSheet(
                 bottom = paddingXSmall,
             ),
             text = stringResource(
-                if (premiumGiftEntity.type == PremiumGiftType.Premium)
+                if (premiumGiftEntity.type == PremiumGiftType.PremiumGift)
                     R.string.gift_rumble_premium
                 else
                     R.string.gift_1_month_channel_subscription_to_the_community
@@ -123,7 +122,7 @@ fun GiftRumblePremiumBottomSheet(
             style = h3,
             color = RumbleCustomTheme.colors.primary,
         )
-        if (premiumGiftEntity.type == PremiumGiftType.Premium) {
+        if (premiumGiftEntity.type == PremiumGiftType.PremiumGift) {
             Text(
                 modifier = Modifier.padding(
                     bottom = paddingXSmall10,
@@ -168,7 +167,7 @@ private fun PremiumGiftItemView(
         Text(
             modifier = Modifier.padding(paddingXXMedium),
             text = pluralStringResource(
-                if (type == PremiumGiftType.Premium)
+                if (type == PremiumGiftType.PremiumGift)
                     R.plurals.gift_x_premium_subs
                 else
                     R.plurals.gift_x_subs,
@@ -193,9 +192,9 @@ private fun PremiumGiftItemView(
             textModifier = Modifier
                 .padding(start = paddingXSmall),
             leadingIconPainter = painterResource(id = R.drawable.ic_gift),
-            backgroundColor = if (type == PremiumGiftType.Premium) rumbleGreen else brandedLocalsRed,
-            borderColor = if (type == PremiumGiftType.Premium) rumbleGreen else brandedLocalsRed,
-            textColor = if (type == PremiumGiftType.Premium) enforcedBlack else enforcedWhite,
+            backgroundColor = if (type == PremiumGiftType.PremiumGift) rumbleGreen else brandedLocalsRed,
+            borderColor = if (type == PremiumGiftType.PremiumGift) rumbleGreen else brandedLocalsRed,
+            textColor = if (type == PremiumGiftType.PremiumGift) enforcedBlack else enforcedWhite,
             onClick = onClick,
             enabled = true,
         )

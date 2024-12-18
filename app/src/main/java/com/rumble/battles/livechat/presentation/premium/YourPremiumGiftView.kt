@@ -156,7 +156,7 @@ fun YourPremiumGiftView(
 @Composable
 private fun getGiftDetails(giftType: PremiumGiftType) =
     when(giftType) {
-        PremiumGiftType.Rumble -> stringResource(R.string.one_month_rumble_subscription)
-        PremiumGiftType.Premium -> stringResource(R.string.one_month_channel_subscription)
+        PremiumGiftType.SubsGift -> stringResource(R.string.one_month_rumble_subscription)
+        PremiumGiftType.PremiumGift -> stringResource(R.string.one_month_channel_subscription)
     }
 

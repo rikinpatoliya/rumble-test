@@ -69,14 +69,18 @@ import com.rumble.domain.library.domain.usecase.GetPlayListUseCase
 import com.rumble.domain.library.domain.usecase.GetPlayListVideosUseCase
 import com.rumble.domain.livechat.domain.domainmodel.ChatMode
 import com.rumble.domain.livechat.domain.domainmodel.EmoteEntity
+import com.rumble.domain.livechat.domain.domainmodel.GiftPurchaseDetails
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatChannelEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageResult
 import com.rumble.domain.livechat.domain.domainmodel.LiveGateEntity
 import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
 import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftEntity
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftType
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
 import com.rumble.domain.livechat.domain.usecases.CalculateLiveGateCountdownValueUseCase
 import com.rumble.domain.livechat.domain.usecases.PostLiveChatMessageUseCase
+import com.rumble.domain.livechat.domain.usecases.SendGiftPremiumPurchasedEventUseCase
+import com.rumble.domain.livechat.domain.usecases.SendGiftSubsPurchasedEventUseCase
 import com.rumble.domain.livechat.domain.usecases.SendRantPurchasedEventUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTraceHasPreRollUseCase
 import com.rumble.domain.performance.domain.usecase.VideoLoadTimeTracePlayedPreRollUseCase
@@ -175,7 +179,7 @@ interface VideoDetailsHandler : CommentsHandler, SettingsBottomSheetHandler {
     fun onPlayListVideoClick(videoEntity: VideoEntity, videoNumber: Int)
     fun onPlayListVideoListUpdated(videoList: List<Feed>)
     fun updateChannelDetailsEntity(channelDetailsEntity: CreatorEntity)
-    fun onGiftPurchaseSucceeded()
+    fun onGiftPurchaseSucceeded(giftPurchaseDetails: GiftPurchaseDetails)
     fun onRantPurchaseSucceeded(rantLevel: RantLevel)
     fun onOpenBuyRantSheet()
     fun onGiftRumblePremiumSheet(premiumGiftEntity: PremiumGiftEntity)
@@ -368,6 +372,8 @@ class VideoDetailsViewModel @Inject constructor(
     private val application: Application,
     private val sessionManager: SessionManager,
     private val sendRantPurchasedEventUseCase: SendRantPurchasedEventUseCase,
+    private val sendGiftSubsPurchasedEventUseCase: SendGiftSubsPurchasedEventUseCase,
+    private val sendGiftPremiumPurchasedEventUseCase: SendGiftPremiumPurchasedEventUseCase,
     private val videoLoadTimeTraceStartUseCase: VideoLoadTimeTraceStartUseCase,
     private val videoLoadTimeTraceStopUseCase: VideoLoadTimeTraceStopUseCase,
     private val videoLoadTimeTraceHasPreRollUseCase: VideoLoadTimeTraceHasPreRollUseCase,
@@ -1393,10 +1399,23 @@ class VideoDetailsViewModel @Inject constructor(
         }
     }
 
-    override fun onGiftPurchaseSucceeded() {
+    override fun onGiftPurchaseSucceeded(giftPurchaseDetails: GiftPurchaseDetails) {
         onDismissBottomSheet()
         viewModelScope.launch(errorHandler) {
             sessionManager.saveDisablePip(false)
+            state.value.channelDetailsEntity?.let {
+                when (giftPurchaseDetails.premiumGiftType) {
+                    PremiumGiftType.SubsGift -> sendGiftSubsPurchasedEventUseCase(
+                        giftPurchaseDetails.premiumGiftDetails.priceCents,
+                        it.channelId
+                    )
+
+                    PremiumGiftType.PremiumGift -> sendGiftPremiumPurchasedEventUseCase(
+                        giftPurchaseDetails.premiumGiftDetails.priceCents,
+                        it.channelId
+                    )
+                }
+            }
             alertDialogState.value =
                 AlertDialogState(true, VideoDetailsAlertReason.GiftPurchaseSucceeded)
         }

@@ -95,13 +95,13 @@ fun PremiumPurchasedMessageView(
 @Composable
 private fun getMessageText(message: LiveChatMessageEntity): String =
     when (message.giftType) {
-        PremiumGiftType.Rumble -> pluralStringResource(
+        PremiumGiftType.SubsGift -> pluralStringResource(
             R.plurals.gifted_premium_subscriptions,
             message.giftsAmount ?: 0,
             message.giftsAmount ?: 0,
         )
 
-        PremiumGiftType.Premium -> pluralStringResource(
+        PremiumGiftType.PremiumGift -> pluralStringResource(
             R.plurals.gifted_channel_premium_subscriptions,
             message.giftsAmount ?: 0,
             message.giftsAmount ?: 0,
@@ -116,7 +116,7 @@ private fun getMessageText(message: LiveChatMessageEntity): String =
 private fun PreviewRumblePremium() {
     val message = LiveChatMessageEntity(
         userName = "Test user name",
-        giftType = PremiumGiftType.Rumble,
+        giftType = PremiumGiftType.SubsGift,
         giftsAmount = 10
     )
 
@@ -133,7 +133,7 @@ private fun PreviewRumblePremium() {
 private fun PreviewChannelPremium() {
     val message = LiveChatMessageEntity(
         userName = "Test user name",
-        giftType = PremiumGiftType.Premium,
+        giftType = PremiumGiftType.PremiumGift,
         giftsAmount = 10,
         creatorUserName = "Creator"
     )

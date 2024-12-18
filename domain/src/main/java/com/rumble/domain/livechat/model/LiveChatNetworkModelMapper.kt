@@ -244,7 +244,7 @@ object LiveChatNetworkModelMapper {
             giftList = giftList.productList.map {
                 PremiumGiftDetails(
                     productId = it.id,
-                    priceCents = it.amountCents,
+                    priceCents = BigDecimal(it.amountCents).movePointLeft(2),
                     giftsAmount = it.totalGifts,
                 )
             }

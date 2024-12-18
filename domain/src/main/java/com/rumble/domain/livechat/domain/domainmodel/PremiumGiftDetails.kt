@@ -2,14 +2,15 @@ package com.rumble.domain.livechat.domain.domainmodel
 
 import com.android.billingclient.api.ProductDetails
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorEntity
+import java.math.BigDecimal
 
 enum class PremiumGiftType {
-    Rumble,
-    Premium;
+    SubsGift,
+    PremiumGift;
 
     companion object {
         fun getByStringValue(stringValue: String): PremiumGiftType =
-            if (stringValue == "premium") Premium else Rumble
+            if (stringValue == "premium") PremiumGift else SubsGift
     }
 }
 
@@ -20,12 +21,13 @@ data class PremiumGiftEntity(
 
 data class PremiumGiftDetails(
     val productId: String,
-    val priceCents: Int,
+    val priceCents: BigDecimal,
     val giftsAmount: Int,
     val productDetails: ProductDetails? = null
 )
 
-data class GiftWithAuthorDetails(
+data class GiftPurchaseDetails(
     val premiumGiftDetails: PremiumGiftDetails,
+    val premiumGiftType: PremiumGiftType,
     val authorEntity: CommentAuthorEntity?,
 )

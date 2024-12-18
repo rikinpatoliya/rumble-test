@@ -31,7 +31,7 @@ import com.rumble.domain.livechat.domain.domainmodel.BadgeEntity
 import com.rumble.domain.livechat.domain.domainmodel.DeleteMessageResult
 import com.rumble.domain.livechat.domain.domainmodel.EmoteEntity
 import com.rumble.domain.livechat.domain.domainmodel.GiftPopupMessageEntity
-import com.rumble.domain.livechat.domain.domainmodel.GiftWithAuthorDetails
+import com.rumble.domain.livechat.domain.domainmodel.GiftPurchaseDetails
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatConfig
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatMessageEntity
 import com.rumble.domain.livechat.domain.domainmodel.LiveChatResult
@@ -42,6 +42,7 @@ import com.rumble.domain.livechat.domain.domainmodel.MuteUserResult
 import com.rumble.domain.livechat.domain.domainmodel.PaymentProofResult
 import com.rumble.domain.livechat.domain.domainmodel.PendingMessageInfo
 import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftDetails
+import com.rumble.domain.livechat.domain.domainmodel.PremiumGiftType
 import com.rumble.domain.livechat.domain.domainmodel.RaidEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantEntity
 import com.rumble.domain.livechat.domain.domainmodel.RantLevel
@@ -93,7 +94,11 @@ interface LiveChatHandler {
     fun onRantClicked(rantEntity: RantEntity)
     fun onDismissBottomSheet()
     fun onReportRantTermsEvent()
-    fun onBuyGift(premiumGiftDetails: PremiumGiftDetails, selectedAuthor: CommentAuthorEntity?)
+    fun onBuyGift(
+        premiumGiftDetails: PremiumGiftDetails,
+        premiumGiftType: PremiumGiftType,
+        selectedAuthor: CommentAuthorEntity?
+    )
     fun onBuyRant(pendingMessageInfo: PendingMessageInfo)
     fun onRantLevelSelected(rantLevel: RantLevel)
     fun onScrolledToBottom()
@@ -128,7 +133,7 @@ data class LiveChatState(
     val connectionState: InternetConnectionState = InternetConnectionState.CONNECTED,
     val pendingMessageInfo: PendingMessageInfo? = null,
     val rantSelected: RantLevel? = null,
-    val giftSelected: GiftWithAuthorDetails? = null,
+    val giftSelected: GiftPurchaseDetails? = null,
     val unreadMessageCount: Int = 0,
     val unreadMessageCountText: String = "",
     val pinnedMessage: LiveChatMessageEntity? = null,
@@ -153,7 +158,7 @@ sealed class LiveChatEvent {
         LiveChatEvent()
 
     data object ScrollToBottom : LiveChatEvent()
-    data object GiftPurchaseSucceeded : LiveChatEvent()
+    data class GiftPurchaseSucceeded(val giftPurchaseDetails: GiftPurchaseDetails) : LiveChatEvent()
     data class RantPurchaseSucceeded(val rantLevel: RantLevel) : LiveChatEvent()
     data object OpenModerationMenu : LiveChatEvent()
     data object HideModerationMenu : LiveChatEvent()
@@ -257,15 +262,15 @@ class LiveChatViewModel @Inject constructor(
         state.value = state.value.copy(purchaseType = PurchaseType.None)
         if (result is BillingPurchaseResult.Success) {
             viewModelScope.launch(errorHandler) {
-                state.value.giftSelected?.let { giftWithAuthorDetails ->
+                state.value.giftSelected?.let { giftPurchaseDetails ->
                     when (val proofResult = postGiftPurchaseProofUseCase(
-                        productId = giftWithAuthorDetails.premiumGiftDetails.productId,
+                        productId = giftPurchaseDetails.premiumGiftDetails.productId,
                         purchaseToken = result.purchaseToken,
                         videoId = currentVideo?.id ?: 0L,
-                        channelId = giftWithAuthorDetails.authorEntity?.channelId
+                        channelId = giftPurchaseDetails.authorEntity?.channelId
                     )) {
                         is PurchaseResult.Success -> {
-                            emitEvent(LiveChatEvent.GiftPurchaseSucceeded)
+                            emitEvent(LiveChatEvent.GiftPurchaseSucceeded(giftPurchaseDetails))
                         }
 
                         is PurchaseResult.PurchaseFailure -> {
@@ -314,14 +319,19 @@ class LiveChatViewModel @Inject constructor(
         analyticsEventUseCase(RantTermsLinkTapEvent)
     }
 
-    override fun onBuyGift(premiumGiftDetails: PremiumGiftDetails, selectedAuthor: CommentAuthorEntity?) {
+    override fun onBuyGift(
+        premiumGiftDetails: PremiumGiftDetails,
+        premiumGiftType: PremiumGiftType,
+        selectedAuthor: CommentAuthorEntity?
+    ) {
         premiumGiftDetails.productDetails?.let { productDetails ->
             viewModelScope.launch(errorHandler) {
                 sessionManager.saveDisablePip(true)
                 state.value = state.value.copy(
-                    giftSelected = GiftWithAuthorDetails(
-                        premiumGiftDetails,
-                        selectedAuthor
+                    giftSelected = GiftPurchaseDetails(
+                        premiumGiftDetails = premiumGiftDetails,
+                        premiumGiftType = premiumGiftType,
+                        authorEntity = selectedAuthor
                     ),
                     purchaseType = PurchaseType.Gift
                 )

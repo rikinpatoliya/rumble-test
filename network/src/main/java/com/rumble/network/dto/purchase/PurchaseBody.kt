@@ -16,6 +16,8 @@ data class PurchaseBodyData(
     val purchaseToken: String,
     @SerializedName("package_name")
     val packageName: String,
+    @SerializedName("iid")
+    val installationId: String,
     @SerializedName("video_id")
     val videoId: Long,
     @SerializedName("channel_id")

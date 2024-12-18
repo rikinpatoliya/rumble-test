@@ -67,7 +67,7 @@ fun SupportChannelBottomSheet(
         SupportChannelItemView(
             title = stringResource(R.string.gift_subscription),
             description = stringResource(
-                if (premiumGiftEntity.type == PremiumGiftType.Premium)
+                if (premiumGiftEntity.type == PremiumGiftType.PremiumGift)
                     R.string.gift_rumble_premium_subscriptions_to_community
                 else
                     R.string.gift_channel_subscriptions_to_community

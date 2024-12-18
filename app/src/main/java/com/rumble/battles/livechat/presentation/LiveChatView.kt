@@ -31,7 +31,7 @@ fun LiveChatView(
                 }
 
                 is LiveChatEvent.GiftPurchaseSucceeded -> {
-                    handler.onGiftPurchaseSucceeded()
+                    handler.onGiftPurchaseSucceeded(it.giftPurchaseDetails)
                 }
 
                 is LiveChatEvent.OpenModerationMenu -> {

@@ -52,6 +52,7 @@ class PurchaseRepositoryImpl(
         productId: String,
         purchaseToken: String,
         appId: String,
+        appsFlyerId: String,
         videoId: Long,
         channelId: Long?
     ): PurchaseResult = withContext(dispatcher) {
@@ -59,6 +60,7 @@ class PurchaseRepositoryImpl(
             productId = productId,
             purchaseToken = purchaseToken,
             packageName = appId,
+            installationId = appsFlyerId,
             videoId = videoId,
             channelId = channelId,
         )
