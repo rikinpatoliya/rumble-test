@@ -252,7 +252,8 @@ fun LiveChatViewContent(
                                         start = paddingXXXSmall,
                                         end = paddingXXXSmall,
                                     ),
-                                    messageEntity = message
+                                    messageEntity = message,
+                                    badges = liveChatState.liveChatConfig?.badges ?: emptyMap(),
                                 )
                             } else if (message.rantPrice != null) {
                                 RantMessageView(

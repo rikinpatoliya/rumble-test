@@ -1,6 +1,7 @@
 package com.rumble.battles.livechat.presentation.premium
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.rumble.battles.R
@@ -64,7 +64,9 @@ fun YourPremiumGiftView(
             append(giftPopupMessageEntity.giftAuthor)
         }
         withStyle(style = regularStyle) {
+            append(" ")
             append(stringResource(R.string.gifted_you_a))
+            append(" ")
         }
         withStyle(style = boldStyle) {
             append(getGiftDetails(giftPopupMessageEntity.giftType))
@@ -73,8 +75,8 @@ fun YourPremiumGiftView(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(paddingXXSmall)
             .clip(RoundedCornerShape(radiusSmall))
+            .background(RumbleCustomTheme.colors.background)
             .border(
                 color = RumbleCustomTheme.colors.backgroundHighlight,
                 width = borderXXSmall,
@@ -129,7 +131,7 @@ fun YourPremiumGiftView(
                     },
                     profileImageComponentStyle = ProfileImageComponentStyle.CircleImageXXXMediumStyle(),
                     userName = giftPopupMessageEntity.giftAuthor,
-                    userPicture = giftPopupMessageEntity.giftAuthorImage,
+                    userPicture = giftPopupMessageEntity.giftAuthorImage ?: "",
                 )
                 Image(
                     modifier = Modifier
@@ -146,8 +148,6 @@ fun YourPremiumGiftView(
                 modifier = Modifier.padding(start = paddingXSmall10),
                 text = styledText,
                 color = MaterialTheme.colors.primary,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
             )
         }
     }

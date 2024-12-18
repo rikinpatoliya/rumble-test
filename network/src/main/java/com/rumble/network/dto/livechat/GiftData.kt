@@ -9,7 +9,7 @@ class GiftData(
     val giftType: String,
     @SerializedName("total_gifts")
     val totalGifts: Int?,
-    @SerializedName("total_gifts")
+    @SerializedName("creator_user_id")
     val creatorUserId: Long,
     @SerializedName("creator_channel_id")
     val creatorChannelId: Long?,

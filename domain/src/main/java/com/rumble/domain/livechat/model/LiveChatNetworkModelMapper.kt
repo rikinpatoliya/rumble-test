@@ -136,7 +136,12 @@ object LiveChatNetworkModelMapper {
 
             is LiveChatEvent.GiftPurchasedEvent -> {
                 LiveChatResult(
-                    messageList = listOf(createMessageEntity(event.data))
+                    messageList = listOf(
+                        createMessageEntity(
+                            requestId = event.requestId,
+                            giftData = event.data,
+                        )
+                    )
                 )
             }
 
@@ -174,7 +179,7 @@ object LiveChatNetworkModelMapper {
         raidMessageType = if (message.raidNotification != null) RaidMessageType.getRandomType() else null,
     )
 
-    private fun createMessageEntity(giftData: GiftData): LiveChatMessageEntity {
+    private fun createMessageEntity(requestId: String, giftData: GiftData): LiveChatMessageEntity {
         val userName = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.userName
             ?: giftData.users.find { it.id.toLongOrNull() == giftData.userId }?.userName
             ?: ""
@@ -184,6 +189,7 @@ object LiveChatNetworkModelMapper {
         } ?: giftData.users.find { it.id.toLongOrNull() == giftData.creatorUserId }?.userName ?: ""
 
         return LiveChatMessageEntity(
+            messageId = requestId.hashCode().toLong(),
             userId = giftData.userId,
             userName = userName,
             creatorUserName = creatorUserName,
@@ -244,20 +250,25 @@ object LiveChatNetworkModelMapper {
             giftList = giftList.productList.map {
                 PremiumGiftDetails(
                     productId = it.id,
-                    priceCents = BigDecimal(it.amountCents).movePointLeft(2),
+                    priceCents = it.amountCents,
                     giftsAmount = it.totalGifts,
                 )
             }
         )
 
-    private fun mapToGiftPopupMessageEntity(giftData: GiftData) =
-        GiftPopupMessageEntity(
-            giftType = PremiumGiftType.getByStringValue(giftData.giftType),
-            giftAuthor = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.userName
+    private fun mapToGiftPopupMessageEntity(giftData: GiftData): GiftPopupMessageEntity {
+        val giftAuthor = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.userName
                 ?: giftData.users.find { it.id.toLongOrNull() == giftData.userId }?.userName
-                ?: "",
-            giftAuthorImage = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.userName
+                ?: ""
+
+        val giftAuthorImage = giftData.channels.find { it.id.toLongOrNull() == giftData.userId }?.image
                 ?: giftData.users.find { it.id.toLongOrNull() == giftData.userId }?.image
-                ?: "",
+                ?: ""
+
+        return GiftPopupMessageEntity(
+            giftType = PremiumGiftType.getByStringValue(giftData.giftType),
+            giftAuthor = giftAuthor,
+            giftAuthorImage = giftAuthorImage,
         )
+    }
 }

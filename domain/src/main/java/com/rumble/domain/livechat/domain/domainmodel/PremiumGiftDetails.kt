@@ -2,7 +2,6 @@ package com.rumble.domain.livechat.domain.domainmodel
 
 import com.android.billingclient.api.ProductDetails
 import com.rumble.domain.channels.channeldetails.domain.domainmodel.CommentAuthorEntity
-import java.math.BigDecimal
 
 enum class PremiumGiftType {
     SubsGift,
@@ -21,7 +20,7 @@ data class PremiumGiftEntity(
 
 data class PremiumGiftDetails(
     val productId: String,
-    val priceCents: BigDecimal,
+    val priceCents: Int,
     val giftsAmount: Int,
     val productDetails: ProductDetails? = null
 )

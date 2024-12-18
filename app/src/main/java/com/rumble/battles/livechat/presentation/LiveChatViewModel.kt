@@ -51,6 +51,7 @@ import com.rumble.domain.livechat.domain.usecases.FetchRecentEmoteListUseCase
 import com.rumble.domain.livechat.domain.usecases.GetLiveChatEventsUseCase
 import com.rumble.domain.livechat.domain.usecases.GetRantListUseCase
 import com.rumble.domain.livechat.domain.usecases.GetUnreadMessageCountTextUseCase
+import com.rumble.domain.livechat.domain.usecases.HandlePremiumGiftUseCase
 import com.rumble.domain.livechat.domain.usecases.InitAtMentionUseCase
 import com.rumble.domain.livechat.domain.usecases.MuteUserUseCase
 import com.rumble.domain.livechat.domain.usecases.PinMessageUseCase
@@ -200,6 +201,7 @@ class LiveChatViewModel @Inject constructor(
     private val updateChannelEmoteLockStateUseCase: UpdateChannelEmoteLockStateUseCase,
     private val saveRecentEmoteUseCase: SaveRecentEmoteUseCase,
     private val fetchRecentEmoteListUseCase: FetchRecentEmoteListUseCase,
+    private val handlePremiumGiftUseCase: HandlePremiumGiftUseCase,
 ) : ViewModel(), LiveChatHandler, PurchaseHandler {
 
     private var currentVideo: VideoEntity? = null
@@ -622,6 +624,7 @@ class LiveChatViewModel @Inject constructor(
                         isLoadingMessages = false,
                         giftPopupMessageEntity = result.giftPopupMessageEntity,
                     )
+                    handlePremiumGiftUseCase(result.giftPopupMessageEntity)
                     if (result.raidEntity != null) startUpdateRaidTimeOut()
                     emitEvent(LiveChatEvent.ScrollLiveChat(max(messageList.size - 1, 0)))
                 }

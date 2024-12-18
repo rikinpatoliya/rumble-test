@@ -2,9 +2,11 @@ package com.rumble.battles.livechat.presentation.premium
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -35,6 +37,7 @@ import com.rumble.theme.enforcedGray500
 import com.rumble.theme.enforcedWhite
 import com.rumble.theme.imageXXXMedium
 import com.rumble.theme.paddingXSmall
+import com.rumble.theme.paddingXXXSmall
 import com.rumble.theme.radiusSmall
 
 @Composable
@@ -45,6 +48,7 @@ fun PremiumPurchasedMessageView(
 ) {
     Box(
         modifier = modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(radiusSmall))
             .background(
                 Brush.horizontalGradient(
@@ -73,7 +77,7 @@ fun PremiumPurchasedMessageView(
                 userPicture = messageEntity.userThumbnail ?: ""
             )
 
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(paddingXXXSmall)) {
                 LiveChatContentView(
                     userName = messageEntity.userName,
                     userBadges = messageEntity.badges,

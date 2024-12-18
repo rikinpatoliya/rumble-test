@@ -421,6 +421,7 @@ class VideoDetailsViewModel @Inject constructor(
         }
 
         observeLoginState()
+        observePremiumState()
     }
 
     override fun onShowEmoteSelector() {
@@ -1936,6 +1937,14 @@ class VideoDetailsViewModel @Inject constructor(
             sessionManager.cookiesFlow.distinctUntilChanged().collectLatest {
                 state.value = state.value.copy(isLoggedIn = it.isNotEmpty())
                 if (it.isNotEmpty()) fetchUserProfile()
+            }
+        }
+    }
+
+    private fun observePremiumState() {
+        viewModelScope.launch {
+            sessionManager.isPremiumUserFlow.distinctUntilChanged().collectLatest {
+                if (it) onReloadContent()
             }
         }
     }
