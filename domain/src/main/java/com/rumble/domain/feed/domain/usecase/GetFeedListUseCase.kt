@@ -94,8 +94,10 @@ class GetFeedListUseCase @Inject constructor(
                 }
             }
             .map { pagingData ->
-                pagingData.insertSeparators { before, after ->
-                    if (premiumBannerInjectUseCase(before, after, numberOfColumns, isPremium)) {
+                var index = -1
+                pagingData.insertSeparators { _, _ ->
+                    index++
+                    if (premiumBannerInjectUseCase(index, numberOfColumns, isPremium)) {
                         PremiumBanner
                     } else null
                 }
