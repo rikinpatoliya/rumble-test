@@ -46,6 +46,7 @@ interface LibraryHandler {
     val state: StateFlow<LibraryUiState>
     fun onFocusedPlayList(selection: ListSelectionType)
     fun onFocusVideo(video: VideoEntity?)
+    fun refreshPlayList()
     val eventFlow: MutableSharedFlow<LibraryVmEvent>
 }
 
@@ -92,6 +93,11 @@ class LibraryViewModel @Inject constructor(
 
     override fun onFocusVideo(video: VideoEntity?) {
         state.value = state.value.copy(focusedVideo = video)
+    }
+
+    override fun refreshPlayList(){
+        loadPlaylist()
+        loadSelectedPlaylistVideos()
     }
 
     private fun loadSelectedPlaylistVideos() {

@@ -149,6 +149,9 @@ fun LibraryScreen(
     val videoListItems: LazyPagingItems<Feed> = state.videoList.collectAsLazyPagingItems()
     val playLists: LazyPagingItems<PlayListEntity> = state.playLists.collectAsLazyPagingItems()
 
+
+    print("test videoListItemsx`"+videoListItems.itemCount)
+
     val libraryItems = listOf(
         LibraryCollection.WatchHistory,
         LibraryCollection.WatchLater,
@@ -395,6 +398,7 @@ fun LibraryScreen(
                         onClick = {
                             viewModel.onFocusVideo(null)
                             videoListItems.refresh()
+                            viewModel.refreshPlayList()
                         },
                         contentPadding = PaddingValues(0.dp),
                         colors = ButtonDefaults.colors(
@@ -442,8 +446,8 @@ fun LibraryScreen(
                             Text(
                                 text = pluralStringResource(
                                     id = R.plurals.videos_count,
-                                    count = it.playListEntity.videosQuantity,
-                                    it.playListEntity.videosQuantity
+                                    count = videoListItems.itemCount,
+                                    videoListItems.itemCount
                                 ),
                                 maxLines = 1,
                                 color = enforcedBone,
