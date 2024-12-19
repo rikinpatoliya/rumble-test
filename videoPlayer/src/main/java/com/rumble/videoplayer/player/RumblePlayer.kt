@@ -699,6 +699,7 @@ class RumblePlayer(
             player.prepare()
             player.playWhenReady = true
             player.seekTo(0)
+            onPlayNextCountChanged(playNextCount)
             trackTimeRange()
         } catch(e: Exception) {
             _playbackSate.value = PlayerPlaybackState.Error()
